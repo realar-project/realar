@@ -14,6 +14,7 @@
     "build": "npx rollup -c",
     "clean": "npx rimraf ./release && npx rimraf ./coverage",
     "dev": "npx rollup -cw",
+    "publish": "npm run lerna:publish",
     "test": "npx jest --coverage --passWithNoTests",
     "lerna:reset": "npm run lerna:clean && npx lerna clean --yes && npm run lerna:bootstrap",
     "lerna:update": "npx lerna bootstrap --no-ci",
