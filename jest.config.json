@@ -1,0 +1,11 @@
+{
+  "rootDir": ".",
+  "setupFiles": ["<rootDir>/jest.setup-once.ts"],
+  "testMatch": [
+    "<rootDir>/tests/**/*.ts*"
+  ],
+  "moduleNameMapper": {
+    "~/(.*)$": "<rootDir>/src/$1"
+  },
+  "verbose": true
+}

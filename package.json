@@ -1,0 +1,75 @@
+{
+  "name": "realar",
+  "version": "0.0.0",
+  "description": "My favorite React state management",
+  "repository": {
+    "url": "https://github.com/betula/realar"
+  },
+  "bugs": {
+    "url": "https://github.com/betula/realar/issues"
+  },
+  "license": "MIT",
+  "scripts": {
+    "bootstrap": "npm run lerna:bootstrap",
+    "build": "npx rollup -c",
+    "clean": "npx rimraf ./release && npx rimraf ./coverage",
+    "dev": "npx rollup -cw",
+    "test": "npx jest --coverage --passWithNoTests",
+    "lerna:reset": "npm run lerna:clean && npx lerna clean --yes && npm run lerna:bootstrap",
+    "lerna:update": "npx lerna bootstrap --no-ci",
+    "lerna:bootstrap": "npx lerna bootstrap --no-ci && npm run lerna:build && npm run lerna:test",
+    "lerna:build": "npx lerna run build",
+    "lerna:test": "npx lerna run test",
+    "lerna:clean": "npx lerna run clean",
+    "lerna:publish": "npm run lerna:clean && npm run lerna:build && npm run lerna:test && npx lerna publish"
+  },
+  "author": "Slava Bereza <mail@betula.co> (http://betula.co)",
+  "keywords": [
+    "state",
+    "model",
+    "functional",
+    "reactive",
+    "state management",
+    "data flow",
+    "hook",
+    "hooks",
+    "react-hooks"
+  ],
+  "source": "./src/index.ts",
+  "main": "./release/index.js",
+  "module": "./release/index.esm.js",
+  "types": "./release/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "/release"
+  ],
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "devDependencies": {
+    "@babel/core": "7.10.2",
+    "@babel/plugin-proposal-class-properties": "7.10.1",
+    "@babel/plugin-proposal-object-rest-spread": "7.10.1",
+    "@babel/preset-env": "7.10.2",
+    "@babel/preset-react": "7.10.1",
+    "@babel/preset-typescript": "7.10.1",
+    "@rollup/plugin-babel": "5.0.3",
+    "@rollup/plugin-node-resolve": "8.0.1",
+    "@types/enzyme": "3.10.5",
+    "@types/enzyme-adapter-react-16": "1.0.6",
+    "@types/jest": "26.0.0",
+    "@types/node": "14.0.13",
+    "@types/react": "16.9.36",
+    "@types/react-dom": "16.9.8",
+    "enzyme": "3.11.0",
+    "enzyme-adapter-react-16": "1.15.2",
+    "jest": "26.0.1",
+    "lerna": "3.22.1",
+    "react": "16.13.1",
+    "react-dom": "16.13.1",
+    "rollup": "2.16.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
