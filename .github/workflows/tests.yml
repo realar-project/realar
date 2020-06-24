@@ -26,13 +26,13 @@ jobs:
       - run: node --version
       - run: npm --version
 
-      - name: Install npm dependencies
-        run: npm run lerna:update
+      - name: Install
+        run: npm run lerna:ci
 
-      - name: Run build
+      - name: Build
         run: npm run lerna:build
 
-      - name: Run tests
+      - name: Test
         run: npm run lerna:test
 
       - name: Coveralls
