@@ -1,11 +1,8 @@
 {
   "rootDir": ".",
-  "setupFiles": ["<rootDir>/jest.setup-once.ts"],
+  "setupFiles": ["<rootDir>/jest.setup-once.js"],
   "testMatch": [
-    "<rootDir>/tests/**/*.ts*"
+    "<rootDir>/tests/**/*.js"
   ],
-  "moduleNameMapper": {
-    "~/(.*)$": "<rootDir>/src/$1"
-  },
   "verbose": true
 }

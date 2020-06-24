@@ -1,8 +1,13 @@
 {
   "version": "0.0.0",
   "packages": [
-    "."
+    ".",
+    "./stories/*"
   ],
+  "hoist": true,
   "npmClient": "npm",
+  "npmClientArgs": [
+    "--no-package-lock"
+  ],
   "loglevel": "verbose"
 }

@@ -1,48 +1,6 @@
-# Realar
-My beloved React micro frontends :heart_eyes:
+import React from "react"
+import { mount } from "enzyme"
 
-[![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar?style=flat-square)](https://bundlephobia.com/result?p=realar) [![build status](https://img.shields.io/github/workflow/status/betula/realar/Tests?style=flat-square)](https://github.com/betula/realar/actions?workflow=Tests) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar)
-
-
-Perfect usage :+1: [on codesandbox](https://codesandbox.io/s/black-wood-t4533)
-
-```javascript
-import React from "react";
-import { unit, useUnit } from "realar";
-
-const Ticker = unit({
-  current: 0,
-  after: 2,
-  get next() {
-    return this.current + 1;
-  },
-  tick() {
-    this.current += 1;
-  },
-  synchronize() {
-    this.after = this.next + 1;
-  }
-});
-
-export default function App() {
-  const { current, next, after, tick } = useUnit(Ticker);
-  return (
-    <>
-      <h1>Realar ticker</h1>
-      <p>Current: {current}</p>
-      <p>Next: {next}</p>
-      <p>After: {after}</p>
-      <p>
-        <button onClick={tick}>tick</button>
-      </p>
-    </>
-  );
-}
-```
-Crazy usage :stuck_out_tongue_winking_eye: [on codesandbox](https://codesandbox.io/s/ecstatic-field-q1due)
-
-```javascript
-import React from "react";
 import {
   unit,
   useService,
@@ -54,7 +12,7 @@ import {
   useUnit,
   Zone,
   Service
-} from "realar";
+} from "..";
 
 const MaxBoost = action();
 const GetUser = chan();
@@ -139,7 +97,7 @@ function App() {
   );
 }
 
-export default function Root() {
+function Root() {
   return (
     <>
       <Zone>
@@ -151,12 +109,17 @@ export default function Root() {
     </>
   );
 }
-```
 
-### Install
+test("should work", () => {
+  const el = mount(<Root/>);
+  const click = (i) => el.find("button").at(i).simulate("click");
+  const text = (i) => el.find("p").at(i).text();
 
-```bash
-npm i --save realar
-# or
-yarn add realar
-```
+  expect(text(0)).toBe("Current: 0");
+  expect(text(1)).toBe("Next: 1");
+  expect(text(2)).toBe("After: 2");
+  click(0);
+  expect(text(0)).toBe("Current: 1");
+  expect(text(1)).toBe("Next: 2");
+  expect(text(2)).toBe("After: 3");
+});
