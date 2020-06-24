@@ -1,8 +1,6 @@
 # Realar
-My beloved React micro frontends :heart_eyes:
 
-[![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar?style=flat-square)](https://bundlephobia.com/result?p=realar) [![build status](https://img.shields.io/github/workflow/status/betula/realar/Tests?style=flat-square)](https://github.com/betula/realar/actions?workflow=Tests) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar)
-
+[![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://badgen.net/bundlephobia/minzip/realar@0.0.1?style=flat-square)](https://bundlephobia.com/result?p=realar@0.0.1) [![build status](https://img.shields.io/github/workflow/status/betula/realar/Tests?style=flat-square)](https://github.com/betula/realar/actions?workflow=Tests) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar)
 
 Perfect usage :+1: [on codesandbox](https://codesandbox.io/s/black-wood-t4533)
 
