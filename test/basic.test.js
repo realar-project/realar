@@ -93,9 +93,7 @@ const ticker = unit({
       x10();
     }
   },
-  [counter](val) {
-    this.current = val;
-  },
+  [counter]: val => (this.current = val),
   [backend_proc](val) {
     this.backend_proc = val;
   }
