@@ -1,5 +1,5 @@
 import React from "react"
-import renderer from "react-test-renderer";
+import { mount } from "enzyme";
 
 import {
   action,
@@ -169,7 +169,6 @@ export function Root() {
 }
 
 test("should work", () => {
-  const component = renderer.create(<Root />);
-  let tree = component.toJSON();
-  expect(tree).toMatchSnapshot();
+  const el = mount(<Root/>);
+  expect(el.html()).toMatchSnapshot();
 });

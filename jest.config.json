@@ -1,3 +1,6 @@
 {
+  "setupFiles": [
+    "<rootDir>/jest-setup.js"
+  ],
   "snapshotResolver": "<rootDir>/jest-snapshot-resolver.js"
 }
