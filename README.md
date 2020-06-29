@@ -12,7 +12,7 @@ yarn add realar
 
 ### Usage
 
-Perfect usage :+1: [on codesandbox](https://codesandbox.io/s/black-wood-t4533)
+Perfect usage :+1:
 
 ```javascript
 import React from "react";
@@ -47,7 +47,7 @@ export default function App() {
   );
 }
 ```
-Crazy usage :stuck_out_tongue_winking_eye: [on codesandbox](https://codesandbox.io/s/ecstatic-field-q1due)
+Crazy usage :stuck_out_tongue_winking_eye:
 
 ```javascript
 import React from "react";
