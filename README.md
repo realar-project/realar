@@ -83,10 +83,13 @@ const logger = unit({
 const backend = unit({
   proc: 0,
   async [GetUser](id) {
-    backend_proc(++this.proc);
+    this.proc++;
     const res = await new Promise(r => setTimeout(() => r("John Doe " + id), 1000));
-    backend_proc(--this.proc);
+    this.proc--;
     return res;
+  },
+  synchronize() {
+    if (changed(this.proc)) backend_proc(this.proc);
   }
 });
 
