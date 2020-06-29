@@ -27,8 +27,9 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
-# test
+# jest
 /coverage
 
-# build
-/compiled
+# parcel
+/dist
+.cache

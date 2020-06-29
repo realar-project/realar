@@ -1,7 +1,7 @@
 {
   "name": "realar",
   "version": "0.0.1",
-  "description": "My beloved React micro frontends",
+  "description": "Next generation frontends",
   "repository": {
     "url": "https://github.com/betula/realar"
   },
@@ -10,21 +10,18 @@
   },
   "license": "MIT",
   "scripts": {
-    "bootstrap": "npm run lerna:bootstrap",
-    "build": "npx rollup -c",
-    "clean": "npx rimraf ./compiled && npx rimraf ./coverage",
-    "dev": "npx rollup -cw",
-    "publish": "npm run lerna:publish",
-    "test": "npx jest --coverage",
-    "lerna:reset": "npm run lerna:clean && npm run lerna:bootstrap",
-    "lerna:ci": "npx lerna bootstrap --no-ci",
-    "lerna:bootstrap": "npx lerna bootstrap --no-ci && npm run build && npm run test",
-    "lerna:clean": "npx lerna run clean && npx lerna clean --yes",
-    "lerna:publish": "npm run clean && npm run build && npm run test && npx lerna publish",
-    "lerna:build": "npx lerna run build",
-    "lerna:test": "npx lerna run test"
+    "bootstrap": "npx lerna bootstrap --no-ci",
+    "clean": "npm run test:clean && npm run dev:clean && lerna clean --yes",
+    "publish": "npm run test && lerna publish",
+    "start": "npm run bootstrap && npm run dev",
+    "test": "REALAR_DEV=true jest --coverage",
+    "test:clean": "jest --clearCache && rimraf coverage",
+    "reset": "npm run clean && npm run bootstrap",
+    "dev": "REALAR_DEV=true NODE_ENV=development parcel ./dev/index.html",
+    "dev:build": "REALAR_DEV=true parcel build ./dev/index.html",
+    "dev:clean": "rimraf dist .cache"
   },
-  "author": "Slava Bereza <mail@betula.co> (http://betula.co)",
+  "author": "Slava Birch <mail@betula.co> (http://betula.co)",
   "keywords": [
     "state",
     "model",
@@ -32,16 +29,15 @@
     "state management",
     "data flow",
     "react hooks",
-    "micro frontends"
+    "micro frontends",
+    "next"
   ],
-  "source": "./lib/index.js",
-  "main": "./compiled/index.js",
-  "module": "./compiled/index.esm.js",
-  "types": "./lib.d.ts",
-  "sideEffects": false,
+  "module": "./lib/index.js",
+  "types": "./lib/index.d.ts",
   "files": [
-    "/compiled",
-    "/lib.d.ts"
+    "/lib",
+    "/babel",
+    "/jest"
   ],
   "peerDependencies": {
     "react": ">=16.8.0"
@@ -50,15 +46,19 @@
     "@babel/core": "7.10.3",
     "@babel/preset-env": "7.10.3",
     "@babel/preset-react": "7.10.1",
-    "@rollup/plugin-babel": "5.0.4",
-    "enzyme": "3.11.0",
-    "enzyme-adapter-react-16": "1.15.2",
+    "babel-jest": "26.1.0",
     "jest": "26.1.0",
     "lerna": "3.22.1",
+    "parcel-bundler": "1.12.4",
     "react": "16.13.1",
     "react-dom": "16.13.1",
-    "rollup": "2.18.0"
+    "react-test-renderer": "16.13.1",
+    "rimraf": "3.0.2"
   },
+  "browserslist": [
+    "last 2 Chrome versions"
+  ],
+  "sideEffects": false,
   "publishConfig": {
     "access": "public"
   }

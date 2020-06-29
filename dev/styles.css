@@ -1,0 +1,42 @@
+@import url("https://fonts.googleapis.com/css2?family=PT+Sans&display=swap");
+
+body {
+  font-family: "PT Sans", sans-serif;
+  background-color: #000;
+  color: rgb(196, 196, 196);
+}
+button {
+  font-family: "PT Sans", sans-serif;
+  background-color: #000;
+  color: rgb(202, 202, 202);
+  border: 1px dashed rgb(241, 133, 44);
+  outline: 0;
+  cursor: pointer;
+  margin: 0 3px;
+}
+button:hover {
+  border: 1px solid rgb(241, 133, 44);
+}
+#root {
+  display: flex;
+}
+#root > div {
+  margin: 0 20px;
+  width: 180px;
+}
+p {
+  margin: 0 0 3px 0;
+}
+textarea {
+  font-family: "PT Sans", sans-serif;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  resize: none;
+  height: 8em;
+  width: 100%;
+  outline: none;
+  background-color: #000;
+  color: rgb(196, 196, 196);
+  border-color: rgba(255,255,255, .3);
+}

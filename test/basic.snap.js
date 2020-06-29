@@ -1,0 +1,68 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should work 1`] = `
+Array [
+  <button
+    onClick={[Function]}
+  >
+    -
+  </button>,
+  <div>
+    <p>
+      Current: 
+      -1
+      <button
+        onClick={[Function]}
+      >
+        next
+      </button>
+      <button
+        onClick={[Function]}
+      >
+        save
+      </button>
+    </p>
+    <p>
+      Next: 
+      0
+    </p>
+    <p>
+      After: 
+      1
+    </p>
+    <p>
+      Step: 
+      1
+      <button
+        onClick={[Function]}
+      >
+        inc
+      </button>
+    </p>
+    <p>
+      User: 
+      not loaded
+    </p>
+    <p>
+      Backend: 
+      idle
+    </p>
+    <p>
+      <button
+        onClick={[Function]}
+      >
+        load
+      </button>
+    </p>
+  </div>,
+  <button
+    onClick={[Function]}
+  >
+    +
+  </button>,
+  <textarea
+    readOnly={true}
+    value=""
+  />,
+]
+`;

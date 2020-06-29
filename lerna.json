@@ -1,8 +1,7 @@
 {
   "version": "0.0.1",
   "packages": [
-    ".",
-    "./stories/*"
+    "."
   ],
   "hoist": true,
   "npmClient": "npm",

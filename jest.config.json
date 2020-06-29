@@ -1,8 +1,3 @@
 {
-  "rootDir": ".",
-  "setupFiles": ["<rootDir>/jest.setup-once.js"],
-  "testMatch": [
-    "<rootDir>/tests/**/*.js"
-  ],
-  "verbose": true
+  "snapshotResolver": "<rootDir>/jest-snapshot-resolver.js"
 }
