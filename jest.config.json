@@ -2,5 +2,11 @@
   "setupFiles": [
     "<rootDir>/jest-setup.js"
   ],
-  "snapshotResolver": "<rootDir>/jest-snapshot-resolver.js"
+  "setupFilesAfterEnv": [
+    "<rootDir>/jest/env.js"
+  ],
+  "snapshotResolver": "<rootDir>/jest-snapshot-resolver.js",
+  "modulePathIgnorePatterns": [
+    "<rootDir>/lib/"
+  ]
 }

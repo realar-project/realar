@@ -1,6 +1,6 @@
 import { signal, signal_listen, extract_id } from "../lib/signal";
 
-test("should fire only once for non changed value", () => {
+test("should fix: signal run twice for same value", () => {
   const s = signal(1);
   const spy = jest.fn();
   signal_listen(extract_id(s), spy);

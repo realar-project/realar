@@ -1,7 +1,9 @@
 const
-  fn = require("jest").fn;
-  lib_name = process.env.REALAR_DEV ? "../lib" : "realar",
-  { mock, unmock } = require(lib_name);
+  jest_mock_ns = require("jest-mock"),
+  { mock, unmock } = require("../lib");
+
+let
+  spy_factory = jest_mock_ns.fn.bind(jest_mock_ns);
 
 module.exports = {
   mock: jest_mock,
@@ -9,5 +11,5 @@ module.exports = {
 }
 
 function jest_mock(unit) {
-  return mock(unit, null, fn);
+  return mock(unit, null, spy_factory);
 }

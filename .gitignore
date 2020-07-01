@@ -33,3 +33,7 @@ lerna-debug.log*
 # parcel
 /dist
 .cache
+
+# todo
+lib/.todo.md
+
