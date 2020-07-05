@@ -2,7 +2,7 @@ import React from "react"
 import { mount } from "enzyme";
 
 import {
-  action,
+  event,
   call,
   changed,
   service,
@@ -14,8 +14,9 @@ import {
   Zone
 } from "../lib";
 
-const log = action();
-const x10 = action();
+const backend_async_init = event();
+const log = event();
+const x10 = event();
 const GetUser = call();
 const counter = signal(-1);
 const backend_proc = signal(0);
@@ -40,6 +41,13 @@ const backend = unit({
   },
   synchronize() {
     if (changed(this.proc)) backend_proc(this.proc);
+  },
+  construct() {
+    this.async_init();
+  },
+  async async_init() {
+    await new Promise(r => setTimeout(r, 2000));
+    backend_async_init();
   }
 });
 
@@ -54,6 +62,13 @@ const user = unit({
     this.proc++;
     this.name = await GetUser(++this.id);
     this.proc--;
+  },
+  construct() {
+    this.async_construct();
+  },
+  async async_construct() {
+    await backend_async_init;
+    log("user", this.id, "backend_async_init");
   }
 });
 
