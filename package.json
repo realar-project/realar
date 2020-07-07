@@ -11,15 +11,20 @@
   "license": "MIT",
   "scripts": {
     "bootstrap": "npx lerna bootstrap --no-ci",
-    "clean": "npm run test:clean && npm run dev:clean && lerna clean --yes",
+    "clean": "npm run test:clean && npm run dev:clean && npm run wasm:clean && lerna clean --yes",
     "publish": "npm run test && lerna publish",
     "start": "npm run bootstrap && npm run dev",
     "test": "cross-env REALAR_DEV=true jest --coverage",
     "test:clean": "jest --clearCache && rimraf coverage",
     "reset": "npm run clean && npm run bootstrap",
-    "dev": "cross-env REALAR_DEV=true NODE_ENV=development parcel ./dev/index.html",
-    "dev:build": "cross-env REALAR_DEV=true parcel build ./dev/index.html",
-    "dev:clean": "rimraf dist .cache"
+    "dev": "cd dev && cross-env REALAR_DEV=true NODE_ENV=development parcel index.html --port 1210",
+    "dev:build": "cd dev && cross-env REALAR_DEV=true parcel build index.html",
+    "dev:clean": "cd dev && rimraf dist .cache",
+    "wasm:dev": "cd wasm/dev && cross-env REALAR_DEV=true NODE_ENV=development parcel index.html --port 1211",
+    "wasm:clean": "cd wasm/dev && rimraf dist .cache",
+    "wasm:compile": "wat2wasm wasm/lib/index.wat -o wasm/dev/index.wasm",
+    "wasm:watch": "watch \"npm run wasm:compile\" wasm/lib",
+    "wasm": "concurrently --kill-others \"npm run wasm:watch\" \"npm run wasm:dev\""
   },
   "author": "Slava Birch <mail@betula.co> (http://betula.co)",
   "keywords": [
@@ -47,6 +52,7 @@
     "@babel/preset-env": "7.10.3",
     "@babel/preset-react": "7.10.1",
     "babel-jest": "26.1.0",
+    "concurrently": "5.2.0",
     "cross-env": "7.0.2",
     "enzyme": "3.11.0",
     "enzyme-adapter-react-16": "1.15.2",
@@ -56,7 +62,8 @@
     "parcel-bundler": "1.12.4",
     "react": "16.13.1",
     "react-dom": "16.13.1",
-    "rimraf": "3.0.2"
+    "rimraf": "3.0.2",
+    "watch": "1.0.2"
   },
   "browserslist": [
     "last 2 Chrome versions"
