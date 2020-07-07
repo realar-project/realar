@@ -1,7 +1,28 @@
 (module
-  (func $add (param $lhs1 i32) (param $rhs i32) (result i32)
-    local.get $lhs1
-    local.get $rhs
+  (import "env" "memory" (memory 1))
+
+  (func $set_create (result i32)
+    i32.const 2)
+  (func $set_add (param $id i32) (param $n i32) (result i32)
+    local.get $id
+    local.get $n
     i32.add)
-  (export "add" (func $add))
+  (func $set_has (param $id i32) (param $n i32) (result i32)
+    local.get $id
+    local.get $n
+    i32.add)
+  (func $set_delete (param $id i32) (param $n i32) (result i32)
+    local.get $id
+    local.get $n
+    i32.add)
+  (func $set_extract (param $id i32) (result i32)
+    local.get $id
+    local.get $id
+    i32.add)
+
+  (export "set_create" (func $set_create))
+  (export "set_add" (func $set_add))
+  (export "set_has" (func $set_has))
+  (export "set_delete" (func $set_delete))
+  (export "set_extract" (func $set_extract))
 )
