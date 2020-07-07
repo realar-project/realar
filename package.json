@@ -21,9 +21,7 @@
     "dev:build": "cd dev && cross-env REALAR_DEV=true parcel build index.html",
     "dev:clean": "cd dev && rimraf dist .cache",
     "wasm:dev": "cd wasm/dev && node index.js",
-    "wasm:clean": "cd wasm/dev && rimraf *.wasm",
-    "wasm:compile": "wat2wasm wasm/lib/index.wat -o wasm/dev/index.wasm",
-    "wasm": "watch \"npm run wasm:compile && npm run wasm:dev\" wasm/lib"
+    "wasm": "watch \"npm run wasm:dev\" wasm"
   },
   "author": "Slava Birch <mail@betula.co> (http://betula.co)",
   "keywords": [
@@ -61,6 +59,7 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "rimraf": "3.0.2",
+    "wabt": "1.0.17",
     "watch": "1.0.2"
   },
   "browserslist": [
