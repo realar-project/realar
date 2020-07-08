@@ -27,7 +27,8 @@ async function main(wasm_buffer) {
     set_add,
     set_has,
     set_delete,
-    set_extract
+    set_extract,
+    set_free
   } = wasm_instance.exports;
 
   const id = set_create();
