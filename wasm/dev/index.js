@@ -31,13 +31,14 @@ async function main(wasm_buffer) {
     set_has,
     set_delete,
     set_free,
+    set_size,
     seq_id_init
   } = wasm_instance.exports;
 
   function set_extract(id) {
     const [ len ] = new Uint32Array(memory.buffer, id, 1);
     const values = new Uint32Array(memory.buffer, id + 4, len);
-    console.log("EXTRACT:", id, len, [...values]);
+    console.log("EXTRACT:", id, len, [...values], set_size(id));
   }
 
   seq_id_init();

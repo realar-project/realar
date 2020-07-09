@@ -644,6 +644,7 @@
   (export "set_add" (func $set_add))
   (export "set_has" (func $set_has))
   (export "set_delete" (func $set_delete))
+  (export "set_size" (func $set_size))
   (export "set_free" (func $set_free))
   (export "seq_id_init" (func $seq_id_init))
 )
