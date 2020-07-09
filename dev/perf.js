@@ -1,6 +1,5 @@
 import React, { useCallback, useRef } from "react";
 import { unit, useUnit, Zone } from "../lib";
-import { set_create } from "../lib/wasm";
 
 export {
   App
@@ -112,9 +111,6 @@ function App() {
   if (timestamp.current) {
     time = Date.now() - timestamp.current;
   }
-
-  console.log(set_create());
-  console.log(set_create());
 
 	return (
     <Zone>

@@ -10,6 +10,7 @@
   ;; [1..size) - ordered set of unsigned i32
 
   (func $seq_id_init
+    ;; TODO: Replace to data section with initial values
     (i32.store
       (i32.const 4) ;; Seq Id address
       (i32.const 0)
