@@ -1,5 +1,6 @@
 import React, { useCallback, useRef } from "react";
-import { unit, useUnit } from "../lib";
+import { unit, useUnit, Zone } from "../lib";
+import { set_create } from "../lib/wasm";
 
 export {
   App
@@ -112,14 +113,17 @@ function App() {
     time = Date.now() - timestamp.current;
   }
 
+  console.log(set_create());
+  console.log(set_create());
+
 	return (
-    <>
+    <Zone>
       <h3>Realar performance test</h3>
       <p>Input: {inp}</p>
       <p>Output: {out}</p>
       <p><button onClick={start}>tick</button> {time} ms</p>
       <p>Init time {init_time} ms</p>
-    </>
+    </Zone>
 	);
 }
 
