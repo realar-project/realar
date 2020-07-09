@@ -9,11 +9,41 @@
   ;; 0 - size
   ;; [1..size) - ordered set of unsigned i32
 
+  (func $seq_id_init
+    (i32.store
+      (i32.const 4) ;; Seq Id address
+      (i32.const 0)
+    )
+  )
+
+  (func $seq_id_next (result i32)
+    (local $id i32)
+    (local.set $id
+      (i32.add
+        (i32.load
+          (i32.const 4)
+        )
+        (i32.const 1)
+      )
+    )
+    (i32.store
+      (i32.const 4)
+      (local.get $id)
+    )
+    (local.get $id)
+  )
+
   (func $set_create (result i32)
     (local $id i32)
-    (local.set $id (i32.const  4))
+    (local.set $id
+      (i32.shl
+        (call $seq_id_next)
+        ;; Each set 128 bytes by default
+        (i32.const 7)
+      )
+    )
     (i32.store (local.get $id) (i32.const 0))
-    local.get $id
+    (local.get $id)
   )
 
   (func $set_add (param $id i32) (param $n i32)
@@ -615,4 +645,5 @@
   (export "set_has" (func $set_has))
   (export "set_delete" (func $set_delete))
   (export "set_free" (func $set_free))
+  (export "seq_id_init" (func $seq_id_init))
 )

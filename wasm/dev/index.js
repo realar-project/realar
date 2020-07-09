@@ -30,7 +30,8 @@ async function main(wasm_buffer) {
     set_add,
     set_has,
     set_delete,
-    set_free
+    set_free,
+    seq_id_init
   } = wasm_instance.exports;
 
   function set_extract(id) {
@@ -39,33 +40,43 @@ async function main(wasm_buffer) {
     console.log("EXTRACT:", id, len, [...values]);
   }
 
-  const id = set_create();
-  console.log("SET CREATE", id);
+  seq_id_init();
 
-  set_add(id, 10);
-  set_add(id, 15);
-  set_add(id, 10);
-  set_add(id, 0);
-  set_add(id, 2);
-  set_extract(id);
+  function make() {
+    const id = set_create();
+    console.log("SET CREATE", id);
 
-  console.log("HAS:", 10, set_has(id, 10));
-  console.log("HAS:", 15, set_has(id, 15));
-  console.log("HAS:", 0, set_has(id, 0));
-  console.log("HAS:", 2, set_has(id, 2));
-  console.log("HAS:", 5, set_has(id, 5));
+    set_add(id, 10);
+    set_add(id, 15);
+    set_add(id, 10);
+    set_add(id, 0);
+    set_add(id, 2);
+    set_extract(id);
 
-  console.log("DELETE:", 10, set_delete(id, 10));
-  set_extract(id);
-  console.log("DELETE:", 2, set_delete(id, 2));
-  set_extract(id);
-  console.log("DELETE:", 15, set_delete(id, 15));
-  set_extract(id);
-  console.log("DELETE:", 5, set_delete(id, 5));
-  set_extract(id);
-  console.log("DELETE:", 0, set_delete(id, 0));
-  set_extract(id);
+    console.log("HAS:", 10, set_has(id, 10));
+    console.log("HAS:", 15, set_has(id, 15));
+    console.log("HAS:", 0, set_has(id, 0));
+    console.log("HAS:", 2, set_has(id, 2));
+    console.log("HAS:", 5, set_has(id, 5));
 
-  set_extract(id);
-  set_free(id);
+    console.log("DELETE:", 10, set_delete(id, 10));
+    set_extract(id);
+    console.log("DELETE:", 2, set_delete(id, 2));
+    set_extract(id);
+    console.log("DELETE:", 15, set_delete(id, 15));
+    set_extract(id);
+    console.log("DELETE:", 5, set_delete(id, 5));
+    set_extract(id);
+    console.log("DELETE:", 0, set_delete(id, 0));
+    set_extract(id);
+
+    set_extract(id);
+    set_free(id);
+  }
+
+  make();
+  console.log("---");
+  make();
+  console.log("---");
+  make();
 }
