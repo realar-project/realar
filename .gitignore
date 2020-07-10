@@ -31,9 +31,6 @@ lerna-debug.log*
 /coverage
 
 # parcel
-/dist
+dist
 .cache
-
-# todo
-lib/.todo.md
 

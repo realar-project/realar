@@ -14,12 +14,16 @@
     "clean": "npm run test:clean && npm run dev:clean && lerna clean --yes",
     "publish": "npm run test && lerna publish",
     "start": "npm run bootstrap && npm run dev",
+    "reinstall": "npm run clean && npm run bootstrap",
     "test": "cross-env REALAR_DEV=true jest --coverage",
     "test:clean": "jest --clearCache && rimraf coverage",
     "reset": "npm run clean && npm run bootstrap",
-    "dev": "cross-env REALAR_DEV=true NODE_ENV=development parcel ./dev/index.html",
-    "dev:build": "cross-env REALAR_DEV=true parcel build ./dev/index.html",
-    "dev:clean": "rimraf dist .cache"
+    "dev": "cd dev && cross-env REALAR_DEV=true NODE_ENV=development parcel index.html --port 1210",
+    "dev:test-build": "cd dev && cross-env REALAR_DEV=true parcel build index.html",
+    "dev:clean": "cd dev && rimraf dist .cache",
+    "wasm:dev": "cd wasm/dev && node index.js",
+    "wasm:c": "cd wasm && inlinewat lib/index.wat -o compiled.wat.js",
+    "wasm": "watch \"npm run wasm:dev\" wasm"
   },
   "author": "Slava Birch <mail@betula.co> (http://betula.co)",
   "keywords": [
@@ -52,11 +56,14 @@
     "enzyme-adapter-react-16": "1.15.2",
     "jest": "26.1.0",
     "jest-mock": "26.1.0",
+    "js-inline-wat": "1.0.2",
     "lerna": "3.22.1",
     "parcel-bundler": "1.12.4",
     "react": "16.13.1",
     "react-dom": "16.13.1",
-    "rimraf": "3.0.2"
+    "rimraf": "3.0.2",
+    "wabt": "1.0.17",
+    "watch": "1.0.2"
   },
   "browserslist": [
     "last 2 Chrome versions"
