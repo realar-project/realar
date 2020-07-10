@@ -4,7 +4,5 @@ import { render } from "react-dom";
 import { App as Root } from "./perf";
 import { init } from "../lib";
 
-init(() => {
-  render(<Root />, document.getElementById("root"));
-});
+init(() => render(<Root />, document.getElementById("root")));
 

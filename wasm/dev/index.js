@@ -1,23 +1,16 @@
-const fs = require("fs");
-const wabt_factory = require("wabt");
-const path = require("path");
+#! /usr/bin/env node
+const
+  build_module_buff = require('../compiler').build_module_buff;
 
-run();
+main();
 
-async function run() {
-  const wabt = await wabt_factory();
-  const input_wat = path.resolve("../lib/index.wat");
-  const wasm_module = wabt.parseWat(input_wat, fs.readFileSync(input_wat, "utf8"));
-  const { buffer } = wasm_module.toBinary({});
-  await main(Buffer.from(buffer));
-}
-
-async function main(wasm_buffer) {
+async function main() {
+  const wasm_buff = await build_module_buff();
   const memory = new WebAssembly.Memory({ initial: 1 });
 
   const log_i32 = (...args) => console.log(...args);
 
-  const wasm_module = await WebAssembly.compile(wasm_buffer);
+  const wasm_module = await WebAssembly.compile(wasm_buff);
   const wasm_instance = new WebAssembly.Instance(wasm_module, {
     env: {
       memory,
