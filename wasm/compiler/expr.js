@@ -14,10 +14,7 @@ module.exports = {
 };
 
 function expr_to_wat(text) {
-  // text = "$i = ($k + 11) * 2 + 1";
-  text = "$i = $m(1 + 2, 10)";
-
-  const pattern = /[%*\/+\-><=!,]|<<|>>|!=|==|>=|<=|[\(\)\[\]]|\$[a-z_0-9]+|[1-9][0-9]?/gmi;
+  const pattern = /<<|>>|!=|==|>=|<=|[%*\/+\-><=!,]|[\(\)\[\]]|\$[a-z_0-9]+|[1-9][0-9]?/gmi;
   const num_pattern = /[1-9]/;
 
   let tree = [];
@@ -35,36 +32,33 @@ function expr_to_wat(text) {
       let p, u;
       /*operation       | priority
         --------------------------
-        =               | 1
+        = store         | 1
         call            | 2
         ,               | 3
-        []              | 4
-        == != >= <= > < | 5
-        >> <<           | 6
-        + -             | 7
-        * / %           | 8
-        ! unary         | 9
-        ()              | -
+        == != >= <= > < | 4
+        >> <<           | 5
+        + -             | 6
+        * / %           | 7
+        ! [] load unary | 8
+        ()              | 9
       */
       switch(text) {
         case "=":
           p = 1; break;
-        case ",":
-          p = 4; break;
-        case "[": case "]":
-          p = 5; break;
-        case "==": case "!=": case ">=": case "<=": case ">": case "<":
-          p = 6; break;
-        case ">>": case "<<":
-          p = 7; break;
-        case "+": case "-":
-          p = 8; break;
-        case "*": case "/": case "%":
-          p = 9; break;
-        case "!":
-          p = 9; u = 1; break;
         case "(":
-          p = 0; break;
+          p = 2; break;
+        case ",":
+          p = 3; break;
+        case "==": case "!=": case ">=": case "<=": case ">": case "<":
+          p = 4; break;
+        case ">>": case "<<":
+          p = 5; break;
+        case "+": case "-":
+          p = 6; break;
+        case "*": case "/": case "%":
+          p = 7; break;
+        case "!": case "[": case "]":
+          p = 8; u = 1; break;
         default:
           p = 0;
           u = 0;
@@ -80,7 +74,6 @@ function expr_to_wat(text) {
   }
 
   let
-    out = [],
     value_stack = [],
     op_stack = [],
     top_op_stack_p = 0,
@@ -133,7 +126,54 @@ function expr_to_wat(text) {
       }
       continue;
     }
-    if (text === "(") {
+    if (text === "=" && top_op_stack_p === 1) {
+      continue;
+    }
+    if (text === "]") {
+      while(op_stack.length) {
+        const op = op_stack.pop();
+        if (op[text_key] === "[") {
+          if (tree_i < tree.length - 1) {
+            const [type, text] = tree[tree_i + 1];
+            if (type === OP_NODE && text === "=") {
+              op_stack.push([
+                OP_NODE,
+                "store",
+                0,
+                1,
+                0
+              ]);
+              break;
+            }
+          }
+          op_stack.push([
+            OP_NODE,
+            "load",
+            0,
+            8,
+            1
+          ]);
+          break;
+        }
+        if (op[unary_key]) {
+          value_stack.push(
+            make_unary_op(op, value_stack.pop())
+          );
+        } else {
+          value_stack.push(
+            make_binary_op(op, value_stack.pop(), value_stack.pop())
+          );
+        }
+      }
+      let len = op_stack.length;
+      if (len) {
+        top_op_stack_p = op_stack[len - 1][priority_key];
+      } else {
+        top_op_stack_p = 0;
+      }
+      continue;
+    }
+    if (text === "(" || text === "[") {
       op_stack.push(node);
       top_op_stack_p = p;
       continue;
@@ -171,8 +211,6 @@ function expr_to_wat(text) {
     }
   }
 
-  console.log(op_stack);
-
   while(op_stack.length) {
     const op = op_stack.pop();
     if (op[unary_key]) {
@@ -186,10 +224,7 @@ function expr_to_wat(text) {
     }
   }
 
-  console.log(value_stack);
-  console.log(text);
-
-  return out.join("");
+  return value_stack[0][text_key];
 }
 
 function make_unary_op(op, right) {
@@ -197,6 +232,9 @@ function make_unary_op(op, right) {
   switch(op[text_key]) {
     case "!":
       wat = `(i32.ne ${wat_get_value(right)})`;
+      break;
+    case "load":
+      wat = `(i32.load ${wat_get_value(right)})`;
       break;
     default:
       wat = `(unknown ${op[text_key]})`;
@@ -229,6 +267,12 @@ function make_binary_op(op, right, left) {
       break;
     case "*":
       wat = `(i32.mul ${wat_get_value(left)} ${wat_get_value(right)})`;
+      break;
+    case "<<":
+      wat = `(i32.shl ${wat_get_value(left)} ${wat_get_value(right)})`;
+      break;
+    case "store":
+      wat = `(i32.store ${wat_get_value(left)} ${wat_get_value(right)})`;
       break;
     case "=":
       wat = `(local.set ${left[text_key]} ${wat_get_value(right)})`;

@@ -14,6 +14,11 @@ let
   (;;$i = 10;;)
 (;;</debug>;;)
 (;;<debug>;;)(;;$i = 11;;)(;;</debug>;;)
+
+(;;$i = ($k + 11) * 2 + 1;;)
+(;;$i = $m(1 + 2, 10);;)
+(;;[$i] = [10] << $a(10) + $m(1 + 2, 10);;)
+
 (some finish)
   `;
 
@@ -106,9 +111,6 @@ function flatten(tree) {
 }
 
 function preprocess() {
-  // TODO: preprocess and process
-  // (;;<debug>;;) (;;</debug>;;) -> xml
-  // mathematic
   code = flatten(expr(xml(tree(code))));
   console.log(code);
   return code;
