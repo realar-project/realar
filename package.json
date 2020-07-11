@@ -23,6 +23,7 @@
     "dev:clean": "cd dev && rimraf dist .cache",
     "wasm:dev": "cd wasm/dev && cross-env REALAR_DEV=true node index.js",
     "wasm:c": "cd wasm && node compiler/cli.js",
+    "wasm:c:watch": "watch \"npm run wasm:c\" wasm",
     "wasm": "watch \"npm run wasm:dev\" wasm"
   },
   "author": "Slava Birch <mail@betula.co> (http://betula.co)",

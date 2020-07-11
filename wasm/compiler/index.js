@@ -1,7 +1,8 @@
 const
   fs = require("fs"),
   path = require("path"),
-  wabt_factory = require("wabt");
+  wabt_factory = require("wabt"),
+  { preprocess } = require("./preprocess");
 
 const
   inp_filename = path.resolve(__dirname, "../lib/index.wat"),
@@ -12,11 +13,6 @@ module.exports = {
   build_module_buff
 };
 
-function process(code) {
-  // TODO: preprocess and process
-  return code;
-}
-
 async function build_module_buff() {
   return await compile(
     fs.readFileSync(inp_filename, "utf8")
@@ -24,16 +20,16 @@ async function build_module_buff() {
 }
 
 async function build() {
-  output(
+  // output(
     await build_module_buff()
-  );
+  // );
 }
 
 async function compile(code_str) {
-  code_str = process(code_str);
-  const wabt = await wabt_factory();
-  const module = wabt.parseWat(inp_filename, code_str);
-  return Buffer.from(module.toBinary({}).buffer);
+  code_str = preprocess(code_str);
+  // const wabt = await wabt_factory();
+  // const module = wabt.parseWat(inp_filename, code_str);
+  // return Buffer.from(module.toBinary({}).buffer);
 }
 
 function output(buff) {
