@@ -3,9 +3,11 @@ const
   NUM_NODE = 2,
   OP_NODE = 3,
   WAT_NODE = 4,
+  type_key = 0,
   text_key = 1,
-  priority_key = 2,
-  unary_key = 3;
+  tree_i_key = 2,
+  priority_key = 3,
+  unary_key = 4;
 
 module.exports = {
   expr_to_wat
@@ -15,50 +17,52 @@ function expr_to_wat(text) {
   // text = "$i = ($k + 11) * 2 + 1";
   text = "$i = $m(1 + 2, 10)";
 
-  const pattern = /[%*\/+\-><=!]|<<|>>|!=|==|>=|<=|[\(\)\[\]]|\$[a-z_0-9]+|[1-9][0-9]?/gmi;
+  const pattern = /[%*\/+\-><=!,]|<<|>>|!=|==|>=|<=|[\(\)\[\]]|\$[a-z_0-9]+|[1-9][0-9]?/gmi;
   const num_pattern = /[1-9]/;
 
   let tree = [];
+  let tree_i_next = 0;
   let m;
   while(m = pattern.exec(text)) {
     const text = m[0];
     if (text[0] === "$") {
-      tree.push([ $_NODE, text ]);
+      tree.push([ $_NODE, text, tree_i_next++ ]);
     }
     else if (num_pattern.test(text)) {
-      tree.push([ NUM_NODE, text ]);
+      tree.push([ NUM_NODE, text, tree_i_next++ ]);
     }
     else {
       let p, u;
       /*operation       | priority
         --------------------------
         =               | 1
-        ,               | 2
-        []              | 3
-        == != >= <= > < | 4
-        >> <<           | 5
-        + -             | 6
-        * / %           | 7
-        ! unary         | 8
+        call            | 2
+        ,               | 3
+        []              | 4
+        == != >= <= > < | 5
+        >> <<           | 6
+        + -             | 7
+        * / %           | 8
+        ! unary         | 9
         ()              | -
       */
       switch(text) {
         case "=":
           p = 1; break;
         case ",":
-          p = 2; break;
-        case "[": case "]":
-          p = 3; break;
-        case "==": case "!=": case ">=": case "<=": case ">": case "<":
           p = 4; break;
-        case ">>": case "<<":
+        case "[": case "]":
           p = 5; break;
-        case "+": case "-":
+        case "==": case "!=": case ">=": case "<=": case ">": case "<":
           p = 6; break;
-        case "*": case "/": case "%":
+        case ">>": case "<<":
           p = 7; break;
+        case "+": case "-":
+          p = 8; break;
+        case "*": case "/": case "%":
+          p = 9; break;
         case "!":
-          p = 8; u = 1; break;
+          p = 9; u = 1; break;
         case "(":
           p = 0; break;
         default:
@@ -68,6 +72,7 @@ function expr_to_wat(text) {
       tree.push([
         OP_NODE,
         m[0],
+        tree_i_next++,
         p,
         u
       ]);
@@ -84,7 +89,7 @@ function expr_to_wat(text) {
 
   for (i = 0; i < len; i++) {
     const node = tree[i];
-    const [type, text, p] = node;
+    const [type, text, tree_i, p] = node;
     if (type === NUM_NODE || type === $_NODE) {
       value_stack.push(node);
       continue;
@@ -95,11 +100,19 @@ function expr_to_wat(text) {
       continue;
     }
     if (text === ")") {
-      // TODO: Может быть закрывающей скобкой вызова функции
-
       while(op_stack.length) {
         const op = op_stack.pop();
         if (op[text_key] === "(") {
+          const op_tree_i = op[tree_i_key];
+          if (op_tree_i > 0 && tree[op_tree_i - 1][type_key] === $_NODE) {
+            op_stack.push([
+              OP_NODE,
+              "call",
+              0,
+              2,
+              0
+            ])
+          }
           break;
         }
         if (op[unary_key]) {
@@ -158,6 +171,8 @@ function expr_to_wat(text) {
     }
   }
 
+  console.log(op_stack);
+
   while(op_stack.length) {
     const op = op_stack.pop();
     if (op[unary_key]) {
@@ -177,8 +192,20 @@ function expr_to_wat(text) {
   return out.join("");
 }
 
-function make_unary_op(op, value) {
-  return "hello";
+function make_unary_op(op, right) {
+  let wat;
+  switch(op[text_key]) {
+    case "!":
+      wat = `(i32.ne ${wat_get_value(right)})`;
+      break;
+    default:
+      wat = `(unknown ${op[text_key]})`;
+      break;
+  }
+  return [
+    WAT_NODE,
+    wat
+  ];
 }
 
 function wat_get_value(node) {
@@ -205,6 +232,12 @@ function make_binary_op(op, right, left) {
       break;
     case "=":
       wat = `(local.set ${left[text_key]} ${wat_get_value(right)})`;
+      break;
+    case ",":
+      wat = `${wat_get_value(left)} ${wat_get_value(right)}`;
+      break;
+    case "call":
+      wat = `(call ${left[text_key]} ${wat_get_value(right)})`;
       break;
     default:
       wat = `(unknown ${op[text_key]})`;
