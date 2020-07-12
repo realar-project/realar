@@ -1,39 +1,35 @@
 const
-  { expr_to_wat } = require("./expr");
+  fs = require("fs"),
+  path = require("path"),
+  { expr_to_wat, define_const_map } = require("./expr");
 
 const
   TEXT_NODE = 1,
   XML_NODE = 2,
-  EXPR_NODE = 3;
+  EXPR_NODE = 3,
+  IMPORT_NODE = 4,
+  DEFINE_NODE = 5;
+
+const
+  import_path_ext = ".wat";
 
 let
-  code = `
-  (some start)
-  (;;$i = 30;;)
-(;;<debug>;;)(some code)
-  (;;$i = 10;;)
-(;;</debug>;;)
-(;;<debug>;;)(;;$i = 11;;)(;;</debug>;;)
-
-(;;$i = ($k + 11) * 2 + 1;;)
-(;;$i = $m(1 + 2, 10);;)
-(;;[$i] = [10] << $a(10) + $m(1 + 2, 10);;)
-
-(some finish)
-  `;
+  context_define_const;
 
 module.exports = {
   preprocess
 };
 
 function tree(code) {
-  const brackets = /\(;;(.*?);;\)/gm;
+  const brackets_pattern = /\(;;(.*?);;\)/gm;
   const xml_test = /^<(.*)>$/m;
+  const import_pattern = /^import (.+)$/m;
+  const define_pattern = /^define ([A-Z_][A-Z_0-9]*) ([1-9][0-9]*)$/m
 
   let tree = [];
   let m;
   let last_index = 0;
-  while(m = brackets.exec(code)) {
+  while(m = brackets_pattern.exec(code)) {
     const
       index = m.index,
       [ match, text ] = m;
@@ -41,13 +37,38 @@ function tree(code) {
     if (last_index !== index) {
       tree.push([
         TEXT_NODE,
-        code.slice(last_index, index).trim()
+        code.slice(last_index, index)
       ]);
     }
-    tree.push([
-      xml_test.test(text) ? XML_NODE : EXPR_NODE,
-      text.trim()
-    ]);
+    if (m = import_pattern.exec(text)) {
+      tree.push([
+        IMPORT_NODE,
+        m[1]  // filename
+      ]);
+    }
+    else if (m = define_pattern.exec(text)) {
+      tree.push([
+        DEFINE_NODE,
+        m[1], // name
+        m[2]  // value
+      ]);
+    }
+    else if (xml_test.test(text)) {
+      tree.push([
+        XML_NODE,
+        text.trim()
+      ]);
+    }
+    else {
+      tree.push([
+        TEXT_NODE,
+        match
+      ]);
+      tree.push([
+        EXPR_NODE,
+        text.trim()
+      ]);
+    }
 
     last_index = index + match.length;
   }
@@ -100,18 +121,82 @@ function expr(tree) {
   return out;
 }
 
-function flatten(tree) {
-  let res = [];
-  for (const [type, text] of tree) {
-    if (type === TEXT_NODE) {
-      res.push(text);
+function import_node(tree, dirname) {
+  let out = [];
+  for (const node of tree) {
+    const [type, import_path] = node;
+    if (type === IMPORT_NODE) {
+      out.push(
+        ...import_node_compile(import_path, dirname)
+      );
+    }
+    else {
+      out.push(node);
     }
   }
-  return res.join("");
+  return out;
 }
 
-function preprocess() {
-  code = flatten(expr(xml(tree(code))));
-  console.log(code);
-  return code;
+function import_node_compile(import_path, dirname) {
+  let
+    import_filepath = path.resolve(dirname, import_path + import_path_ext),
+    import_dirname = path.dirname(import_filepath),
+    import_code = fs.readFileSync(import_filepath, "utf8");
+
+  return compile(import_code, import_dirname);
+}
+
+function define_node(tree) {
+  let out = [];
+  for (const node of tree) {
+    const [type, text, const_val] = node;
+    if (type === DEFINE_NODE) {
+      context_define_const.set(text, const_val);
+    }
+    else if (type === EXPR_NODE) {
+      out.push([
+        type,
+        define_node_process(text)
+      ]);
+    } else {
+      out.push(node);
+    }
+  }
+  return out;
+}
+
+function define_node_process(text) {
+  const const_name_pattern = /[A-Z_][A-Z_0-9]*/gm;
+  return text.replace(
+    const_name_pattern,
+    m => context_define_const.get(m)
+  );
+}
+
+function compile(code, dirname) {
+  return expr(
+    define_node(
+      xml(
+        import_node(
+          tree(code),
+          dirname
+        )
+      )
+    )
+  );
+}
+
+function flatten(tree) {
+  let out = [];
+  for (const [type, text] of tree) {
+    if (type === TEXT_NODE) {
+      out.push(text);
+    }
+  }
+  return out.join("");
+}
+
+function preprocess(code, dirname) {
+  context_define_const = new Map();
+  return flatten(compile(code, dirname));
 }

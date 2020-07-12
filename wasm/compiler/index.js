@@ -20,16 +20,16 @@ async function build_module_buff() {
 }
 
 async function build() {
-  // output(
+  output(
     await build_module_buff()
-  // );
+  );
 }
 
 async function compile(code_str) {
-  code_str = preprocess(code_str);
-  // const wabt = await wabt_factory();
-  // const module = wabt.parseWat(inp_filename, code_str);
-  // return Buffer.from(module.toBinary({}).buffer);
+  code_str = preprocess(code_str, path.dirname(inp_filename));
+  const wabt = await wabt_factory();
+  const module = wabt.parseWat(inp_filename, code_str);
+  return Buffer.from(module.toBinary({}).buffer);
 }
 
 function output(buff) {

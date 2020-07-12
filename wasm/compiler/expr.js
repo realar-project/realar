@@ -33,14 +33,14 @@ function expr_to_wat(text) {
       /*operation       | priority
         --------------------------
         = store         | 1
-        call            | 2
+        (               | 2
         ,               | 3
         == != >= <= > < | 4
         >> <<           | 5
         + -             | 6
         * / %           | 7
-        ! [] load unary | 8
-        ()              | 9
+        ! [ load unary  | 8
+        call            | 9
       */
       switch(text) {
         case "=":
@@ -102,7 +102,7 @@ function expr_to_wat(text) {
               OP_NODE,
               "call",
               0,
-              2,
+              9,
               0
             ])
           }
