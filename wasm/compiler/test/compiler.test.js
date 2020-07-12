@@ -21,6 +21,7 @@ test("should work", () => {
   (some finish)
   # [SEQ_ID_ADR] = 0
   # $id
+  # $id = $seq_id_next() << 7 + 128 ;; Each set 128 bytes by default
   `;
 
   expect(preprocess(code, __dirname)).toMatchSnapshot();

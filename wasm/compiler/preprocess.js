@@ -64,9 +64,10 @@ function tree(code) {
       ]);
     }
     else {
+      const expr = text.split(";;")[0].trim();
       tree.push([
         EXPR_NODE,
-        text.trim()
+        expr
       ]);
     }
 
@@ -166,11 +167,14 @@ function define_node(tree) {
 }
 
 function define_node_process(text) {
-  const const_name_pattern = /[A-Z_][A-Z_0-9]*/gm;
-  return text.replace(
+  const const_name_pattern = /(^|[^a-zA-Z0-9_])([A-Z_][A-Z_0-9]*)/gm;
+  // console.log("DEFINE <", text, context_define_const);
+  text = text.replace(
     const_name_pattern,
-    m => context_define_const.get(m)
+    (_, prefix, m) => prefix + context_define_const.get(m)
   );
+  // console.log("DEFINE >", text);
+  return text;
 }
 
 function compile(code, dirname) {
@@ -200,5 +204,6 @@ function preprocess(code, dirname) {
   context_define_const = new Map();
   code = flatten(compile(code, dirname));
   // console.log(code);
+  // throw "debug";
   return code;
 }

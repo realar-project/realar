@@ -25,16 +25,7 @@
   ;; [1..size) - ordered set of unsigned i32
 
   (func $set_create (result i32)
-    (local $id i32)
-    (local.set $id
-      (i32.shl
-        (call $seq_id_next)
-        ;; Each set 128 bytes by default
-        (i32.const 7)
-      )
-    )
-    (i32.store (local.get $id) (i32.const 0))
-    (local.get $id)
+    # $seq_id_next() << 7 ;; Each set 128 bytes by default
   )
 
   (func $set_add (param $id i32) (param $n i32)

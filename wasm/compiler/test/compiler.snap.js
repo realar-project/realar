@@ -24,5 +24,6 @@ exports[`should work 1`] = `
   (;;# $size = [$id];;)(local.set $size (i32.load (local.get $id)))
   (some finish)
   (;;# [SEQ_ID_ADR] = 0;;)(i32.store (i32.const 4) (i32.const 0))
-  (;;# $id;;)(local.get $id)"
+  (;;# $id;;)(local.get $id)
+  (;;# $id = $seq_id_next() << 7 + 128 ;; Each set 128 bytes by default;;)(local.set $id (i32.shl (call $seq_id_next) (i32.add (i32.const 7) (i32.const 128))))"
 `;

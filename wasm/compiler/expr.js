@@ -15,7 +15,7 @@ module.exports = {
 
 function expr_to_wat(text) {
   // console.log(text);
-  const pattern = /<<|>>|!=|==|>=|<=|[%*\/+\-><=!,]|[\(\)\[\]]|\$[a-z_0-9]+|0|[1-9][0-9]?/gmi;
+  const pattern = /<<|>>|!=|==|>=|<=|[%*\/+\-><=!,]|[\(\)\[\]]|\$[a-z_0-9]+|0|[1-9][0-9]*/gmi;
   const num_pattern = /[0-9]/;
 
   let tree = [];
@@ -84,6 +84,7 @@ function expr_to_wat(text) {
   // console.log("TREE", tree);
   for (i = 0; i < len; i++) {
     const node = tree[i];
+    // console.log("NODE", node);
     const [type, text, tree_i, p] = node;
     if (type === NUM_NODE || type === $_NODE) {
       // console.log("PUSH", node);
@@ -101,13 +102,17 @@ function expr_to_wat(text) {
         if (op[text_key] === "(") {
           const op_tree_i = op[tree_i_key];
           if (op_tree_i > 0 && tree[op_tree_i - 1][type_key] === $_NODE) {
+            let unary = 0;
+            if (op[tree_i_key] + 1 === tree_i) {
+              unary = 1;
+            }
             op_stack.push([
               OP_NODE,
               "call",
               0,
               9,
-              0
-            ])
+              unary
+            ]);
           }
           break;
         }
@@ -242,6 +247,9 @@ function make_unary_op(op, right) {
       break;
     case "load":
       wat = `(i32.load ${wat_get_value(right)})`;
+      break;
+    case "call":
+      wat = `(call ${right[text_key]})`;
       break;
     default:
       wat = `(unknown ${op[text_key]})`;
