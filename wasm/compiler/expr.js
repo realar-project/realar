@@ -14,8 +14,9 @@ module.exports = {
 };
 
 function expr_to_wat(text) {
-  const pattern = /<<|>>|!=|==|>=|<=|[%*\/+\-><=!,]|[\(\)\[\]]|\$[a-z_0-9]+|[1-9][0-9]?/gmi;
-  const num_pattern = /[1-9]/;
+  // console.log(text);
+  const pattern = /<<|>>|!=|==|>=|<=|[%*\/+\-><=!,]|[\(\)\[\]]|\$[a-z_0-9]+|0|[1-9][0-9]?/gmi;
+  const num_pattern = /[0-9]/;
 
   let tree = [];
   let tree_i_next = 0;
@@ -80,10 +81,12 @@ function expr_to_wat(text) {
     len = tree.length,
     i;
 
+  // console.log("TREE", tree);
   for (i = 0; i < len; i++) {
     const node = tree[i];
     const [type, text, tree_i, p] = node;
     if (type === NUM_NODE || type === $_NODE) {
+      // console.log("PUSH", node);
       value_stack.push(node);
       continue;
     }
@@ -211,6 +214,8 @@ function expr_to_wat(text) {
     }
   }
 
+  // console.log("BEFORE EXIT", op_stack, value_stack);
+
   while(op_stack.length) {
     const op = op_stack.pop();
     if (op[unary_key]) {
@@ -224,7 +229,9 @@ function expr_to_wat(text) {
     }
   }
 
-  return value_stack[0][text_key];
+  const res = wat_get_value(value_stack.pop());
+  // console.log(res);
+  return res;
 }
 
 function make_unary_op(op, right) {

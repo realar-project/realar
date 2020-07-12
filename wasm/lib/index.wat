@@ -1,38 +1,28 @@
 (module
-  ;; (import "env" "log_i32" (func $log_i32_1 (param i32)))
-  ;; (import "env" "log_i32" (func $log_i32_2 (param i32 i32)))
-  ;; (import "env" "log_i32" (func $log_i32_3 (param i32 i32 i32)))
-  ;; (import "env" "log_i32" (func $log_i32_4 (param i32 i32 i32 i32)))
+  # <debug>
+  (import "env" "log_i32" (func $log_i32_1 (param i32)))
+  (import "env" "log_i32" (func $log_i32_2 (param i32 i32)))
+  (import "env" "log_i32" (func $log_i32_3 (param i32 i32 i32)))
+  (import "env" "log_i32" (func $log_i32_4 (param i32 i32 i32 i32)))
+  # </debug>
   (import "env" "memory" (memory 1))
 
-  ;; Set memory struct (i32 numbers)
-  ;; 0 - size
-  ;; [1..size) - ordered set of unsigned i32
-
+  # define SEQ_ID_ADR 4
   (func $seq_id_init
     ;; TODO: Replace to data section with initial values
-    (i32.store
-      (i32.const 4) ;; Seq Id address
-      (i32.const 0)
-    )
+    # [SEQ_ID_ADR] = 0
   )
 
   (func $seq_id_next (result i32)
     (local $id i32)
-    (local.set $id
-      (i32.add
-        (i32.load
-          (i32.const 4)
-        )
-        (i32.const 1)
-      )
-    )
-    (i32.store
-      (i32.const 4)
-      (local.get $id)
-    )
-    (local.get $id)
+    # $id = [SEQ_ID_ADR] + 1
+    # [SEQ_ID_ADR] = $id
+    # $id
   )
+
+  ;; Set memory struct (i32 numbers)
+  ;; 0 - size
+  ;; [1..size) - ordered set of unsigned i32
 
   (func $set_create (result i32)
     (local $id i32)

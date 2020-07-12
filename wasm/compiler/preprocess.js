@@ -21,7 +21,7 @@ module.exports = {
 };
 
 function tree(code) {
-  const brackets_pattern = /\(;;(.*?);;\)/gm;
+  const brackets_pattern = /# (.*)$/gm;
   const xml_test = /^<(.*)>$/m;
   const import_pattern = /^import (.+)$/m;
   const define_pattern = /^define ([A-Z_][A-Z_0-9]*) ([1-9][0-9]*)$/m
@@ -40,6 +40,10 @@ function tree(code) {
         code.slice(last_index, index)
       ]);
     }
+    tree.push([
+      TEXT_NODE,
+      `(;;${match};;)`
+    ]);
     if (m = import_pattern.exec(text)) {
       tree.push([
         IMPORT_NODE,
@@ -60,10 +64,6 @@ function tree(code) {
       ]);
     }
     else {
-      tree.push([
-        TEXT_NODE,
-        match
-      ]);
       tree.push([
         EXPR_NODE,
         text.trim()
@@ -198,5 +198,7 @@ function flatten(tree) {
 
 function preprocess(code, dirname) {
   context_define_const = new Map();
-  return flatten(compile(code, dirname));
+  code = flatten(compile(code, dirname));
+  // console.log(code);
+  return code;
 }
