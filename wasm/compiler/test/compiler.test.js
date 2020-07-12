@@ -22,6 +22,14 @@ test("should work", () => {
   # [SEQ_ID_ADR] = 0
   # $id
   # $id = $seq_id_next() << 7 + 128 ;; Each set 128 bytes by default
+  # $i == $size
+  # 5 != U
+  # $offset = $set_offset_i($id, $size - 1)
+  # [$offset + 4] = [$offset]
+  # !$size
+  # $b = $size >> 1
+  # $n > get_i($half_index)
+  # 5 < 1
   `;
 
   expect(preprocess(code, __dirname)).toMatchSnapshot();

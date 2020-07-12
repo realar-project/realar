@@ -34,13 +34,13 @@ function expr_to_wat(text) {
       /*operation       | priority
         --------------------------
         = store         | 1
-        (               | 2
+        ( [             | 2
         ,               | 3
         == != >= <= > < | 4
         >> <<           | 5
         + -             | 6
         * / %           | 7
-        ! [ load unary  | 8
+        ! load unary    | 8
         call            | 9
       */
       switch(text) {
@@ -48,6 +48,8 @@ function expr_to_wat(text) {
           p = 1; break;
         case "(":
           p = 2; break;
+        case "[": case "]":
+          p = 2; u = 1; break;
         case ",":
           p = 3; break;
         case "==": case "!=": case ">=": case "<=": case ">": case "<":
@@ -58,7 +60,7 @@ function expr_to_wat(text) {
           p = 6; break;
         case "*": case "/": case "%":
           p = 7; break;
-        case "!": case "[": case "]":
+        case "!":
           p = 8; u = 1; break;
         default:
           p = 0;
@@ -243,7 +245,7 @@ function make_unary_op(op, right) {
   let wat;
   switch(op[text_key]) {
     case "!":
-      wat = `(i32.ne ${wat_get_value(right)})`;
+      wat = `(i32.eqz ${wat_get_value(right)})`;
       break;
     case "load":
       wat = `(i32.load ${wat_get_value(right)})`;
@@ -280,11 +282,29 @@ function make_binary_op(op, right, left) {
     case "+":
       wat = `(i32.add ${wat_get_value(left)} ${wat_get_value(right)})`;
       break;
+    case "-":
+      wat = `(i32.sub ${wat_get_value(left)} ${wat_get_value(right)})`;
+      break;
     case "*":
       wat = `(i32.mul ${wat_get_value(left)} ${wat_get_value(right)})`;
       break;
     case "<<":
       wat = `(i32.shl ${wat_get_value(left)} ${wat_get_value(right)})`;
+      break;
+    case ">>":
+      wat = `(i32.shr_u ${wat_get_value(left)} ${wat_get_value(right)})`;
+      break;
+    case "==":
+      wat = `(i32.eq ${wat_get_value(left)} ${wat_get_value(right)})`;
+      break;
+    case "!=":
+      wat = `(i32.ne ${wat_get_value(left)} ${wat_get_value(right)})`;
+      break;
+    case ">":
+      wat = `(i32.gt_u ${wat_get_value(left)} ${wat_get_value(right)})`;
+      break;
+    case "<":
+      wat = `(i32.lt_u ${wat_get_value(left)} ${wat_get_value(right)})`;
       break;
     case "store":
       wat = `(i32.store ${wat_get_value(left)} ${wat_get_value(right)})`;

@@ -25,5 +25,13 @@ exports[`should work 1`] = `
   (some finish)
   (;;# [SEQ_ID_ADR] = 0;;)(i32.store (i32.const 4) (i32.const 0))
   (;;# $id;;)(local.get $id)
-  (;;# $id = $seq_id_next() << 7 + 128 ;; Each set 128 bytes by default;;)(local.set $id (i32.shl (call $seq_id_next) (i32.add (i32.const 7) (i32.const 128))))"
+  (;;# $id = $seq_id_next() << 7 + 128 ;; Each set 128 bytes by default;;)(local.set $id (i32.shl (call $seq_id_next) (i32.add (i32.const 7) (i32.const 128))))
+  (;;# $i == $size;;)(i32.eq (local.get $i) (local.get $size))
+  (;;# 5 != U;;)(i32.ne (i32.const 5) (i32.const 10))
+  (;;# $offset = $set_offset_i($id, $size - 1);;)(local.set $offset (call $set_offset_i (local.get $id) (i32.sub (local.get $size) (i32.const 1))))
+  (;;# [$offset + 4] = [$offset];;)(i32.store (i32.add (local.get $offset) (i32.const 4)) (i32.load (local.get $offset)))
+  (;;# !$size;;)(i32.eqz (local.get $size))
+  (;;# $b = $size >> 1;;)(local.set $b (i32.shr_u (local.get $size) (i32.const 1)))
+  (;;# $n > get_i($half_index);;)(i32.gt_u (local.get $n) (local.get $half_index))
+  (;;# 5 < 1;;)(i32.lt_u (i32.const 5) (i32.const 1))"
 `;
