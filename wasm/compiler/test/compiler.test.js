@@ -30,6 +30,13 @@ test("should work", () => {
   # $b = $size >> 1
   # $n > get_i($half_index)
   # 5 < 1
+  (if 5 < 1
+    (then [$i] = 5)
+    (else
+      10
+      5
+    )
+  )
   `;
 
   expect(preprocess(code, __dirname)).toMatchSnapshot();

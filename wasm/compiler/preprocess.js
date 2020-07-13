@@ -1,141 +1,183 @@
 const
   fs = require("fs"),
   path = require("path"),
-  { expr_to_wat, define_const_map } = require("./expr");
-
-const
-  TEXT_NODE = 1,
-  XML_NODE = 2,
-  EXPR_NODE = 3,
-  IMPORT_NODE = 4,
-  DEFINE_NODE = 5;
+  { expr_to_wat } = require("./expr");
 
 const
   import_path_ext = ".wat";
-
-let
-  context_define_const;
 
 module.exports = {
   preprocess
 };
 
-function tree(code) {
-  const brackets_pattern = /# (.*)$/gm;
-  const xml_test = /^<(.*)>$/m;
-  const import_pattern = /^import (.+)$/m;
-  const define_pattern = /^define ([A-Z_][A-Z_0-9]*) ([1-9][0-9]*)$/m
+function compile(code, dirname) {
+  let
+    i, len,
+    out = [],
+    prev_push_index = 0,
+    func_tree_deep = 0,
+    exclude_section_deep = 0,
+    define_const = new Map();
 
-  let tree = [];
-  let m;
-  let last_index = 0;
-  while(m = brackets_pattern.exec(code)) {
-    const
-      index = m.index,
-      [ match, text ] = m;
+  len = code.length;
 
-    if (last_index !== index) {
-      tree.push([
-        TEXT_NODE,
-        code.slice(last_index, index)
-      ]);
-    }
-    tree.push([
-      TEXT_NODE,
-      `(;;${match};;)`
-    ]);
-    if (m = import_pattern.exec(text)) {
-      tree.push([
-        IMPORT_NODE,
-        m[1]  // filename
-      ]);
-    }
-    else if (m = define_pattern.exec(text)) {
-      tree.push([
-        DEFINE_NODE,
-        m[1], // name
-        m[2]  // value
-      ]);
-    }
-    else if (xml_test.test(text)) {
-      tree.push([
-        XML_NODE,
-        text.trim()
-      ]);
-    }
-    else {
-      const expr = text.split(";;")[0].trim();
-      tree.push([
-        EXPR_NODE,
-        expr
-      ]);
-    }
-
-    last_index = index + match.length;
-  }
-  tree.push([
-    TEXT_NODE,
-    code.slice(last_index).trim()
-  ]);
-  return tree;
-}
-
-function xml(tree) {
-  const len = tree.length;
-  let out = [];
-  let debug_section_index = 0;
-  for (let i = 0; i < len; i++) {
-    const [type, text] = tree[i];
-    if (type === XML_NODE) {
-      if (text === "<debug>") {
-        if (!process.env.REALAR_DEV) {
-          debug_section_index = i;
-        }
-        continue;
-      }
-      if (text === "</debug>") {
-        debug_section_index = 0;
-        continue;
-      }
-    }
-    if (debug_section_index) continue;
-    out.push(tree[i]);
-  }
-  return out;
-}
-
-function expr(tree) {
-  const len = tree.length;
-  let out = [];
-  for (let i = 0; i < len; i++) {
-    const [type, text] = tree[i];
-    if (type === EXPR_NODE) {
-      out.push([
-        TEXT_NODE,
-        expr_to_wat(text)
-      ])
+  i = 0;
+  while (i < len) {
+    if (code.slice(i, i+7) === "(module") {
+      i = i+7;
       continue;
     }
-    out.push(tree[i]);
+    if (code.slice(i, i+2) === ";;") {
+      i = i+2;
+      read_line();
+      continue;
+    }
+    if (code[i] === "(") {
+      i = i+1;
+      after_close_bracket();
+      continue;
+    }
+    if (code.slice(i, i+2) === "# ") {
+      push_index(i);
+      const line = read_line();
+      push_comment_block(line);
+      push_preprocess_section(line.slice(2));
+      push_eol();
+      cut_index(i);
+      continue;
+    }
+    if (code.slice(i, i+4) === "func") {
+      push_index(i);
+      func_tree_deep = 1;
+      const line = read_line();
+      push_comment_block(line);
+      push_func_def(line);
+      push_eol();
+      cut_index(i);
+      continue;
+    }
+    i = i + 1;
+  }
+  push_index(i);
+
+  return out.join("");
+
+  function read_line() {
+    let start = i, end = i;
+    for (;i < len; i++) {
+      if (code[i] === "\n") {
+        end = i;
+        ++i;
+        break;
+      }
+      if (code.slice(i, i+2) === ";;") {
+        end = i - 1;
+        for (;i < len; i++) {
+          if (code[i] === "\n") {
+            ++i;
+            break;
+          }
+        }
+        break;
+      }
+    }
+    return code.slice(start, end);
   }
 
-  return out;
-}
+  function after_close_bracket() {
+    let d = 1;
+    while(i < len) {
+      if (code[i] === "(") d++;
+      if (code[i] === ")") d--;
+      ++i;
+      if (!d) break;
+    }
+  }
 
-function import_node(tree, dirname) {
-  let out = [];
-  for (const node of tree) {
-    const [type, import_path] = node;
-    if (type === IMPORT_NODE) {
-      out.push(
-        ...import_node_compile(import_path, dirname)
-      );
+  function cut_index(k) {
+    prev_push_index = k;
+  }
+
+  function push_text(text) {
+    if (exclude_section_deep) return;
+    out.push(text);
+  }
+
+  function push_eol() {
+    push_text("\n");
+  }
+
+  function push_index(k) {
+    k = Math.min(Math.max(0, k), len-1);
+    if (k === prev_push_index) return;
+    push_text(code.slice(prev_push_index, k));
+    prev_push_index = k;
+  }
+
+  function push_comment_block(text) {
+    push_text(`(;;${text};;)`);
+  }
+
+  function push_func_def(text) {
+    const func_pattern = /^func ([a-z_][a-z_0-9]+) ?(?:\(([^\)]+)\))? ?(result)?$/m;
+    let m;
+    if (m = func_pattern.exec(text)) {
+      let [_, name, params, result] = m;
+      let text = "(func $" + name;
+      if (params) {
+        text += params.split(" ").map(p => "(param "+p+" i32)").join(" ");
+      }
+      if (result) {
+        text += " (result i32)";
+      }
+      push_text(text);
+    }
+  }
+
+  function push_preprocess_section(text) {
+    const xml_pattern = /^<([^\>]+)>$/m;
+    const import_pattern = /^import (.+)$/m;
+    const define_pattern = /^define ([A-Z_][A-Z_0-9]*) ([1-9][0-9]*)$/m
+
+    let m;
+    if (m = import_pattern.exec(text)) {
+      const [_, import_path] = m;
+      const text = import_node_compile(import_path, dirname);
+      // console.log("IMPORT", import_path, dirname, text);
+      push_text(text);
+    }
+    else if (m = define_pattern.exec(text)) {
+      const [_, name, value] = m;
+      define_const.set(name, value);
+    }
+    else if (m = xml_pattern.exec(text)) {
+      const [_, tag] = m;
+      switch(tag) {
+        case "debug":
+          if (!process.env.REALAR_DEV) exclude_section_deep += 1;
+          break;
+        case "/debug":
+          if (!process.env.REALAR_DEV) exclude_section_deep -= 1;
+          break;
+        default:
+          throw `Unexpected preprocessor xml tag ${tag}`;
+      }
     }
     else {
-      out.push(node);
+      throw `Unexpected preprocessor command ${text}`
     }
   }
-  return out;
+
+  function define_node_process_text(text) {
+    const const_name_pattern = /(^|[^a-zA-Z0-9_])([A-Z_][A-Z_0-9]*)/gm;
+    // console.log("DEFINE <", text, define_const);
+    text = text.replace(
+      const_name_pattern,
+      (_, prefix, m) => prefix + define_const.get(m)
+    );
+    // console.log("DEFINE >", text);
+    return text;
+  }
 }
 
 function import_node_compile(import_path, dirname) {
@@ -147,63 +189,13 @@ function import_node_compile(import_path, dirname) {
   return compile(import_code, import_dirname);
 }
 
-function define_node(tree) {
-  let out = [];
-  for (const node of tree) {
-    const [type, text, const_val] = node;
-    if (type === DEFINE_NODE) {
-      context_define_const.set(text, const_val);
-    }
-    else if (type === EXPR_NODE) {
-      out.push([
-        type,
-        define_node_process(text)
-      ]);
-    } else {
-      out.push(node);
-    }
-  }
-  return out;
-}
-
-function define_node_process(text) {
-  const const_name_pattern = /(^|[^a-zA-Z0-9_])([A-Z_][A-Z_0-9]*)/gm;
-  // console.log("DEFINE <", text, context_define_const);
-  text = text.replace(
-    const_name_pattern,
-    (_, prefix, m) => prefix + context_define_const.get(m)
-  );
-  // console.log("DEFINE >", text);
-  return text;
-}
-
-function compile(code, dirname) {
-  return expr(
-    define_node(
-      xml(
-        import_node(
-          tree(code),
-          dirname
-        )
-      )
-    )
-  );
-}
-
-function flatten(tree) {
-  let out = [];
-  for (const [type, text] of tree) {
-    if (type === TEXT_NODE) {
-      out.push(text);
-    }
-  }
-  return out.join("");
-}
-
 function preprocess(code, dirname) {
+  // console.log(code.slice(0, 1000));
   context_define_const = new Map();
-  code = flatten(compile(code, dirname));
+  code = compile(code, dirname);
+  console.log("-------");
+  console.log(code.slice(0, 1000));
   // console.log(code);
-  // throw "debug";
+  throw "debug";
   return code;
 }
