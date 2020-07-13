@@ -100,7 +100,7 @@ function compile(code, dirname) {
 
   function push_text(text) {
     if (exclude_section_deep) return;
-    out.push(text);
+    out.push(define_const_process_text(text));
   }
 
   function push_eol() {
@@ -168,12 +168,12 @@ function compile(code, dirname) {
     }
   }
 
-  function define_node_process_text(text) {
+  function define_const_process_text(text) {
     const const_name_pattern = /(^|[^a-zA-Z0-9_])([A-Z_][A-Z_0-9]*)/gm;
     // console.log("DEFINE <", text, define_const);
     text = text.replace(
       const_name_pattern,
-      (_, prefix, m) => prefix + define_const.get(m)
+      (match, prefix, name) => define_const.has(name) ? prefix + define_const.get(name) : match
     );
     // console.log("DEFINE >", text);
     return text;
