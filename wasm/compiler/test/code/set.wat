@@ -1,7 +1,7 @@
 # define SET_ELM_SIZE 4
 # define SET_HEAD_SIZE 4
 
-;; Set memory struct
+## Set memory struct
 ;; 0 - size
 ;; [1..size)
 

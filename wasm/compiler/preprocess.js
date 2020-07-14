@@ -358,9 +358,16 @@ function import_node_compile(import_path, dirname) {
 
 function full_compile(code, dirname) {
   return compile(
-    define_compile(code),
+    sharp_sharp_comment_compile(
+      define_compile(code)
+    ),
     dirname
   );
+}
+
+function sharp_sharp_comment_compile(code) {
+  const pattern = /##/mg;
+  return code.replace(pattern, ";;");
 }
 
 function define_compile(code) {
