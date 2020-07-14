@@ -15,15 +15,16 @@ module.exports = {
 
 function expr_to_wat(text) {
   // console.log(text);
-  const pattern = /<<|>>|!=|==|>=|<=|[%*\/+\-><=!,]|[\(\)\[\]]|\$[a-z_0-9]+|0|[1-9][0-9]*/gmi;
+  const pattern = /<<|>>|!=|==|>=|<=|[%*\/+\-><=!,]|[\(\)\[\]]|[a-z_][a-z_0-9]*|0|[1-9][0-9]*/gm;
   const num_pattern = /[0-9]/;
+  const $_pattern = /[a-z_]/;
 
   let tree = [];
   let tree_i_next = 0;
   let m;
   while(m = pattern.exec(text)) {
     const text = m[0];
-    if (text[0] === "$") {
+    if ($_pattern.test(text)) {
       tree.push([ $_NODE, text, tree_i_next++ ]);
     }
     else if (num_pattern.test(text)) {
@@ -251,7 +252,7 @@ function make_unary_op(op, right) {
       wat = `(i32.load ${wat_get_value(right)})`;
       break;
     case "call":
-      wat = `(call ${right[text_key]})`;
+      wat = `(call $${right[text_key]})`;
       break;
     default:
       wat = `(unknown ${op[text_key]})`;
@@ -266,7 +267,7 @@ function make_unary_op(op, right) {
 function wat_get_value(node) {
   const [type, text] = node;
   if (type === $_NODE) {
-    return `(local.get ${text})`;
+    return `(local.get $${text})`;
   }
   if (type === NUM_NODE) {
     return `(i32.const ${text})`;
@@ -310,13 +311,13 @@ function make_binary_op(op, right, left) {
       wat = `(i32.store ${wat_get_value(left)} ${wat_get_value(right)})`;
       break;
     case "=":
-      wat = `(local.set ${left[text_key]} ${wat_get_value(right)})`;
+      wat = `(local.set $${left[text_key]} ${wat_get_value(right)})`;
       break;
     case ",":
       wat = `${wat_get_value(left)} ${wat_get_value(right)}`;
       break;
     case "call":
-      wat = `(call ${left[text_key]} ${wat_get_value(right)})`;
+      wat = `(call $${left[text_key]} ${wat_get_value(right)})`;
       break;
     default:
       wat = `(unknown ${op[text_key]})`;

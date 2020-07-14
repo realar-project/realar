@@ -15,9 +15,7 @@ function compile(code, dirname) {
     i, len,
     out = [],
     prev_push_index = 0,
-    func_tree_deep = 0,
-    exclude_section_deep = 0,
-    define_const = new Map();
+    exclude_section_deep = 0;
 
   len = code.length;
 
@@ -34,13 +32,14 @@ function compile(code, dirname) {
     }
     if (code[i] === "(") {
       i = i+1;
-      after_close_bracket();
+      go_after_close_bracket();
       continue;
     }
     if (code.slice(i, i+2) === "# ") {
       push_index(i);
       const line = read_line();
       push_comment_block(line);
+      push_eol();
       push_preprocess_section(line.slice(2));
       push_eol();
       cut_index(i);
@@ -48,10 +47,12 @@ function compile(code, dirname) {
     }
     if (code.slice(i, i+4) === "func") {
       push_index(i);
-      func_tree_deep = 1;
       const line = read_line();
+      push_eol();
       push_comment_block(line);
+      push_eol();
       push_func_def(line);
+      parse_func_body();
       push_eol();
       cut_index(i);
       continue;
@@ -63,7 +64,10 @@ function compile(code, dirname) {
   return out.join("");
 
   function read_line() {
-    let start = i, end = i;
+    let
+      start = i,
+      end = len
+    ;
     for (;i < len; i++) {
       if (code[i] === "\n") {
         end = i;
@@ -81,10 +85,182 @@ function compile(code, dirname) {
         break;
       }
     }
+    if (end === len) {
+      end = i;
+    }
     return code.slice(start, end);
   }
 
-  function after_close_bracket() {
+  function parse_func_body() {
+    let
+      block_indent = 1,
+      line_indent = 0,
+      prev_if = 0,
+      read_2, read_3, read_4, line, expr,
+      then_section = new Set(),
+      else_section = new Set()
+    ;
+
+    const expr_with_const_pattern = /^[!0-9_a-zA-Z\[]/m;
+
+    function prev_if_push() {
+      if (!prev_if) return;
+      push_text("(then ");
+      then_section.add(block_indent);
+      prev_if = 0;
+    }
+
+    function perform_indent() {
+      if(block_indent <= line_indent) return;
+      let k = block_indent - line_indent;
+      while(k--) {
+        push_text(")");
+        if (then_section.has(block_indent)) {
+          push_text(")");
+          then_section.delete(block_indent);
+        }
+        if (else_section.has(block_indent)) {
+          push_text(")");
+          else_section.delete(block_indent);
+        }
+        block_indent --;
+      }
+    }
+
+    while(i < len) {
+      if (code[i] === "\n") {
+        i = i+1;
+        line_indent = 0;
+        push_text("\n");
+        continue;
+      }
+      if (code[i] === "(") {
+        perform_indent();
+        if (line_indent > 0) throw `Unexpected "(" in body function at ${i}`;
+        break;
+      }
+
+      read_2 = code.slice(i, i+2);
+      if (read_2 === ";;") {
+        push_line();
+        line_indent = 0;
+        continue;
+      }
+      if (read_2 === "  ") {
+        i = i+2;
+        line_indent += 1;
+        push_text("  ");
+        continue;
+      }
+
+      read_3 = code.slice(i, i+3);
+      if (read_3 === "if ") {
+        perform_indent();
+        prev_if_push();
+        i = i+3;
+        block_indent += 1;
+        prev_if = 1;
+        expr = read_line_push_comment();
+        push_text(`(if `);
+        push_expr(expr);
+        push_eol();
+        line_indent = 0;
+        continue;
+      }
+      if (read_3 === "br ") {
+        perform_indent();
+        prev_if_push();
+        line = read_line_push_comment();
+        push_text_eol(`(${line})`);
+        line_indent = 0;
+        continue;
+      }
+
+      read_4 = code.slice(i, i+4);
+      if (read_4 === "else") {
+        line_indent += 1;
+        if (then_section.has(line_indent)) {
+          push_text_eol(")");
+          then_section.delete(line_indent);
+        }
+        perform_indent();
+        else_section.add(block_indent);
+        i = i+4;
+        push_text(`(else `);
+        if (code[i] === " ") {
+          push_text(code[i]);
+          i = i + 1;
+          expr = read_line_push_comment();
+          push_expr(expr);
+          push_eol();
+          line_indent = 0;
+        }
+        continue;
+      }
+      if (read_4 === "func") {
+        perform_indent();
+        if (line_indent > 0) throw `Nested func unsupported ${i}`;
+        break;
+      }
+
+      if (code.slice(i, i+5) === "loop ") {
+        perform_indent();
+        prev_if_push();
+        line = read_line_push_comment();
+        push_text_eol(`(${line}`);
+        block_indent += 1;
+        line_indent = 0;
+        continue;
+      }
+      if (code.slice(i, i+6) === "local ") {
+        i = i+6;
+        line = read_line_push_comment();
+        line = line.split(" ").map(p => "(local $"+p+" i32)").join(" ");
+        push_text(line);
+        line_indent = 0;
+        continue;
+      }
+
+      if (expr_with_const_pattern.test(code[i])) {
+        perform_indent();
+        prev_if_push();
+        line = read_line_push_comment();
+        push_expr(line);
+        push_eol();
+        line_indent = 0;
+        continue;
+      }
+
+      throw `Parse func body unknown error at ${i} "${code[i]}"`;
+    }
+
+    while(block_indent-- > 0) {
+      push_text(")");
+    }
+  }
+
+  function read_line_push_comment() {
+    let k = i;
+    const line = read_line();
+    let len = line.length;
+    if (k + len < i) {
+      push_text(code.slice(k + len, i));
+    }
+    return line;
+  }
+
+  function push_line() {
+    let k = i;
+    for (;i < len; i++) {
+      if (code[i] === "\n") {
+        ++i;
+        break;
+      }
+    }
+    push_text(code.slice(k, i));
+  }
+
+  function go_after_close_bracket() {
     let d = 1;
     while(i < len) {
       if (code[i] === "(") d++;
@@ -98,13 +274,22 @@ function compile(code, dirname) {
     prev_push_index = k;
   }
 
+  function push_expr(text) {
+    push_text(expr_to_wat(text));
+  }
+
   function push_text(text) {
     if (exclude_section_deep) return;
-    out.push(define_const_process_text(text));
+    out.push(text);
   }
 
   function push_eol() {
     push_text("\n");
+  }
+
+  function push_text_eol(text) {
+    push_text(text);
+    push_eol();
   }
 
   function push_index(k) {
@@ -123,9 +308,9 @@ function compile(code, dirname) {
     let m;
     if (m = func_pattern.exec(text)) {
       let [_, name, params, result] = m;
-      let text = "(func $" + name;
+      let text = "(func $" + name + " ";
       if (params) {
-        text += params.split(" ").map(p => "(param "+p+" i32)").join(" ");
+        text += params.split(" ").map(p => "(param $"+p+" i32)").join(" ");
       }
       if (result) {
         text += " (result i32)";
@@ -137,18 +322,11 @@ function compile(code, dirname) {
   function push_preprocess_section(text) {
     const xml_pattern = /^<([^\>]+)>$/m;
     const import_pattern = /^import (.+)$/m;
-    const define_pattern = /^define ([A-Z_][A-Z_0-9]*) ([1-9][0-9]*)$/m
 
     let m;
     if (m = import_pattern.exec(text)) {
       const [_, import_path] = m;
-      const text = import_node_compile(import_path, dirname);
-      // console.log("IMPORT", import_path, dirname, text);
-      push_text(text);
-    }
-    else if (m = define_pattern.exec(text)) {
-      const [_, name, value] = m;
-      define_const.set(name, value);
+      push_text(import_node_compile(import_path, dirname));
     }
     else if (m = xml_pattern.exec(text)) {
       const [_, tag] = m;
@@ -164,19 +342,8 @@ function compile(code, dirname) {
       }
     }
     else {
-      throw `Unexpected preprocessor command ${text}`
+      throw `Unexpected preprocessor command "${text}"`
     }
-  }
-
-  function define_const_process_text(text) {
-    const const_name_pattern = /(^|[^a-zA-Z0-9_])([A-Z_][A-Z_0-9]*)/gm;
-    // console.log("DEFINE <", text, define_const);
-    text = text.replace(
-      const_name_pattern,
-      (match, prefix, name) => define_const.has(name) ? prefix + define_const.get(name) : match
-    );
-    // console.log("DEFINE >", text);
-    return text;
   }
 }
 
@@ -186,16 +353,56 @@ function import_node_compile(import_path, dirname) {
     import_dirname = path.dirname(import_filepath),
     import_code = fs.readFileSync(import_filepath, "utf8");
 
-  return compile(import_code, import_dirname);
+  return full_compile(import_code, import_dirname);
 }
 
+function full_compile(code, dirname) {
+  return compile(
+    define_compile(code),
+    dirname
+  );
+}
+
+function define_compile(code) {
+  let consts = new Map();
+
+  let list = [];
+
+  const define_pattern = /^# define ([A-Z_][A-Z_0-9]*) ([1-9][0-9]*)/gm;
+  code = code.replace(
+    define_pattern,
+    (match, name, value) => {
+      consts.set(name, value);
+      let i = list.push(match) - 1;
+      return `(;;%%${i}%%;;)`;
+    }
+  );
+
+  const const_name_pattern = /(^|[^a-zA-Z0-9_])([A-Z_][A-Z_0-9]*)/gm;
+  code = code.replace(
+    const_name_pattern,
+    (match, prefix, name) => consts.has(name) ? prefix + consts.get(name) : match
+  );
+
+  const list_pattern = /%%([0-9]+)%%/gm;
+  code = code.replace(
+    list_pattern,
+    (_, i) => list[i]
+  );
+
+  return code;
+}
+
+// <debug>
+function slice_code_lines(code, from, to) {
+  const lines = code.split("\n");
+  return lines.slice(from, to).map((t, i) => `${from + i}: ${t}`).join("\n");
+}
+// </debug
+
 function preprocess(code, dirname) {
-  // console.log(code.slice(0, 1000));
-  context_define_const = new Map();
-  code = compile(code, dirname);
-  console.log("-------");
-  console.log(code.slice(0, 1000));
-  // console.log(code);
-  throw "debug";
+  code = full_compile(code, dirname);
+  // console.log(slice_code_lines(code, 80, 120));
+  // throw "debug";
   return code;
 }
