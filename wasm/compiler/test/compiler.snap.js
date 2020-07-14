@@ -1,16 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should work 1`] = `
-"(;;# import code/index;;)
+"(;;## import code/index;;)
 (module
   (import \\"env\\" \\"memory\\" (memory 1))
 
-  (;;# import debug;;)
-(;;# <debug>;;)
+  (;;## import debug;;)
+(;;## <debug>;;)
 
 
-  (;;# import seq_id;;)
-(;;# define SEQ_ID_ADR 4;;)
+  (;;## import seq_id;;)
+(;;## define SEQ_ID_ADR 4;;)
 
 
 (;;func seq_id_init;;)
@@ -31,9 +31,9 @@ exports[`should work 1`] = `
 
 )
 
-  (;;# import set;;)
-(;;# define SET_ELM_SIZE 4;;)
-(;;# define SET_HEAD_SIZE 4;;)
+  (;;## import set;;)
+(;;## define SET_ELM_SIZE 4;;)
+(;;## define SET_HEAD_SIZE 4;;)
 
 ;; Set memory struct
 ;; 0 - size

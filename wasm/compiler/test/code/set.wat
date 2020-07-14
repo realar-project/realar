@@ -1,12 +1,12 @@
-# define SET_ELM_SIZE 4
-# define SET_HEAD_SIZE 4
+## define SET_ELM_SIZE 4
+## define SET_HEAD_SIZE 4
 
-## Set memory struct
-;; 0 - size
+# Set memory struct
+# 0 - size
 ;; [1..size)
 
 func set_create result
-  seq_id_next() << 7 ;; Each set 128 bytes by default
+  seq_id_next() << 7 # Each set 128 bytes by default
 
 
 func set_add(id n)

@@ -1,12 +1,12 @@
-# define SET_ELM_SIZE 4
-# define SET_HEAD_SIZE 4
+## define SET_ELM_SIZE 4
+## define SET_HEAD_SIZE 4
 
-## Set memory struct
-## 0 - size
-## [1..size)
+# Set memory struct
+# 0 - size
+# [1..size)
 
 func set_create result
-  seq_id_next() << 7 ## Each set 128 bytes by default
+  seq_id_next() << 7 # Each set 128 bytes by default
 
 
 func set_add(id n)
@@ -83,15 +83,18 @@ func set_search(id n) result
       b = size >> 1 ;; size / 2
       a = size - b
 
-      ;; left:a:(+1-0) | right:b
+      # left:a:(+1-0) | right:b
       half = offset + a
       half_index = half - 1
+
       half_n = set_get_i(id, half_index)
+
       if n > half_n
         if !b
           res = half
         else
           offset = offset + a
+          size = a
           br $loop
       else
         if n != half_n
