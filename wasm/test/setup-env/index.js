@@ -1,3 +1,4 @@
+// import { build_module_buff } from "../../compiler";
 import wasm_buff from "../../compiled.wat";
 
 let lib = {};
@@ -17,6 +18,7 @@ function set_extract(id) {
 
 beforeAll(async () => {
   process.env = {};
+  // const wasm_buff = await build_module_buff();
   const wasm_module = await WebAssembly.compile(wasm_buff);
   const wasm_instance = new WebAssembly.Instance(wasm_module, {
     env: { memory }
