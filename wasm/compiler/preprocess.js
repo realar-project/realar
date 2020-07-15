@@ -35,12 +35,12 @@ function compile(code, dirname) {
       go_after_close_bracket();
       continue;
     }
-    if (code.slice(i, i+2) === "# ") {
+    if (code.slice(i, i+3) === "## ") {
       push_index(i);
       const line = read_line();
       push_comment_block(line);
       push_eol();
-      push_preprocess_section(line.slice(2));
+      push_preprocess_section(line.slice(3));
       push_eol();
       cut_index(i);
       continue;
@@ -366,8 +366,8 @@ function full_compile(code, dirname) {
 }
 
 function sharp_sharp_comment_compile(code) {
-  const pattern = /##/mg;
-  return code.replace(pattern, ";;");
+  const pattern = /([^#])#([^#])/mg;
+  return code.replace(pattern, (_, prefix, suffix) => prefix + ";;" + suffix);
 }
 
 function define_compile(code) {
@@ -375,7 +375,7 @@ function define_compile(code) {
 
   let list = [];
 
-  const define_pattern = /^# define ([A-Z_][A-Z_0-9]*) ([1-9][0-9]*)/gm;
+  const define_pattern = /^## define ([A-Z_][A-Z_0-9]*) ([1-9][0-9]*)/gm;
   code = code.replace(
     define_pattern,
     (match, name, value) => {

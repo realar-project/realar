@@ -6,12 +6,12 @@ beforeEach(() => {
   process.env = {};
 });
 
-afterAll(() => {
+afterEach(() => {
   process.env = ENV;
 });
 
 test("should work", () => {
-  let code = `# import code/index`;
+  let code = `## import code/index`;
 
   expect(preprocess(code, __dirname)).toMatchSnapshot();
 });

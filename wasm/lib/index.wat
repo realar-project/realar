@@ -1,9 +1,9 @@
 (module
   (import "env" "memory" (memory 1))
 
-  # import debug
-  # import seq_id
-  # import set
+  ## import debug
+  ## import seq_id
+  ## import set
 
   (export "seq_id_init" (func $seq_id_init))
 
