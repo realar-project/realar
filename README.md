@@ -21,7 +21,7 @@ module.exports = {
 }
 ```
 
-And you need to wrap your react-dom render block, to realar `init` function:
+And you need to wrap your react-dom render block, to Realar `init` function call:
 
 ```javascript
 import React from "react";
@@ -125,7 +125,7 @@ export default function App() {
 }
 ```
 
-And crazy usage :stuck_out_tongue_winking_eye:
+All interface methods in one presentation example:
 
 ```javascript
 import React from "react";
