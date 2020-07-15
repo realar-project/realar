@@ -41,6 +41,7 @@
   "types": "./lib/index.d.ts",
   "files": [
     "/lib",
+    "/wasm/compiled.wat.js",
     "/babel",
     "/jest"
   ],
