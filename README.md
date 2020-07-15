@@ -5,9 +5,31 @@
 ### Installation
 
 ```bash
-npm i --save realar
+npm i -P realar
 # or
 yarn add realar
+```
+
+After that you need update your babel config:
+
+```javascript
+// .babelrc.js
+module.exports = {
+  "plugins": [
+    "realar/babel"
+  ]
+}
+```
+
+And you need to wrap your react-dom render block, to realar `init` function:
+
+```javascript
+import React from "react";
+import { render } from "react-dom";
+import { init } from "realar";
+import { App } from "./app";
+
+init(() => render(<App />, document.getElementById("root")));
 ```
 
 ### Usage
@@ -47,7 +69,63 @@ export default function App() {
   );
 }
 ```
-Crazy usage :stuck_out_tongue_winking_eye:
+
+Redux style usage:
+
+```javascript
+import React from "react";
+import { unit, useService } from "realar";
+
+const store = unit({
+  state: [
+    { title: 'Todo 1' },
+    { title: 'Todo 2', completed: true }
+  ],
+  get completed() {
+    return this.state.filter(i => i.completed);
+  },
+  get all() {
+    return this.state;
+  },
+  add(title, completed = false) {
+    this.state = [ ...this.state, { title, completed }];
+  },
+  toggle(i) {
+    const { state } = this;
+    const index = state.indexOf(i);
+    this.state = [
+      ...state.slice(0, index),
+      { ...i, completed: !i.completed },
+      ...state.slice(index+1)
+    ];
+  }
+});
+
+function TodoItem({ item }) {
+  const { title, completed } = item;
+  return (
+    <div className="todo-item">
+      {completed ? <div className="completed"></div> : null>}
+      <span className="title">{title}</span>
+    </div>
+  );
+}
+
+function TodoList() {
+  const { all } = useService(store);
+  return (
+    <div className="todo-list">
+      {all.map(item => <TodoItem item={item} />)}
+    </div>
+  );
+}
+
+export default function App() {
+  return <TodoList />;
+}
+```
+
+And crazy usage :stuck_out_tongue_winking_eye:
 
 ```javascript
 import React from "react";
@@ -234,11 +312,11 @@ export function Root() {
 }
 ```
 
-Try this example on your computer
+Try this example on your computer:
 
 ```bash
 git clone git@github.com:betula/realar.git
 cd realar
 npm run start
-# Open http://localhost:1234 in your browser
+# Open http://localhost:1210 in your browser
 ```
