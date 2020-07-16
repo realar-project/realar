@@ -1,12 +1,16 @@
 {
   "setupFiles": [
-    "<rootDir>/jest-setup.js"
+    "<rootDir>/jest-setup"
   ],
   "setupFilesAfterEnv": [
-    "<rootDir>/jest/env.js"
+    "<rootDir>/jest"
   ],
-  "snapshotResolver": "<rootDir>/jest-snapshot-resolver.js",
+  "snapshotResolver": "<rootDir>/jest-snapshot-resolver",
   "modulePathIgnorePatterns": [
     "<rootDir>/lib/"
-  ]
+  ],
+  "transform": {
+    "^.+\\.[jt]sx?$": "babel-jest",
+    "\\.u32$": "<rootDir>/u32/jest-transform"
+  }
 }

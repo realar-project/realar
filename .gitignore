@@ -34,5 +34,5 @@ lerna-debug.log*
 dist
 .cache
 
-# prod
-/prod
+# build
+build

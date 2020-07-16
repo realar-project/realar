@@ -1,14 +1,15 @@
 (module
-  ;; (table 0 anyfunc)
-  ;; (memory $0 1)
-  ;; (export "memory" (memory $0))
-  (import "env" "memory" (memory 1))
-
   ## import debug
+
+  (table 0 anyfunc)
+  (memory $0 1)
+
+  ## import init
   ## import seq_id
   ## import set
 
-  (export "seq_id_init" (func $seq_id_init))
+  (export "init" (func $init))
+  (export "free" (func $free))
 
   (export "set_create" (func $set_create))
   (export "set_add" (func $set_add))
@@ -16,4 +17,6 @@
   (export "set_delete" (func $set_delete))
   (export "set_size" (func $set_size))
   (export "set_free" (func $set_free))
+
+  (export "memory" (memory $0))
 )
