@@ -1,10 +1,10 @@
 const
   fs = require("fs"),
   path = require("path"),
-  { expr_to_wat } = require("./expr");
+  expr_to_wat = require("./expr").expr_to_wat;
 
 const
-  import_path_ext = ".wat";
+  import_path_ext = ".u32";
 
 module.exports = {
   preprocess
@@ -401,10 +401,10 @@ function define_compile(code) {
 }
 
 // <debug>
-function slice_code_lines(code, from, to) {
-  const lines = code.split("\n");
-  return lines.slice(from, to).map((t, i) => `${from + i}: ${t}`).join("\n");
-}
+// function slice_code_lines(code, from, to) {
+//   const lines = code.split("\n");
+//   return lines.slice(from, to).map((t, i) => `${from + i}: ${t}`).join("\n");
+// }
 // </debug
 
 function preprocess(code, dirname) {

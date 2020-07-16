@@ -11,7 +11,7 @@
   "license": "MIT",
   "scripts": {
     "bootstrap": "npx lerna bootstrap --no-ci",
-    "clean": "npm run test:clean && npm run dev:clean && lerna clean --yes",
+    "clean": "npm run test:clean && npm run dev:clean && npm run prod:clean && lerna clean --yes",
     "publish": "npm run test && lerna publish",
     "start": "npm run bootstrap && npm run dev",
     "reinstall": "npm run clean && npm run bootstrap",
@@ -21,10 +21,8 @@
     "dev": "cd dev && cross-env REALAR_DEV=true NODE_ENV=development parcel index.html --port 1210",
     "dev:test-build": "cd dev && cross-env REALAR_DEV=true parcel build index.html",
     "dev:clean": "cd dev && rimraf dist .cache",
-    "wasm:dev": "cd wasm/dev && cross-env REALAR_DEV=true node index.js",
-    "wasm:c": "cd wasm && node compiler/cli.js",
-    "wasm:c:watch": "watch \"npm run wasm:c\" wasm",
-    "wasm": "watch \"npm run wasm:dev\" wasm"
+    "prod:clean": "rimraf prod",
+    "prod:build": "npx rollup -c"
   },
   "author": "Slava Birch <mail@betula.co> (http://betula.co)",
   "keywords": [
@@ -37,13 +35,15 @@
     "micro frontends",
     "next"
   ],
-  "module": "./lib/index.js",
-  "types": "./lib/index.d.ts",
+  "source": "lib/index.js",
+  "main": "prod/index.js",
+  "module": "prod/index.esm.js",
+  "types": "realar.d.ts",
   "files": [
-    "/lib",
-    "/wasm/compiled.wat.js",
-    "/babel",
-    "/jest"
+    "babel",
+    "jest",
+    "prod",
+    "realar.d.ts"
   ],
   "peerDependencies": {
     "react": ">=16.8.0"
@@ -52,6 +52,7 @@
     "@babel/core": "7.10.3",
     "@babel/preset-env": "7.10.3",
     "@babel/preset-react": "7.10.1",
+    "@rollup/plugin-node-resolve": "8.4.0",
     "babel-jest": "26.1.0",
     "cross-env": "7.0.2",
     "enzyme": "3.11.0",
@@ -63,8 +64,8 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "rimraf": "3.0.2",
-    "wabt": "1.0.17",
-    "watch": "1.0.2"
+    "rollup": "2.21.0",
+    "wabt": "1.0.17"
   },
   "browserslist": [
     "last 2 Chrome versions"
