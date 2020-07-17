@@ -6,7 +6,10 @@
 # [1..size)
 
 func set_create result
-  seq_id_next() << 7 # Each set 128 bytes by default
+  local id
+  id = seq_id_next() << 7 # Each set 128 bytes by default
+  # log_1(id)
+  id
 
 
 func set_add(id n)

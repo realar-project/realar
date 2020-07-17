@@ -6,10 +6,11 @@ module.exports = {
 function tpl(src_block, export_prefix) {
   return `
 ${export_prefix} function(env) {
+  let src = ${src_block}
   let buf
   let isNode = typeof process !== "undefined" && process.versions != null && process.versions.node != null
   if (isNode) {
-    buf = Buffer.from(${src_block}, "base64")
+    buf = Buffer.from(src, "base64")
   } else {
     let raw = atob(src)
     let len = raw.length
@@ -21,7 +22,7 @@ ${export_prefix} function(env) {
   let imports = {
     env: {
       log_i32() {
-        console.log.apply(console, arguments)
+        console.log.apply(console, ["core:"].concat([].slice.call(arguments)))
       }
     }
   }
@@ -46,7 +47,7 @@ function buf_to_js(buf) {
   if (last) {
     list.push(src.slice(S*rows));
   }
-  return `\n"${list.join(`"+\n"`)}"\n`;
+  return `"${list.join(`"+\n"`)}"`;
 }
 
 function common_js_block(buf) {

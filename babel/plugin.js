@@ -1,9 +1,10 @@
 const
+  path = require("path"),
   { types, template } = require("@babel/core");
 
 const
   unit_name = "unit",
-  lib_name = process.env.REALAR_DEV ? "../lib" : "realar",
+  lib_name = process.env.REALAR_DEV ? path.join(__dirname, "../lib") : "realar",
   view_call_name = `require("${lib_name}").view_render`,
   processed = new Set(),
   dec_named_func_tpl = template(`function NAME(){return ${view_call_name}(BODY,arguments,this)}`),

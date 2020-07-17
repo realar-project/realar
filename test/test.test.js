@@ -1,5 +1,4 @@
-import { unit, service } from "../lib";
-import { mock } from "../jest";
+import { unit, service, mock } from "../lib";
 
 const s = unit({
   v: 1,
