@@ -6,20 +6,9 @@
 
   ## import seq_id
   ## import set
-  ## import init
   ## import push_pop
 
-  (export "init" (func $init))
-  (export "free" (func $free))
-  (export "push" (func $push))
-  (export "pop" (func $pop))
-
-  (export "set_create" (func $set_create))
-  (export "set_add" (func $set_add))
-  (export "set_has" (func $set_has))
-  (export "set_delete" (func $set_delete))
-  (export "set_size" (func $set_size))
-  (export "set_free" (func $set_free))
+  ## import exports
 
   (export "memory" (memory $0))
 )

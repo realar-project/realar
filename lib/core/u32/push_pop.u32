@@ -1,8 +1,9 @@
 
 func push
+  seq_id_init()
 
 func pop
 
 # TODO:
-# - `push` should be change start byte pointer to new place (make new machine and run `init`)
-# - `pop` should be change start byte pointer to previous value (and run `free`)
+# - `push` should be change start byte pointer to new place
+# - `pop` should be change start byte pointer to previous value

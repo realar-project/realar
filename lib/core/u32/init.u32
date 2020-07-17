@@ -1,5 +1,0 @@
-
-func init
-  seq_id_init()
-
-func free
