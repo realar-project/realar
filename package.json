@@ -11,15 +11,13 @@
   "license": "MIT",
   "scripts": {
     "bootstrap": "npx lerna bootstrap --no-ci",
-    "clean": "npm run test:clean && npm run dev:clean && npm run prod:clean && lerna clean --yes",
-    "publish": "npm run test && lerna publish",
+    "clean": "npm run test:clean && npm run dev:clean && npm run build:clean && lerna clean --yes",
+    "publish": "npm run test && npm run build && lerna publish",
     "start": "npm run bootstrap && npm run dev",
     "reinstall": "npm run clean && npm run bootstrap",
     "test": "cross-env REALAR_DEV=true jest --coverage",
     "test:clean": "jest --clearCache && rimraf coverage",
-    "reset": "npm run clean && npm run bootstrap",
-    "dev": "cd dev && cross-env REALAR_DEV=true NODE_ENV=development parcel index.html --port 1210",
-    "dev:test-build": "cd dev && cross-env REALAR_DEV=true parcel build index.html",
+    "dev": "npm run dev:clean && cd dev && cross-env NODE_ENV=development parcel index.html --port 1210",
     "dev:clean": "cd dev && rimraf dist .cache",
     "build:clean": "rimraf build",
     "build": "rollup -c"
@@ -58,9 +56,8 @@
     "enzyme": "3.11.0",
     "enzyme-adapter-react-16": "1.15.2",
     "jest": "26.1.0",
-    "jest-mock": "26.1.0",
     "lerna": "3.22.1",
-    "parcel-bundler": "1.12.4",
+    "parcel": "1.12.4",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "rimraf": "3.0.2",
@@ -73,5 +70,8 @@
   "sideEffects": false,
   "publishConfig": {
     "access": "public"
+  },
+  "alias": {
+    "realar": "./build"
   }
 }

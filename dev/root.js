@@ -10,7 +10,7 @@ import {
   useService,
   useUnit,
   Zone
-} from "../build";
+} from "realar";
 
 const backend_async_init = event();
 const log = event();

@@ -57,6 +57,17 @@ function compile(code, dirname) {
       cut_index(i);
       continue;
     }
+    if (code.slice(i, i+6) === "export") {
+      push_index(i);
+      const line = read_line();
+      push_eol();
+      push_comment_block(line);
+      push_eol();
+      push_export_def(line);
+      push_eol();
+      cut_index(i);
+      continue;
+    }
     i = i + 1;
   }
   push_index(i);
@@ -304,7 +315,7 @@ function compile(code, dirname) {
   }
 
   function push_func_def(text) {
-    const func_pattern = /^func ([a-z_][a-z_0-9]+) ?(?:\(([^\)]+)\))? ?(result)?$/m;
+    const func_pattern = /^func ([a-z_][a-z_0-9]*) ?(?:\(([^\)]+)\))? ?(result)?$/m;
     let m;
     if (m = func_pattern.exec(text)) {
       let [_, name, params, result] = m;
@@ -315,6 +326,20 @@ function compile(code, dirname) {
       if (result) {
         text += " (result i32)";
       }
+      push_text(text);
+    }
+  }
+
+  function push_export_def(text) {
+    const export_pattern = /^export ((?:[a-z_][a-z_0-9]* ?)+)$/m;
+    let m;
+    if (m = export_pattern.exec(text)) {
+      let [_, names] = m;
+      let text = names
+        .split(" ")
+        .map(name => `(export "${name}" (func $${name}))`)
+        .join(" ");
+
       push_text(text);
     }
   }

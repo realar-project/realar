@@ -1,10 +1,15 @@
-const
-  { compile } = require("./u32/compiler/index.js"),
-  { module_js_block } = require("./u32/lib/js-block.js");
-
 export default u32;
 
 function u32() {
+
+  let rootDir = process.cwd();
+  if (!/realar$/.test(rootDir)) {
+    rootDir = process.env.OLDPWD;
+  }
+
+  const { compile } = require(rootDir + "/u32/compiler");
+  const { module_js_block } = require(rootDir + "/u32/lib/js-block");
+
   return {
     name: "u32",
 

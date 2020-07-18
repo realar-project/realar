@@ -1,4 +1,4 @@
-import { nodeResolve } from "@rollup/plugin-node-resolve";
+import resolve from "@rollup/plugin-node-resolve";
 import u32 from "./u32/rollup-plugin";
 import pkg, { peerDependencies } from "./package.json";
 
@@ -13,7 +13,7 @@ export default {
   }],
   external: Object.keys(peerDependencies),
   plugins: [
-    nodeResolve(),
+    resolve(),
     u32()
   ]
 }

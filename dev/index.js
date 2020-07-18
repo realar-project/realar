@@ -4,4 +4,3 @@ import { Root } from "./root";
 // import { App as Root } from "./perf";
 
 render(<Root />, document.getElementById("root"));
-
