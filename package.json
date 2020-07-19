@@ -11,20 +11,16 @@
   "license": "MIT",
   "scripts": {
     "bootstrap": "npx lerna bootstrap --no-ci",
-    "clean": "npm run test:clean && npm run dev:clean && lerna clean --yes",
-    "publish": "npm run test && lerna publish",
-    "start": "npm run bootstrap && npm run dev",
+    "clean": "npm run test:clean && npm run demo:clean && npm run build:clean && lerna clean --yes",
+    "publish": "npm run test && npm run build && lerna publish",
+    "start": "npm run bootstrap && npm run demo",
     "reinstall": "npm run clean && npm run bootstrap",
-    "test": "cross-env REALAR_DEV=true jest --coverage",
+    "test": "npm run test:clean && cross-env REALAR_DEV=true jest --coverage",
     "test:clean": "jest --clearCache && rimraf coverage",
-    "reset": "npm run clean && npm run bootstrap",
-    "dev": "cd dev && cross-env REALAR_DEV=true NODE_ENV=development parcel index.html --port 1210",
-    "dev:test-build": "cd dev && cross-env REALAR_DEV=true parcel build index.html",
-    "dev:clean": "cd dev && rimraf dist .cache",
-    "wasm:dev": "cd wasm/dev && cross-env REALAR_DEV=true node index.js",
-    "wasm:c": "cd wasm && node compiler/cli.js",
-    "wasm:c:watch": "watch \"npm run wasm:c\" wasm",
-    "wasm": "watch \"npm run wasm:dev\" wasm"
+    "demo": "npm run demo:clean && cd demo && cross-env NODE_ENV=development parcel index.html --port 1210",
+    "demo:clean": "cd demo && rimraf dist .cache",
+    "build:clean": "rimraf build",
+    "build": "rollup -c"
   },
   "author": "Slava Birch <mail@betula.co> (http://betula.co)",
   "keywords": [
@@ -37,13 +33,14 @@
     "micro frontends",
     "next"
   ],
-  "module": "./lib/index.js",
-  "types": "./lib/index.d.ts",
+  "main": "build/index.js",
+  "module": "build/index.esm.js",
+  "types": "realar.d.ts",
   "files": [
-    "/lib",
-    "/wasm/compiled.wat.js",
-    "/babel",
-    "/jest"
+    "babel",
+    "jest",
+    "build",
+    "realar.d.ts"
   ],
   "peerDependencies": {
     "react": ">=16.8.0"
@@ -52,19 +49,20 @@
     "@babel/core": "7.10.3",
     "@babel/preset-env": "7.10.3",
     "@babel/preset-react": "7.10.1",
+    "@rollup/plugin-node-resolve": "8.4.0",
     "babel-jest": "26.1.0",
     "cross-env": "7.0.2",
+    "deasync": "0.1.20",
     "enzyme": "3.11.0",
     "enzyme-adapter-react-16": "1.15.2",
     "jest": "26.1.0",
-    "jest-mock": "26.1.0",
     "lerna": "3.22.1",
-    "parcel-bundler": "1.12.4",
+    "parcel": "1.12.4",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "rimraf": "3.0.2",
-    "wabt": "1.0.17",
-    "watch": "1.0.2"
+    "rollup": "2.21.0",
+    "wabt": "1.0.17"
   },
   "browserslist": [
     "last 2 Chrome versions"
@@ -72,5 +70,8 @@
   "sideEffects": false,
   "publishConfig": {
     "access": "public"
+  },
+  "alias": {
+    "realar": "./build"
   }
 }

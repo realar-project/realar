@@ -1,0 +1,7 @@
+
+func seq_id_init
+  [SEQ_ID] = 0
+
+func seq_id_next result
+  [SEQ_ID] = [SEQ_ID] + 1
+  [SEQ_ID]

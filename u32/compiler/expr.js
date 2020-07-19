@@ -15,16 +15,17 @@ module.exports = {
 
 function expr_to_wat(text) {
   // console.log(text);
-  const pattern = /<<|>>|!=|==|>=|<=|[%*\/+\-><=!,]|[\(\)\[\]]|[a-z_][a-z_0-9]*|0|[1-9][0-9]*/gm;
+  const pattern = /<<|>>|!=|==|>=|<=|[%*\/+\-><=!,]|[\(\)\[\]]|[a-z_][a-z_0-9]*|0|[1-9][0-9]*|[A-Z_][A-Z_0-9]*/gm;
   const num_pattern = /[0-9]/;
   const $_pattern = /[a-z_]/;
+  const const_pattern = /[A-Z_]/;
 
   let tree = [];
   let tree_i_next = 0;
   let m;
   while(m = pattern.exec(text)) {
     const text = m[0];
-    if ($_pattern.test(text)) {
+    if ($_pattern.test(text) || const_pattern.test(text)) {
       tree.push([ $_NODE, text, tree_i_next++ ]);
     }
     else if (num_pattern.test(text)) {
@@ -83,6 +84,8 @@ function expr_to_wat(text) {
     top_op_stack_p = 0,
     len = tree.length,
     i;
+
+  try {
 
   // console.log("TREE", tree);
   for (i = 0; i < len; i++) {
@@ -240,6 +243,27 @@ function expr_to_wat(text) {
   const res = wat_get_value(value_stack.pop());
   // console.log(res);
   return res;
+
+  } catch(e) {
+    console.error("EXPR: ", text);
+    // console.error(value_stack, op_stack, tree);
+    throw e;
+  }
+}
+
+function wat_get_value(node) {
+  if (!node) throw "Out of stack";
+
+  const [type, text] = node;
+  if (type === $_NODE) {
+    return `(local.get $${text})`;
+  }
+  if (type === NUM_NODE) {
+    return `(i32.const ${text})`;
+  }
+  if (type === WAT_NODE) {
+    return text;
+  }
 }
 
 function make_unary_op(op, right) {
@@ -249,7 +273,7 @@ function make_unary_op(op, right) {
       wat = `(i32.eqz ${wat_get_value(right)})`;
       break;
     case "load":
-      wat = `(i32.load ${wat_get_value(right)})`;
+      wat = `(i32.load (i32.shl ${wat_get_value(right)} (i32.const 2)))`;
       break;
     case "call":
       wat = `(call $${right[text_key]})`;
@@ -262,19 +286,6 @@ function make_unary_op(op, right) {
     WAT_NODE,
     wat
   ];
-}
-
-function wat_get_value(node) {
-  const [type, text] = node;
-  if (type === $_NODE) {
-    return `(local.get $${text})`;
-  }
-  if (type === NUM_NODE) {
-    return `(i32.const ${text})`;
-  }
-  if (type === WAT_NODE) {
-    return text;
-  }
 }
 
 function make_binary_op(op, right, left) {
@@ -308,7 +319,7 @@ function make_binary_op(op, right, left) {
       wat = `(i32.lt_u ${wat_get_value(left)} ${wat_get_value(right)})`;
       break;
     case "store":
-      wat = `(i32.store ${wat_get_value(left)} ${wat_get_value(right)})`;
+      wat = `(i32.store (i32.shl ${wat_get_value(left)} (i32.const 2)) ${wat_get_value(right)})`;
       break;
     case "=":
       wat = `(local.set $${left[text_key]} ${wat_get_value(right)})`;

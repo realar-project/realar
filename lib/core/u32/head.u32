@@ -1,0 +1,8 @@
+## define MEM_FREE 0
+## define SLICE 1
+## define SEQ_ID 2
+
+func init
+  [MEM_FREE] = 32 # First 32 values (32 * 4 bytes = 128 bytes) reserved by global pointers
+  [SLICE] = 0
+  [SEQ_ID] = 0

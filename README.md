@@ -21,17 +21,6 @@ module.exports = {
 }
 ```
 
-And you need to wrap your react-dom render block, to Realar `init` function call:
-
-```javascript
-import React from "react";
-import { render } from "react-dom";
-import { init } from "realar";
-import { App } from "./app";
-
-init(() => render(<App />, document.getElementById("root")));
-```
-
 ### Usage
 
 Perfect usage :+1:

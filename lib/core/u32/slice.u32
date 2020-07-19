@@ -1,0 +1,25 @@
+
+func push
+  local mem_free slice
+
+  mem_free = [MEM_FREE]
+  slice = mem(4)
+
+  [slice + 1] = [SLICE]  # offset 1 - prev SLICE
+  [slice + 2] = mem_free # offset 2 - prev MEM_FREE
+  [slice + 3] = [SEQ_ID] # offset 3 - prev SEQ_ID
+
+  [SLICE] = slice
+
+  # log_3(400, slice, [MEM_FREE])
+
+  seq_id_init()
+
+func pop
+  local slice
+  # log_5(401, [SLICE], [SLICE + 1], [SLICE + 2], [SLICE + 3])
+
+  slice = [SLICE]
+  [SEQ_ID] =   [slice + 3]
+  [MEM_FREE] = [slice + 2]
+  [SLICE] =    [slice + 1]

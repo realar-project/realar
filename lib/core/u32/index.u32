@@ -1,0 +1,16 @@
+(module
+  ## import debug
+
+  (table 0 anyfunc)
+  (memory $0 1)
+
+  ## import head
+  ## import mem
+  ## import slice
+  ## import seq
+  ## import set
+
+  ## import exports
+
+  (export "memory" (memory $0))
+)

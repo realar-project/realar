@@ -1,10 +1,13 @@
 const
   fs = require("fs"),
   path = require("path"),
-  { expr_to_wat } = require("./expr");
+  expr_to_wat = require("./expr").expr_to_wat;
 
 const
-  import_path_ext = ".wat";
+  import_path_ext = ".u32";
+
+let
+  ctx_define_consts = 0;
 
 module.exports = {
   preprocess
@@ -53,6 +56,17 @@ function compile(code, dirname) {
       push_eol();
       push_func_def(line);
       parse_func_body();
+      push_eol();
+      cut_index(i);
+      continue;
+    }
+    if (code.slice(i, i+6) === "export") {
+      push_index(i);
+      const line = read_line();
+      push_eol();
+      push_comment_block(line);
+      push_eol();
+      push_export_def(line);
       push_eol();
       cut_index(i);
       continue;
@@ -304,7 +318,7 @@ function compile(code, dirname) {
   }
 
   function push_func_def(text) {
-    const func_pattern = /^func ([a-z_][a-z_0-9]+) ?(?:\(([^\)]+)\))? ?(result)?$/m;
+    const func_pattern = /^func ([a-z_][a-z_0-9]*) ?(?:\(([^\)]+)\))? ?(result)?$/m;
     let m;
     if (m = func_pattern.exec(text)) {
       let [_, name, params, result] = m;
@@ -315,6 +329,20 @@ function compile(code, dirname) {
       if (result) {
         text += " (result i32)";
       }
+      push_text(text);
+    }
+  }
+
+  function push_export_def(text) {
+    const export_pattern = /^export ((?:[a-z_][a-z_0-9]* ?)+)$/m;
+    let m;
+    if (m = export_pattern.exec(text)) {
+      let [_, names] = m;
+      let text = names
+        .split(" ")
+        .map(name => `(export "${name}" (func $${name}))`)
+        .join(" ");
+
       push_text(text);
     }
   }
@@ -371,15 +399,13 @@ function sharp_sharp_comment_compile(code) {
 }
 
 function define_compile(code) {
-  let consts = new Map();
-
   let list = [];
 
-  const define_pattern = /^## define ([A-Z_][A-Z_0-9]*) ([1-9][0-9]*)/gm;
+  const define_pattern = /^## define ([A-Z_][A-Z_0-9]*) (0|[1-9][0-9]*)/gm;
   code = code.replace(
     define_pattern,
     (match, name, value) => {
-      consts.set(name, value);
+      ctx_define_consts.set(name, value);
       let i = list.push(match) - 1;
       return `(;;%%${i}%%;;)`;
     }
@@ -388,7 +414,7 @@ function define_compile(code) {
   const const_name_pattern = /(^|[^a-zA-Z0-9_])([A-Z_][A-Z_0-9]*)/gm;
   code = code.replace(
     const_name_pattern,
-    (match, prefix, name) => consts.has(name) ? prefix + consts.get(name) : match
+    (match, prefix, name) => ctx_define_consts.has(name) ? prefix + ctx_define_consts.get(name) : match
   );
 
   const list_pattern = /%%([0-9]+)%%/gm;
@@ -401,15 +427,17 @@ function define_compile(code) {
 }
 
 // <debug>
-function slice_code_lines(code, from, to) {
-  const lines = code.split("\n");
-  return lines.slice(from, to).map((t, i) => `${from + i}: ${t}`).join("\n");
-}
+// function slice_code_lines(code, from, to) {
+//   const lines = code.split("\n");
+//   return lines.slice(from, to).map((t, i) => `${from + i}: ${t}`).join("\n");
+// }
 // </debug
 
 function preprocess(code, dirname) {
+  ctx_define_consts = new Map();
   code = full_compile(code, dirname);
   // console.log(slice_code_lines(code, 80, 120));
+  // console.log(code);
   // throw "debug";
   return code;
 }
