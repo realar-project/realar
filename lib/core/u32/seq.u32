@@ -1,9 +1,7 @@
 
 func seq_id_init
-  [CURRENT_SEQ_ID] = 0
+  [SEQ_ID] = 0
 
 func seq_id_next result
-  local id
-  id = [CURRENT_SEQ_ID] + 1
-  [CURRENT_SEQ_ID] = id
-  id
+  [SEQ_ID] = [SEQ_ID] + 1
+  [SEQ_ID]

@@ -1,6 +1,6 @@
 
 func push
-  local mem_free
+  local mem_free slice
 
   mem_free = [MEM_FREE]
   slice = mem(4)
@@ -14,8 +14,6 @@ func push
   seq_id_init()
 
 func pop
-  local target_slice_ptr
-
   [SEQ_ID] =   [SLICE + 3]
   [MEM_FREE] = [SLICE + 2]
   [SLICE] =    [SLICE + 1]
