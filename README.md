@@ -1,6 +1,6 @@
 # Realar
 
-[![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar@0.0.2-beta.2?style=flat-square)](https://bundlephobia.com/result?p=realar@0.0.2-beta.2) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar)
+[![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar@0.0.2-beta.3?style=flat-square)](https://bundlephobia.com/result?p=realar@0.0.2-beta.3) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar)
 
 ### Installation
 
