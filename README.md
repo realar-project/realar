@@ -1,6 +1,6 @@
 # Realar
 
-[![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar@0.0.2-beta.1?style=flat-square)](https://bundlephobia.com/result?p=realar@0.0.2-beta.1) [![build status](https://img.shields.io/github/workflow/status/betula/realar/Tests?style=flat-square)](https://github.com/betula/realar/actions?workflow=Tests) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar)
+[![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar@0.0.2-beta.2?style=flat-square)](https://bundlephobia.com/result?p=realar@0.0.2-beta.2) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar)
 
 ### Installation
 
@@ -10,7 +10,7 @@ npm i -P realar
 yarn add realar
 ```
 
-After that you need update your babel config:
+And your babel config:
 
 ```javascript
 // .babelrc.js
@@ -59,7 +59,7 @@ export default function App() {
 }
 ```
 
-Redux style usage:
+Redux style usage :sunglasses:
 
 ```javascript
 import React from "react";
@@ -114,7 +114,27 @@ export default function App() {
 }
 ```
 
-All interface methods in one presentation example:
+Jest unit test usage :yum:
+
+```javascript
+import { mock } from "realar";
+import { Notifier, Api, UserForm } from "./user-form";
+
+test("User form should work", () => {
+  const notifierMock = mock(Notifier);
+  const apiMock = mock(Api);
+
+  const form = UserForm("a", "b");
+
+  apiMock.userSave.mockResolvedValue(0);
+
+  form.save();
+  expect(notifierMock.fail).toHaveBeenCalled();
+  expect(apiMock.userSave).toHaveBeenCalledWith("a", "b");
+});
+```
+
+And all interface methods in one presentation example :stuck_out_tongue_winking_eye:
 
 ```javascript
 import React from "react";
