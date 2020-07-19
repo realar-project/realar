@@ -16,16 +16,16 @@ exports[`should work 1`] = `
 (;;func seq_id_init;;)
 (func $seq_id_init   ;; TODO: Replace to data section with initial values
   
-(i32.store (i32.const 4) (i32.const 0))
+(i32.store (i32.shl (i32.const 4) (i32.const 2)) (i32.const 0))
 
 )
 
 (;;func seq_id_next result;;)
 (func $seq_id_next  (result i32)  
 (local $id i32)  
-(local.set $id (i32.add (i32.load (i32.const 4)) (i32.const 1)))
+(local.set $id (i32.add (i32.load (i32.shl (i32.const 4) (i32.const 2))) (i32.const 1)))
   
-(i32.store (i32.const 4) (local.get $id))
+(i32.store (i32.shl (i32.const 4) (i32.const 2)) (local.get $id))
   
 (local.get $id)
 
@@ -72,7 +72,7 @@ exports[`should work 1`] = `
 
 (;;func set_size(id) result;;)
 (func $set_size (param $id i32) (result i32)  
-(i32.load (local.get $id))
+(i32.load (i32.shl (local.get $id) (i32.const 2)))
 
 
 )
@@ -85,9 +85,9 @@ exports[`should work 1`] = `
   
 (if (i32.eq (local.get $index) (local.get $size))
     (then 
-(i32.store (call $set_offset_i (local.get $id) (local.get $index)) (local.get $n))
+(i32.store (i32.shl (call $set_offset_i (local.get $id) (local.get $index)) (i32.const 2)) (local.get $n))
     
-(i32.store (local.get $id) (i32.add (local.get $size) (i32.const 1)))
+(i32.store (i32.shl (local.get $id) (i32.const 2)) (i32.add (local.get $size) (i32.const 1)))
   )
 (else 
     
@@ -97,7 +97,7 @@ exports[`should work 1`] = `
     
 (loop $loop
       
-(i32.store (i32.add (local.get $offset) (i32.const 4)) (i32.load (local.get $offset)))
+(i32.store (i32.shl (i32.add (local.get $offset) (i32.const 4)) (i32.const 2)) (i32.load (i32.shl (local.get $offset) (i32.const 2))))
       
 (if (i32.ne (local.get $offset) (local.get $offset_index))
         (then 
@@ -105,9 +105,9 @@ exports[`should work 1`] = `
         
 (br $loop)
     )))
-(i32.store (local.get $offset_index) (local.get $n))
+(i32.store (i32.shl (local.get $offset_index) (i32.const 2)) (local.get $n))
     
-(i32.store (local.get $id) (i32.add (local.get $size) (i32.const 1)))
+(i32.store (i32.shl (local.get $id) (i32.const 2)) (i32.add (local.get $size) (i32.const 1)))
 
 
 )))
@@ -129,7 +129,7 @@ exports[`should work 1`] = `
       (then 
 (loop $loop
         
-(i32.store (local.get $curr) (i32.load (i32.add (local.get $curr) (i32.const 4))))
+(i32.store (i32.shl (local.get $curr) (i32.const 2)) (i32.load (i32.shl (i32.add (local.get $curr) (i32.const 4)) (i32.const 2))))
         
 (if (i32.ne (i32.add (local.get $curr) (i32.const 4)) (local.get $to))
           (then 
@@ -137,7 +137,7 @@ exports[`should work 1`] = `
           
 (br $loop)
   )))))))
-(i32.store (local.get $id) (i32.sub (local.get $size) (i32.const 1)))
+(i32.store (i32.shl (local.get $id) (i32.const 2)) (i32.sub (local.get $size) (i32.const 1)))
 
 
 )
@@ -151,7 +151,7 @@ exports[`should work 1`] = `
 
 (;;func set_get_i(id index) result;;)
 (func $set_get_i (param $id i32) (param $index i32) (result i32)  
-(i32.load (call $set_offset_i (local.get $id) (local.get $index)))
+(i32.load (i32.shl (call $set_offset_i (local.get $id) (local.get $index)) (i32.const 2)))
 
 
 )
@@ -291,7 +291,7 @@ exports[`should work 1`] = `
 
 (;;func set_free(id) result;;)
 (func $set_free (param $id i32) (result i32)  
-(i32.load (local.get $id))
+(i32.load (i32.shl (local.get $id) (i32.const 2)))
 
 )
 
