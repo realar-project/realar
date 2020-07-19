@@ -1,5 +1,5 @@
 import * as babel from "@babel/core";
-import { view_call_name, plugin } from "./plugin";
+import { view_call_name, plugin } from "../../babel/plugin";
 
 function transform(code) {
   return babel.transform(code, {
