@@ -15,10 +15,10 @@ jobs:
         os: [ubuntu-latest]
 
     steps:
-      - name: Clone repository
+      - name: clone repository
         uses: actions/checkout@v2
 
-      - name: Set Node.js version
+      - name: set node.js version
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node }}
@@ -26,13 +26,16 @@ jobs:
       - run: node --version
       - run: npm --version
 
-      - name: Install
+      - name: install
         run: npm run bootstrap
 
-      - name: Test
+      - name: test
         run: npm run test
 
-      - name: Coveralls
+      - name: build
+        run: npm run build
+
+      - name: coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
