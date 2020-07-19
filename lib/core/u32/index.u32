@@ -4,9 +4,11 @@
   (table 0 anyfunc)
   (memory $0 1)
 
-  ## import seq_id
+  ## import head
+  ## import mem
+  ## import slice
+  ## import seq
   ## import set
-  ## import push_pop
 
   ## import exports
 

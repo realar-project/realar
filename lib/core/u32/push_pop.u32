@@ -1,9 +1,0 @@
-
-func push
-  seq_id_init()
-
-func pop
-
-# TODO:
-# - `push` should be change start byte pointer to new place
-# - `pop` should be change start byte pointer to previous value

@@ -1,0 +1,21 @@
+
+func push
+  local mem_free
+
+  mem_free = [MEM_FREE]
+  slice = mem(4)
+
+  [slice + 1] = [SLICE]  # offset 1 - prev SLICE
+  [slice + 2] = mem_free # offset 2 - prev MEM_FREE
+  [slice + 3] = [SEQ_ID] # offset 3 - prev SEQ_ID
+
+  [SLICE] = slice
+
+  seq_id_init()
+
+func pop
+  local target_slice_ptr
+
+  [SEQ_ID] =   [SLICE + 3]
+  [MEM_FREE] = [SLICE + 2]
+  [SLICE] =    [SLICE + 1]

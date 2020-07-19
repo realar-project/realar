@@ -7,7 +7,7 @@
 
 func set_create result
   local id
-  id = seq_id_next() << 7 # Each set 128 bytes by default
+  id = mem(16) # Each set 16 numbers by default
   # log_1(id)
   id
 

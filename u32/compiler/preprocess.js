@@ -400,7 +400,7 @@ function define_compile(code) {
 
   let list = [];
 
-  const define_pattern = /^## define ([A-Z_][A-Z_0-9]*) ([1-9][0-9]*)/gm;
+  const define_pattern = /^## define ([A-Z_][A-Z_0-9]*) (0|[1-9][0-9]*)/gm;
   code = code.replace(
     define_pattern,
     (match, name, value) => {

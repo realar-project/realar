@@ -242,6 +242,19 @@ function expr_to_wat(text) {
   return res;
 }
 
+function wat_get_value(node) {
+  const [type, text] = node;
+  if (type === $_NODE) {
+    return `(local.get $${text})`;
+  }
+  if (type === NUM_NODE) {
+    return `(i32.const ${text})`;
+  }
+  if (type === WAT_NODE) {
+    return text;
+  }
+}
+
 function make_unary_op(op, right) {
   let wat;
   switch(op[text_key]) {
@@ -249,7 +262,7 @@ function make_unary_op(op, right) {
       wat = `(i32.eqz ${wat_get_value(right)})`;
       break;
     case "load":
-      wat = `(i32.load ${wat_get_value(right)})`;
+      wat = `(i32.load (i32.shl ${wat_get_value(right)} (i32.const 2)))`;
       break;
     case "call":
       wat = `(call $${right[text_key]})`;
@@ -262,19 +275,6 @@ function make_unary_op(op, right) {
     WAT_NODE,
     wat
   ];
-}
-
-function wat_get_value(node) {
-  const [type, text] = node;
-  if (type === $_NODE) {
-    return `(local.get $${text})`;
-  }
-  if (type === NUM_NODE) {
-    return `(i32.const ${text})`;
-  }
-  if (type === WAT_NODE) {
-    return text;
-  }
 }
 
 function make_binary_op(op, right, left) {
@@ -308,7 +308,7 @@ function make_binary_op(op, right, left) {
       wat = `(i32.lt_u ${wat_get_value(left)} ${wat_get_value(right)})`;
       break;
     case "store":
-      wat = `(i32.store ${wat_get_value(left)} ${wat_get_value(right)})`;
+      wat = `(i32.store (i32.shl ${wat_get_value(left)} (i32.const 2)) ${wat_get_value(right)})`;
       break;
     case "=":
       wat = `(local.set $${left[text_key]} ${wat_get_value(right)})`;
