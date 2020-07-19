@@ -11,9 +11,15 @@ func push
 
   [SLICE] = slice
 
+  # log_3(400, slice, [MEM_FREE])
+
   seq_id_init()
 
 func pop
-  [SEQ_ID] =   [SLICE + 3]
-  [MEM_FREE] = [SLICE + 2]
-  [SLICE] =    [SLICE + 1]
+  local slice
+  # log_5(401, [SLICE], [SLICE + 1], [SLICE + 2], [SLICE + 3])
+
+  slice = [SLICE]
+  [SEQ_ID] =   [slice + 3]
+  [MEM_FREE] = [slice + 2]
+  [SLICE] =    [slice + 1]
