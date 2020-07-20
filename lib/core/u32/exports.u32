@@ -1,4 +1,4 @@
-export init
+export start
 export push pop
 export set_create set_add set_has
 export set_delete set_size set_free
