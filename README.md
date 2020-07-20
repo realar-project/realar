@@ -62,8 +62,11 @@ export default function App() {
 Redux style usage :sunglasses:
 
 ```javascript
-import React from "react";
-import { unit, useService } from "realar";
+import React, { useCallback } from "react";
+import { unit, useService, event } from "realar";
+
+const add = event();
+const toggle = event();
 
 const store = unit({
   state: [
@@ -76,10 +79,10 @@ const store = unit({
   get all() {
     return this.state;
   },
-  add(title, completed = false) {
+  [add](title, completed = false) {
     this.state = [ ...this.state, { title, completed }];
   },
-  toggle(i) {
+  [toggle](i) {
     const { state } = this;
     const index = state.indexOf(i);
     this.state = [
@@ -91,9 +94,11 @@ const store = unit({
 });
 
 function TodoItem({ item }) {
+  const click = useCallback(() => toggle(item), [item]);
   const { title, completed } = item;
+
   return (
-    <div className="todo-item">
+    <div className="todo-item" onClick={click}>
       {completed ? <div className="completed"></div> : null>}
       <span className="title">{title}</span>
     </div>
