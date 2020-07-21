@@ -13,7 +13,7 @@
     "bootstrap": "npx lerna bootstrap --no-ci",
     "clean": "npm run test:clean && npm run demo:clean && npm run build:clean && lerna clean --yes",
     "publish": "npm run test && npm run build && lerna publish",
-    "start": "npm run bootstrap && npm run demo",
+    "start": "npm run bootstrap && npm run build && npm run demo",
     "reinstall": "npm run clean && npm run bootstrap",
     "test": "npm run test:clean && cross-env REALAR_DEV=true jest --coverage",
     "test:clean": "jest --clearCache && rimraf coverage",

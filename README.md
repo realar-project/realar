@@ -159,9 +159,9 @@ And all interface methods in one presentation example :stuck_out_tongue_winking_
 ```javascript
 import React from "react";
 import {
-  action,
   call,
   changed,
+  event,
   service,
   Service,
   signal,
