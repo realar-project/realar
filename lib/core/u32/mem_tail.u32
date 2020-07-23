@@ -1,0 +1,15 @@
+
+func mem_tail_init
+  [MEM_TAIL] = 0
+
+func mem_tail_inc(size)
+  [MEM_TAIL] = [MEM_TAIL] + size
+
+func mem_tail result
+  [MEM_TAIL]
+
+func mem_tail_n_inc(size) result
+  local ptr
+  ptr = mem_tail()
+  mem_tail_inc(size)
+  ptr

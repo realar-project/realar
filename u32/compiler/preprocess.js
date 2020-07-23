@@ -318,7 +318,7 @@ function compile(code, dirname) {
   }
 
   function push_func_def(text) {
-    const func_pattern = /^func ([a-z_][a-z_0-9]*) ?(?:\(([^\)]+)\))? ?(result)?$/m;
+    const func_pattern = /^func ([a-z_][a-z_0-9]*) ?(?:\(([^\)]+)\))?(?:\(\))? ?(result)?$/m;
     let m;
     if (m = func_pattern.exec(text)) {
       let [_, name, params, result] = m;
@@ -427,16 +427,16 @@ function define_compile(code) {
 }
 
 // <debug>
-// function slice_code_lines(code, from, to) {
-//   const lines = code.split("\n");
-//   return lines.slice(from, to).map((t, i) => `${from + i}: ${t}`).join("\n");
-// }
+function slice_code_lines(code, from, to) {
+  const lines = code.split("\n");
+  return lines.slice(from, to).map((t, i) => `${from + i}: ${t}`).join("\n");
+}
 // </debug
 
 function preprocess(code, dirname) {
   ctx_define_consts = new Map();
   code = full_compile(code, dirname);
-  // console.log(slice_code_lines(code, 80, 120));
+  // console.log(slice_code_lines(code, 550, 700));
   // console.log(code);
   // throw "debug";
   return code;

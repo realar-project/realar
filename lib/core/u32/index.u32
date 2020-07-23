@@ -5,11 +5,14 @@
   (memory $0 1)
 
   ## import head
+  ## import mem_tail
   ## import mem
   ## import slice
-  ## import start
   ## import seq
-  ## import set
+
+  ## import adt/set
+  ## import adt/arr
+  ## import adt/map
 
   ## import exports
 

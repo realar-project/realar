@@ -1,4 +1,0 @@
-
-func start
-  init()
-  push()

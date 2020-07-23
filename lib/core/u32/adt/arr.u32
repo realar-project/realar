@@ -1,0 +1,32 @@
+## define ARR_HEAD_SIZE 2
+## define ARR_DEFAULT_SIZE 16
+
+# memory struct
+# 0 index - tail index (shift, unshift )
+# 1 index - head index (push, pop)
+
+
+func arr_create result
+  local id
+  id = mem_alloc(ARR_DEFAULT_SIZE) # Each set 16 numbers by default
+  [id] = 0
+  # log_2(200, id)
+  id
+
+func arr_len(id) result
+  [id]
+
+func arr_push(n) result
+  0
+
+func arr_pop() result
+  0
+
+func arr_unshift(n) result
+  0
+
+func arr_shift() result
+  0
+
+func arr_free(id)
+

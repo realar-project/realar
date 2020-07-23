@@ -1,16 +1,16 @@
 ## define SET_HEAD_SIZE 1
+## define SET_DEFAULT_SIZE 16
 
-# Set memory struct
+# memory struct
 # 0 - size
-# [1..size)
+# [1..size) - values
 
 func set_create result
   local id
-  id = mem(16) # Each set 16 numbers by default
-  [id] = 0
+  id = mem_alloc(SET_DEFAULT_SIZE) # each set 16 numbers by default
+  [id] = 0           # 0 n - size of set
   # log_2(200, id)
   id
-
 
 func set_add(id n)
   local size i i_n

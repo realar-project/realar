@@ -1,8 +1,25 @@
-## define MEM_FREE 0
+## define MEM_TAIL 0 # First free byte
 ## define SLICE 1
 ## define SEQ_ID 2
+## define MEM 3
 
 func init
-  [MEM_FREE] = 32 # First 32 values (32 * 4 bytes = 128 bytes) reserved by global pointers
-  [SLICE] = 0
-  [SEQ_ID] = 0
+  mem_tail_init() # MEM_TAIL
+  slice_init()    # SLICE
+  each_slice_init()
+
+  mem_tail_inc(8) # First 8 values reserved by global pointers
+
+func each_slice_init
+  seq_id_init()   # SEQ_ID
+  mem_init()      # MEM
+
+func start
+  init()
+  push()
+
+func push
+  slice_push()
+
+func pop
+  slice_pop()
