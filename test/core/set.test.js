@@ -4,7 +4,7 @@ import {
   set_delete,
   set_has,
   set_extract
-} from "../../lib/core";
+} from "../../lib/core/test";
 
 test.each([44, 61, 61, 61])("should work set methods", (expected_id) => {
   const id = set_create();
