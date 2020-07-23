@@ -6,15 +6,12 @@
 # [1..size) - values
 
 func set_create result
-  local id
   id = mem_alloc(SET_DEFAULT_SIZE) # each set 16 numbers by default
   [id] = 0           # 0 n - size of set
   # log_2(200, id)
   id
 
 func set_add(id n)
-  local size i i_n
-
   size = set_size(id)
   i = set_search(id, n)
   if i == size
@@ -30,8 +27,6 @@ func set_size(id) result
 
 
 func set_insert_i(id index n)
-  local size offset offset_index
-
   size = set_size(id)
   if index == size
     [set_offset_i(id, index)] = n
@@ -49,8 +44,6 @@ func set_insert_i(id index n)
 
 
 func set_delete_i(id index)
-  local size curr to
-
   size = set_size(id)
   if size != 1
     curr = set_offset_i(id, index)
@@ -74,9 +67,6 @@ func set_get_i(id index) result
 
 
 func set_search(id n) result
-  local size offset a b
-  local half half_index half_n res
-
   size = set_size(id)
   offset = 0
   if !size
@@ -111,8 +101,6 @@ func set_search(id n) result
 
 
 func set_has(id n) result
-  local size i i_n res
-
   size = set_size(id)
   if !size
     res = 0
@@ -129,8 +117,6 @@ func set_has(id n) result
 
 
 func set_delete(id n) result
-  local size i i_n res
-
   size = set_size(id)
   if !size
     res = 0

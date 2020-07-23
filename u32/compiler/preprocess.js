@@ -7,11 +7,22 @@ const
   import_path_ext = ".u32";
 
 let
-  ctx_define_consts = 0;
+  ctx_define_consts = 0,
+  local_def_context_section_out_index = 0,
+  local_def_context_func_params = 0,
+  local_def_context_locals = 0
+;
 
 module.exports = {
-  preprocess
+  preprocess,
+  func_local_section_add
 };
+
+function func_local_section_add(local_name) {
+  if (local_def_context_locals) {
+    local_def_context_locals.add(local_name);
+  }
+}
 
 function compile(code, dirname) {
   let
@@ -56,6 +67,7 @@ function compile(code, dirname) {
       push_eol();
       push_func_def(line);
       parse_func_body();
+      push_func_local_def_section_finish();
       push_eol();
       cut_index(i);
       continue;
@@ -226,14 +238,6 @@ function compile(code, dirname) {
         line_indent = 0;
         continue;
       }
-      if (code.slice(i, i+6) === "local ") {
-        i = i+6;
-        line = read_line_push_comment();
-        line = line.split(" ").map(p => "(local $"+p+" i32)").join(" ");
-        push_text(line);
-        line_indent = 0;
-        continue;
-      }
 
       if (expr_with_const_pattern.test(code[i])) {
         perform_indent();
@@ -324,13 +328,39 @@ function compile(code, dirname) {
       let [_, name, params, result] = m;
       let text = "(func $" + name + " ";
       if (params) {
-        text += params.split(" ").map(p => "(param $"+p+" i32)").join(" ");
+        params = params.split(" ");
+        text += params.map(p => "(param $"+p+" i32)").join(" ");
       }
       if (result) {
         text += " (result i32)";
       }
       push_text(text);
+      push_func_local_def_section_start(params);
     }
+  }
+
+  function push_func_local_def_section_start(params) {
+    let l1 = out.length;
+    push_text("");
+    let l2 = out.length;
+    if (l1 === l2) {
+      local_def_context_section_out_index = 0; // null
+    } else {
+      local_def_context_section_out_index = l1;
+    }
+    local_def_context_func_params = new Set(params || []);
+    local_def_context_locals = new Set();
+  }
+
+  function push_func_local_def_section_finish() {
+    if (!local_def_context_section_out_index) return;
+    let text = "";
+    for (const local_name of local_def_context_locals) {
+      if (!local_def_context_func_params.has(local_name)) {
+        text += `(local $${local_name} i32)`
+      }
+    }
+    out[local_def_context_section_out_index] = `${text}`;
   }
 
   function push_export_def(text) {

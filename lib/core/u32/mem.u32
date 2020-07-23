@@ -1,7 +1,5 @@
 
 func mem_alloc(size) result
-  local ptr size_ptr
-
   if mem_has_free_place(size)
     ptr = mem_alloc_free_place(size)
   else
@@ -23,7 +21,6 @@ func mem_x4(ptr) result
   0
 
 func mem_has_free_place(size) result
-  local res map
   map = mem_map()
   if !map # beginning phase
     res = 0
@@ -38,7 +35,6 @@ func mem_map result
   [[MEM]] # zero index pointer in memory block - map of sizes -> pointers
 
 func mem_init
-  local mem_ptr
   mem_ptr = mem_tail_n_inc(1)
   [MEM] = mem_ptr
   [mem_ptr] = 0 # map_create() # Map of free memory block. size => [ptr, ...]

@@ -7,7 +7,6 @@
 
 
 func arr_create result
-  local id
   id = mem_alloc(ARR_DEFAULT_SIZE) # Each set 16 numbers by default
   [id] = 0
   # log_2(200, id)

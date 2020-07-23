@@ -3,7 +3,6 @@ func slice_init
   [SLICE] = 0
 
 func slice_push
-  local slice
   slice = mem_tail_n_inc(8) # slice equal prev MEM_TAIL
 
   [slice] = [SLICE]       # 0 index - prev SLICE
@@ -14,7 +13,6 @@ func slice_push
   each_slice_init()
 
 func slice_pop
-  local slice
   slice = [SLICE]
   [MEM_TAIL] = slice
   [SLICE] = [slice]

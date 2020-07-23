@@ -9,7 +9,6 @@ func mem_tail result
   [MEM_TAIL]
 
 func mem_tail_n_inc(size) result
-  local ptr
   ptr = mem_tail()
   mem_tail_inc(size)
   ptr
