@@ -6,7 +6,7 @@
 # [1..size) - values
 
 func set_create result
-  id = mem_alloc(SET_DEFAULT_SIZE) # each set 16 numbers by default
+  id = mem_alloc(SET_DEFAULT_SIZE)
   [id] = 0           # 0 n - size of set
   # log_2(200, id)
   id

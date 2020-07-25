@@ -10,6 +10,7 @@
   ## import slice
   ## import seq
 
+  ## import adt/types
   ## import adt/set
   ## import adt/arr
   ## import adt/map

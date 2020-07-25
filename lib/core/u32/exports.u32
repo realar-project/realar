@@ -3,5 +3,5 @@ export push pop
 export set_create set_add set_has set_delete set_size set_free
 
 ## <debug>
-export arr_create arr_len arr_push arr_pop arr_unshift arr_shift arr_free
+export arr_create arr_len arr_push arr_pop arr_free arr_delete
 ## </debug>
