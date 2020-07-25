@@ -1,15 +1,14 @@
-## define SET_HEAD_SIZE 1
-## define SET_DEFAULT_SIZE 16
 
 # memory struct
-# 0 - size
-# [1..size) - values
+# 0 - code array type ADT_SET_TYPE
+# 1 - size
+# [2..size) - values
 
 func set_create result
-  id = mem_alloc(SET_DEFAULT_SIZE)
-  [id] = 0           # 0 n - size of set
-  # log_2(200, id)
-  id
+  id = mem_alloc(16)    # Set default memory size block 16 -> 14 elements
+  [id] = ADT_SET_TYPE
+  [id + 1] = 0          # 1 index - size of set
+  id + 2
 
 func set_add(id n)
   size = set_size(id)
@@ -23,31 +22,36 @@ func set_add(id n)
 
 
 func set_size(id) result
-  [id]
+  [id - 1]
 
+func set_size_inc(id)
+  [id - 1] = [id - 1] + 1
+
+func set_size_dec(id)
+  [id - 1] = [id - 1] - 1
 
 func set_insert_i(id index n)
   size = set_size(id)
   if index == size
-    [set_offset_i(id, index)] = n
-    [id] = size + 1
+    [id + index] = n
+    set_size_inc(id)
   else
-    offset_index = set_offset_i(id, index)
-    offset = set_offset_i(id, size - 1)
+    offset_index = id + index
+    offset = id + size - 1
     loop $loop
       [offset + 1] = [offset]
       if offset != offset_index
         offset = offset - 1
         br $loop
     [offset_index] = n
-    [id] = size + 1
+    set_size_inc(id)
 
 
 func set_delete_i(id index)
   size = set_size(id)
   if size != 1
-    curr = set_offset_i(id, index)
-    to = set_offset_i(id, size - 1)
+    curr = id + index
+    to = id + size - 1
 
     if curr != to
       loop $loop
@@ -55,15 +59,11 @@ func set_delete_i(id index)
         if curr + 1 != to
           curr = curr + 1
           br $loop
-  [id] = size - 1
-
-
-func set_offset_i(id index) result
-  id + SET_HEAD_SIZE + index
+  set_size_dec(id)
 
 
 func set_get_i(id index) result
-  [set_offset_i(id, index)]
+  [id + index]
 
 
 func set_search(id n) result
@@ -133,6 +133,5 @@ func set_delete(id n) result
         res = 1
   res
 
-func set_free(id) result
-  [id]
+func set_free(id)
 

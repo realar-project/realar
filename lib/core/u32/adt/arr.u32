@@ -1,11 +1,10 @@
-## define ARR_DEFAULT_SIZE 32
 
 # memory struct
 # 0 index - code array type ADT_ARR_TYPE
 # 1 index - length (push, pop)
 
 func arr_create result
-  ptr = mem_alloc(ARR_DEFAULT_SIZE)
+  ptr = mem_alloc(32)  # Array default memory size block 32 -> 30 elements
   [ptr] = ADT_ARR_TYPE # type
   [ptr + 1] = 0        # length
   ptr + 2

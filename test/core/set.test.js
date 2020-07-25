@@ -6,7 +6,7 @@ import {
   set_extract
 } from "../../lib/core/test";
 
-test.each([44, 61, 61, 61])("should work set methods", (expected_id) => {
+test.each([46, 63, 63, 63])("should work set methods", (expected_id) => {
   const id = set_create();
 
   expect(set_extract(id)).toStrictEqual([]);
