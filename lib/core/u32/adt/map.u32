@@ -1,0 +1,5 @@
+
+# memory struct
+# 0 index - code map type ADT_MAP_TYPE
+# 1 index - size
+# [2..size*2) - tuples [key value]

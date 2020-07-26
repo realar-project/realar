@@ -1,12 +1,14 @@
 (module
   ## import debug
 
-  (table 0 anyfunc)
   (memory $0 1)
 
   ## import head
-  ## import mem_tail
-  ## import mem
+
+  ## import mem/mem_tail
+  ## import mem/mem_copy
+  ## import mem/mem
+
   ## import slice
   ## import seq
 

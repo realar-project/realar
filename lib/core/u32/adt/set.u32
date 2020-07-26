@@ -32,39 +32,24 @@ func set_size_dec(id)
 
 func set_insert_i(id index n)
   size = set_size(id)
-  if index == size
-    [id + index] = n
-    set_size_inc(id)
-  else
-    offset_index = id + index
-    offset = id + size - 1
-    loop $loop
-      [offset + 1] = [offset]
-      if offset != offset_index
-        offset = offset - 1
-        br $loop
-    [offset_index] = n
-    set_size_inc(id)
+  offset = id + index
+  if index != size
+    mem_copy(offset + 1, offset, size - index)
+
+  [offset] = n
+  set_size_inc(id)
 
 
 func set_delete_i(id index)
   size = set_size(id)
   if size != 1
-    curr = id + index
-    to = id + size - 1
-
-    if curr != to
-      loop $loop
-        [curr] = [curr + 1]
-        if curr + 1 != to
-          curr = curr + 1
-          br $loop
+    offset = id + index
+    mem_copy(offset, offset + 1, size - index - 1)
   set_size_dec(id)
 
 
 func set_get_i(id index) result
   [id + index]
-
 
 func set_search(id n) result
   size = set_size(id)

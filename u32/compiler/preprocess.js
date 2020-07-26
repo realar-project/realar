@@ -252,9 +252,8 @@ function compile(code, dirname) {
       throw `Parse func body unknown error at ${i} "${code[i]}"`;
     }
 
-    while(block_indent-- > 0) {
-      push_text(")");
-    }
+    line_indent = 0;
+    perform_indent();
   }
 
   function read_line_push_comment() {
@@ -466,7 +465,7 @@ function slice_code_lines(code, from, to) {
 function preprocess(code, dirname) {
   ctx_define_consts = new Map();
   code = full_compile(code, dirname);
-  // console.log(slice_code_lines(code, 550, 700));
+  // console.log(slice_code_lines(code, 80, 200));
   // console.log(code);
   // throw "debug";
   return code;
