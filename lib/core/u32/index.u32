@@ -1,5 +1,5 @@
 (module
-  ## import debug
+  ## import imports
 
   (memory $0 1)
 

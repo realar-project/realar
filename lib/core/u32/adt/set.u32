@@ -6,9 +6,29 @@
 
 func set_create result
   id = mem_alloc(16)    # Set default memory size block 16 -> 14 elements
-  [id] = ADT_SET_TYPE
-  [id + 1] = 0          # 1 index - size of set
-  id + 2
+  [set_type_ptr(id)] = ADT_SET_TYPE # type
+  [set_size_ptr(id)] = 0 # size
+  id
+
+func set_type_ptr(id) result
+  [id]
+
+func set_size_ptr(id) result
+  [id] + 1
+
+func set_data_ptr(id) result
+  [id] + 2
+
+func set_size(id) result
+  [set_size_ptr(id)]
+
+func set_size_inc(id)
+  size_ptr = set_size_ptr(id)
+  [size_ptr] = [size_ptr] + 1
+
+func set_size_dec(id)
+  size_ptr = set_size_ptr(id)
+  [size_ptr] = [size_ptr] - 1
 
 func set_add(id n)
   size = set_size(id)
@@ -20,19 +40,9 @@ func set_add(id n)
     if n != i_n
       set_insert_i(id, i, n)
 
-
-func set_size(id) result
-  [id - 1]
-
-func set_size_inc(id)
-  [id - 1] = [id - 1] + 1
-
-func set_size_dec(id)
-  [id - 1] = [id - 1] - 1
-
 func set_insert_i(id index n)
   size = set_size(id)
-  offset = id + index
+  offset = set_data_ptr(id) + index
   if index != size
     mem_copy(offset + 1, offset, size - index)
 
@@ -43,13 +53,13 @@ func set_insert_i(id index n)
 func set_delete_i(id index)
   size = set_size(id)
   if size != 1
-    offset = id + index
+    offset = set_data_ptr(id) + index
     mem_copy(offset, offset + 1, size - index - 1)
   set_size_dec(id)
 
-
 func set_get_i(id index) result
-  [id + index]
+  [set_data_ptr(id) + index]
+
 
 func set_search(id n) result
   size = set_size(id)

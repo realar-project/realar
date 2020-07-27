@@ -4,31 +4,42 @@
 # 1 index - length (push, pop)
 
 func arr_create result
-  ptr = mem_alloc(32)  # Array default memory size block 32 -> 30 elements
-  [ptr] = ADT_ARR_TYPE # type
-  [ptr + 1] = 0        # length
-  ptr + 2
+  id = mem_alloc(32)  # Array default memory size block 32 -> 30 elements
+  [arr_type_ptr(id)] = ADT_ARR_TYPE # type
+  [arr_len_ptr(id)] = 0 # length
+  id
+
+func arr_type_ptr(id) result
+  [id]
+
+func arr_len_ptr(id) result
+  [id] + 1
+
+func arr_data_ptr(id) result
+  [id] + 2
 
 func arr_len(id) result
-  [id - 1]             # length
+  [arr_len_ptr(id)] # length
 
 func arr_len_inc(id)
-  [id - 1] = [id - 1] + 1
+  len_ptr = arr_len_ptr(id)
+  [len_ptr] = [len_ptr] + 1
 
 func arr_len_dec(id)
-  [id - 1] = [id - 1] - 1
+  len_ptr = arr_len_ptr(id)
+  [len_ptr] = [len_ptr] - 1
 
 func arr_push(id n)
   len = arr_len(id)
   arr_len_inc(id)
-  [id + len] = n
+  [arr_data_ptr(id) + len] = n
 
 func arr_pop(id) result
   len = arr_len(id)
   if !len
     res = 0
   else
-    res = [id + len - 1]
+    res = [arr_data_ptr(id) + len - 1]
     arr_len_dec(id)
   res
 
@@ -36,7 +47,8 @@ func arr_delete(id index)
   len = arr_len(id)
   if index < len
     if index < len - 1
-      mem_copy(id + index, id + index + 1, len - index - 1)
+      data_ptr = arr_data_ptr(id)
+      mem_copy(data_ptr + index, data_ptr + index + 1, len - index - 1)
     arr_len_dec(id)
 
 func arr_free(id)

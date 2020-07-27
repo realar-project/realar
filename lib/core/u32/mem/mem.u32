@@ -1,24 +1,27 @@
 
 func mem_alloc(size) result
-  if mem_has_free_place(size)
-    ptr = mem_alloc_free_place(size)
+  if mem_has_free_place(2)
+    ptr = mem_alloc_free_place(2)
   else
-    size_ptr = mem_tail_n_inc(1)
-    [size_ptr] = size             # 0 n - size of memory block
-    ptr = mem_tail_n_inc(size)    # 1 n - pointer to start free memory block
+    ptr = mem_tail_n_inc(2)
 
-  ptr # result
+  [ptr + 1] = size
+
+  if mem_has_free_place(size)
+    [ptr] = mem_alloc_free_place(size)
+  else
+    [ptr] = mem_tail_n_inc(size)
+
+  ptr
 
 func mem_size(ptr) result
-  [ptr - 1] # previous n before memory pointer
+  [ptr + 1] # size
 
 func mem_free(ptr)
 
-func mem_x2(ptr) result
-  0
+func mem_x2(ptr)
 
-func mem_x4(ptr) result
-  0
+func mem_x4(ptr)
 
 func mem_has_free_place(size) result
   map = mem_map()
