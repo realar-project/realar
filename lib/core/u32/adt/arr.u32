@@ -51,5 +51,26 @@ func arr_delete(id index)
       mem_copy(data_ptr + index, data_ptr + index + 1, len - index - 1)
     arr_len_dec(id)
 
+func arr_get(id index) result
+  len = arr_len(id)
+  if index < len
+    res = [arr_data_ptr(id) + index]
+  else
+    res = 0
+  res
+
+func arr_set(id index n)
+  len = arr_len(id)
+  if index < len
+    [arr_data_ptr(id) + index] = n
+
+func arr_insert(id index n)
+  len = arr_len(id)
+  if index < len
+    offset = arr_data_ptr(id) + index
+    arr_len_inc(id)
+    mem_copy(offset + 1, offset, len - index)
+    [offset] = n
+
 func arr_free(id)
 

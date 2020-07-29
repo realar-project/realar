@@ -5,7 +5,7 @@
 # [2..size) - values
 
 func set_create result
-  id = mem_alloc(16)    # Set default memory size block 16 -> 14 elements
+  id = mem_alloc(32)    # Set default memory size block 32 -> 30 elements
   [set_type_ptr(id)] = ADT_SET_TYPE # type
   [set_size_ptr(id)] = 0 # size
   id
@@ -43,11 +43,10 @@ func set_add(id n)
 func set_insert_i(id index n)
   size = set_size(id)
   offset = set_data_ptr(id) + index
+  set_size_inc(id)
   if index != size
     mem_copy(offset + 1, offset, size - index)
-
   [offset] = n
-  set_size_inc(id)
 
 
 func set_delete_i(id index)
