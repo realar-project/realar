@@ -19,8 +19,6 @@ func mem_size(ptr) result
 
 func mem_free(ptr)
 
-func mem_x2(ptr)
-
 func mem_x4(ptr)
 
 func mem_has_free_place(size) result

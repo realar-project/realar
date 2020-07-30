@@ -24,7 +24,10 @@ func set_size(id) result
 
 func set_size_inc(id)
   size_ptr = set_size_ptr(id)
-  [size_ptr] = [size_ptr] + 1
+  size = [size_ptr]
+  if size == mem_size(id) - 2 # substract type and size
+    mem_x4(id)
+  [size_ptr] = size + 1
 
 func set_size_dec(id)
   size_ptr = set_size_ptr(id)
@@ -128,4 +131,5 @@ func set_delete(id n) result
   res
 
 func set_free(id)
+  mem_free(id)
 

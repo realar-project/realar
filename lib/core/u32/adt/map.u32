@@ -86,4 +86,6 @@ func map_delete(id k) result
   res
 
 func map_free(id)
-
+  mem_free(map_keys(id))
+  mem_free(map_values(id))
+  mem_free(id)
