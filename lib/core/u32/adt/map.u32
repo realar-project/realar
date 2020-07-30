@@ -59,10 +59,10 @@ func map_set(id k v)
     set_insert_i(keys_id, i, k)
     arr_push(values_id, v)
   else
-    i_k = set_get_i(id, i)
+    i_k = set_get_i(keys_id, i)
     if k != i_k
-      set_insert_i(id, i, k)
-      arr_insert(id, i, v)
+      set_insert_i(keys_id, i, k)
+      arr_insert(values_id, i, v)
     else
       arr_set(values_id, i, v)
 
