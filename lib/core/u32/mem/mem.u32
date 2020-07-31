@@ -1,41 +1,95 @@
 
 func mem_alloc(size) result
-  if mem_has_free_place(2)
-    ptr = mem_alloc_free_place(2)
-  else
-    ptr = mem_tail_n_inc(2)
-
-  [ptr + 1] = size
-
-  if mem_has_free_place(size)
-    [ptr] = mem_alloc_free_place(size)
-  else
-    [ptr] = mem_tail_n_inc(size)
-
+  ptr = mem_alloc_block(2)
+  [ptr] = mem_alloc_block(size) # 0 index - memory block
+  [mem_size_ptr(ptr)] = size    # 1 index - size of memory block
   ptr
 
+func mem_size_ptr(ptr) result
+  ptr + 1
+
 func mem_size(ptr) result
-  [ptr + 1] # size
+  [mem_size_ptr(ptr)] # size
 
 func mem_free(ptr)
+  mem_free_block([ptr], mem_size(ptr)) # We have two piece of memory 2 and size
+  mem_free_block(ptr, 2)
+
+
+func mem_free_block(ptr size)
+  map = mem_map()
+
+  if !map
+    mem_map_init()
+    map = mem_map()
+
+  if !map_has(map, size)
+    map_set(map, size, arr_create()) # Array of pointers on each block
+
+  arr_push(map_get(map, size), ptr)
+
+
+func mem_alloc_block(size) result
+  if mem_has_free_place(size)
+    ptr = mem_alloc_free_place(size)
+  else
+    ptr = mem_tail_n_inc(size)
+  ptr
+
 
 func mem_x4(ptr)
+  s = mem_size(ptr)
+  s4 = s << 2
+  m4 = mem_alloc_block(s4)
+  m1 = [ptr]
+  mem_copy(m4, m1, s)
+  mem_free_block(m1, s)
+  [ptr] = m4
+  [mem_size_ptr(ptr)] = s4
+
 
 func mem_has_free_place(size) result
   map = mem_map()
   if !map # beginning phase
     res = 0
   else
-    res = 0
+    keys_id = map_keys(map)
+    keys_size = set_size(keys_id)
+    i = set_search(keys_id, size)
+
+    if i == keys_size
+      res = 0
+    else
+      res = 1
   res
 
 func mem_alloc_free_place(size) result
-  0
+  map = mem_map()
+  keys_id = map_keys(map)
+  values_id = map_values(map)
+  i = set_search(keys_id, size)
+  s = set_get_i(keys_id, i)
+  ptrs = arr_get(values_id, i)
+
+  ptr = arr_pop(ptrs)
+  if !arr_len(ptrs)
+    set_delete_i(keys_id, i)
+    arr_delete(values_id, i)
+
+  if s != size
+    diff_s = s - size
+    diff_ptr = ptr + size
+    mem_free_block(diff_ptr, diff_s)
+
+  ptr
 
 func mem_map result
-  [[MEM]] # zero index pointer in memory block - map of sizes -> pointers
+  [MEM] # Free memory map
+
+func mem_map_init
+  [MEM] = map_create()
 
 func mem_init
-  mem_ptr = mem_tail_n_inc(1)
-  [MEM] = mem_ptr
-  [mem_ptr] = 0 # map_create() # Map of free memory block. size => [ptr, ...]
+  # Map of free memory blocks. size => [ptr, ...]
+  [MEM] = 0 # init null
+

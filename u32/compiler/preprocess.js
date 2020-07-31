@@ -249,6 +249,12 @@ function compile(code, dirname) {
         continue;
       }
 
+      if (code.slice(i, i+2) === "##") {
+        perform_indent();
+        if (line_indent > 0) throw `Nested func preprocessor command unsupported ${i}`;
+        break;
+      }
+
       throw `Parse func body unknown error at ${i} "${code[i]}"`;
     }
 
@@ -423,7 +429,7 @@ function full_compile(code, dirname) {
 }
 
 function sharp_sharp_comment_compile(code) {
-  const pattern = /([^#])#([^#])/mg;
+  const pattern = /(^|[^#])#([^#])/mg;
   return code.replace(pattern, (_, prefix, suffix) => prefix + ";;" + suffix);
 }
 
@@ -465,7 +471,7 @@ function slice_code_lines(code, from, to) {
 function preprocess(code, dirname) {
   ctx_define_consts = new Map();
   code = full_compile(code, dirname);
-  // console.log(slice_code_lines(code, 80, 200));
+  // console.log(slice_code_lines(code, 950, 1100));
   // console.log(code);
   // throw "debug";
   return code;

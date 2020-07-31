@@ -1,10 +1,8 @@
 export start
 export push pop
-export set_data_ptr
-export set_create set_add set_has set_delete set_size set_free
 
 ## <debug>
-export arr_data_ptr
-export arr_create arr_len arr_push arr_pop arr_delete arr_free
+export set_create set_add set_has set_delete set_size set_free set_data_ptr
+export arr_create arr_len arr_push arr_pop arr_delete arr_free arr_data_ptr
 export map_create map_size map_has map_keys map_values map_get map_set map_delete map_free
 ## </debug>

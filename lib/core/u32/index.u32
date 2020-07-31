@@ -1,5 +1,5 @@
 (module
-  ## import imports
+  ## import import_log
 
   (memory $0 1)
 
@@ -16,6 +16,7 @@
   ## import adt/set
   ## import adt/arr
   ## import adt/map
+  ## import adt/debug
 
   ## import exports
 

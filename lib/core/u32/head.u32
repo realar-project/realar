@@ -5,10 +5,11 @@
 
 func init
   mem_tail_init() # MEM_TAIL
+  mem_tail_inc(8) # First 8 values reserved by super global pointers
+
   slice_init()    # SLICE
   each_slice_init()
 
-  mem_tail_inc(8) # First 8 values reserved by global pointers
 
 func each_slice_init
   seq_id_init()   # SEQ_ID

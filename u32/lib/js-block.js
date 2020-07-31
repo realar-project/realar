@@ -23,6 +23,11 @@ ${export_prefix} function(env) {
     env: {
       log_i32() {
         console.log.apply(console, ["core:"].concat([].slice.call(arguments)))
+      },
+      log_mem(ptr, size) {
+        console.log("core:", ptr, size,
+          Array.from(new Uint32Array(instance.exports.memory.buffer, ptr << 2, size))
+        )
       }
     }
   }
