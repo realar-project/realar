@@ -26,6 +26,7 @@ func arr_len_inc(id)
   len = [len_ptr]
   if len == mem_size(id) - 2 # substract type and length
     mem_x4(id)
+    len_ptr = arr_len_ptr(id)
   [len_ptr] = len + 1
 
 func arr_len_dec(id)
@@ -70,8 +71,8 @@ func arr_set(id index n)
 func arr_insert(id index n)
   len = arr_len(id)
   if index < len
-    offset = arr_data_ptr(id) + index
     arr_len_inc(id)
+    offset = arr_data_ptr(id) + index
     mem_copy(offset + 1, offset, len - index)
     [offset] = n
 

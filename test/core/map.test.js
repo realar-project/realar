@@ -53,3 +53,35 @@ test("should work map methods", () => {
   expect(map_extract(id)).toStrictEqual([[2, 1]]);
 });
 
+test("should work map grow", () => {
+  let id = map_create();
+
+  for (let i = 0; i < 40; i++) {
+    map_set(id, i, 100 + i);
+  }
+
+  expect(map_extract(id)).toStrictEqual([
+    0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
+    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+    30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+  ].map(i => [i, 100 + i]));
+
+  map_free(id)
+
+  let k = map_create();
+
+  expect(k).toBe(id);
+  expect(map_extract(k)).toStrictEqual([]);
+
+  for (let i = 39; i >= 0; i--) {
+    map_set(k, i, 100 + i);
+  }
+
+  expect(map_extract(k)).toStrictEqual([
+    0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
+    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+    30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+  ].map(i => [i, 100 + i]));
+});

@@ -3,6 +3,24 @@ module.exports = {
   common_js_block
 };
 
+function env_log_debug() {
+  if (!process.env.REALAR_DEV) return '';
+  return `
+  log_i32(...args) {
+    console.log(...args)
+  },
+  log_mem(...args) {
+    const mems = []
+    for (let i = 0; i < args.length; i++) {
+      mems.push(
+        Array.from(new Uint32Array(instance.exports.memory.buffer, args[i] << 2, args[++i]))
+      )
+    }
+    console.log(...mems)
+  }
+  `
+}
+
 function tpl(src_block, export_prefix) {
   return `
 ${export_prefix} function(env) {
@@ -20,16 +38,7 @@ ${export_prefix} function(env) {
     }
   }
   let imports = {
-    env: {
-      log_i32() {
-        console.log.apply(console, ["core:"].concat([].slice.call(arguments)))
-      },
-      log_mem(ptr, size) {
-        console.log("core:", ptr, size,
-          Array.from(new Uint32Array(instance.exports.memory.buffer, ptr << 2, size))
-        )
-      }
-    }
+    env: {${env_log_debug()}}
   }
   if (env) {
     Object.assign(imports.env, env)

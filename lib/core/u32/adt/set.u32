@@ -26,7 +26,12 @@ func set_size_inc(id)
   size_ptr = set_size_ptr(id)
   size = [size_ptr]
   if size == mem_size(id) - 2 # substract type and size
+    # log_set(id)
+    # log_2(mem_size(id), [id])
     mem_x4(id)
+    # log_set(id)
+    # log_2(mem_size(id), [id])
+    size_ptr = set_size_ptr(id)
   [size_ptr] = size + 1
 
 func set_size_dec(id)
@@ -35,7 +40,11 @@ func set_size_dec(id)
 
 func set_add(id n)
   size = set_size(id)
+
+  # log_1(100000)
   i = set_search(id, n)
+
+  # log_2(i, size)
   if i == size
     set_insert_i(id, i, n)
   else
@@ -45,8 +54,8 @@ func set_add(id n)
 
 func set_insert_i(id index n)
   size = set_size(id)
-  offset = set_data_ptr(id) + index
   set_size_inc(id)
+  offset = set_data_ptr(id) + index
   if index != size
     mem_copy(offset + 1, offset, size - index)
   [offset] = n
@@ -70,7 +79,7 @@ func set_search(id n) result
     res = 0
   else
     loop $loop
-      b = size >> 1 ;; size / 2
+      b = size >> 1 # size / 2
       a = size - b
 
       # left:a:(+1-0) | right:b
@@ -79,21 +88,29 @@ func set_search(id n) result
 
       half_n = set_get_i(id, half_index)
 
+      # log_7(a, b, offset, half, half_index, half_n, n)
       if n > half_n
         if !b
           res = half
+          # log_2(1000, res)
         else
           offset = offset + a
-          size = a
+          size = b
+          # log_1(100)
           br $loop
       else
         if n != half_n
           if size == 1
             res = half_index
+            # log_2(1001, res)
           else
             size = a
+            # log_1(101)
             br $loop
-        else res = half_index
+        else
+          res = half_index
+          # log_2(1002, res)
+  # log_1(res)
   res
 
 

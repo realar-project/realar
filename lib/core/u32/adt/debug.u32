@@ -2,20 +2,14 @@
 
 func log_set(id)
   size = set_size(id)
-  log_3(9001, id, size)
   log_mem(set_data_ptr(id), size)
 
 func log_arr(id)
   len = arr_len(id)
-  log_3(9002, id, len)
   log_mem(arr_data_ptr(id), len)
 
 func log_map(id)
   size = map_size(id)
-  keys_id = map_keys(id)
-  values_id = map_values(id)
-  log_7(9003, id, size, set_size(keys_id), arr_len(values_id), keys_id, values_id)
-  log_mem(set_data_ptr(keys_id), size)
-  log_mem(arr_data_ptr(values_id), size)
+  log_mem_2(set_data_ptr(map_keys(id)), size, arr_data_ptr(map_values(id)), size)
 
 ## </debug>
