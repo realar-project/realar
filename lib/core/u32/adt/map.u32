@@ -1,0 +1,91 @@
+
+# memory struct
+# 0 index - code map type ADT_MAP_TYPE
+# 1 index - set of keys
+# 2 index - array of values
+
+func map_create result
+  id = mem_alloc(3)
+  [map_type_ptr(id)] = ADT_MAP_TYPE
+  [map_keys_ptr(id)] = set_create()
+  [map_values_ptr(id)] = arr_create()
+  id
+
+func map_type_ptr(id) result
+  [id]
+
+func map_keys_ptr(id) result
+  [id] + 1
+
+func map_values_ptr(id) result
+  [id] + 2
+
+func map_keys(id) result
+  [map_keys_ptr(id)]
+
+func map_values(id) result
+  [map_values_ptr(id)]
+
+func map_size(id) result
+  set_size(map_keys(id))
+
+func map_has(id k) result
+  set_has(map_keys(id), k)
+
+func map_get(id k) result
+  keys_id = map_keys(id)
+  size = set_size(keys_id)
+  if !size
+    res = 0
+  else
+    i = set_search(keys_id, k)
+    if i == size
+      res = 0
+    else
+      i_k = set_get_i(keys_id, i)
+      if k == i_k
+        res = arr_get(map_values(id), i)
+      else res = 0
+  res
+
+func map_set(id k v)
+  keys_id = map_keys(id)
+  values_id = map_values(id)
+
+  size = set_size(keys_id)
+  i = set_search(keys_id, k)
+
+  if i == size
+    set_insert_i(keys_id, i, k)
+    arr_push(values_id, v)
+  else
+    i_k = set_get_i(keys_id, i)
+    if k != i_k
+      set_insert_i(keys_id, i, k)
+      arr_insert(values_id, i, v)
+    else
+      arr_set(values_id, i, v)
+
+func map_delete(id k) result
+  keys_id = map_keys(id)
+  size = set_size(keys_id)
+  if !size
+    res = 0
+  else
+    i = set_search(keys_id, k)
+    if i == size
+      res = 0
+    else
+      i_k = set_get_i(keys_id, i)
+      if k != i_k
+        res = 0
+      else
+        set_delete_i(keys_id, i)
+        arr_delete(map_values(id), i)
+        res = 1
+  res
+
+func map_free(id)
+  mem_free(map_keys(id))
+  mem_free(map_values(id))
+  mem_free(id)

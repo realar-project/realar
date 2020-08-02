@@ -21,8 +21,7 @@ exports[`should work 1`] = `
 )
 
 (;;func seq_id_next result;;)
-(func $seq_id_next  (result i32)  
-(local $id i32)  
+(func $seq_id_next  (result i32)(local $id i32)  
 (local.set $id (i32.add (i32.load (i32.shl (i32.const 4) (i32.const 2))) (i32.const 1)))
   
 (i32.store (i32.shl (i32.const 4) (i32.const 2)) (local.get $id))
@@ -48,9 +47,7 @@ exports[`should work 1`] = `
 )
 
 (;;func set_add(id n);;)
-(func $set_add (param $id i32) (param $n i32)  
-(local $size i32) (local $i i32) (local $i_n i32)
-  
+(func $set_add (param $id i32) (param $n i32)(local $size i32)(local $i i32)(local $i_n i32)  
 (local.set $size (call $set_size (local.get $id)))
   
 (local.set $i (call $set_search (local.get $id) (local.get $n)))
@@ -78,9 +75,7 @@ exports[`should work 1`] = `
 )
 
 (;;func set_insert_i(id index n);;)
-(func $set_insert_i (param $id i32) (param $index i32) (param $n i32)  
-(local $size i32) (local $offset i32) (local $offset_index i32)
-  
+(func $set_insert_i (param $id i32) (param $index i32) (param $n i32)(local $size i32)(local $offset_index i32)(local $offset i32)  
 (local.set $size (call $set_size (local.get $id)))
   
 (if (i32.eq (local.get $index) (local.get $size))
@@ -113,9 +108,7 @@ exports[`should work 1`] = `
 )))
 
 (;;func set_delete_i(id index);;)
-(func $set_delete_i (param $id i32) (param $index i32)  
-(local $size i32) (local $curr i32) (local $to i32)
-  
+(func $set_delete_i (param $id i32) (param $index i32)(local $size i32)(local $curr i32)(local $to i32)  
 (local.set $size (call $set_size (local.get $id)))
   
 (if (i32.ne (local.get $size) (i32.const 1))
@@ -157,10 +150,7 @@ exports[`should work 1`] = `
 )
 
 (;;func set_search(id n) result;;)
-(func $set_search (param $id i32) (param $n i32) (result i32)  
-(local $size i32) (local $offset i32) (local $a i32) (local $b i32)  
-(local $half i32) (local $half_index i32) (local $half_n i32) (local $res i32)
-  
+(func $set_search (param $id i32) (param $n i32) (result i32)(local $size i32)(local $offset i32)(local $res i32)(local $b i32)(local $a i32)(local $half i32)(local $half_index i32)(local $half_n i32)  
 (local.set $size (call $set_size (local.get $id)))
   
 (local.set $offset (i32.const 0))
@@ -220,9 +210,7 @@ exports[`should work 1`] = `
 )
 
 (;;func set_has(id n) result;;)
-(func $set_has (param $id i32) (param $n i32) (result i32)  
-(local $size i32) (local $i i32) (local $i_n i32) (local $res i32)
-  
+(func $set_has (param $id i32) (param $n i32) (result i32)(local $size i32)(local $res i32)(local $i i32)(local $i_n i32)  
 (local.set $size (call $set_size (local.get $id)))
   
 (if (i32.eqz (local.get $size))
@@ -254,9 +242,7 @@ exports[`should work 1`] = `
 )
 
 (;;func set_delete(id n) result;;)
-(func $set_delete (param $id i32) (param $n i32) (result i32)  
-(local $size i32) (local $i i32) (local $i_n i32) (local $res i32)
-  
+(func $set_delete (param $id i32) (param $n i32) (result i32)(local $size i32)(local $res i32)(local $i i32)(local $i_n i32)  
 (local.set $size (call $set_size (local.get $id)))
   
 (if (i32.eqz (local.get $size))

@@ -13,6 +13,10 @@ module.exports = {
   expr_to_wat
 };
 
+function local_add(local_name) {
+  require("./preprocess").func_local_section_add(local_name);
+}
+
 function expr_to_wat(text) {
   // console.log(text);
   const pattern = /<<|>>|!=|==|>=|<=|[%*\/+\-><=!,]|[\(\)\[\]]|[a-z_][a-z_0-9]*|0|[1-9][0-9]*|[A-Z_][A-Z_0-9]*/gm;
@@ -256,6 +260,7 @@ function wat_get_value(node) {
 
   const [type, text] = node;
   if (type === $_NODE) {
+    local_add(text);
     return `(local.get $${text})`;
   }
   if (type === NUM_NODE) {
@@ -322,6 +327,7 @@ function make_binary_op(op, right, left) {
       wat = `(i32.store (i32.shl ${wat_get_value(left)} (i32.const 2)) ${wat_get_value(right)})`;
       break;
     case "=":
+      local_add(left[text_key]);
       wat = `(local.set $${left[text_key]} ${wat_get_value(right)})`;
       break;
     case ",":

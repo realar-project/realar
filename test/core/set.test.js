@@ -3,10 +3,11 @@ import {
   set_create,
   set_delete,
   set_has,
-  set_extract
-} from "../../lib/core";
+  set_extract,
+  set_free
+} from "../../lib/core/test";
 
-test.each([56, 72, 72])("should work set methods", (expected_id) => {
+test.each([24, 24])("should work set methods", (expected_id) => {
   const id = set_create();
 
   expect(set_extract(id)).toStrictEqual([]);
@@ -42,3 +43,35 @@ test.each([56, 72, 72])("should work set methods", (expected_id) => {
   expect(set_extract(id)).toStrictEqual([2]);
 });
 
+test("should work set grow", () => {
+  let id = set_create();
+
+  for (let i = 0; i < 40; i++) {
+    set_add(id, i);
+  }
+
+  expect(set_extract(id)).toStrictEqual([
+    0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
+    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+    30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+  ]);
+
+  set_free(id)
+
+  let k = set_create();
+
+  expect(k).toBe(id);
+  expect(set_extract(k)).toStrictEqual([]);
+
+  for (let i = 39; i >= 0; i--) {
+    set_add(k, i);
+  }
+
+  expect(set_extract(k)).toStrictEqual([
+    0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
+    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+    30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+  ]);
+});

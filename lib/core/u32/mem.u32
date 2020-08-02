@@ -1,9 +1,0 @@
-
-func mem(size) result
-  local ptr
-  ptr = [MEM_FREE]
-  [MEM_FREE] = ptr + size
-  ptr
-
-func mem_free(ptr)
-  # TODO: impletement it

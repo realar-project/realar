@@ -5,7 +5,6 @@ func seq_id_init
   [SEQ_ID_ADR] = 0
 
 func seq_id_next result
-  local id
   id = [SEQ_ID_ADR] + 1
   [SEQ_ID_ADR] = id
   id

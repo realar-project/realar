@@ -1,0 +1,15 @@
+## <debug>
+
+func log_set(id)
+  size = set_size(id)
+  log_mem(set_data_ptr(id), size)
+
+func log_arr(id)
+  len = arr_len(id)
+  log_mem(arr_data_ptr(id), len)
+
+func log_map(id)
+  size = map_size(id)
+  log_mem_2(set_data_ptr(map_keys(id)), size, arr_data_ptr(map_values(id)), size)
+
+## </debug>

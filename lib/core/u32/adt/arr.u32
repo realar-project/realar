@@ -1,0 +1,81 @@
+
+# memory struct
+# 0 index - code array type ADT_ARR_TYPE
+# 1 index - length (push, pop)
+
+func arr_create result
+  id = mem_alloc(32)  # Array default memory size block 32 -> 30 elements
+  [arr_type_ptr(id)] = ADT_ARR_TYPE # type
+  [arr_len_ptr(id)] = 0 # length
+  id
+
+func arr_type_ptr(id) result
+  [id]
+
+func arr_len_ptr(id) result
+  [id] + 1
+
+func arr_data_ptr(id) result
+  [id] + 2
+
+func arr_len(id) result
+  [arr_len_ptr(id)] # length
+
+func arr_len_inc(id)
+  len_ptr = arr_len_ptr(id)
+  len = [len_ptr]
+  if len == mem_size(id) - 2 # substract type and length
+    mem_x4(id)
+    len_ptr = arr_len_ptr(id)
+  [len_ptr] = len + 1
+
+func arr_len_dec(id)
+  len_ptr = arr_len_ptr(id)
+  [len_ptr] = [len_ptr] - 1
+
+func arr_push(id n)
+  len = arr_len(id)
+  arr_len_inc(id)
+  [arr_data_ptr(id) + len] = n
+
+func arr_pop(id) result
+  len = arr_len(id)
+  if !len
+    res = 0
+  else
+    res = [arr_data_ptr(id) + len - 1]
+    arr_len_dec(id)
+  res
+
+func arr_delete(id index)
+  len = arr_len(id)
+  if index < len
+    if index < len - 1
+      data_ptr = arr_data_ptr(id)
+      mem_copy(data_ptr + index, data_ptr + index + 1, len - index - 1)
+    arr_len_dec(id)
+
+func arr_get(id index) result
+  len = arr_len(id)
+  if index < len
+    res = [arr_data_ptr(id) + index]
+  else
+    res = 0
+  res
+
+func arr_set(id index n)
+  len = arr_len(id)
+  if index < len
+    [arr_data_ptr(id) + index] = n
+
+func arr_insert(id index n)
+  len = arr_len(id)
+  if index < len
+    arr_len_inc(id)
+    offset = arr_data_ptr(id) + index
+    mem_copy(offset + 1, offset, len - index)
+    [offset] = n
+
+func arr_free(id)
+  mem_free(id)
+
