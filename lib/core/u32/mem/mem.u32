@@ -53,35 +53,16 @@ func mem_has_free_place(size) result
   if !map # beginning phase
     res = 0
   else
-    keys_id = map_keys(map)
-    keys_size = set_size(keys_id)
-    i = set_search(keys_id, size)
-
-    if i == keys_size
+    if !map_has(map, size)
       res = 0
     else
-      res = 1
+      res = arr_len(map_get(map, size))
   res
 
 func mem_alloc_free_place(size) result
   map = mem_map()
-  keys_id = map_keys(map)
-  values_id = map_values(map)
-  i = set_search(keys_id, size)
-  s = set_get_i(keys_id, i)
-  ptrs = arr_get(values_id, i)
-
-  ptr = arr_pop(ptrs)
-  if !arr_len(ptrs)
-    set_delete_i(keys_id, i)
-    arr_delete(values_id, i)
-
-  if s != size
-    diff_s = s - size
-    diff_ptr = ptr + size
-    mem_free_block(diff_ptr, diff_s)
-
-  ptr
+  ptrs = map_get(map, size)
+  arr_pop(ptrs)
 
 func mem_map result
   [MEM] # Free memory map
