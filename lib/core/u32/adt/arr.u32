@@ -1,22 +1,17 @@
 
 # memory struct
-# 0 index - code array type ADT_ARR_TYPE
-# 1 index - length (push, pop)
+# 0 index - length (push, pop)
 
 func arr_create result
-  id = mem_alloc(32)  # Array default memory size block 32 -> 30 elements
-  [arr_type_ptr(id)] = ADT_ARR_TYPE # type
+  id = mem_alloc(32)  # Array default memory size block 32 -> 31 elements
   [arr_len_ptr(id)] = 0 # length
   id
 
-func arr_type_ptr(id) result
+func arr_len_ptr(id) result
   [id]
 
-func arr_len_ptr(id) result
-  [id] + 1
-
 func arr_data_ptr(id) result
-  [id] + 2
+  [id] + 1
 
 func arr_len(id) result
   [arr_len_ptr(id)] # length
@@ -24,7 +19,7 @@ func arr_len(id) result
 func arr_len_inc(id)
   len_ptr = arr_len_ptr(id)
   len = [len_ptr]
-  if len == mem_size(id) - 2 # substract type and length
+  if len == mem_size(id) - 1 # substract length
     mem_x4(id)
     len_ptr = arr_len_ptr(id)
   [len_ptr] = len + 1

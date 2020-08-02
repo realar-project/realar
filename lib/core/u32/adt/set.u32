@@ -1,23 +1,18 @@
 
 # memory struct
-# 0 - code array type ADT_SET_TYPE
-# 1 - size
-# [2..size) - values
+# 0 - size
+# [1..size) - values
 
 func set_create result
-  id = mem_alloc(32)    # Set default memory size block 32 -> 30 elements
-  [set_type_ptr(id)] = ADT_SET_TYPE # type
+  id = mem_alloc(32)    # Set default memory size block 32 -> 31 elements
   [set_size_ptr(id)] = 0 # size
   id
 
-func set_type_ptr(id) result
+func set_size_ptr(id) result
   [id]
 
-func set_size_ptr(id) result
-  [id] + 1
-
 func set_data_ptr(id) result
-  [id] + 2
+  [id] + 1
 
 func set_size(id) result
   [set_size_ptr(id)]
@@ -25,12 +20,8 @@ func set_size(id) result
 func set_size_inc(id)
   size_ptr = set_size_ptr(id)
   size = [size_ptr]
-  if size == mem_size(id) - 2 # substract type and size
-    # log_set(id)
-    # log_2(mem_size(id), [id])
+  if size == mem_size(id) - 1 # substract size
     mem_x4(id)
-    # log_set(id)
-    # log_2(mem_size(id), [id])
     size_ptr = set_size_ptr(id)
   [size_ptr] = size + 1
 
@@ -40,11 +31,7 @@ func set_size_dec(id)
 
 func set_add(id n)
   size = set_size(id)
-
-  # log_1(100000)
   i = set_search(id, n)
-
-  # log_2(i, size)
   if i == size
     set_insert_i(id, i, n)
   else
@@ -88,29 +75,22 @@ func set_search(id n) result
 
       half_n = set_get_i(id, half_index)
 
-      # log_7(a, b, offset, half, half_index, half_n, n)
       if n > half_n
         if !b
           res = half
-          # log_2(1000, res)
         else
           offset = offset + a
           size = b
-          # log_1(100)
           br $loop
       else
         if n != half_n
           if size == 1
             res = half_index
-            # log_2(1001, res)
           else
             size = a
-            # log_1(101)
             br $loop
         else
           res = half_index
-          # log_2(1002, res)
-  # log_1(res)
   res
 
 

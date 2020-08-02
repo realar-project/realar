@@ -1,24 +1,19 @@
 
 # memory struct
-# 0 index - code map type ADT_MAP_TYPE
-# 1 index - set of keys
-# 2 index - array of values
+# 0 index - set of keys
+# 1 index - array of values
 
 func map_create result
-  id = mem_alloc(3)
-  [map_type_ptr(id)] = ADT_MAP_TYPE
+  id = mem_alloc(2)
   [map_keys_ptr(id)] = set_create()
   [map_values_ptr(id)] = arr_create()
   id
 
-func map_type_ptr(id) result
+func map_keys_ptr(id) result
   [id]
 
-func map_keys_ptr(id) result
-  [id] + 1
-
 func map_values_ptr(id) result
-  [id] + 2
+  [id] + 1
 
 func map_keys(id) result
   [map_keys_ptr(id)]
