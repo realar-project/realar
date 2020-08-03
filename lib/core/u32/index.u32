@@ -1,21 +1,22 @@
 (module
-  ## import import_log
+  ## import imports
 
   (memory $0 1)
 
+  ## import errors
   ## import head
 
   ## import mem/mem_tail
   ## import mem/mem_copy
   ## import mem/mem
 
-  ## import slice
-  ## import seq
-
   ## import adt/set
   ## import adt/arr
   ## import adt/map
   ## import adt/debug
+
+  ## import seq
+  ## import box
 
   ## import exports
 

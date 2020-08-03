@@ -24,6 +24,10 @@ func map_values(id) result
 func map_size(id) result
   set_size(map_keys(id))
 
+func map_clear(id)
+  set_clear(map_keys(id))
+  arr_clear(map_values(id))
+
 func map_has(id k) result
   set_has(map_keys(id), k)
 

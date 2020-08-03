@@ -19,10 +19,6 @@ func mem_free(ptr)
 func mem_free_block(ptr size)
   map = mem_map()
 
-  if !map
-    mem_map_init()
-    map = mem_map()
-
   if !map_has(map, size)
     map_set(map, size, arr_create()) # Array of pointers on each block
 
@@ -67,10 +63,8 @@ func mem_alloc_free_place(size) result
 func mem_map result
   [MEM_MAP] # Free memory map
 
-func mem_map_init
-  [MEM_MAP] = map_create()
-
 func mem_init
   # Map of free memory blocks. size => [ptr, ...]
   [MEM_MAP] = 0 # init null
+  [MEM_MAP] = map_create()
 

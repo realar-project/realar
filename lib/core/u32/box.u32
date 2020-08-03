@@ -1,0 +1,19 @@
+
+func box_init
+  [TICK_DEEP] = 0
+  [TICK_CHANGED] = set_create()
+
+func tick_deep result
+  [TICK_DEEP]
+
+func tick_deep_inc
+  [TICK_DEEP] = [TICK_DEEP] + 1
+
+func tick_start
+  if !tick_deep()
+    set_clear(tick_changed)
+
+  tick_deep_inc()
+
+  if tick_deep() > 100
+    error(TICK_DEEP_LIMIT_EXCEPTION)

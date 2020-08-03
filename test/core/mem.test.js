@@ -19,7 +19,7 @@ test("should work mem free", () => {
   mem_free(p);
   let t2 = mem_tail();
 
-  expect(t2 - t1).toBe(72 + 34 + 34); // map(mem) + arr(2) + arr(8)
+  expect(t2 - t1).toBe(72 + 34 + 34); // map(mem) + arr(2) + arr(10)
 
   expect(mem_map_extract()).toEqual([
     [2, [t]],

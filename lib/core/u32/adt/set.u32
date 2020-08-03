@@ -5,7 +5,7 @@
 
 func set_create result
   id = mem_alloc(32)    # Set default memory size block 32 -> 31 elements
-  [set_size_ptr(id)] = 0 # size
+  set_clear(id)
   id
 
 func set_size_ptr(id) result
@@ -16,6 +16,9 @@ func set_data_ptr(id) result
 
 func set_size(id) result
   [set_size_ptr(id)]
+
+func set_clear(id)
+  [set_size_ptr(id)] = 0 # size
 
 func set_size_inc(id)
   size_ptr = set_size_ptr(id)

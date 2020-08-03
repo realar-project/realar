@@ -1,16 +1,18 @@
 import {
-  set_add,
-  set_create,
-  set_delete,
-  set_has,
-  set_extract,
-  set_free
+  set_add, set_create, set_delete, set_has, set_extract, set_free
 } from "../../lib/core/test";
 
-test.each([24, 24])("should work set methods", (expected_id) => {
+let expected_id = 0;
+
+test.each([1, 1])("should work set methods", () => {
   const id = set_create();
 
   expect(set_extract(id)).toStrictEqual([]);
+
+  if (!expected_id) {
+    expected_id = id;
+  }
+
   expect(id).toBe(expected_id);
 
   set_add(id, 10);
