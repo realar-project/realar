@@ -2,6 +2,9 @@
 func box_init
   [TICK_DEEP] = 0
   [TICK_CHANGED] = set_create()
+  [BOX_DEPS] = map_create()
+  [BOX_RELS] = map_create()
+  [BOX_INVALID] = set_create()
 
 func tick_deep result
   [TICK_DEEP]
@@ -9,9 +12,21 @@ func tick_deep result
 func tick_deep_inc
   [TICK_DEEP] = [TICK_DEEP] + 1
 
+func tick_changed result
+  [TICK_CHANGED]
+
+func box_deps result
+  [BOX_DEPS]
+
+func box_rels result
+  [BOX_RELS]
+
+func box_invalid result
+  [BOX_INVALID]
+
 func tick_start
   if !tick_deep()
-    set_clear(tick_changed)
+    set_clear(tick_changed())
 
   tick_deep_inc()
 
@@ -19,16 +34,15 @@ func tick_start
     error(TICK_DEEP_LIMIT_EXCEPTION)
 
 func box_deep_invalidate(next_bound)
-
   loop $loop
     bound = next_bound
     next_bound = set_create()
 
     for x of set bound
-      rels = map_get(box_rels, x)
+      rels = map_get(box_rels(), x)
       if rels
         for r of set rels
-          set_add(box_invalid, r)
+          set_add(box_invalid(), r)
           set_add(next_bound, r)
 
     if set_size(next_bound)

@@ -5,6 +5,9 @@
 
 ## define TICK_DEEP 4
 ## define TICK_CHANGED 5
+## define BOX_DEPS 6
+## define BOX_RELS 7
+## define BOX_INVALID 8
 
 func start
   mem_tail_init() # MEM_TAIL
@@ -30,6 +33,9 @@ func push
 
   [slice + 3] = [TICK_DEEP]
   [slice + 4] = [TICK_CHANGED]
+  [slice + 5] = [BOX_DEPS]
+  [slice + 6] = [BOX_RELS]
+  [slice + 7] = [BOX_INVALID]
 
   [SLICE] = slice # switch to new slice
   each_slice_init()
@@ -44,3 +50,6 @@ func pop
 
   [TICK_DEEP] = [slice + 3]
   [TICK_CHANGED] = [slice + 4]
+  [BOX_DEPS] = [slice + 5]
+  [BOX_RELS] = [slice + 6]
+  [BOX_INVALID] = [slice + 7]
