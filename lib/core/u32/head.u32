@@ -44,15 +44,3 @@ func pop
 
   [TICK_DEEP] = [slice + 3]
   [TICK_CHANGED] = [slice + 4]
-
-
-
-
-
-
-
-
-
-
-
-
