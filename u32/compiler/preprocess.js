@@ -124,7 +124,8 @@ function compile(code, dirname) {
       prev_if = 0,
       read_2, read_3, read_4, line, expr,
       then_section = new Set(),
-      else_section = new Set()
+      else_section = new Set(),
+      for_section = new Map()
     ;
 
     const expr_with_const_pattern = /^[!0-9_a-zA-Z\[]/m;
@@ -140,6 +141,12 @@ function compile(code, dirname) {
       if(block_indent <= line_indent) return;
       let k = block_indent - line_indent;
       while(k--) {
+        if (for_section.has(block_indent)) {
+          push_text(for_section.get(block_indent));
+          for_section.delete(block_indent);
+          block_indent --;
+          continue;
+        }
         push_text(")");
         if (then_section.has(block_indent)) {
           push_text(")");
@@ -229,6 +236,16 @@ function compile(code, dirname) {
         break;
       }
 
+      if (read_4 === "for ") {
+        perform_indent();
+        prev_if_push();
+        line = read_line_push_comment();
+        block_indent += 1;
+        push_for_section(line);
+        line_indent = 0;
+        continue;
+      }
+
       if (code.slice(i, i+5) === "loop ") {
         perform_indent();
         prev_if_push();
@@ -260,6 +277,52 @@ function compile(code, dirname) {
 
     line_indent = 0;
     perform_indent();
+
+    function push_for_section(text) {
+      push_comment_block(text);
+
+      const for_pattern = /^for ([a-z_][a-z_0-9]*) of set ([a-z_][a-z_0-9]*)$/m;
+      let m;
+      if (m = for_pattern.exec(text)) {
+        let [_, iter_name, source_name] = m;
+        let loop_name = `loop_${i}`;
+        let loop_index_name = `index_${loop_name}`;
+        let loop_size_name = `size_${loop_name}`;
+        let delim = `(;%%DELIM%%;)`;
+
+        let tpl = `
+        (local.set $${loop_index_name} (i32.const 0))
+        (local.set $${loop_size_name} (
+          call $set_size (local.get $${source_name})
+        ))
+        (loop $${loop_name}
+          (if
+            (i32.lt_u (local.get $${loop_index_name}) (local.get $${loop_size_name}))
+            (then
+              (local.set $${iter_name} (
+                call $set_get_i (local.get $${source_name}) (local.get $${loop_index_name})
+              ))
+
+              ${delim}
+
+              (local.set $${loop_index_name} (i32.add
+                (local.get $${loop_index_name})
+                (i32.const 1)
+              ))
+              (br $${loop_name})
+            )
+          )
+        )
+        `;
+
+        let [ prefix, suffix ] = tpl.split(delim);
+        push_text_eol(prefix);
+        func_local_section_add(loop_index_name);
+        func_local_section_add(loop_size_name);
+
+        for_section.set(block_indent, suffix);
+      }
+    }
   }
 
   function read_line_push_comment() {

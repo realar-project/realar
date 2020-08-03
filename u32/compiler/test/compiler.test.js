@@ -15,3 +15,13 @@ test("should work", () => {
 
   expect(preprocess(code, __dirname)).toMatchSnapshot();
 });
+
+test("should work for section for set", () => {
+  let code = `
+func a(k)
+  for n of set k
+    log_1(n)
+  `;
+
+  expect(preprocess(code, __dirname)).toMatchSnapshot();
+});

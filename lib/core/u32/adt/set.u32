@@ -58,6 +58,7 @@ func set_delete_i(id index)
     mem_copy(offset, offset + 1, size - index - 1)
   set_size_dec(id)
 
+
 func set_get_i(id index) result
   [set_data_ptr(id) + index]
 
