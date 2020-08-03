@@ -5,21 +5,20 @@ import {
 } from "../../lib/core/test";
 
 test("should work mem free", () => {
-  expect(mem_map()).toBe(0);
+  expect(mem_map()).not.toBe(0);
 
   let t = mem_tail();
   let p = mem_alloc(10);
 
   expect(t).toBe(p);
   expect(mem_size(p)).toBe(10);
-  expect(mem_map()).toBe(0);
 
   let t1 = mem_tail();
 
   mem_free(p);
   let t2 = mem_tail();
 
-  expect(t2 - t1).toBe(72 + 34 + 34); // map(mem) + arr(2) + arr(10)
+  expect(t2 - t1).toBe(34 + 34); // arr(2) + arr(10)
 
   expect(mem_map_extract()).toEqual([
     [2, [t]],
