@@ -298,7 +298,7 @@ exports[`should work for section for set 1`] = `
 "
 
 (;;func a(k);;)
-(func $a (param $k i32)(local $index_loop_28 i32)(local $size_loop_28 i32)(local $n i32)  
+(func $a (param $k i32)(local $index_loop_28 i32)(local $size_loop_28 i32)(local $index_loop_47 i32)(local $size_loop_47 i32)(local $n i32)(local $j i32)  
 (;;for n of set k;;)
         (local.set $index_loop_28 (i32.const 0))
         (local.set $size_loop_28 (
@@ -314,8 +314,33 @@ exports[`should work for section for set 1`] = `
 
               
     
-(call $log_1 (local.get $n))
+(;;for j of set n;;)
+        (local.set $index_loop_47 (i32.const 0))
+        (local.set $size_loop_47 (
+          call $set_size (local.get $n)
+        ))
+        (loop $loop_47
+          (if
+            (i32.lt_u (local.get $index_loop_47) (local.get $size_loop_47))
+            (then
+              (local.set $j (
+                call $set_get_i (local.get $n) (local.get $index_loop_47)
+              ))
+
+              
+      
+(call $log_2 (local.get $n) (local.get $j))
   
+
+              (local.set $index_loop_47 (i32.add
+                (local.get $index_loop_47)
+                (i32.const 1)
+              ))
+              (br $loop_47)
+            )
+          )
+        )
+        
 
               (local.set $index_loop_28 (i32.add
                 (local.get $index_loop_28)

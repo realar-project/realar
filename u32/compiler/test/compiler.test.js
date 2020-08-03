@@ -20,7 +20,8 @@ test("should work for section for set", () => {
   let code = `
 func a(k)
   for n of set k
-    log_1(n)
+    for j of set n
+      log_2(n, j)
   `;
 
   expect(preprocess(code, __dirname)).toMatchSnapshot();
