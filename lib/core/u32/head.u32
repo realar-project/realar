@@ -1,7 +1,7 @@
 ## define MEM_TAIL 0 # First free byte
 ## define SLICE 1
 ## define SEQ_ID 2
-## define MEM 3
+## define MEM_MAP 3
 
 func init
   mem_tail_init() # MEM_TAIL
@@ -13,7 +13,7 @@ func init
 
 func each_slice_init
   seq_id_init()   # SEQ_ID
-  mem_init()      # MEM
+  mem_init()      # MEM_MAP
 
 func start
   init()

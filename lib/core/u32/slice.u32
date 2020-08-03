@@ -7,7 +7,7 @@ func slice_push
 
   [slice] = [SLICE]       # 0 index - prev SLICE
   [slice + 1] = [SEQ_ID]  # 1 index - prev SEQ_ID
-  [slice + 2] = [MEM]     # 2 index - prev MEM
+  [slice + 2] = [MEM_MAP] # 2 index - prev MEM_MAP
 
   [SLICE] = slice # switch to new slice
   each_slice_init()
@@ -17,4 +17,4 @@ func slice_pop
   [MEM_TAIL] = slice
   [SLICE] = [slice]
   [SEQ_ID] = [slice + 1]
-  [MEM] = [slice + 2]
+  [MEM_MAP] = [slice + 2]
