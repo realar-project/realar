@@ -32,6 +32,22 @@ func set_size_dec(id)
   size_ptr = set_size_ptr(id)
   [size_ptr] = [size_ptr] - 1
 
+
+func set_assign(dst src)
+  src_size = set_size(src)
+
+  mem_size_dst = mem_size(dst)
+  if mem_size_dst - 1 < src_size
+    k = mem_size_dst
+    loop $loop
+      k = k << 2  # x4 grow by default
+      if k - 1 < src_size
+        br $loop
+    mem_non_copy_resize(dst, k)
+
+  mem_copy([dst], [src], src_size + 1)
+
+
 func set_add(id n)
   size = set_size(id)
   i = set_search(id, n)

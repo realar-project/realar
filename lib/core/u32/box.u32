@@ -33,18 +33,34 @@ func tick_start
   if tick_deep() > 100
     error(TICK_DEEP_LIMIT_EXCEPTION)
 
-func box_deep_invalidate(next_bound)
-  loop $loop
-    bound = next_bound
-    next_bound = set_create()
+func box_deep_invalidate(changed_set)
+  next_set = set_create()
+  cur_set = set_create()
 
-    for x of set bound
+  set_assign(cur_set, changed_set)
+
+  loop $loop
+    for x of set cur_set
       rels = map_get(box_rels(), x)
       if rels
         for r of set rels
           set_add(box_invalid(), r)
-          set_add(next_bound, r)
+          set_add(next_set, r)
 
-    if set_size(next_bound)
+    if set_size(next_set)
+      t = cur_set
+      cur_set = next_set
+      next_set = t
+      set_clear(next_set)
+
       br $loop
 
+  set_free(next_set)
+  set_free(cur_set)
+
+
+## <debug>
+export box_rels box_invalid
+export tick_deep_inc tick_start
+export box_deep_invalidate
+## </debug>

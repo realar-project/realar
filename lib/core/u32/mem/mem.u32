@@ -44,6 +44,14 @@ func mem_x4(ptr)
   [mem_size_ptr(ptr)] = s4
 
 
+func mem_non_copy_resize(ptr new_size)
+  prev_size = mem_size(ptr)
+  new_mem_block = mem_alloc_block(new_size)
+  prev_mem_block = [ptr]
+  mem_free_block(prev_mem_block, prev_size)
+  [ptr] = new_mem_block
+  [mem_size_ptr(ptr)] = new_size
+
 func mem_has_free_place(size) result
   map = mem_map()
   if !map # beginning phase
