@@ -19,7 +19,7 @@ func start
 func each_slice_init
   seq_init()    # SEQ
   mem_init()    # MEM_MAP
-  box_init()    # TICK_*
+  box_init()    # TICK_*, BOX_*
 
 func slice_init
   [SLICE] = 0

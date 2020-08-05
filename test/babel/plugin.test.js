@@ -9,7 +9,11 @@ function transform(code) {
   }).code;
 }
 
-test("Should wrap functions with JSX", () => {
+function strip_multiline_comments(code) {
+  return code.replace(/\s*\/\*.*?\*\//mg, () => "");
+}
+
+test("should wrap functions with JSX", () => {
   const code = `
   function App() {
     return <div />;
@@ -31,7 +35,7 @@ export function Root() {
   expect(transform(code)).toBe(expected);
 });
 
-test("Should wrap unit", () => {
+test("should wrap unit", () => {
   const code = `
     const Unit = unit({v:1});
   `;
@@ -41,6 +45,58 @@ test("Should wrap unit", () => {
   };
 });`;
   expect(transform(code)).toBe(expected);
+});
+
+
+test("should process unit2", () => {
+  const code = `
+    const Unit = unit2({
+      v:1,
+      get n() {
+        return this.v + 1
+      },
+      expression() {
+        this.v2 = this.v + this.n;
+      },
+      m(k, m = 5) {
+        m = m + 1;
+        return this.v + this.v2 + k + m;
+      },
+      v2: "A",
+      constructor(v) {
+        this.v = 10;
+        this.v2 = v;
+      }
+    });
+  `;
+  const expected = `const Unit = unit2(function () {
+  let _e_id = f[0 /*box_expr_create*/]();
+
+  let _e_fn = () => {
+    f[0 /*box_expr_start*/](_e_id);
+    this.v2 = this.v + this.n;
+    f[0 /*box_expr_finish*/]();
+  };
+
+  f[0 /*box_expr*/](_e_id, _e_fn);
+
+  let _c_id = f[0 /*box_computed_create*/]();
+
+  return [v => { /* constructor */
+    f[0 /*box_entry_start*/]();
+    this.v = 10;
+    this.v2 = v;
+    f[0 /*box_entry_finish*/]();
+  }, 0 /* destr */, _e_fn /* expr */, 1 /* v */, "A" /* v2 */, () => { /* n */
+    f[0 /*box_computed_start*/](_c_id);
+    let _ret;
+    return _ret = this.v + 1, f[0 /*box_computed_finish*/](), _ret;
+  }, (k, m = 5) => { /* m */
+    m = m + 1;
+    return this.v + this.v2 + k + m;
+  }];
+}, ["v", "v2"], ["n"], ["m"]);`;
+  expect(transform(code)).toBe(strip_multiline_comments(expected));
 });
 
 // test("Should wrap arrow functions with JSX", () => {

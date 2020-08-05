@@ -12,3 +12,4 @@
 ## </debug>
 
 (import "env" "error" (func $error (param i32)))
+(import "env" "fns" (table 1 anyfunc))
