@@ -71,7 +71,8 @@ func box_expr_start(id)
 
 func box_expr_finish
 
-func box_expr_fn_make(id)
+func box_expr_fn_make(id) result
+  0
 
 func box_computed_create result
   0
@@ -93,6 +94,7 @@ func box_view_start(id)
 func box_view_finish
 
 func box_view_fn_make(id)
+
 
 (export "b0" (func $box_value_create))
 (export "b1" (func $box_value_get_phase))

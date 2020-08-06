@@ -28,4 +28,7 @@ test("should work unit inst", () => {
   expect(n).toBe(2);
   expect(v3).toBe(5);
   expect(m(1)).toBe(11);
+
+  inst.v = 10;
+  expect(m(1)).toBe(38);
 });
