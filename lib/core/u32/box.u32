@@ -1,4 +1,3 @@
-
 func box_init
   [TICK_DEEP] = 0
   [TICK_CHANGED] = set_create()
@@ -58,6 +57,59 @@ func box_deep_invalidate(changed_set)
   set_free(next_set)
   set_free(cur_set)
 
+func box_value_create result
+  0
+
+func box_value_get_phase(id)
+
+func box_value_set_phase(id)
+
+func box_expr_create result
+  0
+
+func box_expr_start(id)
+
+func box_expr_finish
+
+func box_expr_fn_make(id)
+
+func box_computed_create result
+  0
+
+func box_computed_start(id) result
+  0
+
+func box_computed_finish
+
+func box_entry_start
+
+func box_entry_finish
+
+func box_view_create result
+  0
+
+func box_view_start(id)
+
+func box_view_finish
+
+func box_view_fn_make(id)
+
+(export "b0" (func $box_value_create))
+(export "b1" (func $box_value_get_phase))
+(export "b2" (func $box_value_set_phase))
+(export "b3" (func $box_expr_create))
+(export "b4" (func $box_expr_start))
+(export "b5" (func $box_expr_finish))
+(export "b6" (func $box_expr_fn_make))
+(export "b7" (func $box_computed_create))
+(export "b8" (func $box_computed_start))
+(export "b9" (func $box_computed_finish))
+(export "ba" (func $box_entry_start))
+(export "bb" (func $box_entry_finish))
+(export "bc" (func $box_view_create))
+(export "bd" (func $box_view_start))
+(export "be" (func $box_view_finish))
+(export "bf" (func $box_view_fn_make))
 
 ## <debug>
 export box_rels box_invalid

@@ -37,8 +37,9 @@ function unit2_transform(path, _state) {
           let name = prop.key.name;
           let body = prop.body;
 
+          let c_cache_name = path.scope.generateUid("c_cache");
           let tpl = template(`
-            return _ret_88AB4 = EXPR, ${f_name}[0 /*box_computed_finish*/](), _ret_88AB4;
+            return ${c_cache_name} = EXPR, ${f_name}.b9/*box_computed_finish*/(), ${c_cache_name};
           `)
 
           let return_paths = [];
@@ -56,7 +57,7 @@ function unit2_transform(path, _state) {
             );
           }
 
-          comps.push([name, body, return_paths.length]);
+          comps.push([name, body, c_cache_name, return_paths.length]);
           continue;
         }
         if (prop.method) {
@@ -99,9 +100,9 @@ function unit2_transform(path, _state) {
       }
 
       text_return_section.push(`(${text_params()}) => {
-        ${f_name}[0 /*box_entry_start*/]();
+        ${f_name}.ba/*box_entry_start*/();
         CONSTRUCTOR_BODY
-        ${f_name}[0 /*box_entry_finish*/]();
+        ${f_name}.bb/*box_entry_finish*/();
       }`);
       literals.CONSTRUCTOR_BODY = body.body;
     }
@@ -124,13 +125,13 @@ function unit2_transform(path, _state) {
       let e_fn_name = path.scope.generateUid("e_fn");
 
       text.push(`
-        let ${e_id_name} = ${f_name}[0 /*box_expr_create*/]();
+        let ${e_id_name} = ${f_name}.b3/*box_expr_create*/();
         let ${e_fn_name} = () => {
-          ${f_name}[0 /*box_expr_start*/](${e_id_name});
+          ${f_name}.b4/*box_expr_start*/(${e_id_name});
           EXPR_BODY
-          ${f_name}[0 /*box_expr_finish*/]();
+          ${f_name}.b5/*box_expr_finish*/();
         };
-        ${f_name}[0 /*box_expr*/](${e_id_name}, ${e_fn_name});
+        ${f_name}.expr/*box_expr*/(${e_id_name}, ${e_fn_name});
       `);
 
       literals.EXPR_BODY = expr[1].body;
@@ -149,17 +150,16 @@ function unit2_transform(path, _state) {
 
     let comps_uniq_seq = 0;
     for(let comp of comps) {
-      let [ name, body, has_return ] = comp;
+      let [ name, body, c_cache_name, has_return ] = comp;
       let c_id_name = path.scope.generateUid("c_id");
       const body_ph = `COMPUTED_BODY_${name.toUpperCase()}_${++comps_uniq_seq}`;
       text.push(`
-        let ${c_id_name} = ${f_name}[0 /*box_computed_create*/]();
+        let ${c_cache_name}, ${c_id_name} = ${f_name}.b7/*box_computed_create*/();
       `);
-      let finish_text = `${f_name}[0 /*box_computed_finish*/]()`;
+      let finish_text = `${f_name}.b9/*box_computed_finish*/()`;
       text_return_section.push(`
       () => { /* ${comp[0]} */
-        ${f_name}[0 /*box_computed_start*/](${c_id_name});
-        ${has_return ? "let _ret_88AB4;" : ""}
+        if (${f_name}.b8/*box_computed_start*/(${c_id_name})) return ${c_cache_name};
         ${body_ph}
         ${!has_return ? finish_text : ""}
       }
