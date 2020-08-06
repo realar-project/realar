@@ -89,8 +89,10 @@ test("should process unit2", () => {
     f[0 /*box_entry_finish*/]();
   }, 0 /* destr */, _e_fn /* expr */, 1 /* v */, "A" /* v2 */, () => { /* n */
     f[0 /*box_computed_start*/](_c_id);
-    let _ret;
-    return _ret = this.v + 1, f[0 /*box_computed_finish*/](), _ret;
+
+    let _ret_88AB4;
+
+    return _ret_88AB4 = this.v + 1, f[0 /*box_computed_finish*/](), _ret_88AB4;
   }, (k, m = 5) => { /* m */
     m = m + 1;
     return this.v + this.v2 + k + m;

@@ -1,8 +1,5 @@
 const
-  { types, template } = require("@babel/core");
-
-const
-  unit_wrap_tpl = template(`function ID(){return BODY}`);
+  { types, template, traverse } = require("@babel/core");
 
 module.exports = {
   unit2_transform
@@ -36,7 +33,27 @@ function unit2_transform(path, _state) {
         if (prop.kind === "get") {
           let name = prop.key.name;
           let body = prop.body;
-          comps.push([name, body]);
+
+          let tpl = template(`
+            return _ret_88AB4 = EXPR, f[0 /*box_computed_finish*/](), _ret_88AB4;
+          `)
+
+          let return_paths = [];
+          traverse(prop, {
+            ReturnStatement(path) {
+              return_paths.push(path);
+            }
+          }, path.scope, path);
+
+          for (let path of return_paths) {
+            path.replaceWith(
+              tpl({
+                EXPR: path.node.argument
+              })
+            );
+          }
+
+          comps.push([name, body, return_paths.length]);
           continue;
         }
         if (prop.method) {
@@ -129,16 +146,19 @@ function unit2_transform(path, _state) {
 
     let comps_uniq_seq = 0;
     for(let comp of comps) {
-      let [ name, body ] = comp;
+      let [ name, body, has_return ] = comp;
       let c_id_name = path.scope.generateUid("c_id");
       const body_ph = `COMPUTED_BODY_${name.toUpperCase()}_${++comps_uniq_seq}`;
       text.push(`
         let ${c_id_name} = f[0 /*box_computed_create*/]();
       `);
+      let finish_text = "f[0 /*box_computed_finish*/]()";
       text_return_section.push(`
       () => { /* ${comp[0]} */
         f[0 /*box_computed_start*/](${c_id_name});
+        ${has_return ? "let _ret_88AB4;" : ""}
         ${body_ph}
+        ${!has_return ? finish_text : ""}
       }
       `);
       literals[body_ph] = body.body;
