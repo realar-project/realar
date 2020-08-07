@@ -3,6 +3,7 @@
 
 global tick_deep tick_changed
 global box_deps box_rels box_invalid box_expr
+global slice_deps slice_current_id slice_deps_stack
 
 func box_init
   tick_deep = 0
@@ -11,6 +12,7 @@ func box_init
   box_rels = map_create()
   box_invalid = set_create()
   box_expr = set_create()
+  slice_deps_stack = arr_create()
 
 func tick_deep_inc
   tick_deep = tick_deep + 1
@@ -81,9 +83,15 @@ func box_create result
 
 func slice_deps_open(id)
   arr = arr_create()
-  arr_push(arr, 0)
+  arr_push(slice_deps_stack, arr)
+  arr_push(arr, slice_deps)
+  arr_push(arr, slice_current_id)
+  slice_deps = set_create()
+  slice_current_id = id
 
-
+func slice_deps_close
+  set_delete(box_invalid, slice_current_id)
+  #
 
 func box_expr_create result
   box_create()
