@@ -294,6 +294,18 @@ exports[`should work 1`] = `
 "
 `;
 
+exports[`should work bool operations 1`] = `
+"
+
+(;;func tick_finish;;)
+(func $tick_finish   
+(if (i32.or (i32.gt_u (call $tick_deep) (i32.const 1)) (i32.eqz (call $set_size (call $tick_changed))))
+    (then 
+(i32.store (i32.shl (call $tick_deep_ptr) (i32.const 2)) (i32.sub (call $tick_deep) (i32.const 1)))
+  )))
+"
+`;
+
 exports[`should work for section for set 1`] = `
 "
 

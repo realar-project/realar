@@ -19,7 +19,7 @@ function local_add(local_name) {
 
 function expr_to_wat(text) {
   // console.log(text);
-  const pattern = /<<|>>|!=|==|>=|<=|[%*\/+\-><=!,]|[\(\)\[\]]|[a-z_][a-z_0-9]*|0|[1-9][0-9]*|[A-Z_][A-Z_0-9]*/gm;
+  const pattern = /<<|>>|!=|==|>=|<=|\|\||&&|[%*\/+\-><=!,]|[\(\)\[\]]|[a-z_][a-z_0-9]*|0|[1-9][0-9]*|[A-Z_][A-Z_0-9]*/gm;
   const num_pattern = /[0-9]/;
   const $_pattern = /[a-z_]/;
   const const_pattern = /[A-Z_]/;
@@ -42,12 +42,13 @@ function expr_to_wat(text) {
         = store         | 1
         ( [             | 2
         ,               | 3
-        == != >= <= > < | 4
-        >> <<           | 5
-        + -             | 6
-        * / %           | 7
-        ! load unary    | 8
-        call            | 9
+        || &&           | 4
+        == != >= <= > < | 5
+        >> <<           | 6
+        + -             | 7
+        * / %           | 8
+        ! load unary    | 9
+        call            | 10
       */
       switch(text) {
         case "=":
@@ -58,16 +59,18 @@ function expr_to_wat(text) {
           p = 2; u = 1; break;
         case ",":
           p = 3; break;
-        case "==": case "!=": case ">=": case "<=": case ">": case "<":
+        case "||": case "&&":
           p = 4; break;
-        case ">>": case "<<":
+        case "==": case "!=": case ">=": case "<=": case ">": case "<":
           p = 5; break;
-        case "+": case "-":
+        case ">>": case "<<":
           p = 6; break;
-        case "*": case "/": case "%":
+        case "+": case "-":
           p = 7; break;
+        case "*": case "/": case "%":
+          p = 8; break;
         case "!":
-          p = 8; u = 1; break;
+          p = 9; u = 1; break;
         default:
           p = 0;
           u = 0;
@@ -120,7 +123,7 @@ function expr_to_wat(text) {
               OP_NODE,
               "call",
               0,
-              9,
+              10,
               unary
             ]);
           }
@@ -168,7 +171,7 @@ function expr_to_wat(text) {
             OP_NODE,
             "load",
             0,
-            8,
+            9,
             1
           ]);
           break;
@@ -310,6 +313,12 @@ function make_binary_op(op, right, left) {
       break;
     case ">>":
       wat = `(i32.shr_u ${wat_get_value(left)} ${wat_get_value(right)})`;
+      break;
+    case "||":
+      wat = `(i32.or ${wat_get_value(left)} ${wat_get_value(right)})`;
+      break;
+    case "&&":
+      wat = `(i32.and ${wat_get_value(left)} ${wat_get_value(right)})`;
       break;
     case "==":
       wat = `(i32.eq ${wat_get_value(left)} ${wat_get_value(right)})`;
