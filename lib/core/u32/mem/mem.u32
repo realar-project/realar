@@ -52,13 +52,13 @@ func mem_non_copy_resize(ptr new_size)
   [mem_size_ptr(ptr)] = new_size
 
 func mem_has_free_place(size) result
-  if !map_map # beginning phase
+  if !mem_map # beginning phase
     res = 0
   else
-    if !map_has(map_map, size)
+    if !map_has(mem_map, size)
       res = 0
     else
-      res = arr_len(map_get(map_map, size))
+      res = arr_len(map_get(mem_map, size))
   res
 
 func mem_alloc_free_place(size) result

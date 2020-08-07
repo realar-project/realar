@@ -1,6 +1,6 @@
 import {
   mem_alloc, mem_size, mem_free, mem_x4, get_mem_map,
-  map_extract, mem_map_extract,
+  map_extract, mem_map_extract, arr_extract,
   get_mem_tail, map_extract_keys, map_extract_values, arr_len
 } from "../../lib/core/test";
 
@@ -27,6 +27,7 @@ test("should work mem free", () => {
 });
 
 test("should work mem free several blocks", () => {
+  let offs = get_mem_tail();
   let m = [mem_alloc(10), mem_alloc(10), mem_alloc(10), mem_alloc(10), mem_alloc(10)];
   mem_free(m[0]);
   mem_free(m[1]);
@@ -34,8 +35,17 @@ test("should work mem free several blocks", () => {
   mem_free(m[3]);
   mem_free(m[4]);
 
+  expect(m[0]).toBe(offs);
+  expect(m[1]).toBe(offs + 12);
+  expect(m[2]).toBe(offs + 24);
+  expect(m[3]).toBe(offs + 36);
+  expect(m[4]).toBe(offs + 48);
+
   expect(map_extract_keys(get_mem_map())).toStrictEqual([2, 10]);
-  expect(map_extract_values(get_mem_map()).map(id => arr_len(id))).toStrictEqual([5, 5]);
+  expect(map_extract_values(get_mem_map()).map(id => arr_extract(id))).toStrictEqual([
+    [offs, offs + 12, offs + 24, offs + 36, offs + 48],
+    [offs + 2, offs + 12 + 2, offs + 24 + 2, offs + 36 + 2, offs + 48 + 2],
+  ]);
 
   let k = [mem_alloc(10), mem_alloc(11), mem_alloc(10)];
 
