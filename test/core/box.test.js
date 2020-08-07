@@ -1,6 +1,8 @@
 import {
-  tick_start, tick_deep_inc, box_rels, box_invalid, box_deep_invalidate,
-  set_add, set_create, set_delete, set_has, set_assign, set_clear, set_extract, set_free, map_set
+  fns,
+  tick_start, tick_changed, tick_deep, tick_deep_inc, tick_deep_dec, box_rels, box_invalid, box_deep_invalidate, box_expr, tick_finish,
+  set_add, set_create, set_size, set_delete, set_has, set_assign, set_clear, set_extract, set_free, map_set,
+  box_expr_create, box_expr_start, box_expr_finish,
 } from "../../lib/core/test";
 
 test("should throw tick_start limit error", () => {
@@ -62,3 +64,48 @@ test("should work box_deep_invalidate func", () => {
   ]);
 });
 
+test("should work tick_finish func", () => {
+  tick_deep_inc();
+  tick_deep_inc();
+  expect(tick_deep()).toBe(2);
+  tick_finish();
+  expect(tick_deep()).toBe(1);
+  expect(set_size(tick_changed())).toBe(0);
+  tick_finish();
+  expect(tick_deep()).toBe(0);
+
+  let changed = tick_changed();
+  set_add(changed, 40)
+  set_add(changed, 50)
+
+  let rels_1 = set_create()
+  let rels_2 = set_create()
+  map_set(box_rels(), 40, rels_1)
+  map_set(box_rels(), 50, rels_2)
+  set_add(rels_1, 100)
+  set_add(rels_2, 110)
+
+  tick_deep_inc();
+  tick_finish();
+  expect(tick_deep()).toBe(0);
+  expect(set_size(changed)).toBe(0);
+  expect(set_extract(box_invalid())).toStrictEqual([100, 110]);
+  set_clear(box_invalid());
+
+
+  set_add(changed, 40);
+  set_add(changed, 50);
+
+  let s_1 = jest.fn();
+  let e_id = box_expr_create();
+  let e_fn = () => {
+    box_expr_start(e_id);
+    s_1();
+    box_expr_finish();
+  }
+  fns.set(e_id, e_fn);
+
+  set_add(rels_2, e_id);
+  tick_finish();
+
+});
