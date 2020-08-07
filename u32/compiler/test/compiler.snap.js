@@ -370,10 +370,16 @@ exports[`should work global op 1`] = `
 "
 
 (;;global a b c;;)
-(global $a (mut i32) (i32.const 0)) (global $b (mut i32) (i32.const 0)) (global $c (mut i32) (i32.const 0))
+(global $a (mut i32) (i32.const 0))
+(global $b (mut i32) (i32.const 0))
+(global $c (mut i32) (i32.const 0))
+(global $e (mut i32) (i32.const 0))
+(global $f1 (mut i32) (i32.const 0))
+(global $a_5 (mut i32) (i32.const 0))
+(global $t (mut i32) (i32.const 0))
 
 (;;global e f1 a_5;;)
-(global $e (mut i32) (i32.const 0)) (global $f1 (mut i32) (i32.const 0)) (global $a_5 (mut i32) (i32.const 0))
+
 
 
 (;;func func1 result;;)
@@ -385,7 +391,7 @@ exports[`should work global op 1`] = `
 )
 
 (;;global t;;)
-(global $t (mut i32) (i32.const 0))
+
 
 
 (;;func func2 result;;)

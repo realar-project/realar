@@ -11,7 +11,8 @@ let
   local_def_context_section_out_index = 0,
   local_def_context_func_params = 0,
   local_def_context_locals = 0,
-  ctx_global_variables = 0
+  ctx_global_variables = 0,
+  global_def_pushed = 0
 ;
 
 module.exports = {
@@ -477,17 +478,15 @@ function compile(code, dirname) {
     }
   }
 
-  function push_global_def(text) {
-    const global_pattern = /^global ((?:[a-z_][a-z_0-9]* ?)+)$/m;
-    let m;
-    if (m = global_pattern.exec(text)) {
-      let [_, names] = m;
-      let text = names
-        .split(" ")
-        .map(name => `(global $${name} (mut i32) (i32.const 0))`)
-        .join(" ");
-      push_text(text);
+  function push_global_def() {
+    if (global_def_pushed) return;
+    global_def_pushed = 1;
+
+    let code = [];
+    for (let name of ctx_global_variables) {
+      code.push(`(global $${name} (mut i32) (i32.const 0))`);
     }
+    push_text(code.join("\n"));
   }
 
   function push_preprocess_section(text) {
@@ -589,7 +588,7 @@ function collet_global_variables(code, dirname) {
   const global_pattern = /^global ((?:[a-z_][a-z_0-9]* ?)+)$/mg;
   while (m = global_pattern.exec(code)) {
     let [_, names] = m;
-    names.split(" ").forEach(name => ctx_global_variables.set(name));
+    names.split(" ").forEach(name => ctx_global_variables.add(name));
   }
 }
 
@@ -602,11 +601,13 @@ function slice_code_lines(code, from, to) {
 
 function preprocess(code, dirname) {
   ctx_define_consts = new Map();
-  ctx_global_variables = new Map();
+  ctx_global_variables = new Set();
+  global_def_pushed = 0;
   collet_global_variables(code, dirname);
   code = full_compile(code, dirname);
   // console.log(slice_code_lines(code, 950, 1100));
   // console.log(code);
+  fs.writeFileSync(path.join(__dirname, "../../.code.wat"), code);
   // throw "debug";
   return code;
 }
