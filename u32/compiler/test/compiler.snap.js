@@ -366,6 +366,72 @@ exports[`should work for section for set 1`] = `
 "
 `;
 
+exports[`should work global op 1`] = `
+"
+
+(;;global a b c;;)
+(global $a (mut i32) (i32.const 0)) (global $b (mut i32) (i32.const 0)) (global $c (mut i32) (i32.const 0))
+
+(;;global e f1 a_5;;)
+(global $e (mut i32) (i32.const 0)) (global $f1 (mut i32) (i32.const 0)) (global $a_5 (mut i32) (i32.const 0))
+
+
+(;;func func1 result;;)
+(func $func1  (result i32)(local $m i32)  
+(local.set $m (i32.const 10))
+  
+(i32.add (global.get $e) (i32.add (global.get $f1) (i32.add (global.get $a_5) (i32.add (global.get $a) (i32.add (global.get $b) (i32.add (global.get $c) (i32.add (local.get $m) (global.get $t))))))))
+
+)
+
+(;;global t;;)
+(global $t (mut i32) (i32.const 0))
+
+
+(;;func func2 result;;)
+(func $func2  (result i32)(local $m i32)(local $l i32)(local $p i32)  
+(local.set $m (i32.const 10))
+  
+(local.set $l (i32.const 11))
+  
+(local.set $p (i32.const 15))
+  
+(i32.add (global.get $a) (i32.add (local.get $m) (i32.add (local.get $l) (i32.add (global.get $f1) (i32.add (local.get $p) (global.get $t))))))
+
+)
+
+(;;func func3;;)
+(func $func3 (local $index_loop_203 i32)(local $size_loop_203 i32)(local $x i32)  
+(;;for x of set a;;)
+        (local.set $index_loop_203 (i32.const 0))
+        (local.set $size_loop_203 (
+          call $set_size (global.get $a)
+        ))
+        (loop $loop_203
+          (if
+            (i32.lt_u (local.get $index_loop_203) (local.get $size_loop_203))
+            (then
+              (local.set $x (
+                call $set_get_i (global.get $a) (local.get $index_loop_203)
+              ))
+
+              
+    
+(call $call (i32.add (local.get $x) (global.get $c)))
+  
+
+              (local.set $index_loop_203 (i32.add
+                (local.get $index_loop_203)
+                (i32.const 1)
+              ))
+              (br $loop_203)
+            )
+          )
+        )
+        )
+"
+`;
+
 exports[`should work return op 1`] = `
 "
 

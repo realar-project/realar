@@ -14,7 +14,7 @@ module.exports = {
 };
 
 function local_add(local_name) {
-  require("./preprocess").func_local_section_add(local_name);
+  return require("./preprocess").func_local_section_add(local_name);
 }
 
 function expr_to_wat(text) {
@@ -263,8 +263,11 @@ function wat_get_value(node) {
 
   const [type, text] = node;
   if (type === $_NODE) {
-    local_add(text);
-    return `(local.get $${text})`;
+    if (local_add(text)) {
+      return `(local.get $${text})`;
+    } else {
+      return `(global.get $${text})`;
+    }
   }
   if (type === NUM_NODE) {
     return `(i32.const ${text})`;
@@ -336,8 +339,11 @@ function make_binary_op(op, right, left) {
       wat = `(i32.store (i32.shl ${wat_get_value(left)} (i32.const 2)) ${wat_get_value(right)})`;
       break;
     case "=":
-      local_add(left[text_key]);
-      wat = `(local.set $${left[text_key]} ${wat_get_value(right)})`;
+      if (local_add(left[text_key])) {
+        wat = `(local.set $${left[text_key]} ${wat_get_value(right)})`;
+      } else {
+        wat = `(global.set $${left[text_key]} ${wat_get_value(right)})`;
+      }
       break;
     case ",":
       wat = `${wat_get_value(left)} ${wat_get_value(right)}`;

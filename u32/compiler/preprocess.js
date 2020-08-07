@@ -10,7 +10,8 @@ let
   ctx_define_consts = 0,
   local_def_context_section_out_index = 0,
   local_def_context_func_params = 0,
-  local_def_context_locals = 0
+  local_def_context_locals = 0,
+  ctx_global_variables = 0
 ;
 
 module.exports = {
@@ -19,8 +20,12 @@ module.exports = {
 };
 
 function func_local_section_add(local_name) {
+  if (ctx_global_variables.has(local_name)) {
+    return;
+  }
   if (local_def_context_locals) {
     local_def_context_locals.add(local_name);
+    return 1;
   }
 }
 
@@ -83,6 +88,17 @@ function compile(code, dirname) {
       cut_index(i);
       continue;
     }
+    if (code.slice(i, i+6) === "global") {
+      push_index(i);
+      const line = read_line();
+      push_eol();
+      push_comment_block(line);
+      push_eol();
+      push_global_def(line);
+      push_eol();
+      cut_index(i);
+      continue;
+    }
     i = i + 1;
   }
   push_index(i);
@@ -122,7 +138,7 @@ function compile(code, dirname) {
       block_indent = 1,
       line_indent = 0,
       prev_if = 0,
-      read_2, read_3, read_4, line, expr,
+      read_2, read_3, read_4, read_6, line, expr,
       then_section = new Set(),
       else_section = new Set(),
       for_section = new Map()
@@ -256,13 +272,18 @@ function compile(code, dirname) {
         continue;
       }
 
-      if (code.slice(i, i+6) === "return") {
+      read_6 = code.slice(i, i+6);
+      if (read_6 === "return") {
         perform_indent();
         prev_if_push();
         line = read_line_push_comment();
         push_text_eol(`(${line})`);
         line_indent = 0;
         continue;
+      }
+      if (read_6 === "global") {
+        perform_indent();
+        break;
       }
 
       if (expr_with_const_pattern.test(code[i])) {
@@ -299,17 +320,19 @@ function compile(code, dirname) {
         let loop_size_name = `size_${loop_name}`;
         let delim = `(;%%DELIM%%;)`;
 
+        let source_name_getter = ctx_global_variables.has(source_name) ? "global" : "local";
+
         let tpl = `
         (local.set $${loop_index_name} (i32.const 0))
         (local.set $${loop_size_name} (
-          call $set_size (local.get $${source_name})
+          call $set_size (${source_name_getter}.get $${source_name})
         ))
         (loop $${loop_name}
           (if
             (i32.lt_u (local.get $${loop_index_name}) (local.get $${loop_size_name}))
             (then
               (local.set $${iter_name} (
-                call $set_get_i (local.get $${source_name}) (local.get $${loop_index_name})
+                call $set_get_i (${source_name_getter}.get $${source_name}) (local.get $${loop_index_name})
               ))
 
               ${delim}
@@ -454,6 +477,19 @@ function compile(code, dirname) {
     }
   }
 
+  function push_global_def(text) {
+    const global_pattern = /^global ((?:[a-z_][a-z_0-9]* ?)+)$/m;
+    let m;
+    if (m = global_pattern.exec(text)) {
+      let [_, names] = m;
+      let text = names
+        .split(" ")
+        .map(name => `(global $${name} (mut i32) (i32.const 0))`)
+        .join(" ");
+      push_text(text);
+    }
+  }
+
   function push_preprocess_section(text) {
     const xml_pattern = /^<([^\>]+)>$/m;
     const import_pattern = /^import (.+)$/m;
@@ -482,12 +518,20 @@ function compile(code, dirname) {
   }
 }
 
-function import_node_compile(import_path, dirname) {
+function import_node_code(import_path, dirname) {
   let
     import_filepath = path.resolve(dirname, import_path + import_path_ext),
     import_dirname = path.dirname(import_filepath),
     import_code = fs.readFileSync(import_filepath, "utf8");
 
+  return [
+    import_code,
+    import_dirname
+  ];
+}
+
+function import_node_compile(import_path, dirname) {
+  const [import_code, import_dirname] = import_node_code(import_path, dirname);
   return full_compile(import_code, import_dirname);
 }
 
@@ -533,6 +577,22 @@ function define_compile(code) {
   return code;
 }
 
+function collet_global_variables(code, dirname) {
+  let m;
+  const import_pattern = /## import (.+?)$/mg;
+  while (m = import_pattern.exec(code)) {
+    const [_, import_path] = m;
+    const [import_code, import_dirname] = import_node_code(import_path, dirname);
+    collet_global_variables(import_code, import_dirname);
+  }
+
+  const global_pattern = /^global ((?:[a-z_][a-z_0-9]* ?)+)$/mg;
+  while (m = global_pattern.exec(code)) {
+    let [_, names] = m;
+    names.split(" ").forEach(name => ctx_global_variables.set(name));
+  }
+}
+
 // <debug>
 function slice_code_lines(code, from, to) {
   const lines = code.split("\n");
@@ -542,6 +602,8 @@ function slice_code_lines(code, from, to) {
 
 function preprocess(code, dirname) {
   ctx_define_consts = new Map();
+  ctx_global_variables = new Map();
+  collet_global_variables(code, dirname);
   code = full_compile(code, dirname);
   // console.log(slice_code_lines(code, 950, 1100));
   // console.log(code);

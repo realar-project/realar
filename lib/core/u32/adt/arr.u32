@@ -76,4 +76,3 @@ func arr_insert(id index n)
 
 func arr_free(id)
   mem_free(id)
-

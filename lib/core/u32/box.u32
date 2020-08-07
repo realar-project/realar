@@ -1,45 +1,30 @@
 ## define TICK_DEEP_LIMIT 100
 ## define DIGEST_LOOP_LIMIT 100
 
-func box_init
-  [TICK_DEEP] = 0
-  [TICK_CHANGED] = set_create()
-  [BOX_DEPS] = map_create()
-  [BOX_RELS] = map_create()
-  [BOX_INVALID] = set_create()
-  [BOX_EXPR] = set_create()
+global tick_deep tick_changed
+global box_deps box_rels box_invalid box_expr
 
-func tick_deep result
-  [TICK_DEEP]
+func box_init
+  tick_deep = 0
+  tick_changed = set_create()
+  box_deps = map_create()
+  box_rels = map_create()
+  box_invalid = set_create()
+  box_expr = set_create()
 
 func tick_deep_inc
-  [TICK_DEEP] = [TICK_DEEP] + 1
+  tick_deep = tick_deep + 1
 
 func tick_deep_dec
-  [TICK_DEEP] = [TICK_DEEP] - 1
-
-func tick_changed result
-  [TICK_CHANGED]
-
-func box_deps result
-  [BOX_DEPS]
-
-func box_rels result
-  [BOX_RELS]
-
-func box_invalid result
-  [BOX_INVALID]
-
-func box_expr result
-  [BOX_EXPR]
+  tick_deep = tick_deep - 1
 
 func tick_start
-  if !tick_deep()
-    set_clear(tick_changed())
+  if !tick_deep
+    set_clear(tick_changed)
 
   tick_deep_inc()
 
-  if tick_deep() > TICK_DEEP_LIMIT
+  if tick_deep > TICK_DEEP_LIMIT
     error(TICK_DEEP_LIMIT_EXCEPTION)
 
 func box_deep_invalidate(changed_set)
@@ -50,10 +35,10 @@ func box_deep_invalidate(changed_set)
 
   loop $loop
     for x of set cur_set
-      rels = map_get(box_rels(), x)
+      rels = map_get(box_rels, x)
       if rels
         for r of set rels
-          set_add(box_invalid(), r)
+          set_add(box_invalid, r)
           set_add(next_set, r)
 
     if set_size(next_set)
@@ -69,26 +54,22 @@ func box_deep_invalidate(changed_set)
 
 
 func tick_finish
-  tick_changed_set = tick_changed()
-  if tick_deep() > 1 || !set_size(tick_changed_set)
+  if tick_deep > 1 || !set_size(tick_changed)
     tick_deep_dec()
     return
-
-  box_invalid_set = box_invalid()
-  box_expr_set = box_expr()
 
   limit = DIGEST_LOOP_LIMIT
   loop $loop
     limit = limit - 1
     if limit
-      box_deep_invalidate(tick_changed_set)
-      set_clear(tick_changed_set)
+      box_deep_invalidate(tick_changed)
+      set_clear(tick_changed)
 
-      for x of set box_invalid_set
-        if set_has(box_expr_set, x)
+      for x of set box_invalid
+        if set_has(box_expr, x)
           call(x)
 
-      if set_size(tick_changed_set)
+      if set_size(tick_changed)
         br $loop
 
   tick_deep_dec()
@@ -97,6 +78,12 @@ func tick_finish
 
 func box_create result
   seq_next()
+
+func slice_deps_open(id)
+  arr = arr_create()
+  arr_push(arr, 0)
+
+
 
 func box_expr_create result
   box_create()
@@ -155,6 +142,26 @@ func box_view_finish
 (export "bd" (func $box_view_finish))
 
 ## <debug>
-export box_rels box_invalid box_expr box_deep_invalidate
-export tick_changed tick_deep tick_deep_inc tick_deep_dec tick_start tick_finish
+func get_tick_deep result
+  tick_deep
+
+func get_tick_changed result
+  tick_changed
+
+func get_box_deps result
+  box_deps
+
+func get_box_rels result
+  box_rels
+
+func get_box_invalid result
+  box_invalid
+
+func get_box_expr result
+  box_expr
+## </debug>
+
+## <debug>
+export get_box_rels get_box_invalid get_box_expr box_deep_invalidate
+export get_tick_changed get_tick_deep tick_deep_inc tick_deep_dec tick_start tick_finish
 ## </debug>

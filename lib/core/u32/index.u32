@@ -18,8 +18,6 @@
   ## import seq
   ## import box
 
-  ## import exports
-
   (start $start)
 
   ## <debug>

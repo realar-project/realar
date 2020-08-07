@@ -1,7 +1,9 @@
 
+global seq_current
+
 func seq_init
-  [SEQ] = 0
+  seq_current = 0
 
 func seq_next result
-  [SEQ] = [SEQ] + 1
-  [SEQ]
+  seq_current = seq_current + 1
+  seq_current

@@ -1,6 +1,6 @@
 import {
   fns,
-  tick_start, tick_changed, tick_deep, tick_deep_inc, tick_deep_dec, box_rels, box_invalid, box_deep_invalidate, box_expr, tick_finish,
+  tick_start, get_tick_changed, get_tick_deep, tick_deep_inc, tick_deep_dec, get_box_rels, get_box_invalid, box_deep_invalidate, get_box_expr, tick_finish,
   set_add, set_create, set_size, set_delete, set_has, set_assign, set_clear, set_extract, set_free, map_set,
   box_expr_create, box_expr_start, box_expr_finish,
 } from "../../lib/core/test";
@@ -27,9 +27,9 @@ test("should work box_deep_invalidate func", () => {
   let rels_2 = set_create()
   let rels_3 = set_create()
 
-  map_set(box_rels(), 1, rels_1)
-  map_set(box_rels(), 5, rels_2)
-  map_set(box_rels(), 3, rels_3)
+  map_set(get_box_rels(), 1, rels_1)
+  map_set(get_box_rels(), 5, rels_2)
+  map_set(get_box_rels(), 3, rels_3)
 
   set_add(rels_1, 10)
   set_add(rels_1, 11)
@@ -42,9 +42,9 @@ test("should work box_deep_invalidate func", () => {
   let rels_5 = set_create()
   let rels_6 = set_create()
 
-  map_set(box_rels(), 10, rels_4)
-  map_set(box_rels(), 21, rels_5)
-  map_set(box_rels(), 31, rels_6)
+  map_set(get_box_rels(), 10, rels_4)
+  map_set(get_box_rels(), 21, rels_5)
+  map_set(get_box_rels(), 31, rels_6)
 
   set_add(rels_4, 50)
   set_add(rels_5, 60)
@@ -55,11 +55,11 @@ test("should work box_deep_invalidate func", () => {
   set_add(rels_7, 101)
   set_add(rels_7, 103)
 
-  map_set(box_rels(), 50, rels_7)
+  map_set(get_box_rels(), 50, rels_7)
 
   box_deep_invalidate(changed);
 
-  expect(set_extract(box_invalid())).toStrictEqual([
+  expect(set_extract(get_box_invalid())).toStrictEqual([
     10, 11, 20, 21, 50, 60, 100, 101, 103
   ]);
 });
@@ -67,30 +67,30 @@ test("should work box_deep_invalidate func", () => {
 test("should work tick_finish func", () => {
   tick_deep_inc();
   tick_deep_inc();
-  expect(tick_deep()).toBe(2);
+  expect(get_tick_deep()).toBe(2);
   tick_finish();
-  expect(tick_deep()).toBe(1);
-  expect(set_size(tick_changed())).toBe(0);
+  expect(get_tick_deep()).toBe(1);
+  expect(set_size(get_tick_changed())).toBe(0);
   tick_finish();
-  expect(tick_deep()).toBe(0);
+  expect(get_tick_deep()).toBe(0);
 
-  let changed = tick_changed();
+  let changed = get_tick_changed();
   set_add(changed, 40)
   set_add(changed, 50)
 
   let rels_1 = set_create()
   let rels_2 = set_create()
-  map_set(box_rels(), 40, rels_1)
-  map_set(box_rels(), 50, rels_2)
+  map_set(get_box_rels(), 40, rels_1)
+  map_set(get_box_rels(), 50, rels_2)
   set_add(rels_1, 100)
   set_add(rels_2, 110)
 
   tick_deep_inc();
   tick_finish();
-  expect(tick_deep()).toBe(0);
+  expect(get_tick_deep()).toBe(0);
   expect(set_size(changed)).toBe(0);
-  expect(set_extract(box_invalid())).toStrictEqual([100, 110]);
-  set_clear(box_invalid());
+  expect(set_extract(get_box_invalid())).toStrictEqual([100, 110]);
+  set_clear(get_box_invalid());
 
 
   set_add(changed, 40);

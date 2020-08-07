@@ -1,3 +1,4 @@
+global mem_map
 
 func mem_alloc(size) result
   ptr = mem_alloc_block(2)
@@ -17,12 +18,10 @@ func mem_free(ptr)
 
 
 func mem_free_block(ptr size)
-  map = mem_map()
+  if !map_has(mem_map, size)
+    map_set(mem_map, size, arr_create()) # Array of pointers on each block
 
-  if !map_has(map, size)
-    map_set(map, size, arr_create()) # Array of pointers on each block
-
-  arr_push(map_get(map, size), ptr)
+  arr_push(map_get(mem_map, size), ptr)
 
 
 func mem_alloc_block(size) result
@@ -53,26 +52,29 @@ func mem_non_copy_resize(ptr new_size)
   [mem_size_ptr(ptr)] = new_size
 
 func mem_has_free_place(size) result
-  map = mem_map()
-  if !map # beginning phase
+  if !map_map # beginning phase
     res = 0
   else
-    if !map_has(map, size)
+    if !map_has(map_map, size)
       res = 0
     else
-      res = arr_len(map_get(map, size))
+      res = arr_len(map_get(map_map, size))
   res
 
 func mem_alloc_free_place(size) result
-  map = mem_map()
-  ptrs = map_get(map, size)
+  ptrs = map_get(mem_map, size)
   arr_pop(ptrs)
-
-func mem_map result
-  [MEM_MAP] # Free memory map
 
 func mem_init
   # Map of free memory blocks. size => [ptr, ...]
-  [MEM_MAP] = 0 # init null
-  [MEM_MAP] = map_create()
+  mem_map = 0 # init null
+  mem_map = map_create()
 
+## <debug>
+func get_mem_map result
+  mem_map
+## </debug>
+
+## <debug>
+export mem_alloc mem_size mem_free mem_x4 get_mem_map
+## </debug>

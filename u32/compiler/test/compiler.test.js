@@ -37,3 +37,27 @@ func a
   `;
   expect(preprocess(code, __dirname)).toMatchSnapshot();
 });
+
+test("should work global op", () => {
+  let code = `
+global a b c
+global e f1 a_5
+
+func func1 result
+  m = 10
+  e + f1 + a_5 + a + b + c + m + t
+
+global t
+
+func func2 result
+  m = 10
+  l = 11
+  p = 15
+  a + m + l + f1 + p + t
+
+func func3
+  for x of set a
+    call(x + c)
+  `;
+  expect(preprocess(code, __dirname)).toMatchSnapshot();
+});
