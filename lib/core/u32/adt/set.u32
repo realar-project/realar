@@ -130,22 +130,14 @@ func set_has(id n) result
   res
 
 
-func set_delete(id n) result
+func set_delete(id n)
   size = set_size(id)
-  if !size
-    res = 0
-  else
+  if size
     i = set_search(id, n)
-    if i == size
-      res = 0
-    else
+    if i != size
       i_n = set_get_i(id, i)
-      if n != i_n
-        res = 0
-      else
+      if n == i_n
         set_delete_i(id, i)
-        res = 1
-  res
 
 func set_free(id)
   mem_free(id)

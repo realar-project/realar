@@ -91,7 +91,6 @@ func slice_deps_open(id)
 
 func slice_deps_close
   set_delete(box_invalid, slice_current_id)
-  #
 
 func box_expr_create result
   box_create()

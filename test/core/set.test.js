@@ -30,15 +30,15 @@ test.each([1, 1])("should work set methods", () => {
   expect(set_has(id, 2)).toBe(1);
   expect(set_has(id, 20)).toBe(0);
 
-  expect(set_delete(id, 10)).toBe(1);
+  set_delete(id, 10);
   expect(set_extract(id)).toStrictEqual([0, 2, 15]);
-  expect(set_delete(id, 2)).toBe(1);
+  set_delete(id, 2);
   expect(set_extract(id)).toStrictEqual([0, 15]);
-  expect(set_delete(id, 5)).toBe(0);
+  set_delete(id, 5);
   expect(set_extract(id)).toStrictEqual([0, 15]);
-  expect(set_delete(id, 15)).toBe(1);
+  set_delete(id, 15);
   expect(set_extract(id)).toStrictEqual([0]);
-  expect(set_delete(id, 0)).toBe(1);
+  set_delete(id, 0);
   expect(set_extract(id)).toStrictEqual([]);
 
   set_add(id, 2);
