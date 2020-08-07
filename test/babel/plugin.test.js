@@ -79,19 +79,19 @@ test("should process unit2", () => {
     ${f_name}.b5/*box_expr_finish*/();
   };
 
-  ${f_name}.expr/*box_expr*/(_e_id, _e_fn);
+  ${f_name}.fns.set(_e_id, _e_fn);
 
   let _c_cache,
-      _c_id = ${f_name}.b7/*box_computed_create*/();
+      _c_id = ${f_name}.b6/*box_computed_create*/();
 
   return [v => { /* constructor */
-    ${f_name}.ba/*box_entry_start*/();
+    ${f_name}.b9/*box_entry_start*/();
     this.v = 10;
     this.v2 = v;
-    ${f_name}.bb/*box_entry_finish*/();
+    ${f_name}.ba/*box_entry_finish*/();
   }, 0 /* destr */, _e_fn /* expr */, 1 /* v */, "A" /* v2 */, () => { /* n */
-    if (${f_name}.b8/*box_computed_start*/(_c_id)) return _c_cache;
-    return _c_cache = this.v + 1, ${f_name}.b9/*box_computed_finish*/(), _c_cache;
+    if (${f_name}.b7/*box_computed_start*/(_c_id)) return _c_cache;
+    return _c_cache = this.v + 1, ${f_name}.b8/*box_computed_finish*/(), _c_cache;
   }, (k, m = 5) => { /* m */
     m = m + 1;
     return this.v + this.v2 + k + m;

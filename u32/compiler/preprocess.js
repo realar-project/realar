@@ -256,6 +256,15 @@ function compile(code, dirname) {
         continue;
       }
 
+      if (code.slice(i, i+6) === "return") {
+        perform_indent();
+        prev_if_push();
+        line = read_line_push_comment();
+        push_text_eol(`(${line})`);
+        line_indent = 0;
+        continue;
+      }
+
       if (expr_with_const_pattern.test(code[i])) {
         perform_indent();
         prev_if_push();

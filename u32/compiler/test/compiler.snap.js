@@ -365,3 +365,13 @@ exports[`should work for section for set 1`] = `
         )
 "
 `;
+
+exports[`should work return op 1`] = `
+"
+
+(;;func a;;)
+(func $a   
+(return)
+  )
+"
+`;

@@ -1,15 +1,22 @@
+## define TICK_DEEP_LIMIT 100
+## define DIGEST_LOOP_LIMIT 100
+
 func box_init
   [TICK_DEEP] = 0
   [TICK_CHANGED] = set_create()
   [BOX_DEPS] = map_create()
   [BOX_RELS] = map_create()
   [BOX_INVALID] = set_create()
+  [BOX_EXPR] = set_create()
 
 func tick_deep result
   [TICK_DEEP]
 
 func tick_deep_inc
   [TICK_DEEP] = [TICK_DEEP] + 1
+
+func tick_deep_dec
+  [TICK_DEEP] = [TICK_DEEP] - 1
 
 func tick_changed result
   [TICK_CHANGED]
@@ -23,13 +30,16 @@ func box_rels result
 func box_invalid result
   [BOX_INVALID]
 
+func box_expr result
+  [BOX_EXPR]
+
 func tick_start
   if !tick_deep()
     set_clear(tick_changed())
 
   tick_deep_inc()
 
-  if tick_deep() > 100
+  if tick_deep() > TICK_DEEP_LIMIT
     error(TICK_DEEP_LIMIT_EXCEPTION)
 
 func box_deep_invalidate(changed_set)
@@ -56,6 +66,43 @@ func box_deep_invalidate(changed_set)
 
   set_free(next_set)
   set_free(cur_set)
+
+
+func tick_finish
+  tick_changed_set = tick_changed()
+  if tick_deep() > 1 || !set_size(tick_changed_set)
+    tick_deep_dec()
+    return
+
+  box_invalid_set = box_invalid()
+  box_expr_set = box_expr()
+
+  limit = DIGEST_LOOP_LIMIT
+  loop $loop
+    limit = limit - 1
+    if limit
+      box_deep_invalidate(tick_changed_set)
+      set_clear(tick_changed_set)
+
+      for x of set box_invalid_set
+        if set_has(box_expr_set, x)
+          call(x)
+
+      if set_size(tick_changed_set)
+        br $loop
+
+  tick_deep_dec()
+  if !limit
+    error(DIGEST_LOOP_LIMIT_EXCEPTION)
+
+
+
+
+
+
+
+
+
 
 func box_value_create result
   0
@@ -102,19 +149,17 @@ func box_view_fn_make(id)
 (export "b3" (func $box_expr_create))
 (export "b4" (func $box_expr_start))
 (export "b5" (func $box_expr_finish))
-(export "b6" (func $box_expr_fn_make))
-(export "b7" (func $box_computed_create))
-(export "b8" (func $box_computed_start))
-(export "b9" (func $box_computed_finish))
-(export "ba" (func $box_entry_start))
-(export "bb" (func $box_entry_finish))
-(export "bc" (func $box_view_create))
-(export "bd" (func $box_view_start))
-(export "be" (func $box_view_finish))
-(export "bf" (func $box_view_fn_make))
+(export "b6" (func $box_computed_create))
+(export "b7" (func $box_computed_start))
+(export "b8" (func $box_computed_finish))
+(export "b9" (func $box_entry_start))
+(export "ba" (func $box_entry_finish))
+(export "bb" (func $box_view_create))
+(export "bc" (func $box_view_start))
+(export "bd" (func $box_view_finish))
 
 ## <debug>
 export box_rels box_invalid
-export tick_deep_inc tick_start
+export tick_deep_inc tick_start tick_finish
 export box_deep_invalidate
 ## </debug>

@@ -29,3 +29,11 @@ func tick_finish
   `;
   expect(preprocess(code, __dirname)).toMatchSnapshot();
 });
+
+test("should work return op", () => {
+  let code = `
+func a
+  return
+  `;
+  expect(preprocess(code, __dirname)).toMatchSnapshot();
+});

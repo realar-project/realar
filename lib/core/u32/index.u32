@@ -20,5 +20,9 @@
 
   ## import exports
 
+  (start $start)
+
+  ## <debug>
   (export "memory" (memory $0))
+  ## </debug>
 )
