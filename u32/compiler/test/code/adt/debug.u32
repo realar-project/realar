@@ -1,0 +1,19 @@
+## <debug>
+func log_set(id)
+  size = set_size(id)
+  log_mem(set_data_ptr(id), size)
+
+func log_arr(id)
+  len = arr_len(id)
+  log_mem(arr_data_ptr(id), len)
+
+func log_map(id)
+  size = map_size(id)
+  log_mem_2(set_data_ptr(map_keys(id)), size, arr_data_ptr(map_values(id)), size)
+## </debug>
+
+## <debug>
+export set_create set_assign set_add set_has set_delete set_size set_clear set_free set_data_ptr
+export arr_create arr_len arr_push arr_pop arr_delete arr_free arr_data_ptr
+export map_create map_size map_has map_keys map_values map_get map_set map_delete map_free
+## </debug>

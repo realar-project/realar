@@ -1,12 +1,51 @@
-## define SET_ELM_SIZE 4
-## define SET_HEAD_SIZE 4
 
-# Set memory struct
+# memory struct
 # 0 - size
-;; [1..size)
+# [1..size) - values
 
 func set_create result
-  seq_id_next() << 7 # Each set 128 bytes by default
+  id = mem_alloc(32)    # Set default memory size block 32 -> 31 elements
+  set_clear(id)
+  id
+
+func set_size_ptr(id) result
+  [id]
+
+func set_data_ptr(id) result
+  [id] + 1
+
+func set_size(id) result
+  [set_size_ptr(id)]
+
+func set_clear(id)
+  [set_size_ptr(id)] = 0 # size
+
+func set_size_inc(id)
+  size_ptr = set_size_ptr(id)
+  size = [size_ptr]
+  if size == mem_size(id) - 1 # substract size
+    mem_x4(id)
+    size_ptr = set_size_ptr(id)
+  [size_ptr] = size + 1
+
+func set_size_dec(id)
+  size_ptr = set_size_ptr(id)
+  [size_ptr] = [size_ptr] - 1
+
+
+func set_assign(dst src)
+  src_size = set_size(src)
+
+  mem_size_dst = mem_size(dst)
+  if mem_size_dst - 1 < src_size
+    k = mem_size_dst
+    loop $loop
+      k = k << 2  # x4 grow by default
+      if k - 1 < src_size
+        br $loop
+    mem_non_copy_resize(dst, k)
+
+  mem_copy([dst], [src], src_size + 1)
 
 
 func set_add(id n)
@@ -19,49 +58,25 @@ func set_add(id n)
     if n != i_n
       set_insert_i(id, i, n)
 
-
-func set_size(id) result
-  [id]
-
-
 func set_insert_i(id index n)
   size = set_size(id)
-  if index == size
-    [set_offset_i(id, index)] = n
-    [id] = size + 1
-  else
-    offset_index = set_offset_i(id, index)
-    offset = set_offset_i(id, size - 1)
-    loop $loop
-      [offset + SET_ELM_SIZE] = [offset]
-      if offset != offset_index
-        offset = offset - SET_ELM_SIZE
-        br $loop
-    [offset_index] = n
-    [id] = size + 1
+  set_size_inc(id)
+  offset = set_data_ptr(id) + index
+  if index != size
+    mem_copy(offset + 1, offset, size - index)
+  [offset] = n
 
 
 func set_delete_i(id index)
   size = set_size(id)
   if size != 1
-    curr = set_offset_i(id, index)
-    to = set_offset_i(id, size - 1)
-
-    if curr != to
-      loop $loop
-        [curr] = [curr + SET_ELM_SIZE]
-        if curr + SET_ELM_SIZE != to
-          curr = curr + SET_ELM_SIZE
-          br $loop
-  [id] = size - 1
-
-
-func set_offset_i(id index) result
-  id + SET_HEAD_SIZE + (index << 2)
+    offset = set_data_ptr(id) + index
+    mem_copy(offset, offset + 1, size - index - 1)
+  set_size_dec(id)
 
 
 func set_get_i(id index) result
-  [set_offset_i(id, index)]
+  [set_data_ptr(id) + index]
 
 
 func set_search(id n) result
@@ -71,18 +86,21 @@ func set_search(id n) result
     res = 0
   else
     loop $loop
-      b = size >> 1 ;; size / 2
+      b = size >> 1 # size / 2
       a = size - b
 
-      ;; left:a:(+1-0) | right:b
+      # left:a:(+1-0) | right:b
       half = offset + a
       half_index = half - 1
+
       half_n = set_get_i(id, half_index)
+
       if n > half_n
         if !b
           res = half
         else
           offset = offset + a
+          size = b
           br $loop
       else
         if n != half_n
@@ -91,7 +109,8 @@ func set_search(id n) result
           else
             size = a
             br $loop
-        else res = half_index
+        else
+          res = half_index
   res
 
 
@@ -128,6 +147,6 @@ func set_delete(id n) result
         res = 1
   res
 
-func set_free(id) result
-  [id]
+func set_free(id)
+  mem_free(id)
 

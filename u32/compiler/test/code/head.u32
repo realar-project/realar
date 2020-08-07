@@ -1,0 +1,49 @@
+global slice_current
+
+export push pop
+
+func start
+  mem_tail_init()
+  slice_init()
+  each_slice_init()
+
+func each_slice_init
+  seq_init()
+  mem_init()
+  box_init()
+
+func slice_init
+  slice_current = 0
+
+func push
+  slice = mem_tail_n_inc(16) # slice equals prev mem_tail
+
+  [slice] = slice_current   # 0 index - prev slice_current
+  [slice + 1] = seq_current # 1 index - prev seq_current
+  [slice + 2] = mem_map     # 2 index - prev mem_map
+
+  [slice + 3] = tick_deep
+  [slice + 4] = tick_changed
+  [slice + 5] = box_deps
+  [slice + 6] = box_rels
+  [slice + 7] = box_invalid
+  [slice + 8] = box_expr
+
+  slice_current = slice # switch to new slice
+  each_slice_init()
+
+func pop
+  slice = slice_current
+  mem_tail = slice
+
+  slice_current = [slice]
+  seq_current = [slice + 1]
+  mem_map = [slice + 2]
+
+  tick_deep = [slice + 3]
+  tick_changed = [slice + 4]
+  box_deps = [slice + 5]
+  box_rels = [slice + 6]
+  box_invalid = [slice + 7]
+  box_expr = [slice + 8]
+

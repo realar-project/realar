@@ -1,0 +1,18 @@
+
+# Until "bulk memory" will experimental (memory.copy)
+func mem_copy(dst src size)
+  if dst < src
+    i = 0
+    loop $loop
+      if i < size
+        [dst + i] = [src + i]
+        i = i + 1
+        br $loop
+  else
+    i = size
+    loop $loop
+      if i > 0
+        i = i - 1
+        [dst + i] = [src + i]
+        br $loop
+
