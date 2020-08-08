@@ -26,7 +26,8 @@
     "perf:realar": "cd perf/realar && cross-env NODE_ENV=development parcel index.html --port 1200",
     "perf:mobx": "cd perf/mobx && cross-env NODE_ENV=development parcel index.html --port 1201",
     "perf": "concurrently --kill-others \"npm run perf:realar\" \"npm run perf:mobx\"",
-    "perf:clean": "rimraf perf/*/dist perf/*/.cache"
+    "perf:clean": "rimraf perf/*/dist perf/*/.cache",
+    "perf:realar:watch": "concurrently --kill-others \"npm run build:watch\" \"npm run perf:realar\""
   },
   "author": "Slava Birch <mail@betula.co> (http://betula.co)",
   "keywords": [

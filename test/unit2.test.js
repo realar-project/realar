@@ -64,3 +64,62 @@ test("should work unit computed", () => {
   expect(u.sum).toBe(27);
   expect(sum_spy).toHaveBeenCalledTimes(3);
 });
+
+test("should work unit composition", () => {
+  const u_1 = unit2({
+    inp: 1,
+    out: 10,
+    constructor(inp) {
+      if (inp) {
+        this.inp = inp;
+      }
+    },
+    expression() {
+      this.out = this.inp * 10;
+    }
+  });
+
+  const u_2 = unit2({
+    a: u_1(),
+    b: u_1(),
+    c: null,
+    out: 0,
+    constructor() {
+      this.c = u_1(100);
+    },
+    expression() {
+      this.out = this.a.out + this.b.out + this.c.out;
+    },
+    inp(a, b, c) {
+      this.a.inp = a;
+      this.b.inp = b;
+      this.c.inp = c;
+    }
+  })
+
+  const u_3 = unit2({
+    u: null,
+    out: null,
+    constructor(u) {
+      this.u = u;
+    },
+    expression() {
+      this.out = this.u.out + 1
+    },
+    get o() {
+      return this.out + 1;
+    }
+  });
+
+  const i = u_2();
+  const p = u_3(i);
+  expect(i.out).toBe(1020);
+  expect(p.o).toBe(1022);
+  i.inp(5, 10, 1);
+  expect(i.out).toBe(160);
+  expect(p.o).toBe(162);
+  i.inp(50, 100, 10);
+  expect(i.out).toBe(1600);
+  expect(p.o).toBe(1602);
+});
+
