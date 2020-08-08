@@ -1,11 +1,11 @@
-import React, { useCallback, useRef } from "react";
-import { unit, useUnit } from "realar";
+import React, { useCallback, useRef, useState } from "react";
+import { unit2 } from "realar";
 
 export {
   App
 }
 
-const u_unit = unit({
+const u_unit = unit2({
 	u1: null,
 	u2: null,
 	c: 0,
@@ -27,12 +27,12 @@ const u_unit = unit({
 	m2(x) {
 		return this.m1(x) + this.c2;
 	},
-	construct(c, u1, u2) {
+	constructor(c, u1, u2) {
 		this.u1 = u1;
 		this.u2 = u2;
 		this.c = c || 0;
 	},
-	synchronize() {
+	expression() {
     let x3 = this.m2(this.x1);
 		if (this.u1) {
 			x3 += this.u1.x3;
@@ -44,19 +44,20 @@ const u_unit = unit({
 	}
 });
 
-const runner = unit({
+const runner = unit2({
   a: null, //null,
   z: null,
   inp: 0,
   out: 0,
   init_time: 0,
+  tick_time: 0,
   tick() {
     this.inp += 1;
   },
-  construct() {
+  constructor() {
     let time = Date.now();
 
-    let m = 10;
+    let m = 2;
     let i, k, d;
     let w = 1;
     let res = [[u_unit(w)]];
@@ -92,32 +93,37 @@ const runner = unit({
     this.z = res[m * 2][0];
     this.init_time = Date.now() - time;
   },
-  synchronize() {
+  expression() {
     this.a.x1 = this.inp;
     this.out = this.z.x3;
   }
 });
 
 function App() {
-  const { inp, out, tick, init_time } = useUnit(runner);
-
-  let time = 0;
-  const timestamp = useRef();
-  const start = useCallback(() => {
-    timestamp.current = Date.now();
-    tick();
-  }, []);
-
-  if (timestamp.current) {
-    time = Date.now() - timestamp.current;
+  const box = useRef();
+  if (!box.current) {
+    let inst = runner();
+    box.current = { inst };
   }
+
+  const { inst } = box.current;
+  const { inp, out, tick, init_time, tick_time } = inst;
+
+  const [ i, sync ] = useState(0);
+  const click = useCallback(() => {
+    let time = Date.now();
+    tick();
+    inst.tick_time = Date.now() - time;
+    sync(i => i + 1);
+  }, [tick]);
 
 	return (
     <>
       <h3>Realar performance test</h3>
+      <p>Iter: {i}</p>
       <p>Input: {inp}</p>
       <p>Output: {out}</p>
-      <p><button onClick={start}>tick</button> {time} ms</p>
+      <p><button onClick={click}>tick</button> {tick_time} ms</p>
       <p>Init time {init_time} ms</p>
     </>
 	);

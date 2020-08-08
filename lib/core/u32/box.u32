@@ -72,8 +72,13 @@ func tick_finish
       box_deep_invalidate(tick_changed)
       set_clear(tick_changed)
 
+      log_set(box_invalid)
+      log_set(box_expr)
+
       for x of set box_invalid
+        log_2(100, x)
         if set_has(box_expr, x)
+          log_2(200, x)
           call(x)
 
       if set_size(tick_changed)

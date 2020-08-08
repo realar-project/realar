@@ -1,7 +1,5 @@
-import React, { useRef, useCallback } from "react";
-import { computed, observable, action, autorun } from "mobx";
-import { observer } from "mobx-react";
-import { useInstance } from "./use-instance";
+import React, { useCallback, useRef, useState } from "react";
+import { action, autorun, computed, observable } from "mobx";
 
 class U {
 	@observable.ref u1 = null;
@@ -51,6 +49,7 @@ class Runner {
   @observable.ref inp = 0;
   @observable.ref out = 0;
   @observable.ref init_time = 0;
+  @observable.ref tick_time = 0;
 
   @action.bound tick() {
     this.inp += 1;
@@ -101,27 +100,32 @@ class Runner {
   }
 }
 
-export const App = observer(() => {
-  const { inp, out, tick, init_time } = useInstance(Runner);
-
-  let time = 0;
-  const timestamp = useRef();
-  const start = useCallback(() => {
-    timestamp.current = Date.now();
-    tick();
-  }, []);
-
-  if (timestamp.current) {
-    time = Date.now() - timestamp.current;
+export const App = () => {
+  const box = useRef();
+  if (!box.current) {
+    let inst = new Runner();
+    box.current = { inst };
   }
+
+  const { inst } = box.current;
+  const { inp, out, tick, init_time, tick_time } = inst;
+
+  const [ i, sync ] = useState(0);
+  const click = useCallback(() => {
+    let time = Date.now();
+    tick();
+    inst.tick_time = Date.now() - time;
+    sync(i => i + 1);
+  }, [tick]);
 
 	return (
     <>
-      <h3>Mobx performance test</h3>
+      <h3>Realar performance test</h3>
+      <p>Iter: {i}</p>
       <p>Input: {inp}</p>
       <p>Output: {out}</p>
-      <p><button onClick={start}>tick</button> {time} ms</p>
+      <p><button onClick={click}>tick</button> {tick_time} ms</p>
       <p>Init time {init_time} ms</p>
     </>
 	);
-});
+};

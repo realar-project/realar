@@ -43,6 +43,9 @@ ${export_prefix} function(env) {
   if (env) {
     Object.assign(imports.env, env)
   }
+  if(buf.length > 4096) {
+    return WebAssembly.instantiate(buf, imports).then(results => results.instance.exports)
+  }
   let mod = new WebAssembly.Module(buf)
   let instance = new WebAssembly.Instance(mod, imports)
   return instance.exports

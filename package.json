@@ -21,6 +21,7 @@
     "demo:clean": "cd demo && rimraf dist .cache",
     "build:clean": "rimraf build",
     "build": "rollup -c",
+    "build:watch": "REALAR_DEV=true rollup -cw",
     "lerna:clean": "lerna run clean",
     "perf:realar": "cd perf/realar && cross-env NODE_ENV=development parcel index.html --port 1200",
     "perf:mobx": "cd perf/mobx && cross-env NODE_ENV=development parcel index.html --port 1201",
