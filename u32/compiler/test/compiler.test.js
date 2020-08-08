@@ -4,7 +4,7 @@ const ENV = process.env;
 beforeEach(() => (process.env = {}));
 afterEach(() => (process.env = ENV));
 
-test("should work", () => {
+test("should work code snapshot", () => {
   let code = `## import code/index`;
 
   expect(preprocess(code, __dirname)).toMatchSnapshot();
@@ -64,14 +64,8 @@ func func3
 
 test("should work correct sub op priority", () => {
   let code = `
-func(size index) result
+func a(size index) result
   size - index - 1
   `;
-  let expected = `(;;func(size index) result;;)
-
-(i32.sub (i32.sub (global.get $size) (global.get $index)) (i32.const 1))
-  )`
-  let output = preprocess(code, __dirname).trim().replace("  ", "");
-
-  expect(output).toBe(expected);
+  expect(preprocess(code, __dirname)).toMatchSnapshot();
 });

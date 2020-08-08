@@ -395,6 +395,8 @@ function compile(code, dirname) {
   }
 
   function push_expr(text) {
+    push_comment_block(text);
+    push_eol();
     push_text(expr_to_wat(text));
   }
 

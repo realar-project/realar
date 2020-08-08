@@ -200,7 +200,7 @@ function expr_to_wat(text) {
       continue;
     }
 
-    if (p >= top_op_stack_p) {
+    if (p > top_op_stack_p) {
       op_stack.push(node);
       top_op_stack_p = p;
     } else {
