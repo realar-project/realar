@@ -61,3 +61,17 @@ func func3
   `;
   expect(preprocess(code, __dirname)).toMatchSnapshot();
 });
+
+test("should work correct sub op priority", () => {
+  let code = `
+func(size index) result
+  size - index - 1
+  `;
+  let expected = `(;;func(size index) result;;)
+
+(i32.sub (i32.sub (global.get $size) (global.get $index)) (i32.const 1))
+  )`
+  let output = preprocess(code, __dirname).trim().replace("  ", "");
+
+  expect(output).toBe(expected);
+});

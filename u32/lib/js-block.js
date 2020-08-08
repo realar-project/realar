@@ -37,6 +37,7 @@ ${export_prefix} function(env) {
       buf[i] = raw.charCodeAt(i)
     }
   }
+  let instance
   let imports = {
     env: {${env_log_debug()}}
   }
@@ -44,10 +45,12 @@ ${export_prefix} function(env) {
     Object.assign(imports.env, env)
   }
   if(buf.length > 4096) {
-    return WebAssembly.instantiate(buf, imports).then(results => results.instance.exports)
+    return WebAssembly.instantiate(buf, imports).then(results => (instance = results.instance).exports)
   }
-  let mod = new WebAssembly.Module(buf)
-  let instance = new WebAssembly.Instance(mod, imports)
+  instance = new WebAssembly.Instance(
+    new WebAssembly.Module(buf),
+    imports
+  );
   return instance.exports
 }`;
 }

@@ -4,7 +4,8 @@ const
   expr_to_wat = require("./expr").expr_to_wat;
 
 const
-  import_path_ext = ".u32";
+  import_path_ext = ".u32",
+  wat_code_path = path.join(__dirname, "../../.wat/code.wat");
 
 let
   ctx_define_consts = 0,
@@ -592,12 +593,10 @@ function collet_global_variables(code, dirname) {
   }
 }
 
-// <debug>
-function slice_code_lines(code, from, to) {
-  const lines = code.split("\n");
-  return lines.slice(from, to).map((t, i) => `${from + i}: ${t}`).join("\n");
+function write_to_wat_file(code) {
+  fs.mkdirSync(path.dirname(wat_code_path), { recursive: true });
+  fs.writeFileSync(wat_code_path, code);
 }
-// </debug
 
 function preprocess(code, dirname) {
   ctx_define_consts = new Map();
@@ -605,9 +604,7 @@ function preprocess(code, dirname) {
   global_def_pushed = 0;
   collet_global_variables(code, dirname);
   code = full_compile(code, dirname);
-  // console.log(slice_code_lines(code, 950, 1100));
-  // console.log(code);
-  // fs.writeFileSync(path.join(__dirname, "../../.code.wat"), code);
+  write_to_wat_file(code);
   // throw "debug";
   return code;
 }

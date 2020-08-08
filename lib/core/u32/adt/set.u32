@@ -71,7 +71,12 @@ func set_delete_i(id index)
   size = set_size(id)
   if size != 1
     offset = set_data_ptr(id) + index
+    log_1(30000)
+    log_set(box_expr)
+    log_5(offset, offset + 1, size - index - 1, size, index)
     mem_copy(offset, offset + 1, size - index - 1)
+    log_1(30001)
+    log_set(box_expr)
   set_size_dec(id)
 
 
@@ -132,12 +137,20 @@ func set_has(id n) result
 
 func set_delete(id n)
   size = set_size(id)
+  log_1(20000)
+  log_set(box_expr)
   if size
     i = set_search(id, n)
+    log_1(20001)
+    log_set(box_expr)
     if i != size
       i_n = set_get_i(id, i)
+      log_1(20002)
+      log_set(box_expr)
       if n == i_n
         set_delete_i(id, i)
+        log_1(20003)
+        log_set(box_expr)
 
 func set_free(id)
   mem_free(id)

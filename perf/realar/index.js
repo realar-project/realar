@@ -1,8 +1,8 @@
 import React from "react";
 import { render } from "react-dom";
 import { App } from "./app";
-import { wait_core_instantiate } from "realar";
+import { ready } from "realar";
 
-wait_core_instantiate(() => {
+ready(() => {
   render(<App />, document.getElementById("root"));
 });

@@ -72,13 +72,14 @@ func tick_finish
       box_deep_invalidate(tick_changed)
       set_clear(tick_changed)
 
-      log_set(box_invalid)
-      log_set(box_expr)
+      # log_set(box_invalid)
 
       for x of set box_invalid
         log_2(100, x)
+        log_set(box_expr)
         if set_has(box_expr, x)
           log_2(200, x)
+          log_set(box_expr)
           call(x)
 
       if set_size(tick_changed)
@@ -107,12 +108,31 @@ func slice_deps_open(id)
   slice_current_id = id
 
 func slice_deps_close
+  log_1(10101)
+  log_set(box_expr)
+
+  log_4(33, box_invalid, slice_current_id, box_expr);
+  log_set(box_invalid)
   set_delete(box_invalid, slice_current_id)
+  log_set(box_invalid)
+
+  log_1(10200)
+  log_set(box_expr)
 
   prev_deps = map_get(box_deps, slice_current_id)
+  log_2(88, prev_deps)
+  log_1(10201)
+  log_set(box_expr)
   if prev_deps
     set_free(prev_deps) # TODO: remove rels from prev_deps (need to find diff between prev and new)
+
+  log_1(10102)
+  log_set(box_expr)
+
   map_set(box_deps, slice_current_id, slice_deps)
+
+  log_1(10103)
+  log_set(box_expr)
 
   for d of set slice_deps
     rels = map_get(box_rels, d)
@@ -121,7 +141,13 @@ func slice_deps_close
       map_set(box_rels, d, rels)
     set_add(rels, slice_current_id)
 
+  log_1(10104)
+  log_set(box_expr)
+
   slice_deps_globals_pop()
+
+  log_1(10105)
+  log_set(box_expr)
 
 
 func box_value_create result
@@ -132,17 +158,24 @@ func box_value_get_phase(id)
     set_add(slice_deps, id)
 
 func box_value_set_phase(id)
+  log_1(10000)
+  log_set(box_expr)
   no_tick = !tick_deep
   if no_tick
     tick_start()
+  log_1(10001)
+  log_set(box_expr)
   set_add(tick_changed, id)
   if no_tick
     tick_finish()
-
+  log_1(10002)
+  log_set(box_expr)
 
 func box_expr_create result
   id = box_create()
+  log_2(99, id)
   set_add(box_expr, id)
+  log_set(box_expr)
   id
 
 func box_expr_start(id)
@@ -155,11 +188,17 @@ func box_expr_start(id)
 
 
 func box_expr_finish
+  log_1(10010)
+  log_set(box_expr)
   no_tick = arr_pop(box_expr_stack)
   if no_tick
     tick_finish()
 
+  log_1(10011)
+  log_set(box_expr)
   slice_deps_close()
+  log_1(10012)
+  log_set(box_expr)
 
 
 func box_computed_create result

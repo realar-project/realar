@@ -1,7 +1,7 @@
 (module
   ## import imports
 
-  (memory $0 1)
+  (memory $0 32767)
 
   ## import errors
   ## import head

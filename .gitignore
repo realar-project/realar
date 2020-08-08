@@ -34,5 +34,5 @@ dist
 # build
 build
 
-# tmp
-.code.wat
+# wat
+.wat
