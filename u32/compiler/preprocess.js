@@ -607,7 +607,7 @@ function preprocess(code, dirname) {
   code = full_compile(code, dirname);
   // console.log(slice_code_lines(code, 950, 1100));
   // console.log(code);
-  fs.writeFileSync(path.join(__dirname, "../../.code.wat"), code);
+  // fs.writeFileSync(path.join(__dirname, "../../.code.wat"), code);
   // throw "debug";
   return code;
 }

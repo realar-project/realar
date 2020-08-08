@@ -16,7 +16,7 @@ func slice_init
   slice_current = 0
 
 func push
-  slice = mem_tail_n_inc(16) # slice equals prev mem_tail
+  slice = mem_tail_n_inc(15) # slice equals prev mem_tail
 
   [slice] = slice_current   # 0 index - prev slice_current
   [slice + 1] = seq_current # 1 index - prev seq_current
@@ -34,6 +34,8 @@ func push
   [slice + 10] = box_invalid
   [slice + 11] = box_expr
   [slice + 12] = box_expr_stack
+  [slice + 13] = box_entry_id
+  [slice + 14] = box_entry_stack
 
   slice_current = slice # switch to new slice
   each_slice_init()
@@ -58,4 +60,6 @@ func pop
   box_invalid = [slice + 10]
   box_expr = [slice + 11]
   box_expr_stack = [slice + 12]
+  box_entry_id = [slice + 13]
+  box_entry_stack = [clice + 14]
 

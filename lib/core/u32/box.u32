@@ -16,6 +16,8 @@ func box_init
   box_invalid = set_create()
   box_expr = set_create()
   box_expr_stack = arr_create()
+  box_entry_id = 0
+  box_entry_stack = arr_create()
 
 func tick_deep_inc
   tick_deep = tick_deep + 1
@@ -84,9 +86,18 @@ func tick_finish
 func box_create result
   seq_next()
 
-func slice_deps_open(id)
+
+func slice_deps_globals_push
   arr_push(slice_deps_stack, slice_deps)
   arr_push(slice_deps_stack, slice_current_id)
+
+func slice_deps_globals_pop
+  slice_current_id = arr_pop(slice_deps_stack)
+  slice_deps = arr_pop(slice_deps_stack)
+
+
+func slice_deps_open(id)
+  slice_deps_globals_push()
   slice_deps = set_create()
   slice_current_id = id
 
@@ -105,8 +116,7 @@ func slice_deps_close
       map_set(box_rels, d, rels)
     set_add(rels, slice_current_id)
 
-  slice_current_id = arr_pop(slice_deps_stack)
-  slice_deps = arr_pop(slice_deps_stack)
+  slice_deps_globals_pop()
 
 
 func box_value_create result
@@ -124,6 +134,7 @@ func box_value_set_phase(id)
   if no_tick
     tick_finish()
 
+
 func box_expr_create result
   id = box_create()
   set_add(box_expr, id)
@@ -135,7 +146,6 @@ func box_expr_start(id)
   no_tick = !tick_deep
   if no_tick
     tick_start()
-
   arr_push(box_expr_stack, no_tick)
 
 
@@ -147,24 +157,40 @@ func box_expr_finish
   slice_deps_close()
 
 
-
-
-
-
-
-
-
 func box_computed_create result
-  0
+  id = box_create()
+  set_add(box_invalid, id)
+  id
 
 func box_computed_start(id) result
-  0
+  box_value_get_phase(id)
+  !set_has(box_invalid, id)
 
 func box_computed_finish
+  slice_deps_close()
+
 
 func box_entry_start
+  if !box_entry_id
+    box_entry_id = box_create()
+
+  slice_deps_globals_push()
+  slice_deps = 0 # No need to collect deps in entry phase
+  slice_current_id = box_entry_id
+
+  no_tick = !tick_deep
+  if no_tick
+    tick_start()
+  arr_push(box_entry_stack, no_tick)
 
 func box_entry_finish
+  no_tick = arr_pop(box_entry_stack)
+  if no_tick
+    tick_finish()
+
+  slice_deps_globals_pop()
+
+
 
 func box_view_create result
   0
