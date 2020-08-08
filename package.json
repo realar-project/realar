@@ -10,17 +10,22 @@
   },
   "license": "MIT",
   "scripts": {
-    "bootstrap": "npx lerna bootstrap --no-ci",
-    "clean": "npm run test:clean && npm run demo:clean && npm run build:clean && lerna clean --yes",
+    "bootstrap": "npx lerna bootstrap --no-ci && npm run build",
+    "clean": "npm run test:clean && npm run demo:clean && npm run build:clean && npm run perf:clean && lerna clean --yes",
     "publish": "npm run test && npm run build && lerna publish",
-    "start": "npm run bootstrap && npm run build && npm run demo",
+    "start": "npm run bootstrap && npm run demo",
     "reinstall": "npm run clean && npm run bootstrap",
     "test": "npm run test:clean && cross-env REALAR_DEV=true jest",
     "test:clean": "jest --clearCache",
     "demo": "npm run demo:clean && cd demo && cross-env NODE_ENV=development parcel index.html --port 1210",
     "demo:clean": "cd demo && rimraf dist .cache",
     "build:clean": "rimraf build",
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "lerna:clean": "lerna run clean",
+    "perf:realar": "cd perf/realar && cross-env NODE_ENV=development parcel index.html --port 1200",
+    "perf:mobx": "cd perf/mobx && cross-env NODE_ENV=development parcel index.html --port 1201",
+    "perf": "concurrently --kill-others \"npm run perf:realar\" \"npm run perf:mobx\"",
+    "perf:clean": "rimraf perf/*/dist perf/*/.cache"
   },
   "author": "Slava Birch <mail@betula.co> (http://betula.co)",
   "keywords": [
@@ -46,23 +51,27 @@
     "react": ">=16.8.0"
   },
   "devDependencies": {
-    "@babel/core": "7.10.3",
-    "@babel/preset-env": "7.10.3",
-    "@babel/preset-react": "7.10.1",
+    "@babel/core": "7.11.1",
+    "@babel/plugin-proposal-decorators": "7.10.5",
+    "@babel/preset-env": "7.11.0",
+    "@babel/preset-react": "7.10.4",
     "@rollup/plugin-node-resolve": "8.4.0",
-    "babel-jest": "26.1.0",
+    "babel-jest": "26.2.2",
+    "concurrently": "5.3.0",
     "cross-env": "7.0.2",
     "deasync": "0.1.20",
     "enzyme": "3.11.0",
-    "enzyme-adapter-react-16": "1.15.2",
-    "jest": "26.1.0",
+    "enzyme-adapter-react-16": "1.15.3",
+    "jest": "26.2.2",
     "lerna": "3.22.1",
+    "mobx": "5.15.5",
+    "mobx-react": "6.2.5",
     "parcel": "1.12.4",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "rimraf": "3.0.2",
-    "rollup": "2.21.0",
-    "wabt": "1.0.17"
+    "rollup": "2.23.1",
+    "wabt": "1.0.19"
   },
   "browserslist": [
     "last 2 Chrome versions"

@@ -3,7 +3,7 @@
   "packages": [
     "."
   ],
-  "hoist": true,
+  "hoist": false,
   "npmClient": "npm",
   "npmClientArgs": [
     "--no-package-lock"

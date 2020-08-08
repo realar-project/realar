@@ -1,5 +1,5 @@
 import React, { useCallback, useRef } from "react";
-import { unit, useUnit, Zone } from "realar";
+import { unit, useUnit } from "realar";
 
 export {
   App
@@ -113,13 +113,12 @@ function App() {
   }
 
 	return (
-    <Zone>
+    <>
       <h3>Realar performance test</h3>
       <p>Input: {inp}</p>
       <p>Output: {out}</p>
       <p><button onClick={start}>tick</button> {time} ms</p>
       <p>Init time {init_time} ms</p>
-    </Zone>
+    </>
 	);
 }
-
