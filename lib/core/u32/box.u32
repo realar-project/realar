@@ -164,6 +164,7 @@ func box_computed_create result
 
 func box_computed_start(id) result
   box_value_get_phase(id)
+  slice_deps_open(id)
   !set_has(box_invalid, id)
 
 func box_computed_finish

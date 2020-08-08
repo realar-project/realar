@@ -19,7 +19,7 @@ const u = unit2({
   }
 });
 
-test("should work unit inst", () => {
+test("should work unit inst with expression", () => {
   const inst = u(5);
   let { v, v2, n, v3, m } = inst;
 
@@ -31,4 +31,36 @@ test("should work unit inst", () => {
 
   inst.v = 10;
   expect(m(1)).toBe(38);
+  inst.v = 9;
+  expect(m(1)).toBe(35);
+});
+
+test("should work unit computed", () => {
+  const sum_spy = jest.fn();
+  const u_factory = unit2({
+    a: 10,
+    b: 11,
+    get sum() {
+      sum_spy();
+      return this.a + this.b;
+    }
+  });
+
+  const u = u_factory();
+
+  expect(u.sum).toBe(21);
+  expect(sum_spy).toHaveBeenCalledTimes(1);
+  expect(u.sum).toBe(21);
+  expect(u.sum).toBe(21);
+  expect(sum_spy).toHaveBeenCalledTimes(1);
+
+  u.a = 12;
+  expect(u.sum).toBe(23);
+  expect(u.sum).toBe(23);
+  expect(sum_spy).toHaveBeenCalledTimes(2);
+
+  u.b = 15;
+  expect(u.sum).toBe(27);
+  expect(u.sum).toBe(27);
+  expect(sum_spy).toHaveBeenCalledTimes(3);
 });
