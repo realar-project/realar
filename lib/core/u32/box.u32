@@ -2,17 +2,20 @@
 ## define DIGEST_LOOP_LIMIT 100
 
 global tick_deep tick_changed
-global box_deps box_rels box_invalid box_expr
-global slice_deps slice_current_id slice_deps_stack
+global slice_deps_stack slice_deps slice_current_id
+global box_deps box_rels box_invalid box_expr box_expr_stack
 
 func box_init
   tick_deep = 0
   tick_changed = set_create()
+  slice_deps_stack = arr_create()
+  slice_deps = 0
+  slice_current_id = 0
   box_deps = map_create()
   box_rels = map_create()
   box_invalid = set_create()
   box_expr = set_create()
-  slice_deps_stack = arr_create()
+  box_expr_stack = arr_create()
 
 func tick_deep_inc
   tick_deep = tick_deep + 1
@@ -82,36 +85,74 @@ func box_create result
   seq_next()
 
 func slice_deps_open(id)
-  arr = arr_create()
-  arr_push(slice_deps_stack, arr)
-  arr_push(arr, slice_deps)
-  arr_push(arr, slice_current_id)
+  arr_push(slice_deps_stack, slice_deps)
+  arr_push(slice_deps_stack, slice_current_id)
   slice_deps = set_create()
   slice_current_id = id
 
 func slice_deps_close
   set_delete(box_invalid, slice_current_id)
 
-func box_expr_create result
-  box_create()
+  prev_deps = map_get(box_deps, slice_current_id)
+  if prev_deps
+    set_free(prev_deps) # TODO: remove rels from prev_deps (need to find diff between prev and new)
+  map_set(box_deps, slice_current_id, slice_deps)
 
-func box_expr_start(id)
+  for d of set slice_deps
+    rels = map_get(box_rels, d)
+    if !rels
+      rels = set_create()
+      map_set(box_rels, d, rels)
+    set_add(rels, slice_current_id)
 
-func box_expr_finish
-
-
-
-
-
-
+  slice_current_id = arr_pop(slice_deps_stack)
+  slice_deps = arr_pop(slice_deps_stack)
 
 
 func box_value_create result
-  0
+  box_create()
 
 func box_value_get_phase(id)
+  if slice_deps
+    set_add(slice_deps, id)
 
 func box_value_set_phase(id)
+  no_tick = !tick_deep
+  if no_tick
+    tick_start()
+  set_add(tick_changed, id)
+  if no_tick
+    tick_finish()
+
+func box_expr_create result
+  id = box_create()
+  set_add(box_expr, id)
+  id
+
+func box_expr_start(id)
+  slice_deps_open(id)
+
+  no_tick = !tick_deep
+  if no_tick
+    tick_start()
+
+  arr_push(box_expr_stack, no_tick)
+
+
+func box_expr_finish
+  no_tick = arr_pop(box_expr_stack)
+  if no_tick
+    tick_finish()
+
+  slice_deps_close()
+
+
+
+
+
+
+
+
 
 func box_computed_create result
   0

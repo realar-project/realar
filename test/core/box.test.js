@@ -108,4 +108,6 @@ test("should work tick_finish func", () => {
   set_add(rels_2, e_id);
   tick_finish();
 
+  expect(s_1).toHaveBeenCalledTimes(1);
+  expect(set_extract(get_box_invalid())).toStrictEqual([100, 110]);
 });

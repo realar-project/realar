@@ -24,10 +24,16 @@ func push
 
   [slice + 3] = tick_deep
   [slice + 4] = tick_changed
-  [slice + 5] = box_deps
-  [slice + 6] = box_rels
-  [slice + 7] = box_invalid
-  [slice + 8] = box_expr
+
+  [slice + 5] = slice_deps_stack
+  [slice + 6] = slice_deps
+  [slice + 7] = slice_current_id
+
+  [slice + 8] = box_deps
+  [slice + 9] = box_rels
+  [slice + 10] = box_invalid
+  [slice + 11] = box_expr
+  [slice + 12] = box_expr_stack
 
   slice_current = slice # switch to new slice
   each_slice_init()
@@ -42,8 +48,14 @@ func pop
 
   tick_deep = [slice + 3]
   tick_changed = [slice + 4]
-  box_deps = [slice + 5]
-  box_rels = [slice + 6]
-  box_invalid = [slice + 7]
-  box_expr = [slice + 8]
+
+  slice_deps_stack = [slice + 5]
+  slice_deps = [slice + 6]
+  slice_current_id = [slice + 7]
+
+  box_deps = [slice + 8]
+  box_rels = [slice + 9]
+  box_invalid = [slice + 10]
+  box_expr = [slice + 11]
+  box_expr_stack = [slice + 12]
 
