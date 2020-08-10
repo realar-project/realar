@@ -73,11 +73,16 @@ test("should work mem free several blocks", () => {
 });
 
 test("should grow memory", () => {
-  let arr = arr_create();
-  let arr_exp = [];
-  for (let i = 0; i < 1000000; i++) {
-    arr_push(arr, i);
-    arr_exp.push(i);
+  let arr_1 = arr_create();
+  let arr_2 = arr_create();
+  let arr_1_expected = [];
+  let arr_2_expected = [];
+  for (let i = 0; i < 500000; i++) {
+    arr_push(arr_1, i);
+    arr_push(arr_2, i + 1);
+    arr_1_expected.push(i);
+    arr_2_expected.push(i + 1);
   }
-  expect(arr_extract(arr)).toStrictEqual(arr_exp);
+  expect(arr_extract(arr_1)).toStrictEqual(arr_1_expected);
+  expect(arr_extract(arr_2)).toStrictEqual(arr_2_expected);
 });
