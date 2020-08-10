@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from "react";
-import { unit2 } from "realar";
+import { unit2, next_tick_print_graph } from "realar";
 
 export {
   App
@@ -49,14 +49,10 @@ const runner = unit2({
   z: null,
   inp: 0,
   out: 0,
-  init_time: 0,
-  tick_time: 0,
   tick() {
     this.inp += 1;
   },
   constructor() {
-    let time = Date.now();
-
     let m = 2;
     let i, k, d;
     let w = 1;
@@ -91,7 +87,6 @@ const runner = unit2({
 
     this.a = res[0][0];
     this.z = res[m * 2][0];
-    this.init_time = Date.now() - time;
   },
   expression() {
     this.a.x1 = this.inp;
@@ -102,19 +97,24 @@ const runner = unit2({
 function App() {
   const box = useRef();
   if (!box.current) {
+    let time = Date.now();
     let inst = runner();
-    box.current = { inst };
+    let init_time = Date.now() - time;
+
+    next_tick_print_graph();
+    box.current = { inst, init_time, tick_time: 0 };
   }
 
-  const { inst } = box.current;
-  const { inp, out, tick, init_time, tick_time } = inst;
+  const { inst, init_time, tick_time } = box.current;
+  const { inp, out, tick } = inst;
 
   const [ i, sync ] = useState(0);
   const click = useCallback(() => {
     let time = Date.now();
     tick();
-    inst.tick_time = Date.now() - time;
+    box.current.tick_time = Date.now() - time;
     sync(i => i + 1);
+    next_tick_print_graph();
   }, [tick]);
 
 	return (
