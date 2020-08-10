@@ -3,7 +3,7 @@ import {
   map_extract, mem_map_extract, arr_extract,
   get_mem_tail, map_extract_keys, map_extract_values, arr_len,
   arr_create, arr_push
-} from "../../lib/core/test";
+} from "../../lib/core/debug";
 
 test("should work mem free", () => {
   expect(get_mem_map()).not.toBe(0);

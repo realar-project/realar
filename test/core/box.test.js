@@ -3,7 +3,7 @@ import {
   tick_start, get_tick_changed, get_tick_deep, tick_deep_inc, tick_deep_dec, get_box_rels, get_box_invalid, box_deep_invalidate, get_box_expr, tick_finish,
   set_add, set_create, set_size, set_delete, set_has, set_assign, set_clear, set_extract, set_free, map_set,
   box_expr_create, box_expr_start, box_expr_finish,
-} from "../../lib/core/test";
+} from "../../lib/core/debug";
 
 test("should throw tick_start limit error", () => {
 

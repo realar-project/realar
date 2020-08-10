@@ -1,6 +1,6 @@
 import {
   set_add, set_create, set_delete, set_has, set_assign, set_clear, set_extract, set_free
-} from "../../lib/core/test";
+} from "../../lib/core/debug";
 
 let expected_id = 0;
 

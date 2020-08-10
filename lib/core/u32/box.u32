@@ -281,6 +281,6 @@ func get_box_expr result
 ## </debug>
 
 ## <debug>
-export get_box_rels get_box_invalid get_box_expr box_deep_invalidate
+export get_box_deps get_box_rels get_box_invalid get_box_expr box_deep_invalidate
 export get_tick_changed get_tick_deep tick_deep_inc tick_deep_dec tick_start tick_finish
 ## </debug>

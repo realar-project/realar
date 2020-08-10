@@ -1,7 +1,7 @@
 import {
   map_create, map_size, map_has, map_get, map_set, map_delete, map_free,
   map_extract_keys, map_extract_values, map_extract
-} from "../../lib/core/test";
+} from "../../lib/core/debug";
 
 test("should work map methods", () => {
   const id = map_create();

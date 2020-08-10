@@ -1,6 +1,6 @@
 import {
   arr_create, arr_len, arr_push, arr_pop, arr_free, arr_delete, arr_extract
-} from "../../lib/core/test";
+} from "../../lib/core/debug";
 
 test("should work arr methods", () => {
   const id = arr_create();
