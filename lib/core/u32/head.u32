@@ -3,6 +3,7 @@ global slice_current
 export push pop
 
 func start
+  mem_cap_init()
   mem_tail_init()
   slice_init()
   each_slice_init()

@@ -1,11 +1,12 @@
 (module
   ## import imports
 
-  (memory $0 32767)
+  (memory $0 1)
 
   ## import errors
   ## import head
 
+  ## import mem/mem_cap
   ## import mem/mem_tail
   ## import mem/mem_copy
   ## import mem/mem

@@ -5,6 +5,8 @@ func mem_tail_init
 
 func mem_tail_inc(size)
   mem_tail = mem_tail + size
+  if mem_tail > mem_cap
+    mem_cap_grow_to(mem_tail)
 
 func mem_tail_n_inc(size) result
   ptr = mem_tail

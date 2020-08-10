@@ -1,7 +1,8 @@
 import {
   mem_alloc, mem_size, mem_free, mem_x4, get_mem_map,
   map_extract, mem_map_extract, arr_extract,
-  get_mem_tail, map_extract_keys, map_extract_values, arr_len
+  get_mem_tail, map_extract_keys, map_extract_values, arr_len,
+  arr_create, arr_push
 } from "../../lib/core/test";
 
 test("should work mem free", () => {
@@ -69,4 +70,14 @@ test("should work mem free several blocks", () => {
   expect(map_extract_values(get_mem_map()).map(id => arr_len(id))).toStrictEqual([1, 1]);
   mem_free(b);
   expect(map_extract_values(get_mem_map()).map(id => arr_len(id))).toStrictEqual([2, 2]);
-})
+});
+
+test("should grow memory", () => {
+  let arr = arr_create();
+  let arr_exp = [];
+  for (let i = 0; i < 1000000; i++) {
+    arr_push(arr, i);
+    arr_exp.push(i);
+  }
+  expect(arr_extract(arr)).toStrictEqual(arr_exp);
+});

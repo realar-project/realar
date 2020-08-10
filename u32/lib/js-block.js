@@ -67,7 +67,7 @@ function buf_to_js(buf) {
   if (last) {
     list.push(src.slice(S*rows));
   }
-  return `"${list.join(`"+\n"`)}" /*${src.length}*/`;
+  return `"${list.join(`"+\n"`)}" /*${buf.length}*/`;
 }
 
 function common_js_block(buf) {
