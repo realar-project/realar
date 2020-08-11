@@ -13,13 +13,49 @@ func mem_size(ptr) result
   [mem_size_ptr(ptr)] # size
 
 func mem_free(ptr)
+  if slice_deps == 5399
+    log_set(slice_deps)
+
   mem_free_block([ptr], mem_size(ptr)) # We have two piece of memory 2 and size
+
+  if slice_deps == 5399
+    log_set(slice_deps)
+
   mem_free_block(ptr, 2)
+
+  if slice_deps == 5399
+    log_2(11111, ptr)
+    log_set(slice_deps)
 
 
 func mem_free_block(ptr size)
+  if slice_deps == 5399 && size == 2
+    log_1(776)
+    log_set(slice_deps)
+
   if !map_has(mem_map, size)
-    map_set(mem_map, size, arr_create()) # Array of pointers on each block
+
+    if slice_deps == 5399 && size == 2
+      log_1(788)
+      log_set(slice_deps)
+
+    arr = arr_create()
+
+    if slice_deps == 5399 && size == 2
+      log_1(799)
+      log_set(slice_deps)
+      log_map(mem_map)
+
+    map_set(mem_map, size, arr) # Array of pointers on each block
+
+    if slice_deps == 5399 && size == 2
+      log_1(789)
+      log_map(mem_map)
+      log_set(slice_deps)
+
+  if slice_deps == 5399 && size == 2
+    log_1(777)
+    log_set(slice_deps)
 
   arr_push(map_get(mem_map, size), ptr)
 

@@ -35,8 +35,8 @@ func push
   [slice + 10] = box_invalid
   [slice + 11] = box_expr
   [slice + 12] = box_expr_stack
-  [slice + 13] = box_entry_id
-  [slice + 14] = box_entry_stack
+  [slice + 13] = box_entry_stack
+  [slice + 14] = box_entry_id
 
   slice_current = slice # switch to new slice
   each_slice_init()
@@ -61,6 +61,6 @@ func pop
   box_invalid = [slice + 10]
   box_expr = [slice + 11]
   box_expr_stack = [slice + 12]
-  box_entry_id = [slice + 13]
-  box_entry_stack = [clice + 14]
+  box_entry_stack = [clice + 13]
+  box_entry_id = [slice + 14]
 

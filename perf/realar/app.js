@@ -85,6 +85,7 @@ const runner = unit2({
       u += w;
     }
 
+    console.log("RES", res);
     this.a = res[0][0];
     this.z = res[m * 2][0];
   },
