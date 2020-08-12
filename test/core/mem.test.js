@@ -5,7 +5,7 @@ import {
   arr_create, arr_push
 } from "../../lib/core/debug";
 
-test("should work mem free", () => {
+test("should work mem free single block", () => {
   expect(get_mem_map()).not.toBe(0);
 
   let t = get_mem_tail();

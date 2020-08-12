@@ -33,9 +33,8 @@ func mem_free_block(ptr size)
   #   log_1(776)
   #   log_set(slice_deps)
 
-  # log_3(1, ptr, size)
-  # log_set(map_keys(mem_map))
-  # log_map_of_arr(mem_map)
+  log_3(1, ptr, size)
+  log_map_of_arr(mem_map)
 
   if !map_has(mem_map, size)
 
@@ -59,12 +58,15 @@ func mem_free_block(ptr size)
       log_set(slice_deps)
       # log_map(mem_map)
 
+    log_map_of_arr(mem_map)
 
   # if slice_deps == 5399 && size == 2
   #   log_1(777)
   #   log_set(slice_deps)
 
   arr_push(map_get(mem_map, size), ptr)
+
+  log_map_of_arr(mem_map)
 
   # log_3(2, ptr, size)
   # log_map(mem_map)

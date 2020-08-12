@@ -42,24 +42,24 @@ function env_log_debug() {
         console.error(keys, values)
         throw new Error("Map has different length of keys set and values array")
       }
-      return keys.map((k, i) => k + ":" + values[i])
+      return keys.map((k, i) => [k, values[i]])
     }
     function log_map(id) {
-      log(extract_map(id))
+      log(extract_map(id).map(p => p.join(":")))
     }
     function extract_map_of_arr(id) {
       let map = extract_map(id)
       let res = []
       for (const [k, v] of map) {
-        res.push(k + ":" + extract_arr(v).join(","))
+        res.push([k, extract_arr(v)])
       }
       return res
     }
     function log_map_of_arr(id) {
-      log(extract_map_of_arr(id))
+      log(extract_map_of_arr(id).map(([k, arr]) => k + ":" + arr.join(",")))
     }
     function log_mem(ptr, size) {
-      log(extract_ptr(ptr), size)
+      log(extract_ptr(ptr, size))
     }
 
     return {
