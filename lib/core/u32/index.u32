@@ -14,7 +14,6 @@
   ## import adt/set
   ## import adt/arr
   ## import adt/map
-  ## import adt/debug
 
   ## import seq
   ## import box

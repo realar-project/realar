@@ -40,8 +40,8 @@ func box_deep_invalidate(changed_set)
 
   set_assign(cur_set, changed_set)
 
-  if slice_deps == 5399
-    log_set(slice_deps)
+  # if slice_deps == 5399
+  #   log_set(slice_deps)
 
   loop $loop
     for x of set cur_set
@@ -59,26 +59,26 @@ func box_deep_invalidate(changed_set)
 
       br $loop
 
-  if slice_deps == 5399
-    log_set(slice_deps)
-    log_2(11, [5399])
+  # if slice_deps == 5399
+  #   log_set(slice_deps)
+  #   log_2(11, [5399])
 
-  log_1(999)
-  log_4(next_set, cur_set, [next_set], [cur_set])
+  # log_1(999)
+  # log_4(next_set, cur_set, [next_set], [cur_set])
 
   # TODO: error here))
   set_free(next_set)
 
-  if slice_deps == 5399
-    log_2(11, [5399])
-    log_set(slice_deps)
+  # if slice_deps == 5399
+  #   log_2(11, [5399])
+  #   log_set(slice_deps)
 
   set_free(cur_set)
 
-  log_1(999)
+  # log_1(999)
 
-  if slice_deps == 5399
-    log_set(slice_deps)
+  # if slice_deps == 5399
+  #   log_set(slice_deps)
 
 
 func tick_finish
@@ -90,14 +90,14 @@ func tick_finish
   loop $loop
     limit = limit - 1
     if limit
-      if slice_deps == 5399
-        log_set(slice_deps)
+      # if slice_deps == 5399
+      #   log_set(slice_deps)
 
       box_deep_invalidate(tick_changed)
       set_clear(tick_changed)
 
-      if slice_deps == 5399
-        log_set(slice_deps)
+      # if slice_deps == 5399
+      #   log_set(slice_deps)
       # # log_set(box_invalid)
 
       for x of set box_invalid
@@ -129,13 +129,13 @@ func slice_deps_globals_pop
 
 
 func slice_deps_open(id)
-  log_2(1, id)
+  # log_2(1, id)
   slice_deps_globals_push()
   slice_deps = set_create()
   slice_current_id = id
 
 func slice_deps_close
-  log_2(2, slice_current_id)
+  # log_2(2, slice_current_id)
   # log_1(10101)
   # log_set(box_expr)
 
@@ -187,9 +187,9 @@ func box_value_get_phase(id)
 
   if slice_deps
     set_add(slice_deps, id)
-  if slice_deps == 5399
-    log_3(10000, slice_deps, id)
-    log_set(slice_deps)
+  # if slice_deps == 5399
+  #   log_3(10000, slice_deps, id)
+  #   log_set(slice_deps)
 
 func box_value_set_phase(id)
   # log_1(10000)
@@ -214,7 +214,7 @@ func box_expr_create result
 
 func box_expr_start(id)
   slice_deps_open(id)
-  log_3(100, id, slice_deps)
+  # log_3(100, id, slice_deps)
 
   no_tick = !tick_deep
   if no_tick
@@ -225,16 +225,16 @@ func box_expr_start(id)
 func box_expr_finish
   # log_1(10010)
   # log_set(box_expr)
-  log_3(110, slice_current_id, slice_deps)
+  # log_3(110, slice_current_id, slice_deps)
 
   no_tick = arr_pop(box_expr_stack)
 
-  log_set(slice_deps)
+  # log_set(slice_deps)
   if no_tick
     tick_finish()
 
 
-  log_set(slice_deps)
+  # log_set(slice_deps)
   # log_1(10011)
   # log_set(box_expr)
   slice_deps_close()
@@ -249,14 +249,14 @@ func box_computed_create result
 
 func box_computed_start(id) result
   box_value_get_phase(id)
-  log_2(300, id)
+  # log_2(300, id)
   invalid = set_has(box_invalid, id)
   if invalid
     slice_deps_open(id)
   !invalid
 
 func box_computed_finish
-  log_2(301, slice_current_id)
+  # log_2(301, slice_current_id)
   slice_deps_close()
 
 

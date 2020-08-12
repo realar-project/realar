@@ -5,20 +5,77 @@ module.exports = {
 
 function env_log_debug() {
   if (!process.env.REALAR_DEV) return '';
-  return `
-  log_i32(...args) {
-    console.log(...args)
-  },
-  log_mem(...args) {
-    const mems = []
-    for (let i = 0; i < args.length; i++) {
-      mems.push(
-        Array.from(new Uint32Array(instance.exports.memory.buffer, args[i] << 2, args[++i]))
+  return `(function() {
+    function log(...args) {
+      console.log(...args)
+    }
+    function extract_ptr(ptr, size) {
+      let { memory } = inst_exports
+      if (size === 0) return []
+      return Array.from(
+        new Uint32Array(
+          memory.buffer, ptr * 4, size
+        )
       )
     }
-    console.log(...mems)
-  }
-  `
+    function extract_set(id) {
+      let { set_size, set_data_ptr } = inst_exports
+      let size = set_size(id)
+      return extract_ptr(set_data_ptr(id), size)
+    }
+    function log_set(id) {
+      log(extract_set(id))
+    }
+    function extract_arr(id) {
+      let { arr_len, arr_data_ptr } = inst_exports
+      let size = arr_len(id)
+      return extract_ptr(arr_data_ptr(id), size)
+    }
+    function log_arr(id) {
+      log(extract_arr(id))
+    }
+    function extract_map(id) {
+      let { map_keys, map_values } = inst_exports
+      let keys = extract_set(map_keys(id))
+      let values = extract_arr(map_values(id))
+      if (keys.length !== values.length) {
+        console.error(keys, values)
+        throw new Error("Map has different length of keys set and values array")
+      }
+      return keys.map((k, i) => k + ":" + values[i])
+    }
+    function log_map(id) {
+      log(extract_map(id))
+    }
+    function extract_map_of_arr(id) {
+      let map = extract_map(id)
+      let res = []
+      for (const [k, v] of map) {
+        res.push(k + ":" + extract_arr(v).join(","))
+      }
+      return res
+    }
+    function log_map_of_arr(id) {
+      log(extract_map_of_arr(id))
+    }
+    function log_mem(ptr, size) {
+      log(extract_ptr(ptr), size)
+    }
+
+    return {
+      log,
+      log_set,
+      log_arr,
+      log_map,
+      log_map_of_arr,
+      log_mem,
+      extract_ptr,
+      extract_set,
+      extract_arr,
+      extract_map,
+      extract_map_of_arr,
+    }
+  })()`
 }
 
 function tpl(src_block, export_prefix) {
@@ -37,21 +94,32 @@ ${export_prefix} function(env) {
       buf[i] = raw.charCodeAt(i)
     }
   }
-  let instance
+  let inst_exports
+  let env_log_debug = ${env_log_debug()}
   let imports = {
-    env: {${env_log_debug()}}
+    env: env_log_debug
   }
   if (env) {
     Object.assign(imports.env, env)
   }
   if(buf.length > 4096) {
-    return WebAssembly.instantiate(buf, imports).then(results => (instance = results.instance).exports)
+    return WebAssembly.instantiate(buf, imports).then(results => make_result(results.instance))
   }
-  instance = new WebAssembly.Instance(
-    new WebAssembly.Module(buf),
-    imports
-  );
-  return instance.exports
+  return make_result(
+    new WebAssembly.Instance(
+      new WebAssembly.Module(buf),
+      imports
+    )
+  )
+
+  function make_result(inst) {
+    inst_exports = Object.assign(
+      {},
+      env_log_debug,
+      inst.exports
+    );
+    return inst_exports
+  }
 }`;
 }
 

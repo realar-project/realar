@@ -76,3 +76,7 @@ func arr_insert(id index n)
 
 func arr_free(id)
   mem_free(id)
+
+## <debug>
+export arr_create arr_len arr_push arr_pop arr_delete arr_free arr_data_ptr
+## </debug>

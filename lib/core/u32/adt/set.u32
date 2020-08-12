@@ -155,3 +155,6 @@ func set_delete(id n)
 func set_free(id)
   mem_free(id)
 
+## <debug>
+export set_create set_assign set_add set_has set_delete set_size set_clear set_free set_data_ptr
+## </debug>

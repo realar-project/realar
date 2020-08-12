@@ -85,7 +85,7 @@ const runner = unit2({
       u += w;
     }
 
-    console.log("RES", res);
+    // console.log("RES", res);
     this.a = res[0][0];
     this.z = res[m * 2][0];
   },
@@ -102,7 +102,7 @@ function App() {
     let inst = runner();
     let init_time = Date.now() - time;
 
-    next_tick_print_graph();
+    // next_tick_print_graph();
     box.current = { inst, init_time, tick_time: 0 };
   }
 
@@ -115,7 +115,7 @@ function App() {
     tick();
     box.current.tick_time = Date.now() - time;
     sync(i => i + 1);
-    next_tick_print_graph();
+    // next_tick_print_graph();
   }, [tick]);
 
 	return (

@@ -5,8 +5,16 @@
 
 func map_create result
   id = mem_alloc(2)
+
+  # k = set_create()
+  # log_4(k, [k + 1], [k], [[k]])
+  # log_set(k)
+  # log_1(7777)
+  # [map_keys_ptr(id)] = k
   [map_keys_ptr(id)] = set_create()
+  # log_set(map_keys(id))
   [map_values_ptr(id)] = arr_create()
+  # log_arr(map_values(id))
   id
 
 func map_keys_ptr(id) result
@@ -88,3 +96,8 @@ func map_free(id)
   mem_free(map_keys(id))
   mem_free(map_values(id))
   mem_free(id)
+
+
+## <debug>
+export map_create map_size map_has map_keys map_values map_get map_set map_delete map_free
+## </debug>
