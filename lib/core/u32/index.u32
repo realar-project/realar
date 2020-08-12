@@ -18,8 +18,6 @@
   ## import seq
   ## import box
 
-  (start $start)
-
   ## <debug>
   (export "memory" (memory $0))
   ## </debug>

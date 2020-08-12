@@ -1,6 +1,6 @@
 global slice_current
 
-export push pop
+export push pop start
 
 func start
   mem_cap_init()

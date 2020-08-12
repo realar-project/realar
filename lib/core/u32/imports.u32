@@ -12,6 +12,7 @@
 (import "env" "log_arr" (func $log_arr (param i32)))
 (import "env" "log_map" (func $log_map (param i32)))
 (import "env" "log_map_of_arr" (func $log_map_of_arr (param i32)))
+(import "env" "log_mem_map" (func $log_mem_map))
 ## </debug>
 
 (import "env" "error" (func $error (param i32)))

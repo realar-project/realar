@@ -24,7 +24,7 @@ function env_log_debug() {
       return extract_ptr(set_data_ptr(id), size)
     }
     function log_set(id) {
-      log(extract_set(id))
+      log("s", extract_set(id))
     }
     function extract_arr(id) {
       let { arr_len, arr_data_ptr } = inst_exports
@@ -32,20 +32,20 @@ function env_log_debug() {
       return extract_ptr(arr_data_ptr(id), size)
     }
     function log_arr(id) {
-      log(extract_arr(id))
+      log("a", extract_arr(id))
     }
     function extract_map(id) {
       let { map_keys, map_values } = inst_exports
       let keys = extract_set(map_keys(id))
       let values = extract_arr(map_values(id))
       if (keys.length !== values.length) {
-        console.error(keys, values)
+        console.error("Broken map:", "keys:", keys, "values:", values)
         throw new Error("Map has different length of keys set and values array")
       }
       return keys.map((k, i) => [k, values[i]])
     }
     function log_map(id) {
-      log(extract_map(id).map(p => p.join(":")))
+      log("m", extract_map(id).map(p => p.join(":")))
     }
     function extract_map_of_arr(id) {
       let map = extract_map(id)
@@ -56,10 +56,24 @@ function env_log_debug() {
       return res
     }
     function log_map_of_arr(id) {
-      log(extract_map_of_arr(id).map(([k, arr]) => k + ":" + arr.join(",")))
+      log("m:a", extract_map_of_arr(id).map(([k, arr]) => k + ":" + arr.join(",")))
     }
     function log_mem(ptr, size) {
       log(extract_ptr(ptr, size))
+    }
+    function log_mem_map() {
+      let { get_mem_map } = inst_exports
+      let id = get_mem_map()
+      if (!id) {
+        console.log("mem:", 0)
+      } else {
+        try {
+          log("mem:", extract_map_of_arr(id).map(([k, arr]) => k + ":" + arr.join(",")))
+        } catch (e) {
+          log("mem:!")
+          throw e
+        }
+      }
     }
 
     return {
@@ -69,6 +83,7 @@ function env_log_debug() {
       log_map,
       log_map_of_arr,
       log_mem,
+      log_mem_map,
       extract_ptr,
       extract_set,
       extract_arr,

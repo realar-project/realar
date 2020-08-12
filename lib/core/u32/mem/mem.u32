@@ -4,6 +4,8 @@ func mem_alloc(size) result
   ptr = mem_alloc_block(2)
   [ptr] = mem_alloc_block(size) # 0 index - memory block
   [mem_size_ptr(ptr)] = size    # 1 index - size of memory block
+  log_3(123, size, ptr)
+  log_mem_map()
   ptr
 
 func mem_size_ptr(ptr) result
@@ -34,7 +36,7 @@ func mem_free_block(ptr size)
   #   log_set(slice_deps)
 
   log_3(1, ptr, size)
-  log_map_of_arr(mem_map)
+  log_mem_map()
 
   if !map_has(mem_map, size)
 
@@ -58,7 +60,7 @@ func mem_free_block(ptr size)
       log_set(slice_deps)
       # log_map(mem_map)
 
-    log_map_of_arr(mem_map)
+    log_mem_map()
 
   # if slice_deps == 5399 && size == 2
   #   log_1(777)
@@ -66,17 +68,23 @@ func mem_free_block(ptr size)
 
   arr_push(map_get(mem_map, size), ptr)
 
-  log_map_of_arr(mem_map)
+  log_mem_map()
 
   # log_3(2, ptr, size)
   # log_map(mem_map)
 
 
 func mem_alloc_block(size) result
+  log_2(5, size)
+  log_mem_map()
   if mem_has_free_place(size)
     ptr = mem_alloc_free_place(size)
+    log_3(6, size, ptr)
+    log_mem_map()
   else
     ptr = mem_tail_n_inc(size)
+    log_3(7, size, ptr)
+    log_mem_map()
   ptr
 
 
@@ -103,10 +111,16 @@ func mem_has_free_place(size) result
   if !mem_map # beginning phase
     res = 0
   else
+    log_2(15, size)
+    log_mem_map()
     if !map_has(mem_map, size)
       res = 0
+      log_2(16, size)
+      log_mem_map()
     else
       res = arr_len(map_get(mem_map, size))
+      log_2(17, size)
+      log_mem_map()
   res
 
 func mem_alloc_free_place(size) result
@@ -118,7 +132,7 @@ func mem_init
   mem_map = 0 # init null
   mem_map = map_create()
 
-  # log_map(mem_map)
+  # log_mem_map()
 
 ## <debug>
 func get_mem_map result

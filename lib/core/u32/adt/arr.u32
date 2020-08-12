@@ -20,12 +20,22 @@ func arr_clear(id)
   [arr_len_ptr(id)] = 0 # length
 
 func arr_len_inc(id)
+  log_2(20, id)
+  log_mem_map()
   len_ptr = arr_len_ptr(id)
   len = [len_ptr]
+  log_4(4445, mem_size(id), len, id)
   if len == mem_size(id) - 1 # substract length
+    log_1(21)
+    log_mem_map()
     mem_x4(id)
+    log_1(22)
+    log_mem_map()
     len_ptr = arr_len_ptr(id)
+
   [len_ptr] = len + 1
+  log_1(23)
+  log_mem_map()
 
 func arr_len_dec(id)
   len_ptr = arr_len_ptr(id)
@@ -33,7 +43,15 @@ func arr_len_dec(id)
 
 func arr_push(id n)
   len = arr_len(id)
+
+  log_4(43, id, n, len)
+  log_mem_map()
+
   arr_len_inc(id)
+
+  log_1(44)
+  log_mem_map()
+
   [arr_data_ptr(id) + len] = n
 
 func arr_pop(id) result
