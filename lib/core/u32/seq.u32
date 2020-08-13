@@ -1,9 +1,0 @@
-
-global seq_current
-
-func seq_init
-  seq_current = 0
-
-func seq_next result
-  seq_current = seq_current + 1
-  seq_current

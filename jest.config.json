@@ -10,7 +10,7 @@
     "<rootDir>/lib/"
   ],
   "transform": {
-    "^.+\\.[jt]sx?$": "<rootDir>/prep/jest-transform",
-    "\\.u32$": "<rootDir>/u32/jest-transform"
+    "^.+\\.js$": "<rootDir>/prep/jest-transform",
+    "^.+\\.ts$": "<rootDir>/as/jest-transform"
   }
 }
