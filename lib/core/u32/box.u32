@@ -261,40 +261,40 @@ func box_computed_finish
 
 
 func box_entry_start
-  log_1(99990)
-  log_mem_map()
+  # log_1(99990)
+  # log_mem_map()
 
   slice_deps_globals_push()
   slice_deps = 0 # No need to collect deps in entry phase
   slice_current_id = box_entry_id
 
-  log_1(99991)
-  log_mem_map()
+  # log_1(99991)
+  # log_mem_map()
 
   no_tick = !tick_deep
   if no_tick
     tick_start()
 
-  log_1(99992)
-  log_mem_map()
+  # log_1(99992)
+  # log_mem_map()
 
-  log_2(88888888, box_entry_stack)
+  # log_2(88888888, box_entry_stack)
 
   arr_push(box_entry_stack, no_tick)
 
-  log_1(99993)
-  log_mem_map()
+  # log_1(99993)
+  # log_mem_map()
 
 func box_entry_finish
-  log_1(10000)
-  log_mem_map()
+  # log_1(10000)
+  # log_mem_map()
 
   no_tick = arr_pop(box_entry_stack)
   if no_tick
     tick_finish()
 
-  log_1(10001)
-  log_mem_map()
+  # log_1(10001)
+  # log_mem_map()
 
   slice_deps_globals_pop()
 

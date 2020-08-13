@@ -53,7 +53,7 @@ const runner = unit2({
     this.inp += 1;
   },
   constructor() {
-    let m = 2;
+    let m = 10;
     let i, k, d;
     let w = 1;
     let res = [[u_unit(w)]];

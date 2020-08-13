@@ -4,7 +4,7 @@ module.exports = {
 };
 
 function env_log_debug(str_consts) {
-  if (!process.env.REALAR_DEV) return '';
+  if (!process.env.REALAR_DEV) return '{}';
   return `(function() {
     let str_consts = ${JSON.stringify(str_consts)}
     function log(...args) {
@@ -79,8 +79,15 @@ function env_log_debug(str_consts) {
         }
       }
     }
+    function is_map_valid(id) {
+      let { map_keys, map_values } = inst_exports
+      let keys = extract_set(map_keys(id))
+      let values = extract_arr(map_values(id))
+      return keys.length === values.length
+    }
 
     return {
+      is_map_valid,
       log,
       log_m,
       log_set,

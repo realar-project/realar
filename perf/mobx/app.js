@@ -48,8 +48,6 @@ class Runner {
   @observable.ref z = null;
   @observable.ref inp = 0;
   @observable.ref out = 0;
-  @observable.ref init_time = 0;
-  @observable.ref tick_time = 0;
 
   @action.bound tick() {
     this.inp += 1;
@@ -103,18 +101,21 @@ class Runner {
 export const App = () => {
   const box = useRef();
   if (!box.current) {
+    let time = Date.now();
     let inst = new Runner();
-    box.current = { inst };
+    let init_time = Date.now() - time;
+
+    box.current = { inst, init_time, tick_time: 0 };
   }
 
-  const { inst } = box.current;
-  const { inp, out, tick, init_time, tick_time } = inst;
+  const { inst, init_time, tick_time } = box.current;
+  const { inp, out, tick } = inst;
 
   const [ i, sync ] = useState(0);
   const click = useCallback(() => {
     let time = Date.now();
     tick();
-    inst.tick_time = Date.now() - time;
+    box.current.tick_time = Date.now() - time;
     sync(i => i + 1);
   }, [tick]);
 
