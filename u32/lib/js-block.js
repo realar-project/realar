@@ -3,11 +3,15 @@ module.exports = {
   common_js_block
 };
 
-function env_log_debug() {
+function env_log_debug(str_consts) {
   if (!process.env.REALAR_DEV) return '';
   return `(function() {
+    let str_consts = ${JSON.stringify(str_consts)}
     function log(...args) {
       console.log(...args)
+    }
+    function log_m(str_index, ...args) {
+      console.log(str_consts[str_index], ...args)
     }
     function extract_ptr(ptr, size) {
       let { memory } = inst_exports
@@ -78,6 +82,7 @@ function env_log_debug() {
 
     return {
       log,
+      log_m,
       log_set,
       log_arr,
       log_map,
@@ -93,7 +98,7 @@ function env_log_debug() {
   })()`
 }
 
-function tpl(src_block, export_prefix) {
+function tpl(src_block, str_consts, export_prefix) {
   return `
 ${export_prefix} function(env) {
   let src = ${src_block}
@@ -110,7 +115,7 @@ ${export_prefix} function(env) {
     }
   }
   let inst_exports
-  let env_log_debug = ${env_log_debug()}
+  let env_log_debug = ${env_log_debug(str_consts)}
   let imports = {
     env: env_log_debug
   }
@@ -153,16 +158,18 @@ function buf_to_js(buf) {
   return `"${list.join(`"+\n"`)}" /*${buf.length}*/`;
 }
 
-function common_js_block(buf) {
+function common_js_block(buf, str_consts) {
   return tpl(
     buf_to_js(buf),
+    str_consts,
     "module.exports ="
   );
 }
 
-function module_js_block(buf) {
+function module_js_block(buf, str_consts) {
   return tpl(
     buf_to_js(buf),
+    str_consts,
     "export default"
   );
 }

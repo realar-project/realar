@@ -13,12 +13,14 @@ let
   local_def_context_func_params = 0,
   local_def_context_locals = 0,
   ctx_global_variables = 0,
-  global_def_pushed = 0
+  global_def_pushed = 0,
+  ctx_string_constants = 0
 ;
 
 module.exports = {
   preprocess,
-  func_local_section_add
+  func_local_section_add,
+  get_string_constants
 };
 
 function func_local_section_add(local_name) {
@@ -539,11 +541,21 @@ function import_node_compile(import_path, dirname) {
 
 function full_compile(code, dirname) {
   return compile(
-    sharp_sharp_comment_compile(
-      define_compile(code)
+    first_argument_of_call_string_constants_compile(
+      sharp_sharp_comment_compile(
+        define_compile(code)
+      )
     ),
     dirname
   );
+}
+
+function first_argument_of_call_string_constants_compile(code) {
+  const pattern = /(\()"([^"]*)"/mg;
+  return code.replace(pattern, (_, prefix, str_const) => {
+    let i = ctx_string_constants.push(str_const) - 1;
+    return prefix + i;
+  });
 }
 
 function sharp_sharp_comment_compile(code) {
@@ -605,8 +617,13 @@ function preprocess(code, dirname) {
   ctx_global_variables = new Set();
   global_def_pushed = 0;
   collet_global_variables(code, dirname);
+  ctx_string_constants = [];
   code = full_compile(code, dirname);
   write_to_wat_file(code);
   // throw "debug";
   return code;
+}
+
+function get_string_constants() {
+  return ctx_string_constants.slice();
 }
