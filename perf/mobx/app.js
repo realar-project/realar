@@ -53,8 +53,6 @@ class Runner {
     this.inp += 1;
   }
   constructor() {
-    let time = Date.now();
-
     let m = 10;
     let i, k, d;
     let w = 1;
@@ -89,7 +87,6 @@ class Runner {
 
     this.a = res[0][0];
     this.z = res[m * 2][0];
-    this.init_time = Date.now() - time;
 
     autorun(() => {
       this.a.x1 = this.inp;
@@ -121,7 +118,7 @@ export const App = () => {
 
 	return (
     <>
-      <h3>Realar performance test</h3>
+      <h3>Mobx performance test</h3>
       <p>Iter: {i}</p>
       <p>Input: {inp}</p>
       <p>Output: {out}</p>
