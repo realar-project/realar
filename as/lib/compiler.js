@@ -27,7 +27,8 @@ async function compile(inp_filename) {
     wat_code_path,
     "--runtime",
     "none",
-    "-O3"
+    "-O3",
+    "--noAssert"
   ]);
   return fs.readFileSync(wasm_code_path);
 }

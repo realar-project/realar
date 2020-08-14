@@ -42,6 +42,7 @@ export {
   box_view_finish
 }
 
+@inline
 function box_init(): void {
   tick_deep = 0;
   tick_changed = new Set<i32>();
@@ -72,8 +73,8 @@ function box_deep_invalidate(next_bound: Set<i32>): void {
 
     for (let i = 0, vals = bound.values(), len = vals.length; i < len; i++) {
       let x = vals[i];
-      let rels = box_rels.get(x);
-      if (rels) {
+      if (box_rels.has(x)) {
+        let rels = box_rels.get(x);
         for (let i = 0, vals = rels.values(), len = vals.length; i < len; i++) {
           let r = vals[i];
           box_invalid.add(r);
@@ -111,20 +112,24 @@ function tick_finish(): void {
   }
 }
 
+@inline
 function box_create(): i32 {
   return seq_next();
 }
 
+@inline
 function slice_deps_globals_push(): void {
   slice_deps_stack.push({ slice_deps, slice_current_id });
 }
 
+@inline
 function slice_deps_globals_pop(): void {
   let struct = slice_deps_stack.pop();
   slice_deps = struct.slice_deps;
   slice_current_id = struct.slice_current_id;
 }
 
+@inline
 function slice_deps_open(id: i32): void {
   slice_deps_globals_push();
   slice_deps = new Set<i32>();
@@ -141,11 +146,15 @@ function slice_deps_close(): void {
 
   for (let i = 0, vals = slice_deps!.values(), len = vals.length; i < len; i++) {
     let d = vals[i];
-    let rels = box_rels.get(d);
-    if (!rels) {
+    let rels: Set<i32>;
+
+    if (box_rels.has(d)) {
+      rels = box_rels.get(d);
+    } else {
       rels = new Set<i32>();
       box_rels.set(d, rels);
     }
+
     rels.add(slice_current_id)
   }
 
@@ -193,8 +202,9 @@ function box_computed_create(): i32 {
 }
 
 function box_computed_start(id: i32): boolean {
-  box_value_get_phase(id);
-
+  if (slice_deps) {
+    slice_deps!.add(id);
+  }
   if (box_invalid.has(id)) {
     slice_deps_open(id);
     return false;

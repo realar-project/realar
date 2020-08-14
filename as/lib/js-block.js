@@ -4,7 +4,11 @@ module.exports = {
 };
 
 function env_log_debug() {
-  if (!process.env.REALAR_DEV) return '{}';
+  if (!process.env.REALAR_DEV) return `{
+    abort() {
+      throw Error("Abort!");
+    }
+  }`;
   return `(function() {
     // @see https://github.com/AssemblyScript/assemblyscript/blob/e2f5ad9fe94190cd232848c4162636e259cc68ee/lib/loader/index.js#L44
 
