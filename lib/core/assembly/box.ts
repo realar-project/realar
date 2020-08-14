@@ -56,6 +56,7 @@ function box_init(): void {
   box_entry_id = box_create();
 }
 
+@inline
 function tick_start(): void {
   if (!tick_deep) tick_changed.clear();
   tick_deep ++;
@@ -65,6 +66,7 @@ function tick_start(): void {
   }
 }
 
+@inline
 function box_deep_invalidate(next_bound: Set<i32>): void {
   let bound: Set<i32>;
   for(;;) {
@@ -85,7 +87,6 @@ function box_deep_invalidate(next_bound: Set<i32>): void {
     if (!next_bound.size) break;
   }
 }
-
 
 function tick_finish(): void {
   if (tick_deep > 1 || !tick_changed.size) {
