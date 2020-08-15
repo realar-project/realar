@@ -12,7 +12,21 @@ type slice_deps_type = Set<i32> | null;
   slice_current_id: i32;
 }
 
+@unmanaged class box_slice_stack_item_type {
+  tick_deep: i32;
+  tick_changed: Set<i32>;
+  slice_deps_stack: slice_deps_stack_item_type[];
+  slice_deps: slice_deps_type;
+  slice_current_id: i32;
+  box_deps: Map<i32, Set<i32>>;
+  box_rels: Map<i32, Set<i32>>;
+  box_invalid: Set<i32>;
+  box_expr: Set<i32>;
+  box_entry_id: i32;
+}
+
 let
+  box_slice_stack: box_slice_stack_item_type[],
   tick_deep: i32,
   tick_changed: Set<i32>,
   slice_deps_stack: slice_deps_stack_item_type[],
@@ -39,11 +53,20 @@ export {
   box_entry_finish,
   box_view_create,
   box_view_start,
-  box_view_finish
+  box_view_finish,
+
+  box_slice_push,
+  box_slice_pop
 }
 
 @inline
 function box_init(): void {
+  box_slice_stack = [];
+  box_slice_init();
+}
+
+@inline
+function box_slice_init(): void {
   tick_deep = 0;
   tick_changed = new Set<i32>();
   slice_deps_stack = [];
@@ -54,6 +77,38 @@ function box_init(): void {
   box_invalid = new Set<i32>();
   box_expr = new Set<i32>();
   box_entry_id = box_create();
+}
+
+@inline
+function box_slice_push(): void {
+  box_slice_stack.push({
+    tick_deep,
+    tick_changed,
+    slice_deps_stack,
+    slice_deps,
+    slice_current_id,
+    box_deps,
+    box_rels,
+    box_invalid,
+    box_expr,
+    box_entry_id
+  });
+  box_slice_init();
+}
+
+@inline
+function box_slice_pop(): void {
+  let struct = box_slice_stack.pop();
+  tick_deep = struct.tick_deep;
+  tick_changed = struct.tick_changed;
+  slice_deps_stack = struct.slice_deps_stack;
+  slice_deps = struct.slice_deps;
+  slice_current_id = struct.slice_current_id;
+  box_deps = struct.box_deps;
+  box_rels = struct.box_rels;
+  box_invalid = struct.box_invalid;
+  box_expr = struct.box_expr;
+  box_entry_id = struct.box_entry_id;
 }
 
 @inline
@@ -120,7 +175,10 @@ function box_create(): i32 {
 
 @inline
 function slice_deps_globals_push(): void {
-  slice_deps_stack.push({ slice_deps, slice_current_id });
+  slice_deps_stack.push({
+    slice_deps,
+    slice_current_id
+  });
 }
 
 @inline

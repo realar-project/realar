@@ -11,7 +11,7 @@
   "license": "MIT",
   "scripts": {
     "bootstrap": "npx lerna bootstrap --no-ci && npm run build",
-    "clean": "npm run test:clean && npm run as:clean && npm run demo:clean && npm run build:clean && npm run perf:clean && lerna clean --yes",
+    "clean": "npm run test:clean && npm run assembly:clean && npm run demo:clean && npm run build:clean && npm run perf:clean && lerna clean --yes",
     "publish": "npm run test && npm run build && lerna publish",
     "start": "npm run bootstrap && npm run demo",
     "reinstall": "npm run clean && npm run bootstrap",
@@ -19,7 +19,7 @@
     "test:clean": "jest --clearCache",
     "demo": "npm run demo:clean && cd demo && cross-env NODE_ENV=development parcel index.html --port 1210",
     "demo:clean": "cd demo && rimraf dist .cache",
-    "as:clean": "rimraf as/.build",
+    "assembly:clean": "rimraf assembly/.build",
     "build:clean": "rimraf build",
     "build": "rollup -c",
     "build:watch": "cross-env REALAR_DEV=true npm run build && chokidar \"lib/**\" \"u32/**\" \"prep/**\" -c \"cross-env REALAR_DEV=true rollup -c\"",

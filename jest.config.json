@@ -11,6 +11,6 @@
   ],
   "transform": {
     "^.+\\.js$": "<rootDir>/prep/jest-transform",
-    "^.+\\.ts$": "<rootDir>/as/jest-transform"
+    "^.+\\.ts$": "<rootDir>/assembly/jest-transform"
   }
 }
