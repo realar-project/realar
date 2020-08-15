@@ -34,5 +34,8 @@ dist
 # build
 build
 
-# wat
-.wat
+# u32
+u32/.wat
+
+# assembly
+as/.build

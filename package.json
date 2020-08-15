@@ -11,7 +11,7 @@
   "license": "MIT",
   "scripts": {
     "bootstrap": "npx lerna bootstrap --no-ci && npm run build",
-    "clean": "npm run test:clean && npm run demo:clean && npm run build:clean && npm run perf:clean && lerna clean --yes",
+    "clean": "npm run test:clean && npm run as:clean && npm run demo:clean && npm run build:clean && npm run perf:clean && lerna clean --yes",
     "publish": "npm run test && npm run build && lerna publish",
     "start": "npm run bootstrap && npm run demo",
     "reinstall": "npm run clean && npm run bootstrap",
@@ -19,6 +19,7 @@
     "test:clean": "jest --clearCache",
     "demo": "npm run demo:clean && cd demo && cross-env NODE_ENV=development parcel index.html --port 1210",
     "demo:clean": "cd demo && rimraf dist .cache",
+    "as:clean": "rimraf as/.build",
     "build:clean": "rimraf build",
     "build": "rollup -c",
     "build:watch": "cross-env REALAR_DEV=true npm run build && chokidar \"lib/**\" \"u32/**\" \"prep/**\" -c \"cross-env REALAR_DEV=true rollup -c\"",
@@ -58,11 +59,13 @@
     "@babel/preset-env": "7.11.0",
     "@babel/preset-react": "7.10.4",
     "@rollup/plugin-node-resolve": "8.4.0",
+    "assemblyscript": "0.14.8",
     "babel-jest": "26.2.2",
     "chokidar-cli": "2.1.0",
     "concurrently": "5.3.0",
     "cross-env": "7.0.2",
     "deasync": "0.1.20",
+    "execa": "4.0.3",
     "enzyme": "3.11.0",
     "enzyme-adapter-react-16": "1.15.3",
     "jest": "26.2.2",
@@ -73,8 +76,7 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "rimraf": "3.0.2",
-    "rollup": "2.23.1",
-    "wabt": "1.0.19"
+    "rollup": "2.23.1"
   },
   "browserslist": [
     "last 2 Chrome versions"

@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from "react";
-import { unit2, next_tick_print_graph } from "realar";
+import { unit2 } from "realar";
 
 export {
   App
@@ -102,7 +102,6 @@ function App() {
     let inst = runner();
     let init_time = Date.now() - time;
 
-    // next_tick_print_graph();
     box.current = { inst, init_time, tick_time: 0 };
   }
 
@@ -115,7 +114,6 @@ function App() {
     tick();
     box.current.tick_time = Date.now() - time;
     sync(i => i + 1);
-    // next_tick_print_graph();
   }, [tick]);
 
 	return (
