@@ -22,7 +22,7 @@
     "assembly:clean": "rimraf assembly/.build",
     "build:clean": "rimraf build",
     "build": "rollup -c",
-    "build:watch": "cross-env REALAR_DEV=true npm run build && chokidar \"lib/**\" \"u32/**\" \"prep/**\" -c \"cross-env REALAR_DEV=true rollup -c\"",
+    "build:watch": "cross-env REALAR_DEV=true npm run build && chokidar \"lib/**\" -c \"cross-env REALAR_DEV=true rollup -c\"",
     "lerna:clean": "lerna run clean",
     "perf:realar": "cd perf/realar && cross-env NODE_ENV=development parcel index.html --port 1200",
     "perf:mobx": "cd perf/mobx && cross-env NODE_ENV=development parcel index.html --port 1201",
