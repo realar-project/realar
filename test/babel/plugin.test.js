@@ -9,7 +9,11 @@ function transform(code) {
   }).code;
 }
 
-test("Should wrap functions with JSX", () => {
+function strip_multiline_comments(code) {
+  return code.replace(/\s*\/\*.*?\*\//mg, () => "");
+}
+
+test("should wrap functions with JSX", () => {
   const code = `
   function App() {
     return <div />;
@@ -31,7 +35,7 @@ export function Root() {
   expect(transform(code)).toBe(expected);
 });
 
-test("Should wrap unit", () => {
+test("should wrap unit", () => {
   const code = `
     const Unit = unit({v:1});
   `;
@@ -41,6 +45,59 @@ test("Should wrap unit", () => {
   };
 });`;
   expect(transform(code)).toBe(expected);
+});
+
+
+test("should process unit2", () => {
+  const code = `
+    const Unit = unit2({
+      v:1,
+      get n() {
+        return this.v + 1
+      },
+      expression() {
+        this.v2 = this.v + this.n;
+      },
+      m(k, m = 5) {
+        m = m + 1;
+        return this.v + this.v2 + k + m;
+      },
+      v2: "A",
+      constructor(v) {
+        this.v = 10;
+        this.v2 = v;
+      }
+    });
+  `;
+  const f_name = "unit2";
+  const expected = `const Unit = unit2(function () {
+  let _e_id = ${f_name}.b3/*box_expr_create*/();
+
+  let _e_fn = () => {
+    ${f_name}.b4/*box_expr_start*/(_e_id);
+    this.v2 = this.v + this.n;
+    ${f_name}.b5/*box_expr_finish*/();
+  };
+
+  ${f_name}.fns.set(_e_id, _e_fn);
+
+  let _c_cache,
+      _c_id = ${f_name}.b6/*box_computed_create*/();
+
+  return [v => { /* constructor */
+    ${f_name}.b9/*box_entry_start*/();
+    this.v = 10;
+    this.v2 = v;
+    ${f_name}.ba/*box_entry_finish*/();
+  }, 0 /* destr */, _e_fn /* expr */, 1 /* v */, "A" /* v2 */, () => { /* n */
+    if (${f_name}.b7/*box_computed_start*/(_c_id)) return _c_cache;
+    return _c_cache = this.v + 1, ${f_name}.b8/*box_computed_finish*/(), _c_cache;
+  }, (k, m = 5) => { /* m */
+    m = m + 1;
+    return this.v + this.v2 + k + m;
+  }];
+}, ["v", "v2"], ["n"], ["m"]);`;
+  expect(transform(code)).toBe(strip_multiline_comments(expected));
 });
 
 // test("Should wrap arrow functions with JSX", () => {

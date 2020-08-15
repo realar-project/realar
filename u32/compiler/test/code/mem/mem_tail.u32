@@ -1,0 +1,21 @@
+global mem_tail
+
+func mem_tail_init
+  mem_tail = 1
+
+func mem_tail_inc(size)
+  mem_tail = mem_tail + size
+
+func mem_tail_n_inc(size) result
+  ptr = mem_tail
+  mem_tail_inc(size)
+  ptr
+
+## <debug>
+func get_mem_tail result
+  mem_tail
+## </debug>
+
+## <debug>
+export get_mem_tail
+## </debug>

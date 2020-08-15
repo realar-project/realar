@@ -1,24 +1,27 @@
 
 # memory struct
-# 0 index - code map type ADT_MAP_TYPE
-# 1 index - set of keys
-# 2 index - array of values
+# 0 index - set of keys
+# 1 index - array of values
 
 func map_create result
-  id = mem_alloc(3)
-  [map_type_ptr(id)] = ADT_MAP_TYPE
+  id = mem_alloc(2)
+
+  # k = set_create()
+  # log_4(k, [k + 1], [k], [[k]])
+  # log_set(k)
+  # log_1(7777)
+  # [map_keys_ptr(id)] = k
   [map_keys_ptr(id)] = set_create()
+  # log_set(map_keys(id))
   [map_values_ptr(id)] = arr_create()
+  # log_arr(map_values(id))
   id
 
-func map_type_ptr(id) result
+func map_keys_ptr(id) result
   [id]
 
-func map_keys_ptr(id) result
-  [id] + 1
-
 func map_values_ptr(id) result
-  [id] + 2
+  [id] + 1
 
 func map_keys(id) result
   [map_keys_ptr(id)]
@@ -28,6 +31,10 @@ func map_values(id) result
 
 func map_size(id) result
   set_size(map_keys(id))
+
+func map_clear(id)
+  set_clear(map_keys(id))
+  arr_clear(map_values(id))
 
 func map_has(id k) result
   set_has(map_keys(id), k)
@@ -89,3 +96,8 @@ func map_free(id)
   mem_free(map_keys(id))
   mem_free(map_values(id))
   mem_free(id)
+
+
+## <debug>
+export map_create map_size map_has map_keys map_values map_get map_set map_delete map_free
+## </debug>

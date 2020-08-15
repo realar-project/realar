@@ -3,25 +3,109 @@ module.exports = {
   common_js_block
 };
 
-function env_log_debug() {
-  if (!process.env.REALAR_DEV) return '';
-  return `
-  log_i32(...args) {
-    console.log(...args)
-  },
-  log_mem(...args) {
-    const mems = []
-    for (let i = 0; i < args.length; i++) {
-      mems.push(
-        Array.from(new Uint32Array(instance.exports.memory.buffer, args[i] << 2, args[++i]))
+function env_log_debug(str_consts) {
+  if (!process.env.REALAR_DEV) return '{}';
+  return `(function() {
+    let str_consts = ${JSON.stringify(str_consts)}
+    function log(...args) {
+      console.log(...args)
+    }
+    function log_m(str_index, ...args) {
+      console.log(str_consts[str_index], ...args)
+    }
+    function extract_ptr(ptr, size) {
+      let { memory } = inst_exports
+      if (size === 0) return []
+      return Array.from(
+        new Uint32Array(
+          memory.buffer, ptr * 4, size
+        )
       )
     }
-    console.log(...mems)
-  }
-  `
+    function extract_set(id) {
+      let { set_size, set_data_ptr } = inst_exports
+      let size = set_size(id)
+      return extract_ptr(set_data_ptr(id), size)
+    }
+    function log_set(id) {
+      log("s", extract_set(id))
+    }
+    function extract_arr(id) {
+      let { arr_len, arr_data_ptr } = inst_exports
+      let size = arr_len(id)
+      return extract_ptr(arr_data_ptr(id), size)
+    }
+    function log_arr(id) {
+      log("a", extract_arr(id))
+    }
+    function extract_map(id) {
+      let { map_keys, map_values } = inst_exports
+      let keys = extract_set(map_keys(id))
+      let values = extract_arr(map_values(id))
+      if (keys.length !== values.length) {
+        console.error("Broken map:", "keys:", keys, "values:", values)
+        throw new Error("Map has different length of keys set and values array")
+      }
+      return keys.map((k, i) => [k, values[i]])
+    }
+    function log_map(id) {
+      log("m", extract_map(id).map(p => p.join(":")))
+    }
+    function extract_map_of_arr(id) {
+      let map = extract_map(id)
+      let res = []
+      for (const [k, v] of map) {
+        res.push([k, extract_arr(v)])
+      }
+      return res
+    }
+    function log_map_of_arr(id) {
+      log("m:a", extract_map_of_arr(id).map(([k, arr]) => k + ":" + arr.join(",")))
+    }
+    function log_mem(ptr, size) {
+      log(extract_ptr(ptr, size))
+    }
+    function log_mem_map() {
+      let { get_mem_map } = inst_exports
+      let id = get_mem_map()
+      if (!id) {
+        console.log("mem:", 0)
+      } else {
+        try {
+          log("mem:", extract_map_of_arr(id).map(([k, arr]) => k + ":" + arr.join(",")))
+        } catch (e) {
+          log("mem:!")
+          throw e
+        }
+      }
+    }
+    function is_map_valid(id) {
+      let { map_keys, map_values } = inst_exports
+      let keys = extract_set(map_keys(id))
+      let values = extract_arr(map_values(id))
+      return keys.length === values.length
+    }
+
+    return {
+      is_map_valid,
+      log,
+      log_m,
+      log_set,
+      log_arr,
+      log_map,
+      log_map_of_arr,
+      log_mem,
+      log_mem_map,
+      extract_ptr,
+      extract_set,
+      extract_arr,
+      extract_map,
+      extract_map_of_arr,
+    }
+  })()`
 }
 
-function tpl(src_block, export_prefix) {
+function tpl(src_block, str_consts, export_prefix) {
   return `
 ${export_prefix} function(env) {
   let src = ${src_block}
@@ -37,15 +121,32 @@ ${export_prefix} function(env) {
       buf[i] = raw.charCodeAt(i)
     }
   }
+  let inst_exports
+  let env_log_debug = ${env_log_debug(str_consts)}
   let imports = {
-    env: {${env_log_debug()}}
+    env: env_log_debug
   }
   if (env) {
     Object.assign(imports.env, env)
   }
-  let mod = new WebAssembly.Module(buf)
-  let instance = new WebAssembly.Instance(mod, imports)
-  return instance.exports
+  if(buf.length > 4096) {
+    return WebAssembly.instantiate(buf, imports).then(results => make_result(results.instance))
+  }
+  return make_result(
+    new WebAssembly.Instance(
+      new WebAssembly.Module(buf),
+      imports
+    )
+  )
+
+  function make_result(inst) {
+    inst_exports = Object.assign(
+      {},
+      env_log_debug,
+      inst.exports
+    );
+    return inst_exports
+  }
 }`;
 }
 
@@ -61,19 +162,21 @@ function buf_to_js(buf) {
   if (last) {
     list.push(src.slice(S*rows));
   }
-  return `"${list.join(`"+\n"`)}" /*${src.length}*/`;
+  return `"${list.join(`"+\n"`)}" /*${buf.length}*/`;
 }
 
-function common_js_block(buf) {
+function common_js_block(buf, str_consts) {
   return tpl(
     buf_to_js(buf),
+    str_consts,
     "module.exports ="
   );
 }
 
-function module_js_block(buf) {
+function module_js_block(buf, str_consts) {
   return tpl(
     buf_to_js(buf),
+    str_consts,
     "export default"
   );
 }

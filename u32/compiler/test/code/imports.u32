@@ -10,3 +10,6 @@
 (import "env" "log_mem" (func $log_mem (param i32 i32)))
 (import "env" "log_mem" (func $log_mem_2 (param i32 i32 i32 i32)))
 ## </debug>
+
+(import "env" "error" (func $error (param i32)))
+(import "env" "call" (func $call (param i32)))

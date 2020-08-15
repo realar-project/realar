@@ -1,36 +1,30 @@
 
 # memory struct
-# 0 - code array type ADT_SET_TYPE
-# 1 - size
-# [2..size) - values
+# 0 - size
+# [1..size) - values
 
 func set_create result
-  id = mem_alloc(32)    # Set default memory size block 32 -> 30 elements
-  [set_type_ptr(id)] = ADT_SET_TYPE # type
-  [set_size_ptr(id)] = 0 # size
+  id = mem_alloc(32)    # Set default memory size block 32 -> 31 elements
+  set_clear(id)
   id
 
-func set_type_ptr(id) result
+func set_size_ptr(id) result
   [id]
 
-func set_size_ptr(id) result
-  [id] + 1
-
 func set_data_ptr(id) result
-  [id] + 2
+  [id] + 1
 
 func set_size(id) result
   [set_size_ptr(id)]
 
+func set_clear(id)
+  [set_size_ptr(id)] = 0 # size
+
 func set_size_inc(id)
   size_ptr = set_size_ptr(id)
   size = [size_ptr]
-  if size == mem_size(id) - 2 # substract type and size
-    # log_set(id)
-    # log_2(mem_size(id), [id])
+  if size == mem_size(id) - 1 # substract size
     mem_x4(id)
-    # log_set(id)
-    # log_2(mem_size(id), [id])
     size_ptr = set_size_ptr(id)
   [size_ptr] = size + 1
 
@@ -38,13 +32,25 @@ func set_size_dec(id)
   size_ptr = set_size_ptr(id)
   [size_ptr] = [size_ptr] - 1
 
+
+func set_assign(dst src)
+  src_size = set_size(src)
+
+  mem_size_dst = mem_size(dst)
+  if mem_size_dst - 1 < src_size
+    k = mem_size_dst
+    loop $loop
+      k = k << 2  # x4 grow by default
+      if k - 1 < src_size
+        br $loop
+    mem_non_copy_resize(dst, k)
+
+  mem_copy([dst], [src], src_size + 1)
+
+
 func set_add(id n)
   size = set_size(id)
-
-  # log_1(100000)
   i = set_search(id, n)
-
-  # log_2(i, size)
   if i == size
     set_insert_i(id, i, n)
   else
@@ -65,8 +71,14 @@ func set_delete_i(id index)
   size = set_size(id)
   if size != 1
     offset = set_data_ptr(id) + index
+    # log_1(30000)
+    # log_set(box_expr)
+    # log_5(offset, offset + 1, size - index - 1, size, index)
     mem_copy(offset, offset + 1, size - index - 1)
+    # log_1(30001)
+    # log_set(box_expr)
   set_size_dec(id)
+
 
 func set_get_i(id index) result
   [set_data_ptr(id) + index]
@@ -88,29 +100,22 @@ func set_search(id n) result
 
       half_n = set_get_i(id, half_index)
 
-      # log_7(a, b, offset, half, half_index, half_n, n)
       if n > half_n
         if !b
           res = half
-          # log_2(1000, res)
         else
           offset = offset + a
           size = b
-          # log_1(100)
           br $loop
       else
         if n != half_n
           if size == 1
             res = half_index
-            # log_2(1001, res)
           else
             size = a
-            # log_1(101)
             br $loop
         else
           res = half_index
-          # log_2(1002, res)
-  # log_1(res)
   res
 
 
@@ -130,23 +135,26 @@ func set_has(id n) result
   res
 
 
-func set_delete(id n) result
+func set_delete(id n)
   size = set_size(id)
-  if !size
-    res = 0
-  else
+  # log_1(20000)
+  # log_set(box_expr)
+  if size
     i = set_search(id, n)
-    if i == size
-      res = 0
-    else
+    # log_1(20001)
+    # log_set(box_expr)
+    if i != size
       i_n = set_get_i(id, i)
-      if n != i_n
-        res = 0
-      else
+      # log_1(20002)
+      # log_set(box_expr)
+      if n == i_n
         set_delete_i(id, i)
-        res = 1
-  res
+        # log_1(20003)
+        # log_set(box_expr)
 
 func set_free(id)
   mem_free(id)
 
+## <debug>
+export set_create set_assign set_add set_has set_delete set_size set_clear set_free set_data_ptr
+## </debug>

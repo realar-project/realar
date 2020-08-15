@@ -1,0 +1,80 @@
+global mem_map
+
+func mem_alloc(size) result
+  ptr = mem_alloc_block(2)
+  [ptr] = mem_alloc_block(size) # 0 index - memory block
+  [mem_size_ptr(ptr)] = size    # 1 index - size of memory block
+  ptr
+
+func mem_size_ptr(ptr) result
+  ptr + 1
+
+func mem_size(ptr) result
+  [mem_size_ptr(ptr)] # size
+
+func mem_free(ptr)
+  mem_free_block([ptr], mem_size(ptr)) # We have two piece of memory 2 and size
+  mem_free_block(ptr, 2)
+
+
+func mem_free_block(ptr size)
+  if !map_has(mem_map, size)
+    map_set(mem_map, size, arr_create()) # Array of pointers on each block
+
+  arr_push(map_get(mem_map, size), ptr)
+
+
+func mem_alloc_block(size) result
+  if mem_has_free_place(size)
+    ptr = mem_alloc_free_place(size)
+  else
+    ptr = mem_tail_n_inc(size)
+  ptr
+
+
+func mem_x4(ptr)
+  s = mem_size(ptr)
+  s4 = s << 2
+  m4 = mem_alloc_block(s4)
+  m1 = [ptr]
+  mem_copy(m4, m1, s)
+  mem_free_block(m1, s)
+  [ptr] = m4
+  [mem_size_ptr(ptr)] = s4
+
+
+func mem_non_copy_resize(ptr new_size)
+  prev_size = mem_size(ptr)
+  new_mem_block = mem_alloc_block(new_size)
+  prev_mem_block = [ptr]
+  mem_free_block(prev_mem_block, prev_size)
+  [ptr] = new_mem_block
+  [mem_size_ptr(ptr)] = new_size
+
+func mem_has_free_place(size) result
+  if !mem_map # beginning phase
+    res = 0
+  else
+    if !map_has(mem_map, size)
+      res = 0
+    else
+      res = arr_len(map_get(mem_map, size))
+  res
+
+func mem_alloc_free_place(size) result
+  ptrs = map_get(mem_map, size)
+  arr_pop(ptrs)
+
+func mem_init
+  # Map of free memory blocks. size => [ptr, ...]
+  mem_map = 0 # init null
+  mem_map = map_create()
+
+## <debug>
+func get_mem_map result
+  mem_map
+## </debug>
+
+## <debug>
+export mem_alloc mem_size mem_free mem_x4 get_mem_map
+## </debug>

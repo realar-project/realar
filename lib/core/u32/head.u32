@@ -1,26 +1,66 @@
-## define MEM_TAIL 0 # First free byte
-## define SLICE 1
-## define SEQ_ID 2
-## define MEM 3
+global slice_current
 
-func init
-  mem_tail_init() # MEM_TAIL
-  mem_tail_inc(8) # First 8 values reserved by super global pointers
-
-  slice_init()    # SLICE
-  each_slice_init()
-
-
-func each_slice_init
-  seq_id_init()   # SEQ_ID
-  mem_init()      # MEM
+export push pop start
 
 func start
-  init()
-  push()
+  mem_cap_init()
+  mem_tail_init()
+  slice_init()
+  each_slice_init()
+
+func each_slice_init
+  seq_init()
+  mem_init()
+  box_init()
+
+func slice_init
+  slice_current = 0
 
 func push
-  slice_push()
+  slice = mem_tail_n_inc(15) # slice equals prev mem_tail
+
+  [slice] = slice_current   # 0 index - prev slice_current
+  [slice + 1] = seq_current # 1 index - prev seq_current
+  [slice + 2] = mem_map     # 2 index - prev mem_map
+
+  [slice + 3] = tick_deep
+  [slice + 4] = tick_changed
+
+  [slice + 5] = slice_deps_stack
+  [slice + 6] = slice_deps
+  [slice + 7] = slice_current_id
+
+  [slice + 8] = box_deps
+  [slice + 9] = box_rels
+  [slice + 10] = box_invalid
+  [slice + 11] = box_expr
+  [slice + 12] = box_expr_stack
+  [slice + 13] = box_entry_stack
+  [slice + 14] = box_entry_id
+
+  slice_current = slice # switch to new slice
+  each_slice_init()
 
 func pop
-  slice_pop()
+  slice = slice_current
+  mem_tail = slice
+
+  slice_current = [slice]
+  seq_current = [slice + 1]
+  mem_map = [slice + 2]
+
+  tick_deep = [slice + 3]
+  tick_changed = [slice + 4]
+
+  slice_deps_stack = [slice + 5]
+  slice_deps = [slice + 6]
+  slice_current_id = [slice + 7]
+
+  box_deps = [slice + 8]
+  box_rels = [slice + 9]
+  box_invalid = [slice + 10]
+  box_expr = [slice + 11]
+  box_expr_stack = [slice + 12]
+  box_entry_stack = [clice + 13]
+  box_entry_id = [slice + 14]
+

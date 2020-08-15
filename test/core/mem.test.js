@@ -1,25 +1,25 @@
 import {
-  mem_alloc, mem_size, mem_free, mem_x4, mem_map,
-  map_extract, mem_map_extract,
-  mem_tail, map_extract_keys, map_extract_values, arr_len
-} from "../../lib/core/test";
+  mem_alloc, mem_size, mem_free, mem_x4, get_mem_map,
+  map_extract, mem_map_extract, arr_extract,
+  get_mem_tail, map_extract_keys, map_extract_values, arr_len,
+  arr_create, arr_push
+} from "../../lib/core/debug";
 
-test("should work mem free", () => {
-  expect(mem_map()).toBe(0);
+test("should work mem free single block", () => {
+  expect(get_mem_map()).not.toBe(0);
 
-  let t = mem_tail();
+  let t = get_mem_tail();
   let p = mem_alloc(10);
 
   expect(t).toBe(p);
   expect(mem_size(p)).toBe(10);
-  expect(mem_map()).toBe(0);
 
-  let t1 = mem_tail();
+  let t1 = get_mem_tail();
 
   mem_free(p);
-  let t2 = mem_tail();
+  let t2 = get_mem_tail();
 
-  expect(t2 - t1).toBe(73 + 34 + 34); // map(mem) + arr(2) + arr(8)
+  expect(t2 - t1).toBe(34 + 34); // arr(2) + arr(10)
 
   expect(mem_map_extract()).toEqual([
     [2, [t]],
@@ -28,6 +28,7 @@ test("should work mem free", () => {
 });
 
 test("should work mem free several blocks", () => {
+  let offs = get_mem_tail();
   let m = [mem_alloc(10), mem_alloc(10), mem_alloc(10), mem_alloc(10), mem_alloc(10)];
   mem_free(m[0]);
   mem_free(m[1]);
@@ -35,29 +36,53 @@ test("should work mem free several blocks", () => {
   mem_free(m[3]);
   mem_free(m[4]);
 
-  expect(map_extract_keys(mem_map())).toStrictEqual([2, 10]);
-  expect(map_extract_values(mem_map()).map(id => arr_len(id))).toStrictEqual([5, 5]);
+  expect(m[0]).toBe(offs);
+  expect(m[1]).toBe(offs + 12);
+  expect(m[2]).toBe(offs + 24);
+  expect(m[3]).toBe(offs + 36);
+  expect(m[4]).toBe(offs + 48);
+
+  expect(map_extract_keys(get_mem_map())).toStrictEqual([2, 10]);
+  expect(map_extract_values(get_mem_map()).map(id => arr_extract(id))).toStrictEqual([
+    [offs, offs + 12, offs + 24, offs + 36, offs + 48],
+    [offs + 2, offs + 12 + 2, offs + 24 + 2, offs + 36 + 2, offs + 48 + 2],
+  ]);
 
   let k = [mem_alloc(10), mem_alloc(11), mem_alloc(10)];
 
-  expect(map_extract_values(mem_map()).map(id => arr_len(id))).toStrictEqual([2, 3]);
+  expect(map_extract_values(get_mem_map()).map(id => arr_len(id))).toStrictEqual([2, 3]);
   expect(k[0]).toBe(m[4]);
   expect(k[1]).toBe(m[3]);
   expect(k[2]).toBe(m[2]);
 
   let p = [mem_alloc(10), mem_alloc(10)];
 
-  expect(map_extract_keys(mem_map())).toStrictEqual([2, 10]);
-  expect(map_extract_values(mem_map()).map(id => arr_len(id))).toStrictEqual([0, 1]);
+  expect(map_extract_keys(get_mem_map())).toStrictEqual([2, 10]);
+  expect(map_extract_values(get_mem_map()).map(id => arr_len(id))).toStrictEqual([0, 1]);
   expect(p[0]).toBe(m[1]);
   expect(p[1]).toBe(m[0]);
 
   let a = mem_alloc(10);
   let b = mem_alloc(10);
-  expect(map_extract_values(mem_map()).map(id => arr_len(id))).toStrictEqual([0, 0]);
+  expect(map_extract_values(get_mem_map()).map(id => arr_len(id))).toStrictEqual([0, 0]);
 
   mem_free(a);
-  expect(map_extract_values(mem_map()).map(id => arr_len(id))).toStrictEqual([1, 1]);
+  expect(map_extract_values(get_mem_map()).map(id => arr_len(id))).toStrictEqual([1, 1]);
   mem_free(b);
-  expect(map_extract_values(mem_map()).map(id => arr_len(id))).toStrictEqual([2, 2]);
-})
+  expect(map_extract_values(get_mem_map()).map(id => arr_len(id))).toStrictEqual([2, 2]);
+});
+
+test("should grow memory", () => {
+  let arr_1 = arr_create();
+  let arr_2 = arr_create();
+  let arr_1_expected = [];
+  let arr_2_expected = [];
+  for (let i = 0; i < 500000; i++) {
+    arr_push(arr_1, i);
+    arr_push(arr_2, i + 1);
+    arr_1_expected.push(i);
+    arr_2_expected.push(i + 1);
+  }
+  expect(arr_extract(arr_1)).toStrictEqual(arr_1_expected);
+  expect(arr_extract(arr_2)).toStrictEqual(arr_2_expected);
+});

@@ -1,9 +1,11 @@
 const
   path = require("path"),
-  { types, template } = require("@babel/core");
+  { types, template } = require("@babel/core"),
+  { unit2_transform } = require("./unit2-transform");
 
 const
   unit_name = "unit",
+  unit2_name = "unit2",
   lib_name = process.env.REALAR_DEV
     ? path.join(__dirname, "../lib")
     : "realar",
@@ -82,6 +84,9 @@ function plugin() {
             });
             path.node.arguments = [wrapped];
           }
+        }
+        else if (path.node.callee.name === unit2_name) {
+          unit2_transform(path, _state);
         }
       }
     },

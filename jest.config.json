@@ -10,7 +10,7 @@
     "<rootDir>/lib/"
   ],
   "transform": {
-    "^.+\\.[jt]sx?$": "babel-jest",
+    "^.+\\.[jt]sx?$": "<rootDir>/prep/jest-transform",
     "\\.u32$": "<rootDir>/u32/jest-transform"
   }
 }

@@ -7,7 +7,7 @@ function u32() {
     rootDir = process.env.OLDPWD;
   }
 
-  const { compile } = require(rootDir + "/u32/compiler");
+  const { compile, get_string_constants } = require(rootDir + "/u32/compiler");
   const { module_js_block } = require(rootDir + "/u32/lib/js-block");
 
   return {
@@ -23,7 +23,8 @@ function u32() {
     transform(code, id) {
       if (code && /\.u32$/.test(id)) {
         return module_js_block(
-          Buffer.from(code, "binary")
+          Buffer.from(code, "binary"),
+          get_string_constants()
         );
       }
       return null;
