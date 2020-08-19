@@ -12,7 +12,8 @@ import {
   box_entry_finish,
   box_view_create,
   box_view_start,
-  box_view_finish
+  box_view_finish,
+  box_free
 } from "./box";
 
 export { start, pop, push } from "./slice";
@@ -30,6 +31,7 @@ export {
   box_entry_finish as ba,
   box_view_create as bb,
   box_view_start as bc,
-  box_view_finish as bd
+  box_view_finish as bd,
+  box_free
 }
 

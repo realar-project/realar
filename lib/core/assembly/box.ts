@@ -55,6 +55,8 @@ export {
   box_view_start,
   box_view_finish,
 
+  box_free,
+
   box_slice_push,
   box_slice_pop
 }
@@ -171,6 +173,37 @@ function tick_finish(): void {
 @inline
 function box_create(): i32 {
   return seq_next();
+}
+
+function box_free(id: i32): void {
+  if (box_deps.has(id)) {
+    let deps = box_deps.get(id);
+    for (let i = 0, vals = deps.values(), len = vals.length; i < len; i++) {
+      let d = vals[i];
+      if (box_rels.has(d)) {
+        let rels = box_rels.get(d);
+        rels.delete(id);
+      }
+    }
+  }
+
+  box_deps.delete(id);
+
+  if (box_rels.has(id)) {
+    let rels = box_rels.get(id);
+    for (let i = 0, vals = rels.values(), len = vals.length; i < len; i++) {
+      let r = vals[i];
+      if (box_deps.has(r)) {
+        let deps = box_rels.get(r);
+        deps.delete(id);
+      }
+    }
+  }
+
+  box_rels.delete(id);
+
+  box_invalid.delete(id);
+  box_expr.delete(id);
 }
 
 @inline
