@@ -18,6 +18,7 @@ function unit2_transform(path, _state) {
     let constr = 0;
     let destr = 0;
     let methods = new Array();
+    let actions = new Array();
     let literals = {};
 
     let text = [];
@@ -63,6 +64,18 @@ function unit2_transform(path, _state) {
         if (prop.method) {
           let name = prop.key.name;
           let body = prop.body;
+
+          if (prop.computed) {
+            actions.push([
+              name,
+              body,
+              prop.params,
+              prop.async,
+              prop.generator
+            ]);
+            continue;
+          }
+
           if (name === "expression") {
             expr = [name, body];
             continue;
@@ -191,6 +204,30 @@ function unit2_transform(path, _state) {
     }
 
 
+    let actions_uniq_seq = 0;
+    for (let action of actions) {
+      let [ name, body, params, _async, _generator ] = action;
+      const params_ph = `PARAMS_${name.toUpperCase()}_${++actions_uniq_seq}`;
+      const body_ph = `ACTION_BODY_${name.toUpperCase()}_${++actions_uniq_seq}`;
+
+      function text_params() {
+        if (!params || !params.length) return '';
+        literals[params_ph] = params;
+        return params_ph;
+      }
+
+      function text_async() {
+        if (!_async) return "";
+        return "async ";
+      }
+
+      text_return_section.push(`${text_async()}(${text_params()}) => {
+        ${body_ph}
+      }`);
+      literals[body_ph] = body.body;
+    }
+
+
     text.push(`
     return [
       ${text_return_section.join(",")}
@@ -208,17 +245,22 @@ function unit2_transform(path, _state) {
     let p3_code = `[
       ${methods.map(([name]) => `"${name}"`).join(",")}
     ]`;
+    let p4_code = `[
+      ${actions.map(([name]) => `${name}`).join(",")}
+    ]`;
 
     let fn_compiled = template(fn_code)(literals);
     let p1_compiled = template(p1_code)({});
     let p2_compiled = template(p2_code)({});
     let p3_compiled = template(p3_code)({});
+    let p4_compiled = template(p4_code)({});
 
     path.node.arguments = [
       fn_compiled,
       p1_compiled.expression,
       p2_compiled.expression,
-      p3_compiled.expression
+      p3_compiled.expression,
+      p4_compiled.expression
     ];
   }
 }

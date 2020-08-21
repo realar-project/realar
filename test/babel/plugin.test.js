@@ -96,8 +96,34 @@ test("should process unit2", () => {
     m = m + 1;
     return this.v + this.v2 + k + m;
   }];
-}, ["v", "v2"], ["n"], ["m"]);`;
+}, ["v", "v2"], ["n"], ["m"], []);`;
   expect(transform(code)).toBe(strip_multiline_comments(expected));
+});
+
+test("should process events, calls and signals for unit2", () => {
+  const code = `
+    const a = event();
+    const s = signal();
+    const Unit = unit2({
+      [a]() {
+        return 11;
+      },
+      async [s]() {
+        return 12;
+      },
+      m() {}
+    });
+  `;
+  const expected = `const a = event();
+const s = signal();
+const Unit = unit2(function () {
+  return [0, 0, 0, () => {}, () => {
+    return 11;
+  }, async () => {
+    return 12;
+  }];
+}, [], [], ["m"], [a, s]);`;
+  expect(transform(code)).toBe(expected);
 });
 
 // test("Should wrap arrow functions with JSX", () => {

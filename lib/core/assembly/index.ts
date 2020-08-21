@@ -32,6 +32,6 @@ export {
   box_view_create as bb,
   box_view_start as bc,
   box_view_finish as bd,
-  box_free
+  box_free as be
 }
 
