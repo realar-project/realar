@@ -23,6 +23,9 @@ type slice_deps_type = Set<i32> | null;
   box_invalid: Set<i32>;
   box_expr: Set<i32>;
   box_entry_id: i32;
+  box_collection_stack: i32[][];
+  box_collection_ids: i32[] | null;
+  box_collection_map: Map<i32, i32[]>;
 }
 
 let
@@ -36,7 +39,10 @@ let
   box_rels: Map<i32, Set<i32>>,
   box_invalid: Set<i32>,
   box_expr: Set<i32>,
-  box_entry_id: i32;
+  box_entry_id: i32,
+  box_collection_stack: i32[][],
+  box_collection_ids: i32[] | null,
+  box_collection_map: Map<i32, i32[]>;
 
 export {
   box_init,
@@ -83,6 +89,9 @@ function box_slice_init(): void {
   box_invalid = new Set<i32>();
   box_expr = new Set<i32>();
   box_entry_id = box_create();
+  box_collection_stack = [];
+  box_collection_ids = null;
+  box_collection_map = new Map<i32, i32[]>();
 }
 
 @inline
@@ -97,7 +106,10 @@ function box_slice_push(): void {
     box_rels,
     box_invalid,
     box_expr,
-    box_entry_id
+    box_entry_id,
+    box_collection_stack,
+    box_collection_ids,
+    box_collection_map
   });
   box_slice_init();
 }
@@ -115,6 +127,9 @@ function box_slice_pop(): void {
   box_invalid = struct.box_invalid;
   box_expr = struct.box_expr;
   box_entry_id = struct.box_entry_id;
+  box_collection_stack = struct.box_collection_stack;
+  box_collection_ids = struct.box_collection_ids;
+  box_collection_map = struct.box_collection_map;
 }
 
 @inline
@@ -210,11 +225,21 @@ function box_free(id: i32): void {
   box_expr.delete(id);
 }
 
-function box_collection_start(): void {}
+function box_collection_start(): void {
+  box_collection_stack.push(box_collection_ids!);
+  box_collection_ids = [];
+}
+
 function box_collection_finish(): i32 {
+  box_collection_ids = box_collection_stack.pop();
+
+  // TODO:
   return 0
 }
-function box_collection_free(): void {}
+
+function box_collection_free(): void {
+  // TODO:
+}
 
 @inline
 function slice_deps_globals_push(): void {
