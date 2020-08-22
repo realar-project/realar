@@ -15,8 +15,7 @@ const
   box_entry_finish = 10,    /* ba */
   box_view_create = 11,     /* bb */
   box_view_start = 12,      /* bc */
-  box_view_finish = 13,     /* bd */
-  box_free = 14             /* be */
+  box_view_finish = 13      /* bd */
 ;
 
 function transform(code) {

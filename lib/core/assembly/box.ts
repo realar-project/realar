@@ -6,6 +6,7 @@ const TICK_DEEP_LIMIT = 100;
 const DIGEST_LOOP_LIMIT = 100;
 
 type slice_deps_type = Set<i32> | null;
+type box_collection_ids_type = i32[] | null;
 
 @unmanaged class slice_deps_stack_item_type {
   slice_deps: slice_deps_type;
@@ -23,9 +24,9 @@ type slice_deps_type = Set<i32> | null;
   box_invalid: Set<i32>;
   box_expr: Set<i32>;
   box_entry_id: i32;
-  box_collection_stack: i32[][];
-  box_collection_ids: i32[] | null;
-  box_collection_map: Map<i32, i32[]>;
+  box_collection_stack: box_collection_ids_type[];
+  box_collection_ids: box_collection_ids_type;
+  box_collection_map: Map<i32, box_collection_ids_type>;
 }
 
 let
@@ -40,9 +41,9 @@ let
   box_invalid: Set<i32>,
   box_expr: Set<i32>,
   box_entry_id: i32,
-  box_collection_stack: i32[][],
-  box_collection_ids: i32[] | null,
-  box_collection_map: Map<i32, i32[]>;
+  box_collection_stack: box_collection_ids_type[],
+  box_collection_ids: box_collection_ids_type,
+  box_collection_map: Map<i32, box_collection_ids_type>;
 
 export {
   box_init,
@@ -60,8 +61,6 @@ export {
   box_view_create,
   box_view_start,
   box_view_finish,
-
-  box_free,
 
   box_slice_push,
   box_slice_pop,
@@ -91,7 +90,7 @@ function box_slice_init(): void {
   box_entry_id = box_create();
   box_collection_stack = [];
   box_collection_ids = null;
-  box_collection_map = new Map<i32, i32[]>();
+  box_collection_map = new Map<i32, box_collection_ids_type>();
 }
 
 @inline
@@ -191,7 +190,9 @@ function tick_finish(): void {
 
 @inline
 function box_create(): i32 {
-  return seq_next();
+  let box_id = seq_next();
+  if (box_collection_ids) box_collection_ids!.push(box_id);
+  return box_id;
 }
 
 function box_free(id: i32): void {
@@ -232,13 +233,17 @@ function box_collection_start(): void {
 
 function box_collection_finish(): i32 {
   box_collection_ids = box_collection_stack.pop();
-
-  // TODO:
-  return 0
+  let collection_id = seq_next();
+  box_collection_map.set(collection_id, box_collection_ids);
+  return collection_id
 }
 
-function box_collection_free(): void {
-  // TODO:
+function box_collection_free(id: i32): void {
+  let ids = box_collection_map.get(id);
+  for (let i = 0, len = ids!.length; i < len; i++) {
+    box_free(ids![i]);
+  }
+  box_collection_map.delete(id);
 }
 
 @inline
