@@ -58,7 +58,11 @@ export {
   box_free,
 
   box_slice_push,
-  box_slice_pop
+  box_slice_pop,
+
+  box_collection_start,
+  box_collection_finish,
+  box_collection_free
 }
 
 @inline
@@ -205,6 +209,12 @@ function box_free(id: i32): void {
   box_invalid.delete(id);
   box_expr.delete(id);
 }
+
+function box_collection_start(): void {}
+function box_collection_finish(): i32 {
+  return 0
+}
+function box_collection_free(): void {}
 
 @inline
 function slice_deps_globals_push(): void {

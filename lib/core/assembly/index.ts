@@ -14,7 +14,10 @@ import {
   box_view_create,
   box_view_start,
   box_view_finish,
-  box_free
+  box_free,
+  box_collection_start,
+  box_collection_finish,
+  box_collection_free
 } from "./box";
 
 export {
@@ -37,6 +40,10 @@ export {
   box_view_create as bb,
   box_view_start as bc,
   box_view_finish as bd,
-  box_free as be
+  box_free as be,
+
+  box_collection_start as c0,
+  box_collection_finish as c1,
+  box_collection_free as c2
 }
 
