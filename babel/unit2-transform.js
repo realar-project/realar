@@ -2,7 +2,27 @@ const
   { types, template, traverse } = require("@babel/core");
 
 const
-  f_name = "unit2";
+  box_value_create = 0,     /* b0 */
+  box_value_get_phase = 1,  /* b1 */
+  box_value_set_phase = 2,  /* b2 */
+  box_expr_create = 3,      /* b3 */
+  box_expr_start = 4,       /* b4 */
+  box_expr_finish = 5,      /* b5 */
+  box_computed_create = 6,  /* b6 */
+  box_computed_start = 7,   /* b7 */
+  box_computed_finish = 8,  /* b8 */
+  box_entry_start = 9,      /* b9 */
+  box_entry_finish = 10,    /* ba */
+  box_view_create = 11,     /* bb */
+  box_view_start = 12,      /* bc */
+  box_view_finish = 13,     /* bd */
+  box_free = 14             /* be */
+;
+
+const
+  unit2_core_name = "unit2.c",
+  unit2_fns_name = "unit2.f";
+
 
 module.exports = {
   unit2_transform
@@ -24,6 +44,15 @@ function unit2_transform(path, _state) {
     let text = [];
     let text_return_section = [];
 
+    text.push(`function FN_NAME(){`);
+    literals.FN_NAME = "";
+
+    let core_name = path.scope.generateUid("core");
+    text.push(`let ${core_name} = ${unit2_core_name};`);
+
+    let core_var_declaration_index = text.length - 1;
+    let is_core_unused = 1;
+
     for (let prop of config.properties) {
 
       if (types.isObjectProperty(prop)) {
@@ -40,8 +69,9 @@ function unit2_transform(path, _state) {
 
           let c_cache_name = path.scope.generateUid("c_cache");
           let tpl = template(`
-            return ${c_cache_name} = EXPR, ${f_name}.b8/*box_computed_finish*/(), ${c_cache_name};
-          `)
+            return ${c_cache_name} = EXPR, ${core_name}[${box_computed_finish}](), ${c_cache_name};
+          `);
+          is_core_unused = 0;
 
           let return_paths = [];
           traverse(prop, {
@@ -100,9 +130,6 @@ function unit2_transform(path, _state) {
       }
     }
 
-    text.push(`function FN_NAME(){`);
-    literals.FN_NAME = "";
-
     if (constr) {
       let [ name, body, params ] = constr;
 
@@ -113,10 +140,12 @@ function unit2_transform(path, _state) {
       }
 
       text_return_section.push(`(${text_params()}) => {
-        ${f_name}.b9/*box_entry_start*/();
+        ${core_name}[${box_entry_start}]();
         CONSTRUCTOR_BODY
-        ${f_name}.ba/*box_entry_finish*/();
+        ${core_name}[${box_entry_finish}]();
       }`);
+      is_core_unused = 0;
+
       literals.CONSTRUCTOR_BODY = body.body;
     }
     else {
@@ -138,14 +167,15 @@ function unit2_transform(path, _state) {
       let e_fn_name = path.scope.generateUid("e_fn");
 
       text.push(`
-        let ${e_id_name} = ${f_name}.b3/*box_expr_create*/();
+        let ${e_id_name} = ${core_name}[${box_expr_create}]();
         let ${e_fn_name} = () => {
-          ${f_name}.b4/*box_expr_start*/(${e_id_name});
+          ${core_name}[${box_expr_start}](${e_id_name});
           EXPR_BODY
-          ${f_name}.b5/*box_expr_finish*/();
+          ${core_name}[${box_expr_finish}]();
         };
-        ${f_name}.fns.set(${e_id_name}, ${e_fn_name});
+        ${unit2_fns_name}.set(${e_id_name}, ${e_fn_name});
       `);
+      is_core_unused = 0;
 
       literals.EXPR_BODY = expr[1].body;
       text_return_section.push(`${e_fn_name}`);
@@ -167,16 +197,17 @@ function unit2_transform(path, _state) {
       let c_id_name = path.scope.generateUid("c_id");
       const body_ph = `COMPUTED_BODY_${name.toUpperCase()}_${++comps_uniq_seq}`;
       text.push(`
-        let ${c_cache_name}, ${c_id_name} = ${f_name}.b6/*box_computed_create*/();
+        let ${c_cache_name}, ${c_id_name} = ${core_name}[${box_computed_create}]();
       `);
-      let finish_text = `${f_name}.b8/*box_computed_finish*/()`;
+      let finish_text = `${core_name}[${box_computed_finish}]()`;
       text_return_section.push(`
       () => { /* ${comp[0]} */
-        if (${f_name}.b7/*box_computed_start*/(${c_id_name})) return ${c_cache_name};
+        if (${core_name}[${box_computed_start}](${c_id_name})) return ${c_cache_name};
         ${body_ph}
         ${!has_return ? finish_text : ""}
       }
       `);
+      is_core_unused = 0;
       literals[body_ph] = body.body;
     }
 
@@ -234,6 +265,11 @@ function unit2_transform(path, _state) {
     ];`);
 
     text.push(`}`);
+
+    if (is_core_unused) {
+      text.splice(core_var_declaration_index, 1);
+    }
+
     let fn_code = text.join("\n");
 
     let p1_code = `[

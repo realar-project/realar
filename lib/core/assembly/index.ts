@@ -1,3 +1,4 @@
+import { start, pop, push } from "./slice";
 import {
   box_value_create,
   box_value_get_phase,
@@ -16,7 +17,11 @@ import {
   box_free
 } from "./box";
 
-export { start, pop, push } from "./slice";
+export {
+  start as s,
+  pop as o,
+  push as u
+}
 export {
   box_value_create as b0,
   box_value_get_phase as b1,
