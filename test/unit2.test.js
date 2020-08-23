@@ -122,4 +122,3 @@ test("should work unit composition", () => {
   expect(i.out).toBe(1600);
   expect(p.o).toBe(1602);
 });
-

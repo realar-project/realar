@@ -2,9 +2,6 @@ const
   { types, template, traverse } = require("@babel/core");
 
 const
-  box_value_create = 0,     /* b0 */
-  box_value_get_phase = 1,  /* b1 */
-  box_value_set_phase = 2,  /* b2 */
   box_expr_create = 3,      /* b3 */
   box_expr_start = 4,       /* b4 */
   box_expr_finish = 5,      /* b5 */
@@ -12,10 +9,7 @@ const
   box_computed_start = 7,   /* b7 */
   box_computed_finish = 8,  /* b8 */
   box_entry_start = 9,      /* b9 */
-  box_entry_finish = 10,    /* ba */
-  box_view_create = 11,     /* bb */
-  box_view_start = 12,      /* bc */
-  box_view_finish = 13      /* bd */
+  box_entry_finish = 10     /* ba */
 ;
 
 const

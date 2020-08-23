@@ -2,9 +2,6 @@ import * as babel from "@babel/core";
 import { view_call_name, plugin } from "../../babel/plugin";
 
 const
-  box_value_create = 0,     /* b0 */
-  box_value_get_phase = 1,  /* b1 */
-  box_value_set_phase = 2,  /* b2 */
   box_expr_create = 3,      /* b3 */
   box_expr_start = 4,       /* b4 */
   box_expr_finish = 5,      /* b5 */
@@ -12,10 +9,7 @@ const
   box_computed_start = 7,   /* b7 */
   box_computed_finish = 8,  /* b8 */
   box_entry_start = 9,      /* b9 */
-  box_entry_finish = 10,    /* ba */
-  box_view_create = 11,     /* bb */
-  box_view_start = 12,      /* bc */
-  box_view_finish = 13      /* bd */
+  box_entry_finish = 10     /* ba */
 ;
 
 function transform(code) {
@@ -114,7 +108,7 @@ test("should process unit2", () => {
     this.v2 = v;
 
     ${core_name}[${box_entry_finish}]();
-  }, 0 /* destr */, _e_fn /* expr */, 1 /* v */, "A" /* v2 */, () => { /* n */
+  }, 0 /* destr */, _e_id, _e_fn /* expr */, 1 /* v */, "A" /* v2 */, () => { /* n */
     if (${core_name}[${box_computed_start}](_c_id)) return _c_cache;
     return _c_cache = this.v + 1, ${core_name}[${box_computed_finish}](), _c_cache;
   }, (k, m = 5) => { /* m */

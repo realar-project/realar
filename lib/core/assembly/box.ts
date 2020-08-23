@@ -47,6 +47,8 @@ let
 
 export {
   box_init,
+  box_slice_push,
+  box_slice_pop,
   box_value_create,
   box_value_get_phase,
   box_value_set_phase,
@@ -58,16 +60,10 @@ export {
   box_computed_finish,
   box_entry_start,
   box_entry_finish,
-  box_view_create,
-  box_view_start,
-  box_view_finish,
-
-  box_slice_push,
-  box_slice_pop,
-
   box_collection_start,
   box_collection_finish,
-  box_collection_free
+  box_collection_free,
+  box_free
 }
 
 @inline
@@ -359,9 +355,3 @@ function box_entry_finish(): void {
   tick_finish();
   slice_deps_globals_pop();
 }
-
-function box_view_create(): i32 {
-  return 0;
-}
-function box_view_start(id: i32): void {}
-function box_view_finish(): void {}
