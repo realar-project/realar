@@ -14,6 +14,7 @@ const
 
 const
   unit2_core_name = "unit2.c",
+  unit2_fns_name = "unit2.f",
   changed_fn_name = "changed";
 
 
@@ -189,6 +190,7 @@ function unit2_transform(path, _state) {
           EXPR_BODY
           ${core_name}[${box_expr_finish}]();
         };
+        ${unit2_fns_name}.set(${e_id_name}, ${e_fn_name});
       `);
       is_core_unused = 0;
 

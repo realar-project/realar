@@ -81,6 +81,7 @@ test("should process unit2", () => {
     });
   `;
   const unit2_core_name = "unit2.c";
+  const unit2_fns_name = "unit2.f";
   const core_name = "_core";
   const expected = `const Unit = unit2(function () {
   let ${core_name} = ${unit2_core_name};
@@ -94,6 +95,8 @@ test("should process unit2", () => {
 
     ${core_name}[${box_expr_finish}]();
   };
+
+  ${unit2_fns_name}.set(_e_id, _e_fn);
 
   let _c_cache,
       _c_id = ${core_name}[${box_computed_create}]();
@@ -169,6 +172,7 @@ test("should process changed for unit2 expression", () => {
     _core[5]();
   };
 
+  unit2.f.set(_e_id, _e_fn);
   return [0, 0, _e_id, _e_fn, 10, 11];
 }, ["a", "b"], [], [], []);`;
   expect(transform(code)).toBe(expected);
