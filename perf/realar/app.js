@@ -100,6 +100,7 @@ function App() {
   if (!box.current) {
     let time = Date.now();
     let inst = runner();
+    unit2.link(inst);
     let init_time = Date.now() - time;
 
     box.current = { inst, init_time, tick_time: 0 };
