@@ -13,7 +13,8 @@ const
 ;
 
 const
-  unit2_core_name = "unit2.c";
+  unit2_core_name = "unit2.c",
+  changed_fn_name = "changed";
 
 
 module.exports = {
@@ -99,7 +100,21 @@ function unit2_transform(path, _state) {
           }
 
           if (name === "expression") {
-            expr = [name, body];
+            let e_vals_map_name = path.scope.generateUid("e_vals_map");
+            let index = 0;
+            traverse(prop, {
+              CallExpression(path) {
+                if (path.node.callee.name === changed_fn_name) {
+                  path.node.arguments = [
+                    ...path.node.arguments,
+                    template(e_vals_map_name)({}).expression,
+                    template(""+(index++))({}).expression
+                  ];
+                }
+              }
+            }, path.scope, path);
+
+            expr = [name, body, e_vals_map_name, index];
             continue;
           }
           if (name === "constructor") {
@@ -155,8 +170,14 @@ function unit2_transform(path, _state) {
     }
 
     if (expr) {
+      const [name, body, e_vals_map_name, e_vals_count] = expr;
+
       let e_id_name = path.scope.generateUid("e_id");
       let e_fn_name = path.scope.generateUid("e_fn");
+
+      if (e_vals_count) {
+        text.push(`let ${e_vals_map_name} = new Map();`);
+      }
 
       text.push(`
         let ${e_id_name} = ${core_name}[${box_expr_create}]();
@@ -168,7 +189,7 @@ function unit2_transform(path, _state) {
       `);
       is_core_unused = 0;
 
-      literals.EXPR_BODY = expr[1].body;
+      literals.EXPR_BODY = body.body;
       text_return_section.push(`${e_id_name}`);
       text_return_section.push(`${e_fn_name}`);
     }

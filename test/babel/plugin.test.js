@@ -156,14 +156,15 @@ test("should process changed for unit2 expression", () => {
   const expected = `const Unit = unit2(function () {
   let _core = unit2.c;
 
+  let _e_vals_map = new Map();
+
   let _e_id = _core[3]();
-  let _e_changed_map = new Map();
 
   let _e_fn = () => {
     _core[4](_e_id);
 
-    if (changed(this.a, _e_changed_map, 0)) return;
-    if (changed(this.b, _e_changed_map, 1)) return;
+    if (changed(this.a, _e_vals_map, 0)) return;
+    if (changed(this.b, _e_vals_map, 1)) return;
 
     _core[5]();
   };
