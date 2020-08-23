@@ -107,6 +107,9 @@ function unit2_transform(path, _state) {
                 if (path.node.callee.name === changed_fn_name) {
                   path.node.arguments = [
                     ...path.node.arguments,
+                    ...(path.node.arguments.length === 1 ? [
+                      template("0")({}).expression
+                    ] : []),
                     template(e_vals_map_name)({}).expression,
                     template(""+(index++))({}).expression
                   ];

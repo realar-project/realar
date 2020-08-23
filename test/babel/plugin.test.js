@@ -149,7 +149,7 @@ test("should process changed for unit2 expression", () => {
       b: 11,
       expression() {
         if (changed(this.a)) return;
-        if (changed(this.b)) return;
+        if (changed(this.b, cmpfn)) return;
       }
     });
   `;
@@ -163,8 +163,8 @@ test("should process changed for unit2 expression", () => {
   let _e_fn = () => {
     _core[4](_e_id);
 
-    if (changed(this.a, _e_vals_map, 0)) return;
-    if (changed(this.b, _e_vals_map, 1)) return;
+    if (changed(this.a, 0, _e_vals_map, 0)) return;
+    if (changed(this.b, cmpfn, _e_vals_map, 1)) return;
 
     _core[5]();
   };
