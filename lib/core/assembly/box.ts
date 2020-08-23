@@ -231,7 +231,7 @@ function box_collection_finish(): i32 {
   box_collection_ids = box_collection_stack.pop();
   let collection_id = seq_next();
   box_collection_map.set(collection_id, box_collection_ids);
-  return collection_id
+  return collection_id;
 }
 
 function box_collection_free(id: i32): void {

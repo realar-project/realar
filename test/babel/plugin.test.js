@@ -81,7 +81,6 @@ test("should process unit2", () => {
     });
   `;
   const unit2_core_name = "unit2.c";
-  const fns_name = "unit2.f";
   const core_name = "_core";
   const expected = `const Unit = unit2(function () {
   let ${core_name} = ${unit2_core_name};
@@ -95,8 +94,6 @@ test("should process unit2", () => {
 
     ${core_name}[${box_expr_finish}]();
   };
-
-  ${fns_name}.set(_e_id, _e_fn);
 
   let _c_cache,
       _c_id = ${core_name}[${box_computed_create}]();
@@ -136,7 +133,7 @@ test("should process events, calls and signals for unit2", () => {
   const expected = `const a = event();
 const s = signal();
 const Unit = unit2(function () {
-  return [0, 0, 0, () => {}, () => {
+  return [0, 0, 0, 0, () => {}, () => {
     return 11;
   }, async () => {
     return 12;

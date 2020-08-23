@@ -13,8 +13,7 @@ const
 ;
 
 const
-  unit2_core_name = "unit2.c",
-  unit2_fns_name = "unit2.f";
+  unit2_core_name = "unit2.c";
 
 
 module.exports = {
@@ -166,14 +165,15 @@ function unit2_transform(path, _state) {
           EXPR_BODY
           ${core_name}[${box_expr_finish}]();
         };
-        ${unit2_fns_name}.set(${e_id_name}, ${e_fn_name});
       `);
       is_core_unused = 0;
 
       literals.EXPR_BODY = expr[1].body;
+      text_return_section.push(`${e_id_name}`);
       text_return_section.push(`${e_fn_name}`);
     }
     else {
+      text_return_section.push("0");
       text_return_section.push("0");
     }
 
