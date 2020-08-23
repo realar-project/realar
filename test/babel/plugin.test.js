@@ -142,6 +142,37 @@ const Unit = unit2(function () {
   expect(transform(code)).toBe(expected);
 });
 
+test("should process changed for unit2 expression", () => {
+  const code = `
+    const Unit = unit2({
+      a: 10,
+      b: 11,
+      expression() {
+        if (changed(this.a)) return;
+        if (changed(this.b)) return;
+      }
+    });
+  `;
+  const expected = `const Unit = unit2(function () {
+  let _core = unit2.c;
+
+  let _e_id = _core[3]();
+  let _e_changed_map = new Map();
+
+  let _e_fn = () => {
+    _core[4](_e_id);
+
+    if (changed(this.a, _e_changed_map, 0)) return;
+    if (changed(this.b, _e_changed_map, 1)) return;
+
+    _core[5]();
+  };
+
+  return [0, 0, _e_id, _e_fn, 10, 11];
+}, ["a", "b"], [], [], []);`;
+  expect(transform(code)).toBe(expected);
+});
+
 // test("Should wrap arrow functions with JSX", () => {
 //   const code = `
 //   const App = () => <div />;
