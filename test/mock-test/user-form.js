@@ -28,7 +28,7 @@ export const user_form = unit({
     return this.proc > 0;
   },
 
-  construct(username, password) {
+  constructor(username, password) {
     if (username) this.username = username;
     if (password) this.password = password;
   },
