@@ -1,9 +1,9 @@
-import { signal, signal_listen, extract_id } from "../lib/signal";
+import { signal, signal_listen, signal_key } from "../lib/signal";
 
 test("should fix: signal run twice for same value", () => {
   const s = signal(1);
   const spy = jest.fn();
-  signal_listen(extract_id(s), spy);
+  signal_listen(s[signal_key], spy);
 
   s(1);
   expect(spy).toHaveBeenCalledTimes(1);
