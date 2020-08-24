@@ -39,10 +39,10 @@ const backend = unit({
     this.proc--;
     return res;
   },
-  synchronize() {
+  expression() {
     if (changed(this.proc)) backend_proc(this.proc);
   },
-  construct() {
+  constructor() {
     this.async_init();
   },
   async async_init() {
@@ -63,10 +63,10 @@ const user = unit({
     this.name = await GetUser(++this.id);
     this.proc--;
   },
-  construct() {
-    this.async_construct();
+  constructor() {
+    this.async_constructor();
   },
-  async async_construct() {
+  async async_constructor() {
     await backend_async_init;
     log("user", this.id, "backend_async_init");
   }
@@ -99,9 +99,9 @@ const ticker = unit({
     this.current += this.step;
   },
   save: () => counter(this.current),
-  construct() {},
-  destruct() {},
-  synchronize() {
+  constructor() {},
+  destructor() {},
+  expression() {
     this.after = this.next + this.step;
     if (changed(this.after > 5)) {
       log("if after > 5");

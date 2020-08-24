@@ -193,6 +193,7 @@ function unit_transform(path, _state) {
     }
 
     if (destr) {
+      let [ name, body ] = destr;
       text_return_section.push(`() => {
         DESTRUCTOR_BODY
       }`);

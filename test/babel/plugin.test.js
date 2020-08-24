@@ -64,7 +64,8 @@ test("should process unit", () => {
       constructor(v) {
         this.v = 10;
         this.v2 = v;
-      }
+      },
+      destructor() {}
     });
   `;
   const unit_core_name = "unit.c";
@@ -95,7 +96,7 @@ test("should process unit", () => {
     this.v2 = v;
 
     ${core_name}[${box_entry_finish}]();
-  }, 0 /* destr */, _e_id, _e_fn /* expr */, 1 /* v */, "A" /* v2 */, () => { /* n */
+  }, () => {} /* destr */, _e_id, _e_fn /* expr */, 1 /* v */, "A" /* v2 */, () => { /* n */
     if (${core_name}[${box_computed_start}](_c_id)) return _c_cache;
     return _c_cache = this.v + 1, ${core_name}[${box_computed_finish}](), _c_cache;
   }, (k, m = 5) => { /* m */
