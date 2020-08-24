@@ -1,19 +1,17 @@
 const
   path = require("path"),
   { types, template } = require("@babel/core"),
-  { unit2_transform } = require("./unit2-transform");
+  { unit_transform } = require("./unit-transform");
 
 const
   unit_name = "unit",
-  unit2_name = "unit2",
   lib_name = process.env.REALAR_DEV
     ? path.join(__dirname, "../lib")
     : "realar",
-  view_call_name = `require("${lib_name}").view_render`,
+  view_call_name = `require("${lib_name}").unit.v`,
   processed = new Set(),
   dec_named_func_tpl = template(`function NAME(){return ${view_call_name}(BODY,arguments,this)}`),
-  dec_nonamed_func_tpl = template(`function(){return ${view_call_name}(BODY,arguments,this)}`),
-  unit_wrap_tpl = template(`function ID(){return BODY}`);
+  dec_nonamed_func_tpl = template(`function(){return ${view_call_name}(BODY,arguments,this)}`);
 
 module.exports = {
   view_call_name,
@@ -74,19 +72,9 @@ function plugin() {
           return; // functional component in global scope
         }
       },
-      CallExpression(path, _state) {
+      CallExpression(path, state) {
         if (path.node.callee.name === unit_name) {
-          const config = path.node.arguments[0];
-          if (config) {
-            const wrapped = unit_wrap_tpl({
-              ID: "",
-              BODY: config
-            });
-            path.node.arguments = [wrapped];
-          }
-        }
-        else if (path.node.callee.name === unit2_name) {
-          unit2_transform(path, _state);
+          unit_transform(path, state);
         }
       }
     },

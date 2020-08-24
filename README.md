@@ -1,6 +1,6 @@
 # Realar
 
-[![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar@0.0.2-beta.4?style=flat-square)](https://bundlephobia.com/result?p=realar@0.0.2-beta.4)
+[![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar@0.1.0?style=flat-square)](https://bundlephobia.com/result?p=realar@0.1.0)
 
 ### Installation
 
@@ -10,7 +10,7 @@ npm i -P realar
 yarn add realar
 ```
 
-And your babel config:
+After that you need update your babel config:
 
 ```javascript
 // .babelrc.js
@@ -19,6 +19,17 @@ module.exports = {
     "realar/babel"
   ]
 }
+```
+
+And you need to wrap your react-dom render block, to realar `ready` function:
+
+```javascript
+import React from "react";
+import { render } from "react-dom";
+import { ready } from "realar";
+import { App } from "./app";
+
+ready(() => render(<App />, document.getElementById("root")));
 ```
 
 ### Usage
@@ -38,7 +49,7 @@ const Ticker = unit({
   tick() {
     this.current += 1;
   },
-  synchronize() {
+  expression() {
     this.after = this.next + 1;
   }
 });
@@ -196,10 +207,10 @@ const backend = unit({
     this.proc--;
     return res;
   },
-  synchronize() {
+  expression() {
     if (changed(this.proc)) backend_proc(this.proc);
   },
-  construct() {
+  constructor() {
     this.async_init();
   },
   async async_init() {
@@ -220,10 +231,10 @@ const user = unit({
     this.name = await GetUser(++this.id);
     this.proc--;
   },
-  construct() {
-    this.async_construct();
+  constructor() {
+    this.async_constructor();
   },
-  async async_construct() {
+  async async_constructor() {
     await backend_async_init;
     log("user", this.id, "backend_async_init");
   }
@@ -256,9 +267,9 @@ const ticker = unit({
     this.current += this.step;
   },
   save: () => counter(this.current),
-  construct() {},
-  destruct() {},
-  synchronize() {
+  constructor() {},
+  destructor() {},
+  expression() {
     this.after = this.next + this.step;
     if (changed(this.after > 5)) {
       log("if after > 5");

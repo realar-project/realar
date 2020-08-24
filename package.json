@@ -11,7 +11,7 @@
   "license": "MIT",
   "scripts": {
     "bootstrap": "npx lerna bootstrap --no-ci && npm run build",
-    "clean": "npm run test:clean && npm run as:clean && npm run demo:clean && npm run build:clean && npm run perf:clean && lerna clean --yes",
+    "clean": "npm run test:clean && npm run assembly:clean && npm run demo:clean && npm run build:clean && npm run perf:clean && lerna clean --yes",
     "publish": "npm run test && npm run build && lerna publish",
     "start": "npm run bootstrap && npm run demo",
     "reinstall": "npm run clean && npm run bootstrap",
@@ -19,14 +19,15 @@
     "test:clean": "jest --clearCache",
     "demo": "npm run demo:clean && cd demo && cross-env NODE_ENV=development parcel index.html --port 1210",
     "demo:clean": "cd demo && rimraf dist .cache",
-    "as:clean": "rimraf as/.build",
+    "assembly:clean": "rimraf assembly/.build",
     "build:clean": "rimraf build",
     "build": "rollup -c",
-    "build:watch": "cross-env REALAR_DEV=true npm run build && chokidar \"lib/**\" \"u32/**\" \"prep/**\" -c \"cross-env REALAR_DEV=true rollup -c\"",
+    "build:terser": "cross-env REALAR_BUILD_TERSER=true npm run build",
+    "build:watch": "cross-env REALAR_DEV=true npm run build && chokidar \"lib/**\" -c \"cross-env REALAR_DEV=true rollup -c\"",
     "lerna:clean": "lerna run clean",
     "perf:realar": "cd perf/realar && cross-env NODE_ENV=development parcel index.html --port 1200",
     "perf:mobx": "cd perf/mobx && cross-env NODE_ENV=development parcel index.html --port 1201",
-    "perf": "concurrently --kill-others \"npm run perf:realar\" \"npm run perf:mobx\"",
+    "perf": "npm run perf:clean && concurrently --kill-others \"npm run perf:realar\" \"npm run perf:mobx\"",
     "perf:clean": "rimraf perf/*/dist perf/*/.cache",
     "perf:realar:watch": "concurrently --kill-others \"npm run build:watch\" \"npm run perf:realar\""
   },
@@ -36,6 +37,7 @@
     "model",
     "reactive",
     "state management",
+    "state manager",
     "data flow",
     "react hooks",
     "micro frontends",
@@ -76,7 +78,8 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "rimraf": "3.0.2",
-    "rollup": "2.23.1"
+    "rollup": "2.23.1",
+    "rollup-plugin-terser": "7.0.0"
   },
   "browserslist": [
     "last 2 Chrome versions"

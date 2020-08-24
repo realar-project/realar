@@ -1,5 +1,6 @@
 import resolve from "@rollup/plugin-node-resolve";
-import assembly from "./as/rollup-plugin";
+import { terser } from "rollup-plugin-terser";
+import assembly from "./assembly/rollup-plugin";
 import prep from "./prep/rollup-plugin";
 import pkg, { peerDependencies } from "./package.json";
 
@@ -16,6 +17,11 @@ export default {
   plugins: [
     resolve(),
     assembly(),
-    prep()
+    prep(),
+    ...(
+      process.env.REALAR_BUILD_TERSER
+        ? [terser()]
+        : []
+    )
   ]
 }

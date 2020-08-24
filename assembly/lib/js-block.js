@@ -34,16 +34,19 @@ function env_log_debug() {
       } while (length > CHUNKSIZE);
       return parts + String.fromCharCode.apply(String, U16.subarray(offset, offset + length));
     }
-    function getString(memory, ptr) {
-      if (!memory) return "<yet unknown>";
+    function getString(ptr) {
+      const memory = inst_exports.memory;;
       return getStringImpl(memory.buffer, ptr);
     }
     function abort(msg, file, line, colm) {
-      const memory = inst_exports.memory;
-      throw Error(\`abort: \${getString(memory, msg)} at \${getString(memory, file)}:\${line}:\${colm}\`);
+      throw Error(\`abort: \${getString(msg)} at \${getString(file)}:\${line}:\${colm}\`);
+    }
+    function log(msg, ...vals) {
+      console.log(getString(msg), ...vals);
     }
     return {
       abort,
+      log
     }
   })()`
 }
@@ -100,7 +103,7 @@ function buf_to_js(buf) {
   if (last) {
     list.push(src.slice(S*rows));
   }
-  return `"${list.join(`"+\n"`)}" /*${buf.length}*/`;
+  return `"${list.join(`"+\n"`)}" /*${buf.length}:${src.length}*/`;
 }
 
 function common_js_block(buf) {

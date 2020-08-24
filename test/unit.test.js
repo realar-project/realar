@@ -1,6 +1,6 @@
-import { unit2 } from "../lib";
+import { unit } from "../lib";
 
-const u = unit2({
+const u = unit({
   v:1,
   get n() {
     return this.v + 1
@@ -37,7 +37,7 @@ test("should work unit inst with expression", () => {
 
 test("should work unit computed", () => {
   const sum_spy = jest.fn();
-  const u_factory = unit2({
+  const u_factory = unit({
     a: 10,
     b: 11,
     get sum() {
@@ -66,7 +66,7 @@ test("should work unit computed", () => {
 });
 
 test("should work unit composition", () => {
-  const u_1 = unit2({
+  const u_1 = unit({
     inp: 1,
     out: 10,
     constructor(inp) {
@@ -79,7 +79,7 @@ test("should work unit composition", () => {
     }
   });
 
-  const u_2 = unit2({
+  const u_2 = unit({
     a: u_1(),
     b: u_1(),
     c: null,
@@ -97,7 +97,7 @@ test("should work unit composition", () => {
     }
   })
 
-  const u_3 = unit2({
+  const u_3 = unit({
     u: null,
     out: null,
     constructor(u) {
@@ -122,4 +122,3 @@ test("should work unit composition", () => {
   expect(i.out).toBe(1600);
   expect(p.o).toBe(1602);
 });
-

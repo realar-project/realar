@@ -2,17 +2,36 @@ import { call } from "./call";
 import { error, TICK_DEEP_LIMIT_EXCEPTION, DIGEST_LOOP_LIMIT_EXCEPTION } from "./error";
 import { seq_next } from "./seq";
 
+
 const TICK_DEEP_LIMIT = 100;
 const DIGEST_LOOP_LIMIT = 100;
 
 type slice_deps_type = Set<i32> | null;
+type box_collection_ids_type = i32[] | null;
 
 @unmanaged class slice_deps_stack_item_type {
   slice_deps: slice_deps_type;
   slice_current_id: i32;
 }
 
+@unmanaged class box_slice_stack_item_type {
+  tick_deep: i32;
+  tick_changed: Set<i32>;
+  slice_deps_stack: slice_deps_stack_item_type[];
+  slice_deps: slice_deps_type;
+  slice_current_id: i32;
+  box_deps: Map<i32, Set<i32>>;
+  box_rels: Map<i32, Set<i32>>;
+  box_invalid: Set<i32>;
+  box_expr: Set<i32>;
+  box_entry_id: i32;
+  box_collection_stack: box_collection_ids_type[];
+  box_collection_ids: box_collection_ids_type;
+  box_collection_map: Map<i32, box_collection_ids_type>;
+}
+
 let
+  box_slice_stack: box_slice_stack_item_type[],
   tick_deep: i32,
   tick_changed: Set<i32>,
   slice_deps_stack: slice_deps_stack_item_type[],
@@ -22,10 +41,15 @@ let
   box_rels: Map<i32, Set<i32>>,
   box_invalid: Set<i32>,
   box_expr: Set<i32>,
-  box_entry_id: i32;
+  box_entry_id: i32,
+  box_collection_stack: box_collection_ids_type[],
+  box_collection_ids: box_collection_ids_type,
+  box_collection_map: Map<i32, box_collection_ids_type>;
 
 export {
   box_init,
+  box_slice_push,
+  box_slice_pop,
   box_value_create,
   box_value_get_phase,
   box_value_set_phase,
@@ -37,13 +61,20 @@ export {
   box_computed_finish,
   box_entry_start,
   box_entry_finish,
-  box_view_create,
-  box_view_start,
-  box_view_finish
+  box_collection_start,
+  box_collection_finish,
+  box_collection_free,
+  box_free
 }
 
 @inline
 function box_init(): void {
+  box_slice_stack = [];
+  box_slice_init();
+}
+
+@inline
+function box_slice_init(): void {
   tick_deep = 0;
   tick_changed = new Set<i32>();
   slice_deps_stack = [];
@@ -54,6 +85,47 @@ function box_init(): void {
   box_invalid = new Set<i32>();
   box_expr = new Set<i32>();
   box_entry_id = box_create();
+  box_collection_stack = [];
+  box_collection_ids = null;
+  box_collection_map = new Map<i32, box_collection_ids_type>();
+}
+
+@inline
+function box_slice_push(): void {
+  box_slice_stack.push({
+    tick_deep,
+    tick_changed,
+    slice_deps_stack,
+    slice_deps,
+    slice_current_id,
+    box_deps,
+    box_rels,
+    box_invalid,
+    box_expr,
+    box_entry_id,
+    box_collection_stack,
+    box_collection_ids,
+    box_collection_map
+  });
+  box_slice_init();
+}
+
+@inline
+function box_slice_pop(): void {
+  let struct = box_slice_stack.pop();
+  tick_deep = struct.tick_deep;
+  tick_changed = struct.tick_changed;
+  slice_deps_stack = struct.slice_deps_stack;
+  slice_deps = struct.slice_deps;
+  slice_current_id = struct.slice_current_id;
+  box_deps = struct.box_deps;
+  box_rels = struct.box_rels;
+  box_invalid = struct.box_invalid;
+  box_expr = struct.box_expr;
+  box_entry_id = struct.box_entry_id;
+  box_collection_stack = struct.box_collection_stack;
+  box_collection_ids = struct.box_collection_ids;
+  box_collection_map = struct.box_collection_map;
 }
 
 @inline
@@ -115,12 +187,68 @@ function tick_finish(): void {
 
 @inline
 function box_create(): i32 {
-  return seq_next();
+  let box_id = seq_next();
+  if (box_collection_ids) box_collection_ids!.push(box_id);
+  return box_id;
+}
+
+function box_free(id: i32): void {
+  if (box_deps.has(id)) {
+    let deps = box_deps.get(id);
+    for (let i = 0, vals = deps.values(), len = vals.length; i < len; i++) {
+      let d = vals[i];
+      if (box_rels.has(d)) {
+        let rels = box_rels.get(d);
+        rels.delete(id);
+      }
+    }
+  }
+
+
+  if (box_rels.has(id)) {
+    let rels = box_rels.get(id);
+    for (let i = 0, vals = rels.values(), len = vals.length; i < len; i++) {
+      let r = vals[i];
+      if (box_deps.has(r)) {
+        let deps = box_deps.get(r);
+        deps.delete(id);
+      }
+    }
+  }
+
+  box_deps.delete(id);
+  box_rels.delete(id);
+
+  box_invalid.delete(id);
+  box_expr.delete(id);
+}
+
+function box_collection_start(): void {
+  box_collection_stack.push(box_collection_ids!);
+  box_collection_ids = [];
+}
+
+function box_collection_finish(): i32 {
+  box_collection_ids = box_collection_stack.pop();
+  let collection_id = seq_next();
+  box_collection_map.set(collection_id, box_collection_ids);
+  return collection_id;
+}
+
+function box_collection_free(id: i32): void {
+  let ids = box_collection_map.get(id);
+  for (let i = 0, len = ids!.length; i < len; i++) {
+    box_free(ids![i]);
+  }
+  box_collection_map.delete(id);
 }
 
 @inline
 function slice_deps_globals_push(): void {
-  slice_deps_stack.push({ slice_deps, slice_current_id });
+  slice_deps_stack.push({
+    slice_deps,
+    slice_current_id
+  });
 }
 
 @inline
@@ -175,7 +303,6 @@ function box_value_get_phase(id: i32): void {
 function box_value_set_phase(id: i32): void {
   let no_tick = !tick_deep
   if (no_tick) tick_start();
-
   tick_changed.add(id);
   if (no_tick) tick_finish();
 }
@@ -228,9 +355,3 @@ function box_entry_finish(): void {
   tick_finish();
   slice_deps_globals_pop();
 }
-
-function box_view_create(): i32 {
-  return 0;
-}
-function box_view_start(id: i32): void {}
-function box_view_finish(): void {}

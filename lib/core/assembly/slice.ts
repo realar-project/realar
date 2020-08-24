@@ -1,6 +1,5 @@
-import { box_init } from "./box";
-
-let slice_current: i32;
+import { box_init, box_slice_push, box_slice_pop } from "./box";
+import { seq_init, seq_slice_push, seq_slice_pop } from "./seq";
 
 export {
   start,
@@ -9,19 +8,15 @@ export {
 }
 
 function start(): void {
-  slice_init();
-  each_slice_init();
-}
-
-function each_slice_init(): void {
+  seq_init();
   box_init();
 }
 
-function slice_init(): void {
-  slice_current = 0
-}
-
 function push(): void {
+  seq_slice_push();
+  box_slice_push();
 }
 function pop(): void {
+  seq_slice_pop();
+  box_slice_pop();
 }

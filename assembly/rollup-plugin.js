@@ -1,17 +1,17 @@
-export default as;
+export default assembly;
 
-function as() {
+function assembly() {
 
   let rootDir = process.cwd();
   if (!/realar$/.test(rootDir)) {
     rootDir = process.env.OLDPWD;
   }
 
-  const { compile } = require(rootDir + "/as/lib/compiler");
-  const { module_js_block } = require(rootDir + "/as/lib/js-block");
+  const { compile } = require(rootDir + "/assembly/lib/compiler");
+  const { module_js_block } = require(rootDir + "/assembly/lib/js-block");
 
   return {
-    name: "as",
+    name: "assembly",
 
     load(id) {
       if (/\.ts$/.test(id)) {

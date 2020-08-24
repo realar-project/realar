@@ -1,11 +1,11 @@
 import React, { useCallback, useRef, useState } from "react";
-import { unit2 } from "realar";
+import { unit } from "realar";
 
 export {
   App
 }
 
-const u_unit = unit2({
+const u_unit = unit({
 	u1: null,
 	u2: null,
 	c: 0,
@@ -44,7 +44,7 @@ const u_unit = unit2({
 	}
 });
 
-const runner = unit2({
+const runner = unit({
   a: null, //null,
   z: null,
   inp: 0,
@@ -100,6 +100,7 @@ function App() {
   if (!box.current) {
     let time = Date.now();
     let inst = runner();
+    unit.link(inst);
     let init_time = Date.now() - time;
 
     box.current = { inst, init_time, tick_time: 0 };
