@@ -4,7 +4,7 @@ import { unit, service } from "../../lib";
 export const notifier = unit({
   ok: () => console.log("ok"),
   fail: () => console.log("fail"),
-})
+});
 
 // Some real external api gateway service
 export const api = unit({
@@ -14,7 +14,7 @@ export const api = unit({
     console.log(username, password);
     return 1;
   }
-})
+});
 
 export const user_form = unit({
   notifier: service(notifier),

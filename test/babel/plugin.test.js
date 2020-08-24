@@ -165,6 +165,19 @@ test("should process changed for unit expression", () => {
   expect(transform(code)).toBe(expected);
 });
 
+test("should transform unit with arrow func methods", () => {
+  const code = `
+  export const notifier = unit({
+    ok: () => 1,
+    fail: (code) => -code
+  });
+  `;
+  const expected = `export const notifier = unit(function () {
+  return [0, 0, 0, 0, () => 1, (code) => -code];
+}, [], [], ["ok", "fail"], []);`;
+  expect(transform(code)).toBe(expected);
+})
+
 // test("Should wrap arrow functions with JSX", () => {
 //   const code = `
 //   const App = () => <div />;

@@ -2,6 +2,7 @@ import { call } from "./call";
 import { error, TICK_DEEP_LIMIT_EXCEPTION, DIGEST_LOOP_LIMIT_EXCEPTION } from "./error";
 import { seq_next } from "./seq";
 
+
 const TICK_DEEP_LIMIT = 100;
 const DIGEST_LOOP_LIMIT = 100;
 
@@ -203,19 +204,19 @@ function box_free(id: i32): void {
     }
   }
 
-  box_deps.delete(id);
 
   if (box_rels.has(id)) {
     let rels = box_rels.get(id);
     for (let i = 0, vals = rels.values(), len = vals.length; i < len; i++) {
       let r = vals[i];
       if (box_deps.has(r)) {
-        let deps = box_rels.get(r);
+        let deps = box_deps.get(r);
         deps.delete(id);
       }
     }
   }
 
+  box_deps.delete(id);
   box_rels.delete(id);
 
   box_invalid.delete(id);
@@ -302,7 +303,6 @@ function box_value_get_phase(id: i32): void {
 function box_value_set_phase(id: i32): void {
   let no_tick = !tick_deep
   if (no_tick) tick_start();
-
   tick_changed.add(id);
   if (no_tick) tick_finish();
 }

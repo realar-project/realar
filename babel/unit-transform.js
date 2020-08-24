@@ -52,8 +52,15 @@ function unit_transform(path, _state) {
       if (types.isObjectProperty(prop)) {
         let name = prop.key.name;
         let value = prop.value;
-        values.push([name, value]);
-        continue;
+
+        if (types.isArrowFunctionExpression(value)) {
+          // TODO: ...
+          continue;
+        }
+        else {
+          values.push([name, value]);
+          continue;
+        }
       }
 
       if (types.isObjectMethod(prop)) {
