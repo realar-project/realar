@@ -170,14 +170,17 @@ test("should transform unit with arrow func methods", () => {
   const code = `
   export const notifier = unit({
     ok: () => {},
-    fail: (code) => -code
+    fail: (code) => -code,
+    [counter]: val => (this.current = val)
   });
   `;
   const expected = `export const notifier = unit(function () {
   return [0, 0, 0, 0, () => {}, code => {
     return -code;
+  }, val => {
+    return this.current = val;
   }];
-}, [], [], ["ok", "fail"], []);`;
+}, [], [], ["ok", "fail"], [counter]);`;
   expect(transform(code)).toBe(expected);
 })
 

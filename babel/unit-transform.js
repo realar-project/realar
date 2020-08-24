@@ -70,6 +70,17 @@ function unit_transform(path, _state) {
             body = wrap;
           }
 
+          if (prop.computed) {
+            actions.push([
+              name,
+              body,
+              params,
+              async,
+              generator
+            ]);
+            continue;
+          }
+
           methods.push([
             name,
             body,
