@@ -13,16 +13,16 @@ const
 ;
 
 const
-  unit2_core_name = "unit2.c",
-  unit2_fns_name = "unit2.f",
+  unit_core_name = "unit.c",
+  unit_fns_name = "unit.f",
   changed_fn_name = "changed";
 
 
 module.exports = {
-  unit2_transform
+  unit_transform
 };
 
-function unit2_transform(path, _state) {
+function unit_transform(path, _state) {
 
   const config = path.node.arguments[0];
   if (config) {
@@ -42,7 +42,7 @@ function unit2_transform(path, _state) {
     literals.FN_NAME = "";
 
     let core_name = path.scope.generateUid("core");
-    text.push(`let ${core_name} = ${unit2_core_name};`);
+    text.push(`let ${core_name} = ${unit_core_name};`);
 
     let core_var_declaration_index = text.length - 1;
     let is_core_unused = 1;
@@ -190,7 +190,7 @@ function unit2_transform(path, _state) {
           EXPR_BODY
           ${core_name}[${box_expr_finish}]();
         };
-        ${unit2_fns_name}.set(${e_id_name}, ${e_fn_name});
+        ${unit_fns_name}.set(${e_id_name}, ${e_fn_name});
       `);
       is_core_unused = 0;
 

@@ -46,22 +46,9 @@ export function Root() {
   expect(transform(code)).toBe(expected);
 });
 
-test("should wrap unit", () => {
+test("should process unit", () => {
   const code = `
-    const Unit = unit({v:1});
-  `;
-  const expected = `const Unit = unit(function () {
-  return {
-    v: 1
-  };
-});`;
-  expect(transform(code)).toBe(expected);
-});
-
-
-test("should process unit2", () => {
-  const code = `
-    const Unit = unit2({
+    const Unit = unit({
       v:1,
       get n() {
         return this.v + 1
@@ -80,11 +67,11 @@ test("should process unit2", () => {
       }
     });
   `;
-  const unit2_core_name = "unit2.c";
-  const unit2_fns_name = "unit2.f";
+  const unit_core_name = "unit.c";
+  const unit_fns_name = "unit.f";
   const core_name = "_core";
-  const expected = `const Unit = unit2(function () {
-  let ${core_name} = ${unit2_core_name};
+  const expected = `const Unit = unit(function () {
+  let ${core_name} = ${unit_core_name};
 
   let _e_id = ${core_name}[${box_expr_create}]();
 
@@ -96,7 +83,7 @@ test("should process unit2", () => {
     ${core_name}[${box_expr_finish}]();
   };
 
-  ${unit2_fns_name}.set(_e_id, _e_fn);
+  ${unit_fns_name}.set(_e_id, _e_fn);
 
   let _c_cache,
       _c_id = ${core_name}[${box_computed_create}]();
@@ -119,11 +106,11 @@ test("should process unit2", () => {
   expect(transform(code)).toBe(strip_multiline_comments(expected));
 });
 
-test("should process events, calls and signals for unit2", () => {
+test("should process events, calls and signals for unit", () => {
   const code = `
     const a = event();
     const s = signal();
-    const Unit = unit2({
+    const Unit = unit({
       [a]() {
         return 11;
       },
@@ -135,7 +122,7 @@ test("should process events, calls and signals for unit2", () => {
   `;
   const expected = `const a = event();
 const s = signal();
-const Unit = unit2(function () {
+const Unit = unit(function () {
   return [0, 0, 0, 0, () => {}, () => {
     return 11;
   }, async () => {
@@ -145,9 +132,9 @@ const Unit = unit2(function () {
   expect(transform(code)).toBe(expected);
 });
 
-test("should process changed for unit2 expression", () => {
+test("should process changed for unit expression", () => {
   const code = `
-    const Unit = unit2({
+    const Unit = unit({
       a: 10,
       b: 11,
       expression() {
@@ -156,8 +143,8 @@ test("should process changed for unit2 expression", () => {
       }
     });
   `;
-  const expected = `const Unit = unit2(function () {
-  let _core = unit2.c;
+  const expected = `const Unit = unit(function () {
+  let _core = unit.c;
 
   let _e_vals_map = new Map();
 
@@ -172,7 +159,7 @@ test("should process changed for unit2 expression", () => {
     _core[5]();
   };
 
-  unit2.f.set(_e_id, _e_fn);
+  unit.f.set(_e_id, _e_fn);
   return [0, 0, _e_id, _e_fn, 10, 11];
 }, ["a", "b"], [], [], []);`;
   expect(transform(code)).toBe(expected);
