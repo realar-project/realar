@@ -1,6 +1,6 @@
 {
   "name": "realar",
-  "version": "0.0.2-beta.4",
+  "version": "0.1.0",
   "description": "React state manager",
   "repository": {
     "url": "https://github.com/betula/realar"
@@ -67,9 +67,9 @@
     "concurrently": "5.3.0",
     "cross-env": "7.0.2",
     "deasync": "0.1.20",
-    "execa": "4.0.3",
     "enzyme": "3.11.0",
     "enzyme-adapter-react-16": "1.15.3",
+    "execa": "4.0.3",
     "jest": "26.2.2",
     "lerna": "3.22.1",
     "mobx": "5.15.5",
