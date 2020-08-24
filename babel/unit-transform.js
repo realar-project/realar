@@ -54,7 +54,29 @@ function unit_transform(path, _state) {
         let value = prop.value;
 
         if (types.isArrowFunctionExpression(value)) {
-          // TODO: ...
+          switch (name) {
+            case "constructor":
+            case "destructor":
+            case "expression":
+              throw new Error(`unit method "${name}" unsupported as arrow function`);
+          }
+          let { body, params, async, generator }  = value;
+
+          if (!types.isBlockStatement(body)) {
+            let tpl = template(`{ return BODY; }`);
+            let wrap = tpl({
+              BODY: body
+            });
+            body = wrap;
+          }
+
+          methods.push([
+            name,
+            body,
+            params,
+            async,
+            generator
+          ]);
           continue;
         }
         else {

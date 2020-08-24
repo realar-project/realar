@@ -168,12 +168,14 @@ test("should process changed for unit expression", () => {
 test("should transform unit with arrow func methods", () => {
   const code = `
   export const notifier = unit({
-    ok: () => 1,
+    ok: () => {},
     fail: (code) => -code
   });
   `;
   const expected = `export const notifier = unit(function () {
-  return [0, 0, 0, 0, () => 1, (code) => -code];
+  return [0, 0, 0, 0, () => {}, code => {
+    return -code;
+  }];
 }, [], [], ["ok", "fail"], []);`;
   expect(transform(code)).toBe(expected);
 })
