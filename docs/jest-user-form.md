@@ -2,14 +2,14 @@
 // ./user-form.js
 import { unit, service } from "realar";
 
-// Some real notifier service
-export const notifier = unit({
+// Some real Notifier service
+export const Notifier = unit({
   ok: () => console.log("ok"),
   fail: () => console.log("fail"),
 });
 
 // Some real external api gateway service
-export const api = unit({
+export const Api = unit({
   async user_save(username, password) {
     // Some real post remote request to api
     await new Promise(r => setTimeout(r, 1000));
@@ -18,9 +18,9 @@ export const api = unit({
   }
 });
 
-export const user_form = unit({
-  notifier: service(notifier),
-  api: service(api),
+export const UserForm = unit({
+  notifier: service(Notifier),
+  api: service(Api),
 
   username: '',
   password: '',
