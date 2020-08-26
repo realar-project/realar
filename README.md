@@ -4,7 +4,7 @@
 
 Reactive state manager for React.
 
-### Usage
+#### Usage
 
 ```javascript
 import React from "react";
@@ -30,16 +30,17 @@ const App = () => {
 };
 ```
 
-### Tutorials
+#### Tutorials
 
 + Get Started
 + Unit
 + Service
 + Event, Call and Signal
++ [Jest unit test usage](./docs/jest.md)
 + Advanced
   + Zone
 
-### Glossary
+#### Glossary
 
 + unit
 + useUnit
@@ -56,7 +57,7 @@ const App = () => {
 + ready
 
 
-### Installation
+#### Installation
 
 ```bash
 npm i -P realar
