@@ -4,5 +4,6 @@ The most esies way of start the [parcel bundler](https://parceljs.org/getting_st
 
 ```bash
 npm i -D parcel-bundler
-npm i -S react react-dom realar
+npm i -P react react-dom realar
 ```
+
