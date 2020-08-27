@@ -32,12 +32,17 @@ const App = () => {
 
 ### Tutorials
 
-+ Get Started
++ [Installation](./docs/installation.md)
++ [Quick Start](./docs/quick-start.md)
 + Unit
 + Service
 + Event, Call and Signal
 + [Jest unit test usage](./docs/jest.md)
-+ Advanced
++ Migrate mind from:
+  + Redux
+  + Mobx
+  + Angular
++ Advanced section
   + Zone
 
 ### Glossary
