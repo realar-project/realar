@@ -11,7 +11,7 @@ import React from "react";
 import { unit, useUnit } from "realar";
 import axios from "axios";
 
-const todosUnit = unit({
+const TodosUnit = unit({
   todos: [],
   async fetch() {
     const { data } = await axios.get("/api/todos");
@@ -23,7 +23,7 @@ const todosUnit = unit({
 });
 
 const App = () => {
-  const { todos } = useUnit(todosUnit);
+  const { todos } = useUnit(TodosUnit);
   return (
     <ul>{todos.map((todo) => <li>{todo.text}</li>)}</ul>
   );
