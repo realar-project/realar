@@ -40,7 +40,9 @@ const Like = () => {
 
 See [full code of this](https://github.com/realar-project/realar-quick-start-like-example) on github.
 
-
+---
+Todo:
+[] Make animated gif with process of work this example, for understanding without external repo download and install.
 
 
 
