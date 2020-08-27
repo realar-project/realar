@@ -1,6 +1,6 @@
 ### Quck Start
 
-This example very briefly illustrates the `unit` concept of Realar:
+This example briefly illustrates the `unit` concept of Realar:
 
 ```javascript
 import React from "react";
@@ -11,12 +11,10 @@ const LikeUnit = unit({
   likes: null,
 
   async like() {
-    const { data } = await axios.post("/api/like");
-    this.likes = data;
+    this.likes = (await axios.post("/api/like")).data;
   },
   async fetch() {
-    const { data } = await axios.get("/api/likes");
-    this.likes = data;
+    this.likes = (await axios.get("/api/likes")).data;
   },
 
   get loading() {
@@ -33,9 +31,7 @@ const Like = () => {
 
   return (
     <div>
-      <button onClick={like} disabled={loading}>
-        👍
-      </button>
+      <button onClick={like} disabled={loading}>👍</button>
       <span>{likes}</span>
     </div>
   )
