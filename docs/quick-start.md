@@ -5,21 +5,22 @@ This example very briefly illustrates the `unit` concept of Realar:
 ```javascript
 import React from "react";
 import { unit, useUnit } from "realar";
+import axios from "axios";
 
-const likeUnit = unit({
+const LikeUnit = unit({
   likes: null,
 
-  get loading() {
-    return this.fetch.proc || this.like.proc;
-  },
-
   async like() {
-    const { data } = await axios.get("/api/like");
+    const { data } = await axios.post("/api/like");
     this.likes = data;
   },
   async fetch() {
     const { data } = await axios.get("/api/likes");
     this.likes = data;
+  },
+
+  get loading() {
+    return this.fetch.proc || this.like.proc;
   },
 
   constructor() {
@@ -28,7 +29,7 @@ const likeUnit = unit({
 });
 
 const Like = () => {
-  const { like, likes, loading } = useUnit(likeUnit);
+  const { like, likes, loading } = useUnit(LikeUnit);
 
   return (
     <div>
@@ -39,5 +40,21 @@ const Like = () => {
     </div>
   )
 }
-
 ```
+
+See [full code of this](https://github.com/realar-project/realar-quick-start-like-example) on github.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
