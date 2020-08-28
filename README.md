@@ -39,7 +39,7 @@ const App = () => {
 + Event, Call and Signal
 + [Jest unit test usage](./docs/jest.md)
 + Migrate mind from:
-  + Redux
+  + [Redux](./docs/migrate-from-redux.md)
   + Mobx
   + Angular
 + Advanced section
