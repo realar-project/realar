@@ -61,9 +61,15 @@ function view_transform(path, _state) {
 
   let node = cursor;
 
-  if (is_func_decl) {
+  if (is_func_decl || is_func_expr) {
+    let name;
 
-    let name = node.id.name;
+    if (is_func_decl) {
+      name = node.id.name;
+    } else if (is_func_expr) {
+      name = "";
+    }
+
     let body = node.body;
     let params = node.params;
     let _async = node.async;
@@ -102,7 +108,12 @@ function view_transform(path, _state) {
       path.replaceWith(node);
     }
 
-    const tpl_str = `${text_async()}function NAME(${text_params()}){
+    function expr_return() {
+      if (is_func_expr) return "return ";
+      return "";
+    }
+
+    const tpl_str = `${expr_return()}${text_async()}function NAME(${text_params()}){
       let
         ${c_unit_v_name} = ${view_unit_name},
         ${c_ret_tmp_name};
@@ -116,7 +127,26 @@ function view_transform(path, _state) {
       NAME: name
     });
 
+    if (is_func_expr) {
+      performed = performed.argument;
+    }
+
+    // console.log("AAA", performed);
+
     cursor_path.replaceWith(performed);
+
+    // if (is_func_decl) {
+    // cursor_path.replaceWith(performed);
+    // } else if (is_func_expr) {
+    //   let callee = cursor_path.node.callee;
+    //   callee.params = performed.params;
+    //   callee.body = performed.body;
+    //   cal
+    // }
+
+
+    // console.log("BBB", cursor_path.node);
+
 
     view_processed.add(performed);
   }

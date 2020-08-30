@@ -217,18 +217,6 @@ test("should transform JSX functions with JSX functions", () => {
   expect(transform(code)).toBe(expected);
 });
 
-test("should transform arrow functions JSX", () => {
-  const code = `
-    export const App = () => {
-      useService(Unit);
-      return null
-    }
-    export const H1 = () => <h1 />;
-  `;
-  const expected = ``;
-  expect(transform(code)).toBe(expected);
-});
-
 test("should transform expression functions JSX", () => {
   const code = `
     export const App = function() {
@@ -238,6 +226,34 @@ test("should transform expression functions JSX", () => {
     export const H1 = function() {
       return <h1 />;
     }
+  `;
+  const expected = `export const App = function () {
+  let _c_unit_v = ${view_unit_name},
+      _c_ret_tmp;
+
+  _c_unit_v[0]();
+
+  useService(Unit);
+  return _c_ret_tmp = null, _c_unit_v[1](), _c_ret_tmp;
+};
+export const H1 = function () {
+  let _c_unit_v2 = ${view_unit_name},
+      _c_ret_tmp2;
+
+  _c_unit_v2[0]();
+
+  return _c_ret_tmp2 = <h1 />, _c_unit_v2[1](), _c_ret_tmp2;
+};`;
+  expect(transform(code)).toBe(expected);
+});
+
+test("should transform arrow functions JSX", () => {
+  const code = `
+    export const App = () => {
+      useService(Unit);
+      return null
+    }
+    export const H1 = () => <h1 />;
   `;
   const expected = ``;
   expect(transform(code)).toBe(expected);
