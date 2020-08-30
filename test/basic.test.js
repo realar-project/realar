@@ -171,7 +171,7 @@ function Whirl({ children }) {
   )
 }
 
-export function Root() {
+function Root() {
   return (
     <>
       <Whirl>

@@ -1,5 +1,6 @@
 import * as babel from "@babel/core";
-import { view_call_name, plugin } from "../../babel/plugin";
+import { plugin } from "../../babel/plugin";
+import { view_unit_name } from "../../babel/view-transform";
 
 const
   box_expr_create = 3,      /* b3 */
@@ -23,28 +24,6 @@ function transform(code) {
 function strip_multiline_comments(code) {
   return code.replace(/\s*\/\*.*?\*\//mg, () => "");
 }
-
-test("should wrap functions with JSX", () => {
-  const code = `
-  function App() {
-    return <div />;
-  }
-  export function Root() {
-    return <App />;
-  }`;
-  const expected = `function App() {
-  return ${view_call_name}(function () {
-    return <div />;
-  }, arguments, this);
-}
-
-export function Root() {
-  return ${view_call_name}(function () {
-    return <App />;
-  }, arguments, this);
-}`;
-  expect(transform(code)).toBe(expected);
-});
 
 test("should process unit", () => {
   const code = `
@@ -182,23 +161,81 @@ test("should transform unit with arrow func methods", () => {
   }];
 }, [], [], ["ok", "fail"], [counter]);`;
   expect(transform(code)).toBe(expected);
-})
+});
 
-// test("Should wrap arrow functions with JSX", () => {
+test("should transform nested functions JSX", () => {
+  const code = `
+    function _() {
+      function A() {
+        return <div />;
+      }
+    }
+  `;
+  const expected = `function _() {
+  function A() {
+    let _c_unit_v = ${view_unit_name},
+        _c_ret_tmp;
+
+    _c_unit_v[0]();
+
+    return _c_ret_tmp = <div />, _c_unit_v[1](), _c_ret_tmp;
+  }
+}`;
+  expect(transform(code)).toBe(expected);
+});
+
+test("should transform JSX functions with JSX functions", () => {
+  const code = `
+    function _() {
+      function A() {
+        function B() {
+          return <div />;
+        }
+        return <div />;
+      }
+    }
+  `;
+  const expected = `function _() {
+  function A() {
+    let _c_unit_v2 = ${view_unit_name},
+        _c_ret_tmp2;
+
+    _c_unit_v2[0]();
+
+    function B() {
+      let _c_unit_v = ${view_unit_name},
+          _c_ret_tmp;
+
+      _c_unit_v[0]();
+
+      return _c_ret_tmp = <div />, _c_unit_v[1](), _c_ret_tmp;
+    }
+
+    return _c_ret_tmp2 = <div />, _c_unit_v2[1](), _c_ret_tmp2;
+  }
+}`;
+  expect(transform(code)).toBe(expected);
+});
+
+
+// test("should wrap functions with JSX", () => {
 //   const code = `
-//   const App = () => <div />;
-//   export const Root = () => {
+//   function App() {
+//     return <div />;
+//   }
+//   export function Root() {
 //     return <App />;
 //   }`;
-//   const expected = `const App = (...___arguments) => ___view_call(() => {
-//   return <div />;
-// }, ___arguments);
+//   const expected = `function App() {
+//   return ${view_call_name}(function () {
+//     return <div />;
+//   }, arguments, this);
+// }
 
-// export const Root = (...___arguments) => ___view_call(() => {
-//   return <App />;
-// }, ___arguments);`;
+// export function Root() {
+//   return ${view_call_name}(function () {
+//     return <App />;
+//   }, arguments, this);
+// }`;
 //   expect(transform(code)).toBe(expected);
-//   // Ещё обработать export default
 // });
-
-// Ещё обработать ситуации когда внутри useService, useUnit
