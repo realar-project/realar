@@ -1,5 +1,4 @@
-
-### Usage
+### Examples
 
 Perfect usage :+1:
 
