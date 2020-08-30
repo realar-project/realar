@@ -217,6 +217,31 @@ test("should transform JSX functions with JSX functions", () => {
   expect(transform(code)).toBe(expected);
 });
 
+test("should transform arrow functions JSX", () => {
+  const code = `
+    export const App = () => {
+      useService(Unit);
+      return null
+    }
+    export const H1 = () => <h1 />;
+  `;
+  const expected = ``;
+  expect(transform(code)).toBe(expected);
+});
+
+test("should transform expression functions JSX", () => {
+  const code = `
+    export const App = function() {
+      useService(Unit);
+      return null;
+    }
+    export const H1 = function() {
+      return <h1 />;
+    }
+  `;
+  const expected = ``;
+  expect(transform(code)).toBe(expected);
+});
 
 // test("should wrap functions with JSX", () => {
 //   const code = `
