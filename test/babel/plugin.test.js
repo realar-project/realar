@@ -163,6 +163,96 @@ test("should transform unit with arrow func methods", () => {
   expect(transform(code)).toBe(expected);
 });
 
+test("should transform async unit methods", () => {
+  const code = `
+  const u = unit({
+    async m1() {
+      return await fetch(1);
+    },
+    m2: async () => {
+      await fetch(2);
+    },
+    action: async () => await call(),
+  });
+  `;
+  const expected = `const u = unit(function () {
+  let _m_fn = async (...args) => {
+    _m_fn.proc++;·
+    try {
+      return await async function () {
+        return await fetch(1);
+      }.apply(this, args);
+    } finally {
+      _m_fn.proc--;
+    }
+  };·
+  Object.defineProperty(_m_fn, \"proc\", unit.b(0));·
+  let _m_fn2 = async (...args) => {
+    _m_fn2.proc++;·
+    try {
+      return await async function () {
+        await fetch(2);
+      }.apply(this, args);
+    } finally {
+      _m_fn2.proc--;
+    }
+  };·
+  Object.defineProperty(_m_fn2, \"proc\", unit.b(0));·
+  let _m_fn3 = async (...args) => {
+    _m_fn3.proc++;·
+    try {
+      return await async function () {
+        return await call();
+      }.apply(this, args);
+    } finally {
+      _m_fn3.proc--;
+    }
+  };·
+  Object.defineProperty(_m_fn3, \"proc\", unit.b(0));
+  return [0, 0, 0, 0, _m_fn, _m_fn2, _m_fn3];
+}, [], [], [\"m1\", \"m2\", \"action\"], []);`.replace(/·/gm, "\n");
+
+  expect(transform(code)).toBe(expected);
+});
+
+test("should work unit inside func with JSX", () => {
+  const code = `
+  test(() => {
+    const u_f = unit({
+      constructor(...args) {
+        constr(...args);
+      },
+      destructor() {
+        destr();
+      }
+    });
+    const el = mount(<A/>);
+  })`;
+  const expected = `test(() => {
+  let _c_unit_v = ${view_unit_name},
+      _c_ret_tmp;
+
+  _c_unit_v[0]();
+
+  const u_f = unit(function () {
+    let _core = unit.c;
+    return [(...args) => {
+      _core[9]();
+
+      constr(...args);
+
+      _core[10]();
+    }, () => {
+      destr();
+    }, 0, 0];
+  }, [], [], [], []);
+  const el = mount(<A />);
+
+  _c_unit_v[1]();
+});`;
+  expect(transform(code)).toBe(expected);
+});
+
 test("should transform nested functions JSX", () => {
   const code = `
     function _() {
@@ -287,44 +377,6 @@ export const A = ({
   if (p) return _c_ret_tmp3 = <p />, _c_unit_v3[1](), _c_ret_tmp3;
   return _c_ret_tmp3 = <b />, _c_unit_v3[1](), _c_ret_tmp3;
 };`;
-  expect(transform(code)).toBe(expected);
-});
-
-test("should work unit inside func with JSX", () => {
-  const code = `
-  test(() => {
-    const u_f = unit({
-      constructor(...args) {
-        constr(...args);
-      },
-      destructor() {
-        destr();
-      }
-    });
-    const el = mount(<A/>);
-  })`;
-  const expected = `test(() => {
-  let _c_unit_v = ${view_unit_name},
-      _c_ret_tmp;
-
-  _c_unit_v[0]();
-
-  const u_f = unit(function () {
-    let _core = unit.c;
-    return [(...args) => {
-      _core[9]();
-
-      constr(...args);
-
-      _core[10]();
-    }, () => {
-      destr();
-    }, 0, 0];
-  }, [], [], [], []);
-  const el = mount(<A />);
-
-  _c_unit_v[1]();
-});`;
   expect(transform(code)).toBe(expected);
 });
 
