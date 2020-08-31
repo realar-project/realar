@@ -186,4 +186,10 @@ function Root() {
 test("should work", () => {
   const el = mount(<Root/>);
   expect(el.html()).toMatchSnapshot();
+
+  let plus = el.find("button").at(5);
+  expect(plus.text()).toBe("+");
+  plus.simulate("click");
+
+  expect(el.html()).toMatchSnapshot();
 });
