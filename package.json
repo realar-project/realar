@@ -12,7 +12,7 @@
   "scripts": {
     "bootstrap": "npx lerna bootstrap --no-ci && npm run build",
     "clean": "npm run test:clean && npm run assembly:clean && npm run demo:clean && npm run build:clean && npm run perf:clean && lerna clean --yes",
-    "publish": "npm run test && npm run build:terser && lerna publish",
+    "publish": "npm run test && npm run build:prod && lerna publish",
     "start": "npm run bootstrap && npm run demo",
     "reinstall": "npm run clean && npm run bootstrap",
     "test": "npm run test:clean && cross-env REALAR_DEV=true jest",
@@ -22,7 +22,7 @@
     "assembly:clean": "rimraf assembly/.build",
     "build:clean": "rimraf build",
     "build": "rollup -c",
-    "build:terser": "cross-env REALAR_BUILD_TERSER=true npm run build",
+    "build:prod": "cross-env REALAR_BUILD_TERSER=true npm run build",
     "build:watch": "cross-env REALAR_DEV=true npm run build && chokidar \"lib/**\" -c \"cross-env REALAR_DEV=true rollup -c\"",
     "lerna:clean": "lerna run clean",
     "perf:realar": "cd perf/realar && cross-env NODE_ENV=development parcel index.html --port 1200",

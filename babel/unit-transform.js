@@ -17,14 +17,19 @@ const
   unit_fns_name = "unit.f",
   changed_fn_name = "changed";
 
+let
+  unit_performed = new Set();
 
 module.exports = {
   unit_transform
 };
 
 function unit_transform(path, _state) {
+  const { node } = path;
+  if (unit_performed.has(node)) return;
+  unit_performed.add(node);
 
-  const config = path.node.arguments[0];
+  const config = node.arguments[0];
   if (config) {
     let values = new Array();
     let comps = new Array();
@@ -46,6 +51,10 @@ function unit_transform(path, _state) {
 
     let core_var_declaration_index = text.length - 1;
     let is_core_unused = 1;
+
+    if (!config.properties) {
+      throw new Error("Invalid unit call without first argument configuration object");
+    }
 
     for (let prop of config.properties) {
 

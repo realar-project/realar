@@ -23,7 +23,7 @@ test("should work unit arguments pass", () => {
 
   function A() {
     const hook_descriptor = useState([]);
-    args = hook_descriptor[0];
+    let args = hook_descriptor[0];
     set_args = hook_descriptor[1];
 
     const u = useUnit(u_f, ...args);
@@ -33,7 +33,7 @@ test("should work unit arguments pass", () => {
 
   const el = mount(<A/>);
 
-  expect(constr).toHaveBeenCalledTimes(0);
+  expect(constr).toHaveBeenCalledTimes(1);
   expect(constr).toHaveBeenCalledWith();
 
 });

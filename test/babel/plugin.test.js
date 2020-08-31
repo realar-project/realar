@@ -290,3 +290,88 @@ export const A = ({
   expect(transform(code)).toBe(expected);
 });
 
+test("should work unit inside func with JSX", () => {
+  const code = `
+  test(() => {
+    const u_f = unit({
+      constructor(...args) {
+        constr(...args);
+      },
+      destructor() {
+        destr();
+      }
+    });
+    const el = mount(<A/>);
+  })`;
+  const expected = `test(() => {
+  let _c_unit_v = ${view_unit_name},
+      _c_ret_tmp;
+
+  _c_unit_v[0]();
+
+  const u_f = unit(function () {
+    let _core = unit.c;
+    return [(...args) => {
+      _core[9]();
+
+      constr(...args);
+
+      _core[10]();
+    }, () => {
+      destr();
+    }, 0, 0];
+  }, [], [], [], []);
+  const el = mount(<A />);
+
+  _c_unit_v[1]();
+});`;
+  expect(transform(code)).toBe(expected);
+});
+
+test("should transform JSX manipulations", () => {
+  const code = `function Whirl({ children }) {
+    const { map, shift, push } = useUnit(whirl);
+    return (
+      <>
+        <button onClick={shift}>-</button>
+        {map(key => (
+          <Zone key={key}>
+            {children}
+          </Zone>
+        ))}
+        <button onClick={push}>+</button>
+      </>
+    )
+  }`;
+  const expected = `function Whirl({
+  children
+}) {
+  let _c_unit_v = ${view_unit_name},
+      _c_ret_tmp;
+
+  _c_unit_v[0]();
+
+  const {
+    map,
+    shift,
+    push
+  } = useUnit(whirl);
+  return _c_ret_tmp = <>
+        <button onClick={shift}>-</button>
+        {map(key => {
+      let _c_unit_v2 = ${view_unit_name},
+          _c_ret_tmp2;
+
+      _c_unit_v2[0]();
+
+      return _c_ret_tmp2 = <Zone key={key}>
+            {children}
+          </Zone>, _c_unit_v2[1](), _c_ret_tmp2;
+    })}
+        <button onClick={push}>+</button>
+      </>, _c_unit_v[1](), _c_ret_tmp;
+}`;
+  expect(transform(code)).toBe(expected);
+});
+
+

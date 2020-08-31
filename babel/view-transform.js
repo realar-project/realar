@@ -99,6 +99,20 @@ function view_transform(path, _state) {
     traverse(cursor, {
       ReturnStatement(path) {
         if (view_processed.has(path.node)) return;
+
+        let cur = path;
+        loop:
+        while (cur) {
+          switch (true) {
+            case types.isFunctionDeclaration(cur.node):
+            case types.isFunctionExpression(cur.node):
+            case types.isArrowFunctionExpression(cur.node):
+              if (cur.node !== cursor) return;
+              break loop;
+          }
+          cur = cur.parentPath;
+        }
+
         return_paths.push(path);
       }
     }, cursor_path.scope, cursor_path);
@@ -131,11 +145,11 @@ function view_transform(path, _state) {
       ${is_arrow_expr && !is_arrow_expr_block ? (
         `return ${c_ret_tmp_name} = BODY, ${c_unit_v_name}[1](), ${c_ret_tmp_name};`
       ) : "BODY"}
-      ${return_paths.length || is_arrow_expr ? "" : `${c_unit_v_name}[1]();`}
+      ${return_paths.length || (is_arrow_expr && !is_arrow_expr_block) ? "" : `${c_unit_v_name}[1]();`}
     }`;
 
     let performed = template(tpl_str)({
-      BODY: is_arrow_expr && !is_arrow_expr_block ? body : body.body,
+      BODY: is_arrow_expr && !is_arrow_expr_block ? types.cloneNode(body) : body.body,
       ...(is_arrow_expr ? {} : {NAME: name}),
       ...(params && params.length ? { PARAMS: params } : {})
     });
