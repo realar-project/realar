@@ -42,7 +42,7 @@ const App = () => {
 + [Examples](./docs/examples.md)
 + Migrate mind from:
   + [Redux](./docs/migrate-from-redux.md)
-  + Mobx
+  + [Mobx](./docs/migrate-from-mobx.md)
   + Angular
 + Advanced section
   + Zone
