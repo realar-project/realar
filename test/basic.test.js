@@ -54,14 +54,11 @@ const backend = unit({
 const user = unit({
   name: "not loaded",
   id: 0,
-  proc: 0,
   get loading() {
-    return this.proc > 0;
+    return this.load.proc > 0;
   },
   async load() {
-    this.proc++;
     this.name = await GetUser(++this.id);
-    this.proc--;
   },
   constructor() {
     this.async_constructor();
