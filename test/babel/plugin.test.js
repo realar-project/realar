@@ -254,29 +254,39 @@ test("should transform arrow functions JSX", () => {
       return null
     }
     export const H1 = () => <h1 />;
+    export const A = ({ p }) => {
+      if (p) return <p />;
+      return <b />;
+    };
   `;
-  const expected = ``;
+  const expected = `export const App = () => {
+  let _c_unit_v = ${view_unit_name},
+      _c_ret_tmp;
+
+  _c_unit_v[0]();
+
+  useService(Unit);
+  return _c_ret_tmp = null, _c_unit_v[1](), _c_ret_tmp;
+};
+export const H1 = () => {
+  let _c_unit_v2 = ${view_unit_name},
+      _c_ret_tmp2;
+
+  _c_unit_v2[0]();
+
+  return _c_ret_tmp2 = <h1 />, _c_unit_v2[1](), _c_ret_tmp2;
+};
+export const A = ({
+  p
+}) => {
+  let _c_unit_v3 = ${view_unit_name},
+      _c_ret_tmp3;
+
+  _c_unit_v3[0]();
+
+  if (p) return _c_ret_tmp3 = <p />, _c_unit_v3[1](), _c_ret_tmp3;
+  return _c_ret_tmp3 = <b />, _c_unit_v3[1](), _c_ret_tmp3;
+};`;
   expect(transform(code)).toBe(expected);
 });
 
-// test("should wrap functions with JSX", () => {
-//   const code = `
-//   function App() {
-//     return <div />;
-//   }
-//   export function Root() {
-//     return <App />;
-//   }`;
-//   const expected = `function App() {
-//   return ${view_call_name}(function () {
-//     return <div />;
-//   }, arguments, this);
-// }
-
-// export function Root() {
-//   return ${view_call_name}(function () {
-//     return <App />;
-//   }, arguments, this);
-// }`;
-//   expect(transform(code)).toBe(expected);
-// });

@@ -18,13 +18,13 @@ module.exports = {
 
 
 function view_transform(path, _state) {
-  let cursor = path.parentPath;
+  let cursor = path;
   let cursor_path;
 
   let is_func_decl = 0;
   let is_func_expr = 0;
   let is_arrow_expr = 0;
-
+  let is_arrow_expr_block = 0;
 
   loop:
   while (cursor) {
@@ -43,6 +43,10 @@ function view_transform(path, _state) {
         is_arrow_expr = 1;
         cursor_path = cursor.parentPath;
         cursor = cursor.parent;
+
+        if (types.isBlockStatement(cursor.body)) {
+          is_arrow_expr_block = 1;
+        }
         break loop;
     }
     if (types.isProgram(cursor.parent)) {
@@ -61,7 +65,7 @@ function view_transform(path, _state) {
 
   let node = cursor;
 
-  if (is_func_decl || is_func_expr) {
+  if (is_func_decl || is_func_expr || is_arrow_expr) {
     let name;
 
     if (is_func_decl) {
@@ -81,8 +85,7 @@ function view_transform(path, _state) {
 
     function text_params() {
       if (!params || !params.length) return '';
-      literals[params_ph] = params;
-      return params_ph;
+      return "PARAMS";
     }
 
     let c_ret_tmp_name = cursor_path.scope.generateUid("c_ret_tmp");
@@ -109,44 +112,39 @@ function view_transform(path, _state) {
     }
 
     function expr_return() {
-      if (is_func_expr) return "return ";
+      if (is_func_expr || is_arrow_expr) return "return ";
       return "";
     }
 
-    const tpl_str = `${expr_return()}${text_async()}function NAME(${text_params()}){
+    function fn_decl() {
+      if (is_arrow_expr) {
+        return `(${text_params()}) => `;
+      }
+      return `function NAME(${text_params()})`;
+    }
+
+    const tpl_str = `${expr_return()}${text_async()}${fn_decl()}{
       let
         ${c_unit_v_name} = ${view_unit_name},
         ${c_ret_tmp_name};
       ${c_unit_v_name}[0]();
-      BODY
-      ${return_paths.length ? "" : `${c_unit_v_name}[1]();`}
+      ${is_arrow_expr && !is_arrow_expr_block ? (
+        `return ${c_ret_tmp_name} = BODY, ${c_unit_v_name}[1](), ${c_ret_tmp_name};`
+      ) : "BODY"}
+      ${return_paths.length || is_arrow_expr ? "" : `${c_unit_v_name}[1]();`}
     }`;
 
     let performed = template(tpl_str)({
-      BODY: body.body,
-      NAME: name
+      BODY: is_arrow_expr && !is_arrow_expr_block ? body : body.body,
+      ...(is_arrow_expr ? {} : {NAME: name}),
+      ...(params && params.length ? { PARAMS: params } : {})
     });
 
-    if (is_func_expr) {
+    if (is_func_expr || is_arrow_expr) {
       performed = performed.argument;
     }
 
-    // console.log("AAA", performed);
-
     cursor_path.replaceWith(performed);
-
-    // if (is_func_decl) {
-    // cursor_path.replaceWith(performed);
-    // } else if (is_func_expr) {
-    //   let callee = cursor_path.node.callee;
-    //   callee.params = performed.params;
-    //   callee.body = performed.body;
-    //   cal
-    // }
-
-
-    // console.log("BBB", cursor_path.node);
-
 
     view_processed.add(performed);
   }
