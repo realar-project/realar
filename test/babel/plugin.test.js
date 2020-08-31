@@ -1,5 +1,6 @@
 import * as babel from "@babel/core";
-import { view_call_name, plugin } from "../../babel/plugin";
+import { plugin } from "../../babel/plugin";
+import { view_unit_name } from "../../babel/view-transform";
 
 const
   box_expr_create = 3,      /* b3 */
@@ -23,28 +24,6 @@ function transform(code) {
 function strip_multiline_comments(code) {
   return code.replace(/\s*\/\*.*?\*\//mg, () => "");
 }
-
-test("should wrap functions with JSX", () => {
-  const code = `
-  function App() {
-    return <div />;
-  }
-  export function Root() {
-    return <App />;
-  }`;
-  const expected = `function App() {
-  return ${view_call_name}(function () {
-    return <div />;
-  }, arguments, this);
-}
-
-export function Root() {
-  return ${view_call_name}(function () {
-    return <App />;
-  }, arguments, this);
-}`;
-  expect(transform(code)).toBe(expected);
-});
 
 test("should process unit", () => {
   const code = `
@@ -182,23 +161,269 @@ test("should transform unit with arrow func methods", () => {
   }];
 }, [], [], ["ok", "fail"], [counter]);`;
   expect(transform(code)).toBe(expected);
-})
+});
 
-// test("Should wrap arrow functions with JSX", () => {
-//   const code = `
-//   const App = () => <div />;
-//   export const Root = () => {
-//     return <App />;
-//   }`;
-//   const expected = `const App = (...___arguments) => ___view_call(() => {
-//   return <div />;
-// }, ___arguments);
+test("should transform async unit methods", () => {
+  const code = `
+  const u = unit({
+    async m1() {
+      return await fetch(1);
+    },
+    m2: async () => {
+      await fetch(2);
+    },
+    action: async () => await call(),
+  });
+  `;
+  const expected = `const u = unit(function () {
+  let _m_fn = async (...args) => {
+    _m_fn.proc++;·
+    try {
+      return await async function () {
+        return await fetch(1);
+      }.apply(this, args);
+    } finally {
+      _m_fn.proc--;
+    }
+  };·
+  Object.defineProperty(_m_fn, \"proc\", unit.b(0));·
+  let _m_fn2 = async (...args) => {
+    _m_fn2.proc++;·
+    try {
+      return await async function () {
+        await fetch(2);
+      }.apply(this, args);
+    } finally {
+      _m_fn2.proc--;
+    }
+  };·
+  Object.defineProperty(_m_fn2, \"proc\", unit.b(0));·
+  let _m_fn3 = async (...args) => {
+    _m_fn3.proc++;·
+    try {
+      return await async function () {
+        return await call();
+      }.apply(this, args);
+    } finally {
+      _m_fn3.proc--;
+    }
+  };·
+  Object.defineProperty(_m_fn3, \"proc\", unit.b(0));
+  return [0, 0, 0, 0, _m_fn, _m_fn2, _m_fn3];
+}, [], [], [\"m1\", \"m2\", \"action\"], []);`.replace(/·/gm, "\n");
 
-// export const Root = (...___arguments) => ___view_call(() => {
-//   return <App />;
-// }, ___arguments);`;
-//   expect(transform(code)).toBe(expected);
-//   // Ещё обработать export default
-// });
+  expect(transform(code)).toBe(expected);
+});
 
-// Ещё обработать ситуации когда внутри useService, useUnit
+test("should work unit inside func with JSX", () => {
+  const code = `
+  test(() => {
+    const u_f = unit({
+      constructor(...args) {
+        constr(...args);
+      },
+      destructor() {
+        destr();
+      }
+    });
+    const el = mount(<A/>);
+  })`;
+  const expected = `test(() => {
+  let _c_unit_v = ${view_unit_name},
+      _c_ret_tmp;
+
+  _c_unit_v[0]();
+
+  const u_f = unit(function () {
+    let _core = unit.c;
+    return [(...args) => {
+      _core[9]();
+
+      constr(...args);
+
+      _core[10]();
+    }, () => {
+      destr();
+    }, 0, 0];
+  }, [], [], [], []);
+  const el = mount(<A />);
+
+  _c_unit_v[1]();
+});`;
+  expect(transform(code)).toBe(expected);
+});
+
+test("should transform nested functions JSX", () => {
+  const code = `
+    function _() {
+      function A() {
+        return <div />;
+      }
+    }
+  `;
+  const expected = `function _() {
+  function A() {
+    let _c_unit_v = ${view_unit_name},
+        _c_ret_tmp;
+
+    _c_unit_v[0]();
+
+    return _c_ret_tmp = <div />, _c_unit_v[1](), _c_ret_tmp;
+  }
+}`;
+  expect(transform(code)).toBe(expected);
+});
+
+test("should transform JSX functions with JSX functions", () => {
+  const code = `
+    function _() {
+      function A() {
+        function B() {
+          return <div />;
+        }
+        return <div />;
+      }
+    }
+  `;
+  const expected = `function _() {
+  function A() {
+    let _c_unit_v2 = ${view_unit_name},
+        _c_ret_tmp2;
+
+    _c_unit_v2[0]();
+
+    function B() {
+      let _c_unit_v = ${view_unit_name},
+          _c_ret_tmp;
+
+      _c_unit_v[0]();
+
+      return _c_ret_tmp = <div />, _c_unit_v[1](), _c_ret_tmp;
+    }
+
+    return _c_ret_tmp2 = <div />, _c_unit_v2[1](), _c_ret_tmp2;
+  }
+}`;
+  expect(transform(code)).toBe(expected);
+});
+
+test("should transform expression functions JSX", () => {
+  const code = `
+    export const App = function() {
+      useService(Unit);
+      return null;
+    }
+    export const H1 = function() {
+      return <h1 />;
+    }
+  `;
+  const expected = `export const App = function () {
+  let _c_unit_v = ${view_unit_name},
+      _c_ret_tmp;
+
+  _c_unit_v[0]();
+
+  useService(Unit);
+  return _c_ret_tmp = null, _c_unit_v[1](), _c_ret_tmp;
+};
+export const H1 = function () {
+  let _c_unit_v2 = ${view_unit_name},
+      _c_ret_tmp2;
+
+  _c_unit_v2[0]();
+
+  return _c_ret_tmp2 = <h1 />, _c_unit_v2[1](), _c_ret_tmp2;
+};`;
+  expect(transform(code)).toBe(expected);
+});
+
+test("should transform arrow functions JSX", () => {
+  const code = `
+    export const App = () => {
+      useService(Unit);
+      return null
+    }
+    export const H1 = () => <h1 />;
+    export const A = ({ p }) => {
+      if (p) return <p />;
+      return <b />;
+    };
+  `;
+  const expected = `export const App = () => {
+  let _c_unit_v = ${view_unit_name},
+      _c_ret_tmp;
+
+  _c_unit_v[0]();
+
+  useService(Unit);
+  return _c_ret_tmp = null, _c_unit_v[1](), _c_ret_tmp;
+};
+export const H1 = () => {
+  let _c_unit_v2 = ${view_unit_name},
+      _c_ret_tmp2;
+
+  _c_unit_v2[0]();
+
+  return _c_ret_tmp2 = <h1 />, _c_unit_v2[1](), _c_ret_tmp2;
+};
+export const A = ({
+  p
+}) => {
+  let _c_unit_v3 = ${view_unit_name},
+      _c_ret_tmp3;
+
+  _c_unit_v3[0]();
+
+  if (p) return _c_ret_tmp3 = <p />, _c_unit_v3[1](), _c_ret_tmp3;
+  return _c_ret_tmp3 = <b />, _c_unit_v3[1](), _c_ret_tmp3;
+};`;
+  expect(transform(code)).toBe(expected);
+});
+
+test("should transform JSX manipulations", () => {
+  const code = `function Whirl({ children }) {
+    const { map, shift, push } = useUnit(whirl);
+    return (
+      <>
+        <button onClick={shift}>-</button>
+        {map(key => (
+          <Zone key={key}>
+            {children}
+          </Zone>
+        ))}
+        <button onClick={push}>+</button>
+      </>
+    )
+  }`;
+  const expected = `function Whirl({
+  children
+}) {
+  let _c_unit_v = ${view_unit_name},
+      _c_ret_tmp;
+
+  _c_unit_v[0]();
+
+  const {
+    map,
+    shift,
+    push
+  } = useUnit(whirl);
+  return _c_ret_tmp = <>
+        <button onClick={shift}>-</button>
+        {map(key => {
+      let _c_unit_v2 = ${view_unit_name},
+          _c_ret_tmp2;
+
+      _c_unit_v2[0]();
+
+      return _c_ret_tmp2 = <Zone key={key}>
+            {children}
+          </Zone>, _c_unit_v2[1](), _c_ret_tmp2;
+    })}
+        <button onClick={push}>+</button>
+      </>, _c_unit_v[1](), _c_ret_tmp;
+}`;
+  expect(transform(code)).toBe(expected);
+});
+
+

@@ -1,3 +1,139 @@
+### Examples
+
+Perfect usage :+1:
+
+```javascript
+import React from "react";
+import { unit, useUnit } from "realar";
+
+const Ticker = unit({
+  current: 0,
+  after: 2,
+  get next() {
+    return this.current + 1;
+  },
+  tick() {
+    this.current += 1;
+  },
+  expression() {
+    this.after = this.next + 1;
+  }
+});
+
+export default function App() {
+  const { current, next, after, tick } = useUnit(Ticker);
+  return (
+    <>
+      <h1>Realar ticker</h1>
+      <p>Current: {current}</p>
+      <p>Next: {next}</p>
+      <p>After: {after}</p>
+      <p>
+        <button onClick={tick}>tick</button>
+      </p>
+    </>
+  );
+}
+```
+
+Redux style usage :sunglasses:
+
+```javascript
+import React, { useCallback } from "react";
+import { unit, useService, event } from "realar";
+
+const add = event();
+const toggle = event();
+
+const store = unit({
+  state: [
+    { title: 'Todo 1' },
+    { title: 'Todo 2', completed: true }
+  ],
+  get completed() {
+    return this.state.filter(i => i.completed);
+  },
+  get all() {
+    return this.state;
+  },
+  [add](title, completed = false) {
+    this.state = [ ...this.state, { title, completed }];
+  },
+  [toggle](i) {
+    const { state } = this;
+    const index = state.indexOf(i);
+    this.state = [
+      ...state.slice(0, index),
+      { ...i, completed: !i.completed },
+      ...state.slice(index+1)
+    ];
+  }
+});
+
+function TodoItem({ item }) {
+  const click = useCallback(() => toggle(item), [item]);
+  const { title, completed } = item;
+
+  return (
+    <div className="todo-item" onClick={click}>
+      {completed ? <div className="completed"></div> : null>}
+      <span className="title">{title}</span>
+    </div>
+  );
+}
+
+function TodoList() {
+  const { all } = useService(store);
+  return (
+    <div className="todo-list">
+      {all.map(item => <TodoItem item={item} />)}
+    </div>
+  );
+}
+
+export default function App() {
+  return <TodoList />;
+}
+```
+
+Jest unit test usage :yum:
+
+```javascript
+import { mock } from "realar";
+import { Notifier, Api, UserForm } from "./user-form";
+
+test("User form should work", async () => {
+  const notifierMock = mock(Notifier);
+  const apiMock = mock(Api);
+
+  const form = UserForm("a", "b");
+
+  apiMock.userSave.mockResolvedValue(0);
+
+  await form.save();
+  expect(notifierMock.fail).toHaveBeenCalled();
+  expect(apiMock.userSave).toHaveBeenCalledWith("a", "b");
+});
+```
+
+And Your Jest config file
+
+```javascript
+// jest.config.json
+{
+  "setupFilesAfterEnv": [
+    "realar/jest"
+  ]
+}
+```
+
+You can see full Jest unit test example on github [realar-project/realar-jest](https://github.com/realar-project/realar-jest).
+
+---
+
+And all interface methods in one presentation example :stuck_out_tongue_winking_eye:
+
+```javascript
 import React from "react";
 import {
   call,
@@ -177,3 +313,13 @@ export function Root() {
     </>
   );
 }
+```
+
+Try this example on your computer:
+
+```bash
+git clone git@github.com:betula/realar.git
+cd realar
+npm run start
+# Open http://localhost:1210 in your browser
+```

@@ -15,16 +15,22 @@ const
 const
   unit_core_name = "unit.c",
   unit_fns_name = "unit.f",
+  unit_crate_box_name = "unit.b",
   changed_fn_name = "changed";
 
+let
+  unit_performed = new Set();
 
 module.exports = {
   unit_transform
 };
 
 function unit_transform(path, _state) {
+  const { node } = path;
+  if (unit_performed.has(node)) return;
+  unit_performed.add(node);
 
-  const config = path.node.arguments[0];
+  const config = node.arguments[0];
   if (config) {
     let values = new Array();
     let comps = new Array();
@@ -46,6 +52,10 @@ function unit_transform(path, _state) {
 
     let core_var_declaration_index = text.length - 1;
     let is_core_unused = 1;
+
+    if (!config.properties) {
+      throw new Error("Invalid unit call without first argument configuration object");
+    }
 
     for (let prop of config.properties) {
 
@@ -283,14 +293,30 @@ function unit_transform(path, _state) {
         return params_ph;
       }
 
-      function text_async() {
-        if (!_async) return "";
-        return "async ";
+      if (!_async) {
+        text_return_section.push(`(${text_params()}) => {
+          ${body_ph}
+        }`);
       }
+      else {
+        let m_fn_name = path.scope.generateUid("m_fn");
 
-      text_return_section.push(`${text_async()}(${text_params()}) => {
-        ${body_ph}
-      }`);
+        text.push(
+          `let ${m_fn_name} = async (...args) => {
+            ${m_fn_name}.proc ++;
+            try {
+              return await (async function(${text_params()}) {
+                ${body_ph}
+              }).apply(this, args);
+            } finally {
+              ${m_fn_name}.proc --;
+            }
+          }
+          Object.defineProperty(${m_fn_name}, "proc", ${unit_crate_box_name}(0));
+          `
+        );
+        text_return_section.push(m_fn_name);
+      }
       literals[body_ph] = body.body;
     }
 

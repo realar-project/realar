@@ -54,14 +54,11 @@ const backend = unit({
 const user = unit({
   name: "not loaded",
   id: 0,
-  proc: 0,
   get loading() {
-    return this.proc > 0;
+    return this.load.proc > 0;
   },
   async load() {
-    this.proc++;
     this.name = await GetUser(++this.id);
-    this.proc--;
   },
   constructor() {
     this.async_constructor();
@@ -171,7 +168,7 @@ function Whirl({ children }) {
   )
 }
 
-export function Root() {
+function Root() {
   return (
     <>
       <Whirl>
@@ -185,5 +182,11 @@ export function Root() {
 
 test("should work", () => {
   const el = mount(<Root/>);
+  expect(el.html()).toMatchSnapshot();
+
+  let plus = el.find("button").at(5);
+  expect(plus.text()).toBe("+");
+  plus.simulate("click");
+
   expect(el.html()).toMatchSnapshot();
 });
