@@ -122,3 +122,25 @@ test("should work unit composition", () => {
   expect(i.out).toBe(1600);
   expect(p.o).toBe(1602);
 });
+
+test("should throw digest loop limit exception", () => {
+  const u = unit({
+    u: null,
+    a: 0,
+    b: 0,
+    expression() {
+      if (this.u) {
+        this.a = this.u.b
+      }
+      this.b = this.a;
+      if (this.u) {
+        this.u.a = Math.random();
+      }
+    },
+  });
+
+  expect(() => {
+    const i = u();
+    i.u = u();
+  }).toThrow("Limit digest loop iteration");
+});

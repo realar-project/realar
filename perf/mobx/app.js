@@ -1,5 +1,6 @@
 import React, { useCallback, useRef, useState } from "react";
 import { action, autorun, computed, observable } from "mobx";
+import { observer } from "mobx-react";
 
 class U {
 	@observable.ref u1 = null;
@@ -95,7 +96,7 @@ class Runner {
   }
 }
 
-export const App = () => {
+export const App = observer(() => {
   const box = useRef();
   if (!box.current) {
     let time = Date.now();
@@ -126,4 +127,4 @@ export const App = () => {
       <p>Init time {init_time} ms</p>
     </>
 	);
-};
+});

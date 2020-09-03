@@ -61,7 +61,7 @@ export const LikeUnit = unit({
   },
 
   get loading() {
-    return this.fetch.proc || this.like.proc;
+    return this.load.proc || this.like.proc;
   },
 
   constructor(id) {
