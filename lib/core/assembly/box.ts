@@ -3,8 +3,8 @@ import { error, TICK_DEEP_LIMIT_EXCEPTION, DIGEST_LOOP_LIMIT_EXCEPTION } from ".
 import { seq_next } from "./seq";
 
 
-const TICK_DEEP_LIMIT = 100;
-const DIGEST_LOOP_LIMIT = 100;
+const TICK_DEEP_LIMIT = 10000;
+const DIGEST_LOOP_LIMIT = 10000;
 
 type slice_deps_type = Set<i32> | null;
 type box_collection_ids_type = i32[] | null;
