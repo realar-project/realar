@@ -24,10 +24,9 @@ export const UserForm = unit({
 
   username: '',
   password: '',
-  proc: 0,
 
   get disabled() {
-    return this.proc > 0;
+    return this.save.pending;
   },
 
   constructor(username, password) {
@@ -36,7 +35,6 @@ export const UserForm = unit({
   },
 
   async save() {
-    this.proc ++;
     const res = await this.api.user_save(this.username, this.password);
     if (res) {
       this.notifier.ok();
@@ -44,7 +42,6 @@ export const UserForm = unit({
     else {
       this.notifier.fail();
     }
-    this.proc --;
     return res;
   },
 

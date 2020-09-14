@@ -176,39 +176,42 @@ test("should transform async unit methods", () => {
   });
   `;
   const expected = `const u = unit(function () {
-  let _m_fn = async (...args) => {
-    _m_fn.proc++;·
+  let _m_proc = 0,
+      _m_fn = async (...args) => {
+    _m_fn.pending = ++_m_proc > 0;·
     try {
       return await async function () {
         return await fetch(1);
       }.apply(this, args);
     } finally {
-      _m_fn.proc--;
+      _m_fn.pending = --_m_proc > 0;
     }
   };·
-  Object.defineProperty(_m_fn, \"proc\", unit.b(0));·
-  let _m_fn2 = async (...args) => {
-    _m_fn2.proc++;·
+  Object.defineProperty(_m_fn, \"pending\", unit.b(false));·
+  let _m_proc2 = 0,
+      _m_fn2 = async (...args) => {
+    _m_fn2.pending = ++_m_proc2 > 0;·
     try {
       return await async function () {
         await fetch(2);
       }.apply(this, args);
     } finally {
-      _m_fn2.proc--;
+      _m_fn2.pending = --_m_proc2 > 0;
     }
   };·
-  Object.defineProperty(_m_fn2, \"proc\", unit.b(0));·
-  let _m_fn3 = async (...args) => {
-    _m_fn3.proc++;·
+  Object.defineProperty(_m_fn2, \"pending\", unit.b(false));·
+  let _m_proc3 = 0,
+      _m_fn3 = async (...args) => {
+    _m_fn3.pending = ++_m_proc3 > 0;·
     try {
       return await async function () {
         return await call();
       }.apply(this, args);
     } finally {
-      _m_fn3.proc--;
+      _m_fn3.pending = --_m_proc3 > 0;
     }
   };·
-  Object.defineProperty(_m_fn3, \"proc\", unit.b(0));
+  Object.defineProperty(_m_fn3, \"pending\", unit.b(false));
   return [0, 0, 0, 0, _m_fn, _m_fn2, _m_fn3];
 }, [], [], [\"m1\", \"m2\", \"action\"], []);`.replace(/·/gm, "\n");
 

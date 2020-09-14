@@ -189,7 +189,7 @@ const user = unit({
   name: "not loaded",
   id: 0,
   get loading() {
-    return this.load.proc > 0;
+    return this.load.pending;
   },
   async load() {
     this.name = await GetUser(++this.id);

@@ -21,7 +21,7 @@ const LikeUnit = unit({
   },
 
   get loading() {
-    return this.load.proc || this.like.proc;
+    return this.load.pending || this.like.pending;
   },
 
   constructor(id) {

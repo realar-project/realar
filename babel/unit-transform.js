@@ -300,19 +300,21 @@ function unit_transform(path, _state) {
       }
       else {
         let m_fn_name = path.scope.generateUid("m_fn");
+        let m_proc_name = path.scope.generateUid("m_proc");
 
         text.push(
-          `let ${m_fn_name} = async (...args) => {
-            ${m_fn_name}.proc ++;
-            try {
-              return await (async function(${text_params()}) {
-                ${body_ph}
-              }).apply(this, args);
-            } finally {
-              ${m_fn_name}.proc --;
-            }
-          }
-          Object.defineProperty(${m_fn_name}, "proc", ${unit_crate_box_name}(0));
+          `let ${m_proc_name} = 0,
+            ${m_fn_name} = async (...args) => {
+              ${m_fn_name}.pending = ++${m_proc_name} > 0;
+              try {
+                return await (async function(${text_params()}) {
+                  ${body_ph}
+                }).apply(this, args);
+              } finally {
+                ${m_fn_name}.pending = --${m_proc_name} > 0;
+              }
+            };
+          Object.defineProperty(${m_fn_name}, "pending", ${unit_crate_box_name}(false));
           `
         );
         text_return_section.push(m_fn_name);
