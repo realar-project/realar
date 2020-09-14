@@ -61,7 +61,7 @@ export const LikeUnit = unit({
   },
 
   get loading() {
-    return this.load.proc || this.like.proc;
+    return this.load.pending || this.like.pending;
   },
 
   constructor(id) {
@@ -91,4 +91,5 @@ const Like = ({ id }) => {
 
 See [full code of this](https://github.com/realar-project/realar-quick-start-like-example-3) on github.
 
-
+---
+[] Add example of LikeButton with limit prop, and user prop. Full example better to make on (next.js or firebase, think about It). user pass throught url params.

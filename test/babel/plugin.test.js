@@ -88,7 +88,7 @@ test("should process unit", () => {
 
 test("should process events, calls and signals for unit", () => {
   const code = `
-    const a = event();
+    const a = action();
     const s = signal();
     const Unit = unit({
       [a]() {
@@ -100,7 +100,7 @@ test("should process events, calls and signals for unit", () => {
       m() {}
     });
   `;
-  const expected = `const a = event();
+  const expected = `const a = action();
 const s = signal();
 const Unit = unit(function () {
   return [0, 0, 0, 0, () => {}, () => {
@@ -176,39 +176,42 @@ test("should transform async unit methods", () => {
   });
   `;
   const expected = `const u = unit(function () {
-  let _m_fn = async (...args) => {
-    _m_fn.proc++;·
+  let _m_proc = 0,
+      _m_fn = async (...args) => {
+    _m_fn.pending = ++_m_proc > 0;·
     try {
       return await async function () {
         return await fetch(1);
       }.apply(this, args);
     } finally {
-      _m_fn.proc--;
+      _m_fn.pending = --_m_proc > 0;
     }
   };·
-  Object.defineProperty(_m_fn, \"proc\", unit.b(0));·
-  let _m_fn2 = async (...args) => {
-    _m_fn2.proc++;·
+  Object.defineProperty(_m_fn, \"pending\", unit.b(false));·
+  let _m_proc2 = 0,
+      _m_fn2 = async (...args) => {
+    _m_fn2.pending = ++_m_proc2 > 0;·
     try {
       return await async function () {
         await fetch(2);
       }.apply(this, args);
     } finally {
-      _m_fn2.proc--;
+      _m_fn2.pending = --_m_proc2 > 0;
     }
   };·
-  Object.defineProperty(_m_fn2, \"proc\", unit.b(0));·
-  let _m_fn3 = async (...args) => {
-    _m_fn3.proc++;·
+  Object.defineProperty(_m_fn2, \"pending\", unit.b(false));·
+  let _m_proc3 = 0,
+      _m_fn3 = async (...args) => {
+    _m_fn3.pending = ++_m_proc3 > 0;·
     try {
       return await async function () {
         return await call();
       }.apply(this, args);
     } finally {
-      _m_fn3.proc--;
+      _m_fn3.pending = --_m_proc3 > 0;
     }
   };·
-  Object.defineProperty(_m_fn3, \"proc\", unit.b(0));
+  Object.defineProperty(_m_fn3, \"pending\", unit.b(false));
   return [0, 0, 0, 0, _m_fn, _m_fn2, _m_fn3];
 }, [], [], [\"m1\", \"m2\", \"action\"], []);`.replace(/·/gm, "\n");
 
@@ -387,9 +390,9 @@ test("should transform JSX manipulations", () => {
       <>
         <button onClick={shift}>-</button>
         {map(key => (
-          <Zone key={key}>
+          <Scope key={key}>
             {children}
-          </Zone>
+          </Scope>
         ))}
         <button onClick={push}>+</button>
       </>
@@ -416,9 +419,9 @@ test("should transform JSX manipulations", () => {
 
       _c_unit_v2[0]();
 
-      return _c_ret_tmp2 = <Zone key={key}>
+      return _c_ret_tmp2 = <Scope key={key}>
             {children}
-          </Zone>, _c_unit_v2[1](), _c_ret_tmp2;
+          </Scope>, _c_unit_v2[1](), _c_ret_tmp2;
     })}
         <button onClick={push}>+</button>
       </>, _c_unit_v[1](), _c_ret_tmp;

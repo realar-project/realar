@@ -2,19 +2,19 @@ import React from "react";
 import {
   call,
   changed,
-  event,
+  action,
   service,
   Service,
   signal,
   unit,
   useService,
   useUnit,
-  Zone
+  Scope
 } from "realar";
 
-const backend_async_init = event();
-const log = event();
-const x10 = event();
+const backend_async_init = action();
+const log = action();
+const x10 = action();
 const GetUser = call();
 const counter = signal(-1);
 const backend_proc = signal(0);
@@ -53,7 +53,7 @@ const user = unit({
   name: "not loaded",
   id: 0,
   get loading() {
-    return this.load.proc > 0;
+    return this.load.pending;
   },
   async load() {
     this.name = await GetUser(++this.id);
@@ -157,9 +157,9 @@ function Whirl({ children }) {
     <>
       <button onClick={shift}>-</button>
       {map(key => (
-        <Zone key={key}>
+        <Scope key={key}>
           {children}
-        </Zone>
+        </Scope>
       ))}
       <button onClick={push}>+</button>
     </>
