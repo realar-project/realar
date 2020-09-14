@@ -37,7 +37,7 @@ const App = () => {
 + [Quick Start](./docs/quick-start.md)
 + Unit
 + Service
-+ Event, Call and Signal
++ Action, Call and Signal
 + [Jest unit test usage](./docs/jest.md)
 + [Examples](./docs/examples.md)
 + Migrate mind from:
@@ -45,7 +45,7 @@ const App = () => {
   + [Mobx](./docs/migrate-from-mobx.md)
   + Angular
 + Advanced section
-  + Zone
+  + Scope
 
 ### Glossary
 
@@ -55,10 +55,10 @@ const App = () => {
 + useService
 + service
 + Service
-+ event
++ action
 + call
 + signal
-+ Zone
++ Scope
 + mock
 + unmock
 + ready

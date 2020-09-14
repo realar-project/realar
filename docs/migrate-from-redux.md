@@ -26,10 +26,10 @@ export const App = () => (
 
 ```javascript
 // ./login-events.js
-import { event } from "realar";
+import { action } from "realar";
 
-export const UserLogined = event();
-export const UserLogouted = event();
+export const UserLogined = action();
+export const UserLogouted = action();
 ```
 
 ```javascript

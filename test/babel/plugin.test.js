@@ -88,7 +88,7 @@ test("should process unit", () => {
 
 test("should process events, calls and signals for unit", () => {
   const code = `
-    const a = event();
+    const a = action();
     const s = signal();
     const Unit = unit({
       [a]() {
@@ -100,7 +100,7 @@ test("should process events, calls and signals for unit", () => {
       m() {}
     });
   `;
-  const expected = `const a = event();
+  const expected = `const a = action();
 const s = signal();
 const Unit = unit(function () {
   return [0, 0, 0, 0, () => {}, () => {
@@ -387,9 +387,9 @@ test("should transform JSX manipulations", () => {
       <>
         <button onClick={shift}>-</button>
         {map(key => (
-          <Zone key={key}>
+          <Scope key={key}>
             {children}
-          </Zone>
+          </Scope>
         ))}
         <button onClick={push}>+</button>
       </>
@@ -416,9 +416,9 @@ test("should transform JSX manipulations", () => {
 
       _c_unit_v2[0]();
 
-      return _c_ret_tmp2 = <Zone key={key}>
+      return _c_ret_tmp2 = <Scope key={key}>
             {children}
-          </Zone>, _c_unit_v2[1](), _c_ret_tmp2;
+          </Scope>, _c_unit_v2[1](), _c_ret_tmp2;
     })}
         <button onClick={push}>+</button>
       </>, _c_unit_v[1](), _c_ret_tmp;

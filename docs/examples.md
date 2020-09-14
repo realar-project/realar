@@ -40,10 +40,10 @@ Redux style usage :sunglasses:
 
 ```javascript
 import React, { useCallback } from "react";
-import { unit, useService, event } from "realar";
+import { unit, useService, action } from "realar";
 
-const add = event();
-const toggle = event();
+const add = action();
+const toggle = action();
 
 const store = unit({
   state: [
@@ -138,19 +138,19 @@ import React from "react";
 import {
   call,
   changed,
-  event,
+  action,
   service,
   Service,
   signal,
   unit,
   useService,
   useUnit,
-  Zone
+  Scope
 } from "realar";
 
-const backend_async_init = event();
-const log = event();
-const x10 = event();
+const backend_async_init = action();
+const log = action();
+const x10 = action();
 const GetUser = call();
 const counter = signal(-1);
 const backend_proc = signal(0);
@@ -293,9 +293,9 @@ function Whirl({ children }) {
     <>
       <button onClick={shift}>-</button>
       {map(key => (
-        <Zone key={key}>
+        <Scope key={key}>
           {children}
-        </Zone>
+        </Scope>
       ))}
       <button onClick={push}>+</button>
     </>
