@@ -26,6 +26,8 @@ declare function call<T extends [], R = null>(): Call<T, R>;
 declare function signal<T extends []>(): Signal<T>;
 
 type UnitInstance<T> = Omit<T, "constructor" | "destructor" | "expression">;
+// TODO: add pending to async methods in T
+
 type UnitFactory<A, T> = (...args: A) => UnitInstance<T>;
 type UnitClass<A, T> = new (...args: A) => UnitInstance<T>;
 type UnitConstructorParameters<T> = Parameters<T["constructor"]>;
