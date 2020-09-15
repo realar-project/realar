@@ -25,8 +25,12 @@ declare function action<T extends []>(): Action<T>;
 declare function call<T extends [], R = null>(): Call<T, R>;
 declare function signal<T extends []>(): Signal<T>;
 
-type UnitInstance<T> = Omit<T, "constructor" | "destructor" | "expression">;
-// TODO: add pending to async methods in T
+type UnitAsyncMethodsPending<T> = {
+  [P in keyof T]: T[P] extends (...args: any[]) => Promise<any>
+    ? T[P] & { pending: boolean }
+    : T[P];
+};
+type UnitInstance<T> = Omit<UnitAsyncMethodsPending<T>, "constructor" | "destructor" | "expression">;
 
 type UnitFactory<A, T> = (...args: A) => UnitInstance<T>;
 type UnitClass<A, T> = new (...args: A) => UnitInstance<T>;
