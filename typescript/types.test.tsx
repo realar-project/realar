@@ -1,10 +1,14 @@
 import React from "react";
-import { unit, useUnit } from "../build";
+import { unit, useUnit, action, signal, call } from "../build";
 
 interface Item {
   title: string,
   completed?: boolean
 }
+
+const doIt = action<[number]>();
+const shareIt = signal<[string, number]>();
+const callIt = call<[number, number[]]>();
 
 const Unit = unit({
   todos: [] as Item[],

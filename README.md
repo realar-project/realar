@@ -1,6 +1,6 @@
 # Realar
 
-[![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![typescript support](https://img.shields.io/npm/types/typescript?style=flat-square)](https://github.com/betula/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar?style=flat-square)](https://bundlephobia.com/result?p=realar)
+[![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![typescript support](https://img.shields.io/npm/types/typescript?style=flat-square)](./docs/typescript.md) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar?style=flat-square)](https://bundlephobia.com/result?p=realar)
 
 Reactive state manager for React.
 
@@ -46,6 +46,8 @@ const App = () => {
 + Action, Call and Signal
 + [Jest unit test usage](./docs/jest.md)
 + [Examples](./docs/examples.md)
++ Types
+  + [TypeScript](./docs/typescript.md)
 + Migrate mind from:
   + [Redux](./docs/migrate-from-redux.md)
   + [Mobx](./docs/migrate-from-mobx.md)
