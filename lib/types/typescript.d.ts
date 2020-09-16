@@ -37,7 +37,11 @@ type UnitClass<A, T> = new (...args: A) => UnitInstance<T>;
 type UnitConstructorParameters<T> = Parameters<T["constructor"]>;
 type Unit<T, A = UnitConstructorParameters<T>> = UnitFactory<A, T> & UnitClass<A, T>;
 
-declare function unit<T extends {}>(schema: T): Unit<T>;
+interface UnitSchema { // TODO: may be working????
+  [key: Action | Call | Signal ]: () => void
+}
+
+declare function unit<T extends UnitSchema>(schema: T): Unit<T>;
 declare function service<T>(unit: Unit<T>): T;
 
 declare function useUnit<T>(unit: Unit<T>, ...args: UnitConstructorParameters<T>): T;
@@ -52,3 +56,6 @@ declare function Scope(props: { children: JSX.Element }): JSX.Element;
 
 declare function mock(unit: Unit<any>): any;
 declare function unmock(unit?: Unit<any>): any;
+
+
+

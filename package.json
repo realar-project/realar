@@ -22,15 +22,18 @@
     "demo:clean": "cd demo && rimraf dist .cache",
     "assembly:clean": "rimraf assembly/.build",
     "build:clean": "rimraf build",
-    "build": "rollup -c",
+    "build:lib": "rollup -c",
+    "build:types": "cp -f lib/types/typescript.d.ts build/index.d.ts",
+    "build": "npm run build:lib && npm run build:types",
     "build:prod": "cross-env REALAR_BUILD_TERSER=true npm run build",
-    "build:watch": "cross-env REALAR_DEV=true npm run build && chokidar \"lib/**\" -c \"cross-env REALAR_DEV=true rollup -c\"",
+    "build:watch": "cross-env REALAR_DEV=true npm run build && chokidar \"lib/**\" -c \"cross-env REALAR_DEV=true npm run build\"",
     "lerna:clean": "lerna run clean",
     "perf:realar": "cd perf/realar && cross-env NODE_ENV=development parcel index.html --port 1200",
     "perf:mobx": "cd perf/mobx && cross-env NODE_ENV=development parcel index.html --port 1201",
     "perf": "npm run perf:clean && concurrently --kill-others \"npm run perf:realar\" \"npm run perf:mobx\"",
     "perf:clean": "rimraf perf/*/dist perf/*/.cache",
-    "perf:realar:watch": "concurrently --kill-others \"npm run build:watch\" \"npm run perf:realar\""
+    "perf:realar:watch": "concurrently --kill-others \"npm run build:watch\" \"npm run perf:realar\"",
+    "types:check": "cd typescript && tsc --noEmit"
   },
   "author": "Slava Birch <mail@betula.co> (http://betula.co)",
   "keywords": [
@@ -46,12 +49,11 @@
   ],
   "main": "build/index.js",
   "module": "build/index.esm.js",
-  "types": "realar.d.ts",
+  "types": "build/index.d.ts",
   "files": [
     "babel",
     "jest",
-    "build",
-    "realar.d.ts"
+    "build"
   ],
   "peerDependencies": {
     "react": ">=16.8.0"
@@ -80,7 +82,8 @@
     "react-dom": "16.13.1",
     "rimraf": "3.0.2",
     "rollup": "2.23.1",
-    "rollup-plugin-terser": "7.0.0"
+    "rollup-plugin-terser": "7.0.0",
+    "typescript": "4.0.2"
   },
   "browserslist": [
     "last 2 Chrome versions"
