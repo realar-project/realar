@@ -1,3 +1,4 @@
+import React from "react";
 import { unit, useUnit } from "../build";
 
 interface Item {
@@ -7,6 +8,7 @@ interface Item {
 
 const Unit = unit({
   todos: [] as Item[],
+  disabled: null as boolean | null,
 
   add(title: string) {
     this.todos = [
@@ -22,6 +24,10 @@ const Unit = unit({
 });
 
 export const App = () => {
-  useUnit(Unit);
-  return null;
+  const { todos, disabled, add, toggle} = useUnit(Unit);
+  todos.map(() => 0);
+  if (disabled) return;
+  add("hello");
+  toggle(todos[0]);
+  return <div />;
 };

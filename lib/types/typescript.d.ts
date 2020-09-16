@@ -14,16 +14,16 @@ export {
   unmock
 }
 
-interface Function<A = [], R = void> {
+interface Func<A extends any[] = [], R = void> {
   (...args: A): R;
 }
-type Action<P> = Function<P> & Promise<P>;
-type Call<P, R> = Function<P, R>;
-type Signal<P> = Function<P>;
+type Action<P extends []> = Func<P> & Promise<P>;
+type Call<P extends [], R> = Func<P, R>;
+type Signal<P extends []> = Func<P>;
 
-declare function action<T extends []>(): Action<T>;
-declare function call<T extends [], R = null>(): Call<T, R>;
-declare function signal<T extends []>(): Signal<T>;
+declare function action<T extends [] = []>(): Action<T>;
+declare function call<T extends [] = [], R = null>(): Call<T, R>;
+declare function signal<T extends [] = []>(): Signal<T>;
 
 type UnitAsyncMethodsPending<T> = {
   [P in keyof T]: T[P] extends (...args: any[]) => Promise<any>
@@ -32,16 +32,22 @@ type UnitAsyncMethodsPending<T> = {
 };
 type UnitInstance<T> = Omit<UnitAsyncMethodsPending<T>, "constructor" | "destructor" | "expression">;
 
-type UnitFactory<A, T> = (...args: A) => UnitInstance<T>;
-type UnitClass<A, T> = new (...args: A) => UnitInstance<T>;
-type UnitConstructorParameters<T> = Parameters<T["constructor"]>;
-type Unit<T, A = UnitConstructorParameters<T>> = UnitFactory<A, T> & UnitClass<A, T>;
+type UnitFactory<A extends any[], T> = (...args: A) => UnitInstance<T>;
+type UnitClass<A extends any[], T> = new (...args: A) => UnitInstance<T>;
+type UnitConstructorParameters<T> = T extends { constructor: (...args: any[]) => any }
+  ? Parameters<T["constructor"]>
+  : [];
 
-interface UnitSchema { // TODO: may be working????
-  [key: Action | Call | Signal ]: () => void
+type Unit<T> = UnitFactory<UnitConstructorParameters<T>, T> & UnitClass<UnitConstructorParameters<T>, T>;
+
+interface UnitSchemaInterface {
+  [key: string]: any,
+  constructor?: ((...args: any[]) => void) | Function,
+  destructor?: () => void,
+  expression?: () => void
 }
 
-declare function unit<T extends UnitSchema>(schema: T): Unit<T>;
+declare function unit<T extends UnitSchemaInterface>(schema: T): Unit<T>;
 declare function service<T>(unit: Unit<T>): T;
 
 declare function useUnit<T>(unit: Unit<T>, ...args: UnitConstructorParameters<T>): T;
@@ -49,13 +55,10 @@ declare function useService<T>(unit: Unit<T>): T;
 
 declare function changed(value: any): boolean;
 
-declare function ready<A = []>(callback: Function<A, unknown>, ...args: A): void;
+declare function ready<A extends any[] = []>(callback: Func<A, any>, ...args: A): void;
 
 declare function Service(props: { unit: Unit<any> }): null;
 declare function Scope(props: { children: JSX.Element }): JSX.Element;
 
 declare function mock(unit: Unit<any>): any;
 declare function unmock(unit?: Unit<any>): any;
-
-
-
