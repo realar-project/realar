@@ -17,13 +17,13 @@ export {
 interface Func<A extends any[] = [], R = void> {
   (...args: A): R;
 }
-type Action<P extends []> = Func<P> & Promise<P>;
-type Call<P extends [], R> = Func<P, R>;
-type Signal<P extends []> = Func<P>;
+type Action<P extends any[]> = Func<P> & Promise<P>;
+type Call<P extends any[], R> = Func<P, R>;
+type Signal<P extends any[]> = Func<P>;
 
-declare function action<T extends [] = []>(): Action<T>;
-declare function call<T extends [] = [], R = null>(): Call<T, R>;
-declare function signal<T extends [] = []>(): Signal<T>;
+declare function action<T extends any[] = []>(): Action<T>;
+declare function call<T extends any[] = [], R = void>(): Call<T, R>;
+declare function signal<T extends any[] = []>(): Signal<T>;
 
 type UnitAsyncMethodsPending<T> = {
   [P in keyof T]: T[P] extends (...args: any[]) => Promise<any>

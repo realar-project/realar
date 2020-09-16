@@ -8,7 +8,15 @@ interface Item {
 
 const doIt = action<[number]>();
 const shareIt = signal<[string, number]>();
-const callIt = call<[number, number[]]>();
+const callIt = call<[number, number[]], string>();
+
+doIt(10);
+shareIt("hello", 11);
+f(callIt(1, [4, 5]));
+
+function f(s: string) {
+  return s;
+};
 
 const Unit = unit({
   todos: [] as Item[],
