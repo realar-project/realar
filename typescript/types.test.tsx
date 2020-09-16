@@ -1,5 +1,5 @@
 import React from "react";
-import { unit, useUnit, action, signal, call } from "../build";
+import { unit, useUnit, action, signal, call, Service, Scope } from "../build";
 
 interface Item {
   title: string,
@@ -16,9 +16,17 @@ f(callIt(1, [4, 5]));
 
 function f(s: string) {
   return s;
-};
+}
 
 const Unit = unit({
+  /*
+    Not found way to auto define types of handler parameters
+    for action, signal and call in unit schema
+  */
+  [doIt]() {},
+  [shareIt]() {},
+  [callIt]() {},
+
   todos: [] as Item[],
   disabled: null as boolean | null,
 
@@ -32,6 +40,10 @@ const Unit = unit({
     this.todos = this.todos.map(i =>
       i === item ? { ...i, completed: !i.completed } : i
     );
+  },
+
+  constructor(initial?: Item[]) {
+    this.todos = initial ?? this.todos;
   }
 });
 
@@ -41,5 +53,9 @@ export const App = () => {
   if (disabled) return;
   add("hello");
   toggle(todos[0]);
-  return <div />;
+  return (
+    <Scope>
+      <Service unit={Unit} />
+    </Scope>
+  );
 };

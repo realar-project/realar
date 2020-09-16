@@ -17,9 +17,9 @@ export {
 interface Func<A extends any[] = [], R = void> {
   (...args: A): R;
 }
-type Action<P extends any[]> = Func<P> & Promise<P>;
-type Call<P extends any[], R> = Func<P, R>;
-type Signal<P extends any[]> = Func<P>;
+type Action<P extends any[]> = Func<P> & Promise<P> & symbol;
+type Call<P extends any[], R> = Func<P, R> & symbol;
+type Signal<P extends any[]> = Func<P> & symbol;
 
 declare function action<T extends any[] = []>(): Action<T>;
 declare function call<T extends any[] = [], R = void>(): Call<T, R>;
