@@ -42,9 +42,9 @@ type Unit<T> = UnitFactory<UnitConstructorParameters<T>, T> & UnitClass<UnitCons
 
 interface UnitSchemaInterface {
   [key: string]: any,
-  constructor?: ((...args: any[]) => void) | Function,
+  constructor?: (...args: any[]) => void,
   destructor?: () => void,
-  expression?: () => void
+  expression?: () => void,
 }
 
 declare function unit<T extends UnitSchemaInterface>(schema: T): Unit<T>;
@@ -57,7 +57,11 @@ declare function changed(value: any): boolean;
 
 declare function ready<A extends any[] = []>(callback: Func<A, any>, ...args: A): void;
 
-declare function Service(props: { unit: Unit<any> }): null;
+type UnitService = Unit<{
+  constructor?: () => void;
+}>;
+
+declare function Service<T extends UnitService>(props: { unit: T }): null;
 declare function Scope(props: { children: JSX.Element }): JSX.Element;
 
 declare function mock(unit: Unit<any>): any;

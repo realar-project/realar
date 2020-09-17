@@ -1,5 +1,5 @@
 import React from "react";
-import { unit, useUnit, action, signal, call, Service, Scope } from "../build";
+import { unit, useUnit, action, signal, call, Service, Scope, changed } from "../../build";
 
 interface Item {
   title: string,
@@ -42,8 +42,22 @@ const Unit = unit({
     );
   },
 
+  async load() {
+    return this.load.pending;
+  },
+
   constructor(initial?: Item[]) {
     this.todos = initial ?? this.todos;
+
+    // this.expression(); // May be possible change type of this??
+    // this.load.pending ??
+  },
+
+  expression() {
+    check(changed(this.todos));
+    function check(v: boolean) {
+      return v;
+    }
   }
 });
 
@@ -59,3 +73,4 @@ export const App = () => {
     </Scope>
   );
 };
+

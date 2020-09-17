@@ -33,7 +33,8 @@
     "perf:clean": "rimraf perf/*/dist perf/*/.cache",
     "perf:realar:watch": "concurrently --kill-others \"npm run build:watch\" \"npm run perf:realar\"",
     "types:ts:build": "cpy lib/types/typescript.d.ts build --rename index.d.ts",
-    "types:ts:test": "cd typescript && tsc --noEmit"
+    "types:ts:build:watch": "npm run types:ts:build && chokidar \"lib/**/*.ts\" -c \"npm run types:ts:build\"",
+    "types:ts:test": "cd types/typescript && tsc --noEmit"
   },
   "author": "Slava Birch <mail@betula.co> (http://betula.co)",
   "keywords": [
