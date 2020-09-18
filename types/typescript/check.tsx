@@ -1,31 +1,76 @@
 import React from "react";
-import { unit, useUnit, useService, action, signal, call, Service, Scope, changed, pending, on, effect } from "../../build";
+import {
+  unit,
+  useUnit,
+  useService,
+  action,
+  signal,
+  call,
+  Service,
+  Scope,
+  changed,
+  pending,
+  on,
+  effect,
+  ready,
+
+  Argument,
+  Result,
+  Handler
+} from "../../build";
 
 interface Item {
   title: string,
   completed?: boolean
 }
 
-const doIt = action<[number]>();
-const shareIt = signal<[string, number]>();
-const callIt = call<[number, number[]], string>();
+const empty = action();
+const doIt = action<number>();
+const doIt_2 = doIt;
+const shareIt = signal<string>();
+const shareIt_2 = shareIt;
+const callIt = call<number[][], number[]>();
+const callIt_2 = callIt;
 
+empty();
 doIt(10);
-shareIt("hello", 11);
-f(callIt(1, [4, 5]));
+shareIt("hello");
+f(callIt([[4, 5]]));
 
-function f(s: string) {
-  return s;
+function f(r: number[]) {
+  return r;
 }
 
 const Unit = unit({
-  /*
-    Not found way to auto define types of handler parameters
-    for action, signal and call in unit schema
-  */
-  [doIt]() {},
-  [shareIt]() {},
-  [callIt]() {},
+  [doIt]: (id: Argument<typeof doIt>) => {
+    function f(n: number) {
+      return n;
+    }
+    return f(id);
+  },
+  [doIt_2]: function() {} as Handler<typeof doIt_2>,
+
+  [shareIt]: function(text: Argument<typeof shareIt>) {
+    function f(s: string) {
+      return s;
+    }
+    return f(text);
+  },
+  [shareIt_2]: function() {} as Handler<typeof shareIt_2>,
+
+  [callIt](req: Argument<typeof callIt>): Result<typeof callIt> {
+    function f(m: number[][]) {
+      return m[0];
+    }
+    return f(req);
+  },
+  [callIt_2]: function(arg) {
+    function f(m: number[][]) {
+      return m[0];
+    }
+    return f(arg);
+  } as Handler<typeof callIt_2>,
+
 
   todos: [] as Item[],
   disabled: null as boolean | null,
@@ -50,8 +95,8 @@ const Unit = unit({
     this.todos = initial ?? this.todos;
 
     on(doIt, (n) => n.toFixed());
-    on(shareIt, (s, n) => s.charCodeAt(0) + n.toExponential());
-    on(callIt, (n, i) => n.toFixed() + i.length);
+    on(shareIt, (s) => s.charCodeAt(0));
+    on(callIt, (matrix) => matrix[0][0].toFixed());
     effect(() => {});
     effect(() => () => {});
   },
@@ -64,6 +109,12 @@ const Unit = unit({
   },
 });
 
+
+ready((n, s) => {
+  return n.toFixed() + s.charAt(0);
+}, 10, "hello");
+
+ready(() => {});
 
 export const App = () => {
 

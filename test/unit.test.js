@@ -1,4 +1,4 @@
-import { unit, pending, on, effect } from "../lib";
+import { unit, pending, on, effect, changed } from "../lib";
 
 const u = unit({
   v:1,
@@ -184,4 +184,12 @@ test("should throw exception on call effect or on functions outside of construct
 
   expect(() => u_1().m()).toThrow("Hello 1");
   expect(() => u_2().m()).toThrow("Hello 1");
+});
+
+test("should throw exception on call changed function outside of expression", () => {
+  const u_1 = unit({
+    m() { changed(); }
+  });
+
+  expect(() => u_1().m()).toThrow("Hello 1");
 });
