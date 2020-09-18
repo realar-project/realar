@@ -1,4 +1,4 @@
-import { unit } from "../lib";
+import { unit, pending } from "../lib";
 
 const u = unit({
   v:1,
@@ -143,4 +143,33 @@ test("should throw digest loop limit exception", () => {
     const i = u();
     i.u = u();
   }).toThrow("Limit digest loop iteration");
+});
+
+test("should throw exception on special unit methods manual call", () => {
+  const u_1 = unit({
+    m() { this.constructor() }
+  });
+  const u_2 = unit({
+    m() { this.destructor() }
+  });
+  const u_3 = unit({
+    m() { this.expression() }
+  });
+
+  expect(() => u_1().m()).toThrow("Hello 1");
+  expect(() => u_2().m()).toThrow("Hello 1");
+  expect(() => u_3().m()).toThrow("Hello 1");
+});
+
+test("should throw exception on pending call for non pendingable functions", () => {
+  const f = () => {};
+  const f_1 = () => new Promise();
+
+  const u = unit({
+    async m() { }
+  });
+
+  expect(() => pending(f)).toThrow("Hello 1");
+  expect(() => pending(f_1)).toThrow("Hello 1");
+  expect(pending(u().m)).toBe(false);
 });

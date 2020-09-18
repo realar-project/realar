@@ -15,7 +15,7 @@
     "publish": "npm run test && npm run build:prod && lerna publish",
     "start": "npm run bootstrap && npm run demo",
     "reinstall": "npm run clean && npm run bootstrap",
-    "test": "npm run test:clean && npm run test:run && npm run types:ts:test",
+    "test": "npm run test:clean && npm run test:run && npm run types:ts:check",
     "test:run": "cross-env REALAR_DEV=true jest --runInBand",
     "test:clean": "jest --clearCache",
     "demo": "npm run demo:clean && cd demo && cross-env NODE_ENV=development parcel index.html --port 1210",
@@ -34,7 +34,7 @@
     "perf:realar:watch": "concurrently --kill-others \"npm run build:watch\" \"npm run perf:realar\"",
     "types:ts:build": "cpy lib/types/typescript.d.ts build --rename index.d.ts",
     "types:ts:build:watch": "npm run types:ts:build && chokidar \"lib/**/*.ts\" -c \"npm run types:ts:build\"",
-    "types:ts:test": "cd types/typescript && tsc --noEmit"
+    "types:ts:check": "cd types/typescript && tsc --noEmit"
   },
   "author": "Slava Birch <mail@betula.co> (http://betula.co)",
   "keywords": [

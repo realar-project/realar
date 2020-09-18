@@ -1,5 +1,5 @@
 import React from "react";
-import { unit, useUnit, action, signal, call, Service, Scope, changed } from "../../build";
+import { unit, useUnit, useService, action, signal, call, Service, Scope, changed, pending } from "../../build";
 
 interface Item {
   title: string,
@@ -42,15 +42,12 @@ const Unit = unit({
     );
   },
 
-  async load() {
-    return this.load.pending;
+  async load(): Promise<boolean> {
+    return pending(this.load);
   },
 
   constructor(initial?: Item[]) {
     this.todos = initial ?? this.todos;
-
-    // this.expression(); // May be possible change type of this??
-    // this.load.pending ??
   },
 
   expression() {
@@ -58,19 +55,26 @@ const Unit = unit({
     function check(v: boolean) {
       return v;
     }
-  }
+  },
 });
 
+
 export const App = () => {
-  const { todos, disabled, add, toggle} = useUnit(Unit);
+
+  const instance = Unit();
+
+  const { todos, disabled, add, toggle} = instance;
   todos.map(() => 0);
   if (disabled) return;
   add("hello");
   toggle(todos[0]);
+
+  useUnit(Unit).todos.map(() => 0);
+  useService(Unit).todos.map(() => 0);
+
   return (
     <Scope>
       <Service unit={Unit} />
     </Scope>
   );
 };
-
