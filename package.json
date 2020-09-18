@@ -15,7 +15,7 @@
     "publish": "npm run test && npm run build:prod && lerna publish",
     "start": "npm run bootstrap && npm run demo",
     "reinstall": "npm run clean && npm run bootstrap",
-    "test": "npm run test:clean && npm run test:run && npm run types:ts:check",
+    "test": "npm run test:clean && npm run types:ts:check && npm run test:run",
     "test:run": "cross-env REALAR_DEV=true jest --runInBand",
     "test:clean": "jest --clearCache",
     "demo": "npm run demo:clean && cd demo && cross-env NODE_ENV=development parcel index.html --port 1210",

@@ -46,8 +46,7 @@ const App = () => {
 + Action, Call and Signal
 + [Jest unit test usage](./docs/jest.md)
 + [Examples](./docs/examples.md)
-+ Types
-  + [TypeScript](./docs/typescript.md)
++ [TypeScript](./docs/typescript.md)
 + Migrate mind from:
   + [Redux](./docs/migrate-from-redux.md)
   + [Mobx](./docs/migrate-from-mobx.md)
@@ -60,6 +59,7 @@ const App = () => {
 + unit
 + useUnit
 + changed
++ pending
 + useService
 + service
 + Service

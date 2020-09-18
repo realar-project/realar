@@ -169,8 +169,9 @@ test("should throw exception on pending call for non pendingable functions", () 
     async m() { }
   });
 
-  expect(() => pending(f)).toThrow("Hello 1");
-  expect(() => pending(f_1)).toThrow("Hello 1");
+  const msg = `Function "pending" support only async unit method as agrument`;
+  expect(() => pending(f)).toThrow(msg);
+  expect(() => pending(f_1)).toThrow(msg);
   expect(pending(u().m)).toBe(false);
 });
 
