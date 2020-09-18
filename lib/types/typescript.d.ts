@@ -8,6 +8,8 @@ export {
   useService,
   changed,
   pending,
+  on,
+  effect,
   ready,
   Service,
   Scope,
@@ -57,7 +59,14 @@ declare function useService<T extends UnitSchemaInterface>(unit: Unit<T>): UnitI
 declare function changed(value: any): boolean;
 declare function pending(async: Func<any, Promise<any>>): boolean;
 
-declare function ready<A extends any[] = []>(callback: Func<A, any>, ...args: A): void;
+declare function on<P extends any[]>(target: Action<P>, fn: Func<P>): void;
+declare function on<P extends any[], R>(target: Call<P, R>, fn: Func<P, R>): void;
+declare function on<P extends any[]>(target: Signal<P>, fn: Func<P>): void;
+
+declare function effect(fn: () => () => void): void;
+declare function effect(fn: () => void): void;
+
+declare function ready<A extends any[] = []>(fn: Func<A, any>, ...args: A): void;
 
 type UnitService = Unit<{
   constructor?: () => void;

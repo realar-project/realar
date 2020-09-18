@@ -1,5 +1,5 @@
 import React from "react";
-import { unit, useUnit, useService, action, signal, call, Service, Scope, changed, pending } from "../../build";
+import { unit, useUnit, useService, action, signal, call, Service, Scope, changed, pending, on, effect } from "../../build";
 
 interface Item {
   title: string,
@@ -48,6 +48,12 @@ const Unit = unit({
 
   constructor(initial?: Item[]) {
     this.todos = initial ?? this.todos;
+
+    on(doIt, (n) => n.toFixed());
+    on(shareIt, (s, n) => s.charCodeAt(0) + n.toExponential());
+    on(callIt, (n, i) => n.toFixed() + i.length);
+    effect(() => {});
+    effect(() => () => {});
   },
 
   expression() {

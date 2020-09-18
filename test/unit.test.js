@@ -1,4 +1,4 @@
-import { unit, pending } from "../lib";
+import { unit, pending, on, effect } from "../lib";
 
 const u = unit({
   v:1,
@@ -172,4 +172,16 @@ test("should throw exception on pending call for non pendingable functions", () 
   expect(() => pending(f)).toThrow("Hello 1");
   expect(() => pending(f_1)).toThrow("Hello 1");
   expect(pending(u().m)).toBe(false);
+});
+
+test("should throw exception on call effect or on functions outside of constructor", () => {
+  const u_1 = unit({
+    m() { on(); }
+  });
+  const u_2 = unit({
+    m() { effect(); }
+  });
+
+  expect(() => u_1().m()).toThrow("Hello 1");
+  expect(() => u_2().m()).toThrow("Hello 1");
 });
