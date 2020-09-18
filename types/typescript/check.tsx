@@ -16,7 +16,8 @@ import {
 
   Argument,
   Result,
-  Handler
+  Handler,
+  AsyncPool
 } from "../../build";
 
 interface Item {
@@ -106,6 +107,7 @@ const Unit = unit({
     function check(v: boolean) {
       return v;
     }
+    (this.load as AsyncPool).pending || pending(this.load);
   },
 });
 
@@ -120,14 +122,17 @@ export const App = () => {
 
   const instance = Unit();
 
-  const { todos, disabled, add, toggle} = instance;
+  const { todos, disabled, add, toggle, load} = instance;
+  if (load.pending) return;
   todos.map(() => 0);
   if (disabled) return;
   add("hello");
   toggle(todos[0]);
 
   useUnit(Unit).todos.map(() => 0);
+  useUnit(Unit).load.pending;
   useService(Unit).todos.map(() => 0);
+  useService(Unit).load.pending;
 
   return (
     <Scope>

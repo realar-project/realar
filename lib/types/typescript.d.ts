@@ -16,6 +16,7 @@ export {
   mock,
   unmock,
 
+  AsyncPool,
   Argument,
   Result,
   Handler
@@ -34,9 +35,9 @@ type Action<P extends any> = Func<[P]> & Promise<P> & number;
 type Call<P extends any, R extends any> = Func<[P], R> & number;
 type Signal<P extends any> = Func<[P]> & number;
 
-declare function action<T extends any>(): Action<T>;
-declare function call<T extends any, R extends any>(): Call<T, R>;
-declare function signal<T extends any>(): Signal<T>;
+declare function action<T extends any = void>(): Action<T>;
+declare function call<T extends any = void, R extends any = void>(): Call<T, R>;
+declare function signal<T extends any = void>(): Signal<T>;
 
 type Argument<T> = T extends Action<infer P>
   ? P
@@ -56,7 +57,16 @@ type Handler<T> = T extends Action<infer P>
   : never
 ;
 
-type UnitInstance<T> = Omit<T, "constructor" | "destructor" | "expression">;
+type AsyncPool = ((...args: any[]) => Promise<any>) & {
+  pending: boolean
+};
+
+type UnitAsyncMethodsPending<T> = {
+  [P in keyof T]: T[P] extends (...args: any[]) => Promise<any>
+    ? T[P] & { pending: boolean; }
+    : T[P];
+};
+type UnitInstance<T> = Omit<UnitAsyncMethodsPending<T>, "constructor" | "destructor" | "expression">;
 
 type UnitFactory<A extends any[], T> = (...args: A) => UnitInstance<T>;
 type UnitClass<A extends any[], T> = new (...args: A) => UnitInstance<T>;
