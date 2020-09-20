@@ -156,9 +156,9 @@ test("should throw exception on special unit methods manual call", () => {
     m() { this.expression() }
   });
 
-  expect(() => u_1().m()).toThrow("Hello 1");
-  expect(() => u_2().m()).toThrow("Hello 1");
-  expect(() => u_3().m()).toThrow("Hello 1");
+  expect(() => u_1().m()).toThrow("Manual call of unit constructor unsupported");
+  expect(() => u_2().m()).toThrow("Manual call of unit destructor unsupported");
+  expect(() => u_3().m()).toThrow("Manual call of unit expression unsupported");
 });
 
 test("should throw exception on pending call for non pendingable functions", () => {
