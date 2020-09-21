@@ -58,6 +58,7 @@ const App = () => {
 
 + unit
 + useUnit
++ effect
 + changed
 + pending
 + useService
@@ -66,6 +67,7 @@ const App = () => {
 + action
 + call
 + signal
++ on
 + Scope
 + mock
 + unmock

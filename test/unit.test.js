@@ -1,4 +1,4 @@
-import { unit, pending, on, effect, changed } from "../lib";
+import { unit, pending, on, effect, changed, action } from "../lib";
 
 const u = unit({
   v:1,
@@ -175,22 +175,39 @@ test("should throw exception on pending call for non pendingable functions", () 
   expect(pending(u().m)).toBe(false);
 });
 
-test("should throw exception on call effect or on functions outside of constructor", () => {
-  const u_1 = unit({
-    m() { on(); }
-  });
-  const u_2 = unit({
-    m() { effect(); }
-  });
-
-  expect(() => u_1().m()).toThrow("Hello 1");
-  expect(() => u_2().m()).toThrow("Hello 1");
-});
-
 test("should throw exception on call changed function outside of expression", () => {
+  const fn = jest.fn();
   const u_1 = unit({
-    m() { changed(); }
+    m() { changed(); },
+    expression() {
+      if (!changed(null)) {
+        fn();
+      }
+    }
   });
+  const i_1 = u_1();
 
-  expect(() => u_1().m()).toThrow("Hello 1");
+  expect(fn).toHaveBeenCalledTimes(1);
+  expect(() => i_1.m()).toThrow(`Unsupported "changed" function call outside of unit "expression"`);
 });
+
+test("should throw exception on call effect or on functions outside of constructor", () => {
+  const s = action();
+  const u_1 = unit({
+    on1() { on(); },
+    on2() { on(s); },
+    on3() { on(s, () => {}); },
+
+    effect1() { effect(); },
+    effect2() { effect(() => {}); }
+  });
+  const i_1 = u_1();
+
+  expect(() => i_1.on1()).toThrow(`Only action, signal and call supported as first argument for "on" function`);
+  expect(() => i_1.on2()).toThrow(`Only function supported as second argument for "on" function`);
+  expect(() => i_1.on3()).toThrow(`Unsupported "on" function call outside of unit "constructor"`);
+
+  expect(() => i_1.effect1()).toThrow(`Only function supported as first argument for "effect" function`);
+  expect(() => i_1.effect2()).toThrow(`Unsupported "effect" function call outside of unit "constructor"`);
+});
+
