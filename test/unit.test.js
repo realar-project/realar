@@ -1,4 +1,4 @@
-import { unit } from "../lib";
+import { unit, pending, on, effect, changed, action } from "../lib";
 
 const u = unit({
   v:1,
@@ -123,6 +123,22 @@ test("should work unit composition", () => {
   expect(p.o).toBe(1602);
 });
 
+test("should work unit with function expressions", () => {
+  const u = unit({
+    a: 10,
+    k: function f(step = 0) {
+      if (step < 5) {
+        return f.call(this, step + 1);
+      }
+      return this.a + step;
+    }
+  })
+  const i = u();
+  const { k } = i;
+
+  expect(k()).toBe(15);;
+});
+
 test("should throw digest loop limit exception", () => {
   const u = unit({
     u: null,
@@ -144,3 +160,74 @@ test("should throw digest loop limit exception", () => {
     i.u = u();
   }).toThrow("Limit digest loop iteration");
 });
+
+test("should throw exception on special unit methods manual call", () => {
+  const u_1 = unit({
+    m() { this.constructor() }
+  });
+  const u_2 = unit({
+    m() { this.destructor() }
+  });
+  const u_3 = unit({
+    m() { this.expression() }
+  });
+
+  expect(() => u_1().m()).toThrow("Manual call of unit constructor unsupported");
+  expect(() => u_2().m()).toThrow("Manual call of unit destructor unsupported");
+  expect(() => u_3().m()).toThrow("Manual call of unit expression unsupported");
+});
+
+test("should throw exception on pending call for non pendingable functions", () => {
+  const f = () => {};
+  const f_1 = () => new Promise();
+
+  const u = unit({
+    async m() { }
+  });
+
+  const msg = `Function "pending" support only async unit method as agrument`;
+  expect(() => pending(f)).toThrow(msg);
+  expect(() => pending(f_1)).toThrow(msg);
+  expect(pending(u().m)).toBe(false);
+});
+
+test("should throw exception on call changed function outside of expression", () => {
+  const fn = jest.fn();
+  const u_1 = unit({
+    m() { changed(); },
+    expression() {
+      if (!changed(null)) {
+        fn();
+      }
+    }
+  });
+  const i_1 = u_1();
+
+  expect(fn).toHaveBeenCalledTimes(1);
+  expect(() => i_1.m()).toThrow(`Unsupported "changed" function call outside of unit "expression"`);
+});
+
+test("should throw exception on call effect or on functions outside of constructor", () => {
+  const s = action();
+  const u_1 = unit({
+    on1() { on(); },
+    on2() { on(s); },
+    on3() { on(s, () => {}); },
+
+    effect1() { effect(); },
+    effect2() { effect(() => {}); }
+  });
+  const i_1 = u_1();
+
+  expect(() => i_1.on1()).toThrow(`Only action, signal and call supported as first argument for "on" function`);
+  expect(() => i_1.on2()).toThrow(`Only function supported as second argument for "on" function`);
+
+  // TODO: to backlog
+  // expect(() => i_1.on3()).toThrow(`Unsupported "on" function call outside of unit "constructor"`);
+
+  expect(() => i_1.effect1()).toThrow(`Only function supported as argument for "effect" function`);
+
+  // TODO: to backlog
+  // expect(() => i_1.effect2()).toThrow(`Unsupported "effect" function call outside of unit "constructor"`);
+});
+

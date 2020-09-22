@@ -9,11 +9,11 @@ test("should fix: signal run twice for same value", () => {
   expect(spy).toHaveBeenCalledTimes(1);
   expect(spy).toHaveBeenLastCalledWith(1);
 
-  s(1, "b");
-  s(1, "b");
+  s(10);
+  s(10);
   expect(spy).toHaveBeenCalledTimes(2);
-  expect(spy).toHaveBeenLastCalledWith(1, "b");
+  expect(spy).toHaveBeenLastCalledWith(10);
 
-  s("b", "b");
-  expect(spy).toHaveBeenLastCalledWith("b", "b");
+  s("b");
+  expect(spy).toHaveBeenLastCalledWith("b");
 });

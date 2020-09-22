@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState } from "react";
 import { mount } from "enzyme";
 
 import {
@@ -10,7 +10,6 @@ import {
 test("should work unit arguments pass", () => {
   let constr = jest.fn();
   let destr = jest.fn();
-  let set_args;
 
   const u_f = unit({
     constructor(...args) {
@@ -24,16 +23,28 @@ test("should work unit arguments pass", () => {
   function A() {
     const hook_descriptor = useState([]);
     let args = hook_descriptor[0];
-    set_args = hook_descriptor[1];
+    let set_args = hook_descriptor[1];
 
-    const u = useUnit(u_f, ...args);
-    return null;
+    useUnit(u_f, ...args);
+    return (
+      <button onClick={() => set_args([1, "hello", 5])} />
+    )
   }
-
 
   const el = mount(<A/>);
 
   expect(constr).toHaveBeenCalledTimes(1);
   expect(constr).toHaveBeenCalledWith();
 
+  el.find("button").simulate("click");
+  el.find("button").simulate("click");
+
+  // TODO: fix bug with non called constructor immediately after unlink
+  // expect(destr).toHaveBeenCalledTimes(1);
+
+  expect(constr).toHaveBeenCalledTimes(2);
+  expect(constr).toHaveBeenLastCalledWith(1, "hello", 5);
+
+  el.unmount();
+  expect(destr).toHaveBeenCalledTimes(2);
 });

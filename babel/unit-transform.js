@@ -63,7 +63,10 @@ function unit_transform(path, _state) {
         let name = prop.key.name;
         let value = prop.value;
 
-        if (types.isArrowFunctionExpression(value)) {
+        let isArrowFunction = types.isArrowFunctionExpression(value);
+        let isFunctionExpression = types.isFunctionExpression(value);
+
+        if (isArrowFunction || isFunctionExpression) {
           switch (name) {
             case "constructor":
             case "destructor":
@@ -71,6 +74,12 @@ function unit_transform(path, _state) {
               throw new Error(`unit method "${name}" unsupported as arrow function`);
           }
           let { body, params, async, generator }  = value;
+
+          let is_func_expr = isFunctionExpression;
+          let func_expr_name = '';
+          if (is_func_expr && value.id) {
+            func_expr_name = value.id.name;
+          }
 
           if (!types.isBlockStatement(body)) {
             let tpl = template(`{ return BODY; }`);
@@ -86,7 +95,9 @@ function unit_transform(path, _state) {
               body,
               params,
               async,
-              generator
+              generator,
+              is_func_expr,
+              func_expr_name
             ]);
             continue;
           }
@@ -96,7 +107,9 @@ function unit_transform(path, _state) {
             body,
             params,
             async,
-            generator
+            generator,
+            is_func_expr,
+            func_expr_name
           ]);
           continue;
         }
@@ -283,7 +296,7 @@ function unit_transform(path, _state) {
 
     let methods_uniq_seq = 0;
     for (let method of methods) {
-      let [ name, body, params, _async, _generator ] = method;
+      let [ name, body, params, async, _generator, is_func_expr, func_expr_name ] = method;
       const params_ph = `PARAMS_${name.toUpperCase()}_${++methods_uniq_seq}`;
       const body_ph = `METHOD_BODY_${name.toUpperCase()}_${++methods_uniq_seq}`;
 
@@ -293,39 +306,74 @@ function unit_transform(path, _state) {
         return params_ph;
       }
 
-      if (!_async) {
-        text_return_section.push(`(${text_params()}) => {
-          ${body_ph}
-        }`);
+      if (is_func_expr) {
+        let name_ph = '';
+        if (func_expr_name) {
+          name_ph = `NAME_${func_expr_name.toUpperCase()}_${++methods_uniq_seq}`;
+          literals[name_ph] = func_expr_name;
+        }
+        if (!async) {
+          text_return_section.push(`function ${name_ph}(${text_params()}) {
+            ${body_ph}
+          }.bind(this)`);
+        }
+        else {
+          let m_fn_name = path.scope.generateUid("m_fn");
+          let m_proc_name = path.scope.generateUid("m_proc");
+
+          text.push(
+            `let ${m_proc_name} = 0,
+              ${m_fn_name} = async function ${name_ph}() {
+                ${m_fn_name}.pending = ++${m_proc_name} > 0;
+                try {
+                  return await (async function(${text_params()}) {
+                    ${body_ph}
+                  }).apply(this, arguments);
+                } finally {
+                  ${m_fn_name}.pending = --${m_proc_name} > 0;
+                }
+              }.bind(this);
+            Object.defineProperty(${m_fn_name}, "pending", ${unit_crate_box_name}(false));
+            `
+          );
+          text_return_section.push(m_fn_name);
+        }
       }
       else {
-        let m_fn_name = path.scope.generateUid("m_fn");
-        let m_proc_name = path.scope.generateUid("m_proc");
+        if (!async) {
+          text_return_section.push(`(${text_params()}) => {
+            ${body_ph}
+          }`);
+        }
+        else {
+          let m_fn_name = path.scope.generateUid("m_fn");
+          let m_proc_name = path.scope.generateUid("m_proc");
 
-        text.push(
-          `let ${m_proc_name} = 0,
-            ${m_fn_name} = async (...args) => {
-              ${m_fn_name}.pending = ++${m_proc_name} > 0;
-              try {
-                return await (async function(${text_params()}) {
-                  ${body_ph}
-                }).apply(this, args);
-              } finally {
-                ${m_fn_name}.pending = --${m_proc_name} > 0;
-              }
-            };
-          Object.defineProperty(${m_fn_name}, "pending", ${unit_crate_box_name}(false));
-          `
-        );
-        text_return_section.push(m_fn_name);
+          text.push(
+            `let ${m_proc_name} = 0,
+              ${m_fn_name} = async (...args) => {
+                ${m_fn_name}.pending = ++${m_proc_name} > 0;
+                try {
+                  return await (async function(${text_params()}) {
+                    ${body_ph}
+                  }).apply(this, args);
+                } finally {
+                  ${m_fn_name}.pending = --${m_proc_name} > 0;
+                }
+              };
+            Object.defineProperty(${m_fn_name}, "pending", ${unit_crate_box_name}(false));
+            `
+          );
+          text_return_section.push(m_fn_name);
+        }
       }
+
       literals[body_ph] = body.body;
     }
 
-
     let actions_uniq_seq = 0;
     for (let action of actions) {
-      let [ name, body, params, _async, _generator ] = action;
+      let [ name, body, params, async, _generator, is_func_expr, func_expr_name ] = action;
       const params_ph = `PARAMS_${name.toUpperCase()}_${++actions_uniq_seq}`;
       const body_ph = `ACTION_BODY_${name.toUpperCase()}_${++actions_uniq_seq}`;
 
@@ -336,13 +384,26 @@ function unit_transform(path, _state) {
       }
 
       function text_async() {
-        if (!_async) return "";
+        if (!async) return "";
         return "async ";
       }
 
-      text_return_section.push(`${text_async()}(${text_params()}) => {
-        ${body_ph}
-      }`);
+      if (is_func_expr) {
+        let name_ph = '';
+        if (func_expr_name) {
+          name_ph = `NAME_${func_expr_name.toUpperCase()}_${++actions_uniq_seq}`;
+          literals[name_ph] = func_expr_name;
+        }
+        text_return_section.push(`${text_async()}function ${name_ph}(${text_params()}) {
+          ${body_ph}
+        }.bind(this)`);
+      }
+      else {
+        text_return_section.push(`${text_async()}(${text_params()}) => {
+          ${body_ph}
+        }`);
+      }
+
       literals[body_ph] = body.body;
     }
 

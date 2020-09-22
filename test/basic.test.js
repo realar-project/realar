@@ -26,8 +26,8 @@ const logger = unit({
   get text() {
     return this.lines.join("\n");
   },
-  [log](...args) {
-    this.lines = [...this.lines, args.join(" ")];
+  [log](msg) {
+    this.lines = [...this.lines, msg];
   }
 });
 
@@ -65,7 +65,7 @@ const user = unit({
   },
   async async_constructor() {
     await backend_async_init;
-    log("user", this.id, "backend_async_init");
+    log(`user ${this.id} backend_async_init`);
   }
 });
 
@@ -75,7 +75,7 @@ const stepper = unit({
     this.step += 1;
   },
   [x10]() {
-    log("step:", this.step, "->", this.step * 10);
+    log(`step: ${this.step} -> ${this.step * 10}`);
     this.step *= 10;
   }
 });
