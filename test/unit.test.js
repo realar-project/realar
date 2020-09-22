@@ -123,6 +123,22 @@ test("should work unit composition", () => {
   expect(p.o).toBe(1602);
 });
 
+test("should work unit with function expressions", () => {
+  const u = unit({
+    a: 10,
+    k: function f(step = 0) {
+      if (step < 5) {
+        return f.call(this, step + 1);
+      }
+      return this.a + step;
+    }
+  })
+  const i = u();
+  const { k } = i;
+
+  expect(k()).toBe(15);;
+});
+
 test("should throw digest loop limit exception", () => {
   const u = unit({
     u: null,

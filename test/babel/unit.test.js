@@ -230,12 +230,24 @@ test("should transform unit with anonymous func methods", () => {
   });
   `;
   const expected = `export const notifier = unit(function () {
-  return [0, 0, 0, 0, 10, () => {}, code => {
+  let _m_proc = 0,
+      _m_fn = async function m() {
+    _m_fn.pending = ++_m_proc > 0;·
+    try {
+      return await async function (val) {
+        return this.a + val + Number(m.pending);
+      }.apply(this, arguments);
+    } finally {
+      _m_fn.pending = --_m_proc > 0;
+    }
+  }.bind(this);·
+  Object.defineProperty(_m_fn, \"pending\", unit.b(false));
+  return [0, 0, 0, 0, 10, function () {}.bind(this), function f(code) {
     return -code + this.a;
-  }, val => {
+  }.bind(this), _m_fn, function (val) {
     return this.current = val + this.a;
-  }];
-}, [], [], ["ok", "fail"], [counter]);`;
+  }.bind(this)];
+}, [\"a\"], [], [\"ok\", \"fail\", \"m\"], [counter]);`.replace(/·/gm, "\n");
   expect(transform(code)).toBe(expected);
 });
 
