@@ -36,42 +36,10 @@ const App = () => {
 };
 ```
 
-### Tutorials
 
-+ [Installation](./docs/installation.md)
-+ Introduction
-+ [Quick Start](./docs/quick-start.md)
-+ Unit
-+ Service
-+ Action, Call and Signal
-+ [Jest unit test usage](./docs/jest.md)
-+ [Examples](./docs/examples.md)
-+ [TypeScript](./docs/typescript.md)
-+ Migrate mind from:
-  + [Redux](./docs/migrate-from-redux.md)
-  + [Mobx](./docs/migrate-from-mobx.md)
-  + Angular
-+ Advanced section
-  + Scope
+### Slides
 
-### Glossary
-
-+ unit
-+ useUnit
-+ effect
-+ changed
-+ pending
-+ useService
-+ service
-+ Service
-+ action
-+ call
-+ signal
-+ on
-+ Scope
-+ mock
-+ unmock
-+ ready
++ [Realar understanding](https://docs.google.com/presentation/d/1kEORchNg8AKYjl294nw_4aA6C5EINpXNkO-aevkZelw/edit?usp=sharing)
 
 
 ### Installation
@@ -105,6 +73,7 @@ ready(() => render(<App />, document.getElementById("root")));
 ```
 
 Enjoy!
+
 
 ### Demo
 
