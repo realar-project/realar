@@ -8,10 +8,10 @@ Reactive state manager for React.
 
 ```javascript
 import React from "react";
-import { unit, useUnit } from "realar";
+import { unit, useOwn } from "realar";
 import axios from "axios";
 
-const TodosUnit = unit({
+const Todos = unit({
   todos: [],
   async fetch() {
     const { data } = await axios.get("/api/todos");
@@ -19,11 +19,14 @@ const TodosUnit = unit({
   },
   constructor() {
     this.fetch();
+  },
+  get completed() {
+    return this.todos.filter(task => task.completed);
   }
 });
 
 const App = () => {
-  const { todos, fetch } = useUnit(TodosUnit);
+  const { todos, fetch } = useOwn(Todos);
 
   if (fetch.pending) {
     return (
