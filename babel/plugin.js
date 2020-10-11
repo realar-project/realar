@@ -25,8 +25,8 @@ function plugin() {
           case "unit":
             unit_transform(path, state);
             break;
-          case "useUnit":
-          case "useService":
+          case "useOwn":
+          case "useShared":
             view_transform(path, state);
             break;
         }

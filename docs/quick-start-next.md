@@ -6,7 +6,7 @@ After understending all previous example terms, we can make small emprovements. 
 
 ```javascript
 import React from "react";
-import { unit, useUnit } from "realar";
+import { unit, useOwn } from "realar";
 import axios from "axios";
 
 const LikeUnit = unit({
@@ -31,7 +31,7 @@ const LikeUnit = unit({
 });
 
 const Like = ({ id }) => {
-  const { like, likes, loading } = useUnit(LikeUnit, id);
+  const { like, likes, loading } = useOwn(LikeUnit, id);
 
   return (
     <div>

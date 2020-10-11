@@ -43,12 +43,12 @@ export const LikeLoaderService = unit({
 
 ```javascript
 // ./like-unit.js
-import { unit, service } from "realar";
+import { unit, shared } from "realar";
 import axios from "axios";
 import { LikeLoaderService } from "./like-unit";
 
 export const LikeUnit = unit({
-  loader: service(LikeLoaderService),
+  loader: shared(LikeLoaderService),
 
   id: null,
   likes: null,
@@ -75,10 +75,10 @@ export const LikeUnit = unit({
 ```javascript
 // ./like.jsx
 import React from "react";
-import { useUnit } from "realar";
+import { useOwn } from "realar";
 
 const Like = ({ id }) => {
-  const { like, likes, loading } = useUnit(LikeUnit, id);
+  const { like, likes, loading } = useOwn(LikeUnit, id);
 
   return (
     <div>

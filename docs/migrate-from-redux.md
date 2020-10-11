@@ -65,13 +65,13 @@ export const CurrentUserStore = unit({
 ```javascript
 // ./login.jsx
 import React from "react";
-import { useService } from "realar":
+import { useShared } from "realar":
 import { Store } from "./store";
 import { UserLogouted } from "./login-events";
 import { LoginForm } from "./login-form.jsx";
 
 export const Login = () => {
-  const { currentUser } = useService(Store);
+  const { currentUser } = useShared(Store);
   const { logined } = currentUser;
   if (logined) {
     return (
@@ -88,11 +88,11 @@ export const Login = () => {
 ```javascript
 // ./login-form.jsx
 import React from "react";
-import { useUnit } from "realar":
+import { useOwn } from "realar":
 import { LoginFormUnit } from "./login-form-unit";
 
 export const LoginForm = () => {
-  const form = useUnit(LoginFormUnit);
+  const form = useOwn(LoginFormUnit);
   return (
     <form onSubmit={form.submit}>
       <label>

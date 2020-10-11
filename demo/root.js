@@ -3,12 +3,12 @@ import {
   call,
   changed,
   action,
-  service,
-  Service,
+  shared,
+  Shared,
   signal,
   unit,
-  useService,
-  useUnit,
+  useShared,
+  useOwn,
   Scope
 } from "realar";
 
@@ -81,7 +81,7 @@ const stepper = unit({
 const ticker = unit({
   user: user(),
   backend_proc: 0,
-  stepper: service(stepper),
+  stepper: shared(stepper),
   after: 0,
   current: 0,
   get step() {
@@ -110,8 +110,8 @@ const ticker = unit({
 });
 
 function App() {
-  const { current, next, after, tick, user, save, backend_proc } = useUnit(ticker);
-  const { step, inc } = useService(stepper);
+  const { current, next, after, tick, user, save, backend_proc } = useOwn(ticker);
+  const { step, inc } = useShared(stepper);
   const { load, loading, name } = user;
   return (
     <div>
@@ -134,7 +134,7 @@ function App() {
 }
 
 function Logger() {
-  const { text } = useService(logger);
+  const { text } = useShared(logger);
   return (
     <textarea value={text} readOnly />
   )
@@ -152,7 +152,7 @@ const whirl = unit({
 });
 
 function Whirl({ children }) {
-  const { map, shift, push } = useUnit(whirl);
+  const { map, shift, push } = useOwn(whirl);
   return (
     <>
       <button onClick={shift}>-</button>
@@ -173,7 +173,7 @@ export function Root() {
         <App />
       </Whirl>
       <Logger />
-      <Service unit={backend}/>
+      <Shared unit={backend}/>
     </>
   );
 }

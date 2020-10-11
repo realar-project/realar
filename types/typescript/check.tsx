@@ -1,12 +1,13 @@
 import React from "react";
 import {
   unit,
-  useUnit,
-  useService,
+  useOwn,
+  useShared,
   action,
   signal,
   call,
-  Service,
+  shared,
+  Shared,
   Scope,
   changed,
   pending,
@@ -42,7 +43,13 @@ function f(r: number[]) {
   return r;
 }
 
+const Router = unit({
+  path: null,
+});
+
 const Unit = unit({
+  service: shared(Router),
+
   [doIt]: (id: Argument<typeof doIt>) => {
     function f(n: number) {
       return n;
@@ -129,14 +136,15 @@ export const App = () => {
   add("hello");
   toggle(todos[0]);
 
-  useUnit(Unit).todos.map(() => 0);
-  useUnit(Unit).load.pending;
-  useService(Unit).todos.map(() => 0);
-  useService(Unit).load.pending;
+  useOwn(Unit).todos.map(() => 0);
+  useOwn(Unit).load.pending;
+  useShared(Unit).todos.map(() => 0);
+  useShared(Unit).load.pending;
 
   return (
     <Scope>
-      <Service unit={Unit} />
+      <Shared unit={Unit} />
+      <Shared unit={Router} />
     </Scope>
   );
 };

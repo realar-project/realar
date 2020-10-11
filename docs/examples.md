@@ -4,7 +4,7 @@ Perfect usage :+1:
 
 ```javascript
 import React from "react";
-import { unit, useUnit } from "realar";
+import { unit, useOwn } from "realar";
 
 const Ticker = unit({
   current: 0,
@@ -21,7 +21,7 @@ const Ticker = unit({
 });
 
 export default function App() {
-  const { current, next, after, tick } = useUnit(Ticker);
+  const { current, next, after, tick } = useOwn(Ticker);
   return (
     <>
       <h1>Realar ticker</h1>
@@ -40,7 +40,7 @@ Redux style usage :sunglasses:
 
 ```javascript
 import React, { useCallback } from "react";
-import { unit, useService, action } from "realar";
+import { unit, useShared, action } from "realar";
 
 const add = action();
 const toggle = action();
@@ -83,7 +83,7 @@ function TodoItem({ item }) {
 }
 
 function TodoList() {
-  const { all } = useService(store);
+  const { all } = useShared(store);
   return (
     <div className="todo-list">
       {all.map(item => <TodoItem item={item} />)}
@@ -139,12 +139,12 @@ import {
   call,
   changed,
   action,
-  service,
-  Service,
+  shared,
+  Shared,
   signal,
   unit,
-  useService,
-  useUnit,
+  useShared,
+  useOwn,
   Scope
 } from "realar";
 
@@ -217,7 +217,7 @@ const stepper = unit({
 const ticker = unit({
   user: user(),
   backend_proc: 0,
-  stepper: service(stepper),
+  stepper: shared(stepper),
   after: 0,
   current: 0,
   get step() {
@@ -246,8 +246,8 @@ const ticker = unit({
 });
 
 function App() {
-  const { current, next, after, tick, user, save, backend_proc } = useUnit(ticker);
-  const { step, inc } = useService(stepper);
+  const { current, next, after, tick, user, save, backend_proc } = useOwn(ticker);
+  const { step, inc } = useShared(stepper);
   const { load, loading, name } = user;
   return (
     <div>
@@ -270,7 +270,7 @@ function App() {
 }
 
 function Logger() {
-  const { text } = useService(logger);
+  const { text } = useShared(logger);
   return (
     <textarea value={text} readOnly />
   )
@@ -288,7 +288,7 @@ const whirl = unit({
 });
 
 function Whirl({ children }) {
-  const { map, shift, push } = useUnit(whirl);
+  const { map, shift, push } = useOwn(whirl);
   return (
     <>
       <button onClick={shift}>-</button>
@@ -309,7 +309,7 @@ export function Root() {
         <App />
       </Whirl>
       <Logger />
-      <Service unit={backend}/>
+      <Shared unit={backend}/>
     </>
   );
 }

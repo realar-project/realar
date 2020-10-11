@@ -4,7 +4,7 @@ This example briefly illustrates the `unit` concept of Realar:
 
 ```javascript
 import React from "react";
-import { unit, useUnit, pending } from "realar";
+import { unit, useOwn, pending } from "realar";
 import axios from "axios";
 
 const LikeUnit = unit({
@@ -27,7 +27,7 @@ const LikeUnit = unit({
 });
 
 const Like = () => {
-  const { like, likes, loading } = useUnit(LikeUnit);
+  const { like, likes, loading } = useOwn(LikeUnit);
 
   return (
     <div>

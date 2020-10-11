@@ -105,7 +105,7 @@ test("should transform JSX functions with JSX functions", () => {
 test("should transform expression functions JSX", () => {
   const code = `
     export const App = function() {
-      useService(Unit);
+      useShared(Unit);
       return null;
     }
     export const H1 = function() {
@@ -118,7 +118,7 @@ test("should transform expression functions JSX", () => {
 
   _c_unit_v[0]();
 
-  useService(Unit);
+  useShared(Unit);
   return _c_ret_tmp = null, _c_unit_v[1](), _c_ret_tmp;
 };
 export const H1 = function () {
@@ -135,7 +135,7 @@ export const H1 = function () {
 test("should transform arrow functions JSX", () => {
   const code = `
     export const App = () => {
-      useService(Unit);
+      useShared(Unit);
       return null
     }
     export const H1 = () => <h1 />;
@@ -150,7 +150,7 @@ test("should transform arrow functions JSX", () => {
 
   _c_unit_v[0]();
 
-  useService(Unit);
+  useShared(Unit);
   return _c_ret_tmp = null, _c_unit_v[1](), _c_ret_tmp;
 };
 export const H1 = () => {
@@ -177,7 +177,7 @@ export const A = ({
 
 test("should transform JSX manipulations", () => {
   const code = `function Whirl({ children }) {
-    const { map, shift, push } = useUnit(whirl);
+    const { map, shift, push } = useOwn(whirl);
     return (
       <>
         <button onClick={shift}>-</button>
@@ -202,7 +202,7 @@ test("should transform JSX manipulations", () => {
     map,
     shift,
     push
-  } = useUnit(whirl);
+  } = useOwn(whirl);
   return _c_ret_tmp = <>
         <button onClick={shift}>-</button>
         {map(key => {

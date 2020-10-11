@@ -1,4 +1,4 @@
-import { unit, service } from "../../lib";
+import { unit, shared } from "../../lib";
 
 // Some real notifier service
 export const notifier = unit({
@@ -17,8 +17,8 @@ export const api = unit({
 });
 
 export const user_form = unit({
-  notifier: service(notifier),
-  api: service(api),
+  notifier: shared(notifier),
+  api: shared(api),
 
   username: '',
   password: '',

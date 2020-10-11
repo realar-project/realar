@@ -4,7 +4,7 @@
 + Introduction
 + [Quick Start](./quick-start.md)
 + Unit
-+ Service
++ Shared
 + Action, Call and Signal
 + [Jest unit test usage](./jest.md)
 + [Examples](./examples.md)
@@ -20,13 +20,13 @@
 ### Glossary
 
 + unit
-+ useUnit
++ useOwn
 + effect
 + changed
 + pending
-+ useService
-+ service
-+ Service
++ useShared
++ shared
++ Shared
 + action
 + call
 + signal

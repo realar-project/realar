@@ -3,15 +3,15 @@ export {
   call,
   signal,
   unit,
-  service,
-  useUnit,
-  useService,
+  shared,
+  useOwn,
+  useShared,
   changed,
   pending,
   on,
   effect,
   ready,
-  Service,
+  Shared,
   Scope,
   mock,
   unmock,
@@ -76,17 +76,20 @@ type UnitConstructorParameters<T> = T extends { constructor: (...args: any[]) =>
 
 type Unit<T> = UnitFactory<UnitConstructorParameters<T>, T> & UnitClass<UnitConstructorParameters<T>, T>;
 
-interface UnitSchemaInterface {
-  constructor?: (...args: any[]) => void;
+interface KeyedObject {
+  [key: string]: unknown;
+}
+interface UnitSchemaInterface extends KeyedObject {
+  constructor?: Function | ((...args: any[]) => void);
   destructor?: () => void;
   expression?: () => void;
 }
 
 declare function unit<T extends UnitSchemaInterface>(schema: T): Unit<T>;
-declare function service<T extends UnitSchemaInterface>(unit: Unit<T>): UnitInstance<T>;
+declare function shared<T extends UnitSchemaInterface>(unit: Unit<T>): UnitInstance<T>;
 
-declare function useUnit<T extends UnitSchemaInterface>(unit: Unit<T>, ...args: UnitConstructorParameters<T>): UnitInstance<T>;
-declare function useService<T extends UnitSchemaInterface>(unit: Unit<T>): UnitInstance<T>;
+declare function useOwn<T extends UnitSchemaInterface>(unit: Unit<T>, ...args: UnitConstructorParameters<T>): UnitInstance<T>;
+declare function useShared<T extends UnitSchemaInterface>(unit: Unit<T>): UnitInstance<T>;
 
 declare function changed(value: any): boolean;
 declare function pending(async: Func<any, Promise<any>>): boolean;
@@ -100,12 +103,12 @@ declare function effect(fn: () => void): void;
 
 declare function ready<A extends any[] = []>(fn: Func<A, any>, ...args: A): void;
 
-type UnitService = Unit<{
+type UnitShared = Unit<{
   constructor?: () => void;
 }>;
 
-declare function Service<T extends UnitService>(props: { unit: T }): null;
-declare function Scope(props: { children: JSX.Element }): JSX.Element;
+declare function Shared<T extends UnitShared>(props: { unit: T }): null;
+declare function Scope(props: { children: JSX.Element | JSX.Element[] }): JSX.Element;
 
 declare function mock(unit: Unit<any>): any;
 declare function unmock(unit?: Unit<any>): any;

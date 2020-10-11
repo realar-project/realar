@@ -41,12 +41,17 @@
     "state",
     "model",
     "reactive",
+    "observable",
+    "frontend",
+    "react",
     "state management",
     "state manager",
     "data flow",
     "react hooks",
     "micro frontends",
-    "next"
+    "reactive programming",
+    "typescript",
+    "javascript"
   ],
   "main": "build/index.js",
   "module": "build/index.esm.js",

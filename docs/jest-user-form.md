@@ -1,14 +1,14 @@
 ```javascript
 // ./user-form.js
-import { unit, service } from "realar";
+import { unit, shared } from "realar";
 
-// Some real Notifier service
+// Some real Notifier shared
 export const Notifier = unit({
   ok: () => console.log("ok"),
   fail: () => console.log("fail"),
 });
 
-// Some real external api gateway service
+// Some real external api gateway shared
 export const Api = unit({
   async user_save(username, password) {
     // Some real post remote request to api
@@ -19,8 +19,8 @@ export const Api = unit({
 });
 
 export const UserForm = unit({
-  notifier: service(Notifier),
-  api: service(Api),
+  notifier: shared(Notifier),
+  api: shared(Api),
 
   username: '',
   password: '',
