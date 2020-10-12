@@ -20,9 +20,9 @@ const Todos = unit({
   constructor() {
     this.fetch();
   },
-  get completed() {
-    return this.todos.filter(task => task.completed);
-  }
+  // get completed() {
+  //   return this.todos.filter(task => task.completed);
+  // },
 });
 
 const App = () => {
