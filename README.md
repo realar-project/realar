@@ -3,6 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![typescript support](https://img.shields.io/npm/types/typescript?style=flat-square)](./lib/types/typescript.d.ts) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar?style=flat-square)](https://bundlephobia.com/result?p=realar)
 
 Reactive state manager for React.
+
 Minimalistic, Imperative, Fast, and Pretty looked :kissing_heart:
 
 ### Usage
