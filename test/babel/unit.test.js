@@ -85,32 +85,6 @@ test("should process unit", () => {
   expect(transform(code)).toBe(strip_multiline_comments(expected));
 });
 
-test("should process events, calls and signals for unit", () => {
-  const code = `
-    const a = action();
-    const s = signal();
-    const Unit = unit({
-      [a]() {
-        return 11;
-      },
-      async [s]() {
-        return 12;
-      },
-      m() {}
-    });
-  `;
-  const expected = `const a = action();
-const s = signal();
-const Unit = unit(function () {
-  return [0, 0, 0, 0, () => {}, () => {
-    return 11;
-  }, async () => {
-    return 12;
-  }];
-}, [], [], ["m"], [a, s]);`;
-  expect(transform(code)).toBe(expected);
-});
-
 test("should process changed for unit expression", () => {
   const code = `
     const Unit = unit({

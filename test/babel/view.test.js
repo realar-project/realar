@@ -182,9 +182,9 @@ test("should transform JSX manipulations", () => {
       <>
         <button onClick={shift}>-</button>
         {map(key => (
-          <Scope key={key}>
+          <div key={key}>
             {children}
-          </Scope>
+          </div>
         ))}
         <button onClick={push}>+</button>
       </>
@@ -211,9 +211,9 @@ test("should transform JSX manipulations", () => {
 
       _c_unit_v2[0]();
 
-      return _c_ret_tmp2 = <Scope key={key}>
+      return _c_ret_tmp2 = <div key={key}>
             {children}
-          </Scope>, _c_unit_v2[1](), _c_ret_tmp2;
+          </div>, _c_unit_v2[1](), _c_ret_tmp2;
     })}
         <button onClick={push}>+</button>
       </>, _c_unit_v[1](), _c_ret_tmp;

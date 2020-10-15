@@ -1,4 +1,4 @@
-import { unit, pending, on, effect, changed, action } from "../lib";
+import { unit, pending, changed } from "../lib";
 
 const u = unit({
   v:1,
@@ -205,29 +205,5 @@ test("should throw exception on call changed function outside of expression", ()
 
   expect(fn).toHaveBeenCalledTimes(1);
   expect(() => i_1.m()).toThrow(`Unsupported "changed" function call outside of unit "expression"`);
-});
-
-test("should throw exception on call effect or on functions outside of constructor", () => {
-  const s = action();
-  const u_1 = unit({
-    on1() { on(); },
-    on2() { on(s); },
-    on3() { on(s, () => {}); },
-
-    effect1() { effect(); },
-    effect2() { effect(() => {}); }
-  });
-  const i_1 = u_1();
-
-  expect(() => i_1.on1()).toThrow(`Only action, signal and call supported as first argument for "on" function`);
-  expect(() => i_1.on2()).toThrow(`Only function supported as second argument for "on" function`);
-
-  // TODO: to backlog
-  // expect(() => i_1.on3()).toThrow(`Unsupported "on" function call outside of unit "constructor"`);
-
-  expect(() => i_1.effect1()).toThrow(`Only function supported as argument for "effect" function`);
-
-  // TODO: to backlog
-  // expect(() => i_1.effect2()).toThrow(`Unsupported "effect" function call outside of unit "constructor"`);
 });
 
