@@ -55,7 +55,7 @@ npm i -P realar
 yarn add realar
 ```
 
-Update your babel config:
+And update your babel config:
 
 ```javascript
 // .babelrc.js
@@ -64,17 +64,6 @@ module.exports = {
     "realar/babel"
   ]
 }
-```
-
-And to wrap your `react-dom` render code, to realar `ready` function:
-
-```javascript
-import React from "react";
-import { render } from "react-dom";
-import { ready } from "realar";
-import { App } from "./app";
-
-ready(() => render(<App />, document.getElementById("root")));
 ```
 
 Enjoy!
