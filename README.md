@@ -4,7 +4,7 @@
 
 Reactive state manager for React.
 
-Minimalistic, Imperative, Fast, and Pretty looked :kissing_heart:
+Minimalistic, Imperative, Lightweight and Pretty looked :kissing_heart:
 
 ### Usage
 
