@@ -3,7 +3,7 @@ module.exports = {
   common_js_block
 };
 
-function env_log_debug() {
+function make_env() {
   if (!process.env.REALAR_DEV) return `{
     abort() {
       throw Error("Abort!");
@@ -54,40 +54,24 @@ function env_log_debug() {
 function tpl(src_block, export_prefix) {
   return `
 ${export_prefix} function(env) {
-  let src = ${src_block}
-  let buf
-  let isNode = typeof process !== "undefined" && process.versions != null && process.versions.node != null
-  if (isNode) {
+  const src = ${src_block}
+  let buf, inst_exports
+  if (typeof process !== "undefined" && process.versions != null && process.versions.node != null) {
     buf = Buffer.from(src, "base64")
   } else {
-    let raw = atob(src)
-    let len = raw.length
+    const raw = atob(src), len = raw.length
     buf = new Uint8Array(len)
-    for(var i = 0; i < len; i++) {
+    for(let i = 0; i < len; i++) {
       buf[i] = raw.charCodeAt(i)
     }
   }
-  let inst_exports;
-  let env_log_debug = ${env_log_debug()};
-  let imports = {
-    env: env_log_debug
-  }
-  if (env) {
-    Object.assign(imports.env, env)
-  }
-  if(buf.length > 4096) {
-    return WebAssembly.instantiate(buf, imports).then(results => make_result(results.instance))
-  }
-  return make_result(
-    new WebAssembly.Instance(
-      new WebAssembly.Module(buf),
-      imports
-    )
-  )
-
-  function make_result(inst) {
-    return (inst_exports = inst.exports);
-  }
+  return WebAssembly
+    .instantiate(buf, {
+      env: Object.assign(${make_env()}, env)
+    })
+    .then(results => (
+      inst_exports = results.instance.exports
+    ))
 }`;
 }
 
