@@ -139,7 +139,7 @@ test("should work unit with function expressions", () => {
   expect(k()).toBe(15);;
 });
 
-test("should throw digest loop limit exception", () => {
+test("should throw limit of expressons iteration exception", () => {
   const u = unit({
     u: null,
     a: 0,
@@ -158,7 +158,7 @@ test("should throw digest loop limit exception", () => {
   expect(() => {
     const i = u();
     i.u = u();
-  }).toThrow("Limit digest loop iteration");
+  }).toThrow("Limit of expressions iteration");
 });
 
 test("should throw exception on special unit methods manual call", () => {
@@ -172,9 +172,9 @@ test("should throw exception on special unit methods manual call", () => {
     m() { this.expression() }
   });
 
-  expect(() => u_1().m()).toThrow("Manual call of unit constructor unsupported");
-  expect(() => u_2().m()).toThrow("Manual call of unit destructor unsupported");
-  expect(() => u_3().m()).toThrow("Manual call of unit expression unsupported");
+  expect(() => u_1().m()).toThrow("Manual call of unit \"constructor\" unsupported");
+  expect(() => u_2().m()).toThrow("Manual call of unit \"destructor\" unsupported");
+  expect(() => u_3().m()).toThrow("Manual call of unit \"expression\" unsupported");
 });
 
 test("should throw exception on pending call for non pendingable functions", () => {
