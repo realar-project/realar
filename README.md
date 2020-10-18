@@ -4,7 +4,7 @@
 
 Reactive state manager for React.
 
-Imperative, Light and Pretty looked :kissing_heart:
+Imperative, Light, Fast and Pretty looked :kissing_heart:
 
 ### Usage
 
