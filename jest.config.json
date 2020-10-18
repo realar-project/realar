@@ -5,14 +5,9 @@
   "setupFilesAfterEnv": [
     "<rootDir>/jest"
   ],
-  "snapshotResolver": "<rootDir>/jest-snapshot-resolver",
   "modulePathIgnorePatterns": [
     "<rootDir>/lib/"
   ],
-  "transform": {
-    "^.+\\.js$": "<rootDir>/prep/jest-transform",
-    "^.+\\.ts$": "<rootDir>/assembly/jest-transform"
-  },
   "testMatch": [
     "<rootDir>/test/**/*.test.js"
   ]
