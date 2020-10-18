@@ -6,11 +6,9 @@ export {
   changed,
   pending,
   effect,
-  ready,
   Shared,
   mock,
   unmock,
-
   AsyncPool,
 }
 
@@ -63,8 +61,6 @@ declare function pending(async: Func<any, Promise<any>>): boolean;
 
 declare function effect(fn: () => () => void): void;
 declare function effect(fn: () => void): void;
-
-declare function ready<A extends any[] = []>(fn: Func<A, any>, ...args: A): void;
 
 type UnitShared = Unit<{
   constructor?: () => void;

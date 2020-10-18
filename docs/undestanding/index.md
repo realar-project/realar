@@ -1,8 +1,6 @@
-### Realar Undestanding
+### Realar Understanding
 
-
-#### Move logic outside React components
-
+Basic concept is "Move your logic outside React components"
 
 ![Separate Logic-View Schema](./images/logic-view-schema.svg)
 
