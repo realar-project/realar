@@ -1,11 +1,11 @@
-name: CI
+name: test
 on: [push, pull_request]
 env:
   CI: true
 
 jobs:
   run:
-    name: ${{ matrix.node }} on ${{ matrix.os }}
+    name: node ${{ matrix.node }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
     strategy:
