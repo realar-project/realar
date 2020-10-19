@@ -1,4 +1,4 @@
-import { unit, shared, mock } from "../lib";
+import { unit, shared, mock } from "..";
 
 const s = unit({
   v: 1,

@@ -1,6 +1,6 @@
-import { unit, useOwn } from "../lib";
 import React, { useState } from "react";
 import { mount } from "enzyme";
+import { unit, useOwn } from "..";
 
 test("should work unit arguments pass", () => {
   let constr = jest.fn();

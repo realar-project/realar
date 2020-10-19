@@ -1,4 +1,4 @@
-import { unit, shared } from "../../lib";
+import { unit, shared } from "../..";
 
 // Some real notifier service
 export const notifier = unit({

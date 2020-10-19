@@ -1,4 +1,4 @@
-import { unit, pending, changed } from "../lib";
+import { unit, pending, changed } from "..";
 
 const u = unit({
   v:1,

@@ -1,6 +1,5 @@
 const
-  path = require("path"),
-  lib_name = process.env.REALAR_DEV ? path.join(__dirname, "../lib") : "realar",
+  lib_name = process.env.REALAR_DEV ? process.cwd() : "realar",
   { mock } = require(lib_name);
 
 beforeEach(() => mock.s(jest.fn));
