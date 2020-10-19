@@ -2,6 +2,16 @@ import * as babel from "@babel/core";
 import { plugin } from "../../babel/plugin";
 import { view_unit_name } from "../../babel/view-transform";
 
+const
+  box_expr_create = 0,
+  box_expr_start = 1,
+  box_expr_finish = 2,
+  box_computed_create = 3,
+  box_computed_start = 4,
+  box_computed_finish = 5,
+  box_entry_start = 6,
+  box_entry_finish = 7;
+
 function transform(code) {
   return babel.transform(code, {
     plugins: [ plugin ],
@@ -27,16 +37,16 @@ test("should work unit inside func with JSX", () => {
   let _c_unit_v = ${view_unit_name},
       _c_ret_tmp;
 
-  _c_unit_v[0]();
+  _c_unit_v[${box_expr_create}]();
 
   const u_f = unit(function () {
     let _core = unit.c;
     return [(...args) => {
-      _core[9]();
+      _core[${box_entry_start}]();
 
       constr(...args);
 
-      _core[10]();
+      _core[${box_entry_finish}]();
     }, () => {
       destr();
     }, 0, 0];

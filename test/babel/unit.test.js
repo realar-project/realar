@@ -2,15 +2,14 @@ import * as babel from "@babel/core";
 import { plugin } from "../../babel/plugin";
 
 const
-  box_expr_create = 3,      /* b3 */
-  box_expr_start = 4,       /* b4 */
-  box_expr_finish = 5,      /* b5 */
-  box_computed_create = 6,  /* b6 */
-  box_computed_start = 7,   /* b7 */
-  box_computed_finish = 8,  /* b8 */
-  box_entry_start = 9,      /* b9 */
-  box_entry_finish = 10     /* ba */
-;
+  box_expr_create = 0,
+  box_expr_start = 1,
+  box_expr_finish = 2,
+  box_computed_create = 3,
+  box_computed_start = 4,
+  box_computed_finish = 5,
+  box_entry_start = 6,
+  box_entry_finish = 7;
 
 function transform(code) {
   return babel.transform(code, {
@@ -47,12 +46,11 @@ test("should process unit", () => {
     });
   `;
   const unit_core_name = "unit.c";
-  const unit_fns_name = "unit.f";
   const core_name = "_core";
   const expected = `const Unit = unit(function () {
   let ${core_name} = ${unit_core_name};
 
-  let _e_id = ${core_name}[${box_expr_create}]();
+  let _e_id;
 
   let _e_fn = () => {
     ${core_name}[${box_expr_start}](_e_id);
@@ -62,7 +60,7 @@ test("should process unit", () => {
     ${core_name}[${box_expr_finish}]();
   };
 
-  ${unit_fns_name}.set(_e_id, _e_fn);
+  _e_id = ${core_name}[${box_expr_create}](_e_fn);
 
   let _c_cache,
       _c_id = ${core_name}[${box_computed_create}]();
@@ -101,18 +99,18 @@ test("should process changed for unit expression", () => {
 
   let _e_vals_map = new Map();
 
-  let _e_id = _core[3]();
+  let _e_id;
 
   let _e_fn = () => {
-    _core[4](_e_id);
+    _core[${box_expr_start}](_e_id);
 
     if (changed(this.a, 0, _e_vals_map, 0)) return;
     if (changed(this.b, cmpfn, _e_vals_map, 1)) return;
 
-    _core[5]();
+    _core[${box_expr_finish}]();
   };
 
-  unit.f.set(_e_id, _e_fn);
+  _e_id = _core[${box_expr_create}](_e_fn);
   return [0, 0, _e_id, _e_fn, 10, 11];
 }, ["a", "b"], [], [], []);`;
   expect(transform(code)).toBe(expected);
