@@ -2,6 +2,16 @@ import * as babel from "@babel/core";
 import { plugin } from "../../babel/plugin";
 import { view_unit_name } from "../../babel/view-transform";
 
+const
+  box_expr_create = 0,
+  box_expr_start = 1,
+  box_expr_finish = 2,
+  box_computed_create = 3,
+  box_computed_start = 4,
+  box_computed_finish = 5,
+  box_entry_start = 6,
+  box_entry_finish = 7;
+
 function transform(code) {
   return babel.transform(code, {
     plugins: [ plugin ],
@@ -27,16 +37,16 @@ test("should work unit inside func with JSX", () => {
   let _c_unit_v = ${view_unit_name},
       _c_ret_tmp;
 
-  _c_unit_v[0]();
+  _c_unit_v[${box_expr_create}]();
 
   const u_f = unit(function () {
     let _core = unit.c;
     return [(...args) => {
-      _core[9]();
+      _core[${box_entry_start}]();
 
       constr(...args);
 
-      _core[10]();
+      _core[${box_entry_finish}]();
     }, () => {
       destr();
     }, 0, 0];
@@ -105,7 +115,7 @@ test("should transform JSX functions with JSX functions", () => {
 test("should transform expression functions JSX", () => {
   const code = `
     export const App = function() {
-      useService(Unit);
+      useShared(Unit);
       return null;
     }
     export const H1 = function() {
@@ -118,7 +128,7 @@ test("should transform expression functions JSX", () => {
 
   _c_unit_v[0]();
 
-  useService(Unit);
+  useShared(Unit);
   return _c_ret_tmp = null, _c_unit_v[1](), _c_ret_tmp;
 };
 export const H1 = function () {
@@ -135,7 +145,7 @@ export const H1 = function () {
 test("should transform arrow functions JSX", () => {
   const code = `
     export const App = () => {
-      useService(Unit);
+      useShared(Unit);
       return null
     }
     export const H1 = () => <h1 />;
@@ -150,7 +160,7 @@ test("should transform arrow functions JSX", () => {
 
   _c_unit_v[0]();
 
-  useService(Unit);
+  useShared(Unit);
   return _c_ret_tmp = null, _c_unit_v[1](), _c_ret_tmp;
 };
 export const H1 = () => {
@@ -177,14 +187,14 @@ export const A = ({
 
 test("should transform JSX manipulations", () => {
   const code = `function Whirl({ children }) {
-    const { map, shift, push } = useUnit(whirl);
+    const { map, shift, push } = useOwn(whirl);
     return (
       <>
         <button onClick={shift}>-</button>
         {map(key => (
-          <Scope key={key}>
+          <div key={key}>
             {children}
-          </Scope>
+          </div>
         ))}
         <button onClick={push}>+</button>
       </>
@@ -202,7 +212,7 @@ test("should transform JSX manipulations", () => {
     map,
     shift,
     push
-  } = useUnit(whirl);
+  } = useOwn(whirl);
   return _c_ret_tmp = <>
         <button onClick={shift}>-</button>
         {map(key => {
@@ -211,9 +221,9 @@ test("should transform JSX manipulations", () => {
 
       _c_unit_v2[0]();
 
-      return _c_ret_tmp2 = <Scope key={key}>
+      return _c_ret_tmp2 = <div key={key}>
             {children}
-          </Scope>, _c_unit_v2[1](), _c_ret_tmp2;
+          </div>, _c_unit_v2[1](), _c_ret_tmp2;
     })}
         <button onClick={push}>+</button>
       </>, _c_unit_v[1](), _c_ret_tmp;

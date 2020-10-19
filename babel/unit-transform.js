@@ -2,20 +2,18 @@ const
   { types, template, traverse } = require("@babel/core");
 
 const
-  box_expr_create = 3,      /* b3 */
-  box_expr_start = 4,       /* b4 */
-  box_expr_finish = 5,      /* b5 */
-  box_computed_create = 6,  /* b6 */
-  box_computed_start = 7,   /* b7 */
-  box_computed_finish = 8,  /* b8 */
-  box_entry_start = 9,      /* b9 */
-  box_entry_finish = 10     /* ba */
-;
+  box_expr_create = 0,
+  box_expr_start = 1,
+  box_expr_finish = 2,
+  box_computed_create = 3,
+  box_computed_start = 4,
+  box_computed_finish = 5,
+  box_entry_start = 6,
+  box_entry_finish = 7;
 
 const
   unit_core_name = "unit.c",
-  unit_fns_name = "unit.f",
-  unit_crate_box_name = "unit.b",
+  unit_create_box_name = "unit.b",
   changed_fn_name = "changed";
 
 let
@@ -248,13 +246,13 @@ function unit_transform(path, _state) {
       }
 
       text.push(`
-        let ${e_id_name} = ${core_name}[${box_expr_create}]();
+        let ${e_id_name};
         let ${e_fn_name} = () => {
           ${core_name}[${box_expr_start}](${e_id_name});
           EXPR_BODY
           ${core_name}[${box_expr_finish}]();
         };
-        ${unit_fns_name}.set(${e_id_name}, ${e_fn_name});
+        ${e_id_name} = ${core_name}[${box_expr_create}](${e_fn_name});
       `);
       is_core_unused = 0;
 
@@ -333,7 +331,7 @@ function unit_transform(path, _state) {
                   ${m_fn_name}.pending = --${m_proc_name} > 0;
                 }
               }.bind(this);
-            Object.defineProperty(${m_fn_name}, "pending", ${unit_crate_box_name}(false));
+            Object.defineProperty(${m_fn_name}, "pending", ${unit_create_box_name}(false));
             `
           );
           text_return_section.push(m_fn_name);
@@ -361,7 +359,7 @@ function unit_transform(path, _state) {
                   ${m_fn_name}.pending = --${m_proc_name} > 0;
                 }
               };
-            Object.defineProperty(${m_fn_name}, "pending", ${unit_crate_box_name}(false));
+            Object.defineProperty(${m_fn_name}, "pending", ${unit_create_box_name}(false));
             `
           );
           text_return_section.push(m_fn_name);

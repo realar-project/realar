@@ -34,5 +34,5 @@ dist
 # build
 build
 
-# assembly
-assembly/.build
+# jest
+/coverage

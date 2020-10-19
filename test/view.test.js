@@ -1,11 +1,6 @@
 import React, { useState } from "react";
 import { mount } from "enzyme";
-
-import {
-  unit,
-  useUnit
-} from "../lib";
-
+import { unit, useOwn } from "realar";
 
 test("should work unit arguments pass", () => {
   let constr = jest.fn();
@@ -25,7 +20,7 @@ test("should work unit arguments pass", () => {
     let args = hook_descriptor[0];
     let set_args = hook_descriptor[1];
 
-    useUnit(u_f, ...args);
+    useOwn(u_f, ...args);
     return (
       <button onClick={() => set_args([1, "hello", 5])} />
     )

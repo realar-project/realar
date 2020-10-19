@@ -1,4 +1,4 @@
-import { unit, pending, on, effect, changed, action } from "../lib";
+import { unit, pending, changed } from "realar";
 
 const u = unit({
   v:1,
@@ -139,7 +139,7 @@ test("should work unit with function expressions", () => {
   expect(k()).toBe(15);;
 });
 
-test("should throw digest loop limit exception", () => {
+test("should throw limit of expressons iteration exception", () => {
   const u = unit({
     u: null,
     a: 0,
@@ -158,7 +158,7 @@ test("should throw digest loop limit exception", () => {
   expect(() => {
     const i = u();
     i.u = u();
-  }).toThrow("Limit digest loop iteration");
+  }).toThrow("Limit of expressions iteration");
 });
 
 test("should throw exception on special unit methods manual call", () => {
@@ -172,9 +172,9 @@ test("should throw exception on special unit methods manual call", () => {
     m() { this.expression() }
   });
 
-  expect(() => u_1().m()).toThrow("Manual call of unit constructor unsupported");
-  expect(() => u_2().m()).toThrow("Manual call of unit destructor unsupported");
-  expect(() => u_3().m()).toThrow("Manual call of unit expression unsupported");
+  expect(() => u_1().m()).toThrow("Manual call of unit \"constructor\" unsupported");
+  expect(() => u_2().m()).toThrow("Manual call of unit \"destructor\" unsupported");
+  expect(() => u_3().m()).toThrow("Manual call of unit \"expression\" unsupported");
 });
 
 test("should throw exception on pending call for non pendingable functions", () => {
@@ -205,29 +205,5 @@ test("should throw exception on call changed function outside of expression", ()
 
   expect(fn).toHaveBeenCalledTimes(1);
   expect(() => i_1.m()).toThrow(`Unsupported "changed" function call outside of unit "expression"`);
-});
-
-test("should throw exception on call effect or on functions outside of constructor", () => {
-  const s = action();
-  const u_1 = unit({
-    on1() { on(); },
-    on2() { on(s); },
-    on3() { on(s, () => {}); },
-
-    effect1() { effect(); },
-    effect2() { effect(() => {}); }
-  });
-  const i_1 = u_1();
-
-  expect(() => i_1.on1()).toThrow(`Only action, signal and call supported as first argument for "on" function`);
-  expect(() => i_1.on2()).toThrow(`Only function supported as second argument for "on" function`);
-
-  // TODO: to backlog
-  // expect(() => i_1.on3()).toThrow(`Unsupported "on" function call outside of unit "constructor"`);
-
-  expect(() => i_1.effect1()).toThrow(`Only function supported as argument for "effect" function`);
-
-  // TODO: to backlog
-  // expect(() => i_1.effect2()).toThrow(`Unsupported "effect" function call outside of unit "constructor"`);
 });
 

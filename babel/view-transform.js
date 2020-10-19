@@ -1,10 +1,9 @@
 const
-  path = require("path"),
   { types, template, traverse } = require("@babel/core");
 
 const
   lib_name = process.env.REALAR_DEV
-    ? path.join(__dirname, "../lib")
+    ? process.cwd()
     : "realar",
   unit_ns_name = `require("${lib_name}").unit`,
   view_unit_name = `${unit_ns_name}.v`,

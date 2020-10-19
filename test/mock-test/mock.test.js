@@ -1,4 +1,4 @@
-import { mock } from "../../lib";
+import { mock } from "realar";
 import { notifier, api, user_form } from "./user-form";
 
 test("User form should work", async () => {
