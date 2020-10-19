@@ -10,5 +10,8 @@
   ],
   "testMatch": [
     "<rootDir>/test/**/*.test.js"
-  ]
+  ],
+  "moduleNameMapper": {
+    "realar": "<rootDir>"
+  }
 }

@@ -1,4 +1,4 @@
-import { unit, shared } from "../..";
+import { unit, shared } from "realar";
 
 // Some real notifier service
 export const notifier = unit({

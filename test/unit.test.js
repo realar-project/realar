@@ -1,4 +1,4 @@
-import { unit, pending, changed } from "..";
+import { unit, pending, changed } from "realar";
 
 const u = unit({
   v:1,

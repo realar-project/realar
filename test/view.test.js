@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { mount } from "enzyme";
-import { unit, useOwn } from "..";
+import { unit, useOwn } from "realar";
 
 test("should work unit arguments pass", () => {
   let constr = jest.fn();

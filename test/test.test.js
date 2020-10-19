@@ -1,4 +1,4 @@
-import { unit, shared, mock } from "..";
+import { unit, shared, mock } from "realar";
 
 const s = unit({
   v: 1,
