@@ -47,6 +47,12 @@ const App = () => {
 + [Realar understanding](./docs/undestanding/index.md)
 
 
+### Demo
+
++ [Hello](https://github.com/realar-project/hello)
++ [Todos](https://github.com/realar-project/todos)
+
+
 ### Installation
 
 ```bash
@@ -68,11 +74,3 @@ module.exports = {
 
 Enjoy!
 
-
-### Demo
-
-```bash
-git clone git@github.com:betula/realar.git
-cd realar
-npm run start
-# Open http://localhost:1210 in your browser
