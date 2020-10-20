@@ -10,8 +10,8 @@ Imperative, Light, Fast and Pretty looked :kissing_heart:
 
 ```javascript
 import React from "react";
-import { unit, useOwn } from "realar";
 import axios from "axios";
+import { unit, useOwn } from "realar";
 
 const Todos = unit({
   todos: [],
