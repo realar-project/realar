@@ -49,7 +49,7 @@ const App = () => {
 
 ### Demo
 
-+ [Hello](https://github.com/realar-project/hello)
++ [Hello](https://github.com/realar-project/hello) - shared state demonstration.
 + [Todos](https://github.com/realar-project/todos)
 
 
