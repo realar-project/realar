@@ -47,7 +47,7 @@ const App = () => {
 + [Realar understanding](./docs/undestanding/index.md)
 
 
-### Demo
+### Demos
 
 + [Hello](https://github.com/realar-project/hello) - shared state demonstration.
 + [Todos](https://github.com/realar-project/todos) - todomvc implementation.
