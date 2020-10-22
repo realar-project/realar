@@ -14,10 +14,10 @@ import axios from "axios";
 import { unit, useOwn } from "realar";
 
 const Todos = unit({
-  todos: [],
+  todos: [], // immutable store
   async fetch() {
     const { data } = await axios.get("/api/todos");
-    this.todos = data;
+    this.todos = data; // update immutable store
   },
   constructor() {
     this.fetch();
@@ -28,7 +28,7 @@ const Todos = unit({
 });
 
 const App = () => {
-  const { todos, fetch } = useOwn(Todos);
+  const { todos, fetch } = useOwn(Todos); // use own instance of Todos
 
   if (fetch.pending) {
     return (
@@ -36,7 +36,7 @@ const App = () => {
     )
   }
   return (
-    <ul>{todos.map((todo) => <li>{todo.text}</li>)}</ul>
+    <ul>{todos.map(todo => <li>{todo.text}</li>)}</ul>
   );
 };
 ```
