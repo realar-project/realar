@@ -4,7 +4,7 @@
 
 Reactive state manager for React.
 
-Imperative, Light, Fast and Pretty looked :kissing_heart:
+Impressive, Light, Fast, and Pretty looked :kissing_heart:
 
 ### Usage
 
@@ -14,21 +14,22 @@ import axios from "axios";
 import { unit, useOwn } from "realar";
 
 const Todos = unit({
-  todos: [], // immutable store
+  todos: [],            // Init immutable store
   async fetch() {
     const { data } = await axios.get("/api/todos");
-    this.todos = data; // update immutable store
+    this.todos = data;  // Update immutable store
   },
   constructor() {
     this.fetch();
   },
-  // get completed() { // cached selector
+  // get completed() {  // Cached selector
   //   return this.todos.filter(task => task.completed);
   // },
 });
 
 const App = () => {
-  const { todos, fetch } = useOwn(Todos); // use own instance of Todos
+  // Use the own instance of Todos
+  const { todos, fetch } = useOwn(Todos);
 
   if (fetch.pending) {
     return (
