@@ -22,7 +22,7 @@ const Todos = unit({
   constructor() {
     this.fetch();
   },
-  // get completed() {
+  // get completed() { // cached selector
   //   return this.todos.filter(task => task.completed);
   // },
 });
