@@ -1,33 +1,34 @@
 # Realar <sup><sup><small><small>βeta</small></small></sup></sup>
 
-[![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![typescript support](https://img.shields.io/npm/types/typescript?style=flat-square)](./lib/types/typescript.d.ts) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar@0.2.0?style=flat-square)](https://bundlephobia.com/result?p=realar@0.2.0) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar)
+[![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![typescript support](https://img.shields.io/npm/types/typescript?style=flat-square)](./lib/types/typescript.d.ts) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar?style=flat-square)](https://bundlephobia.com/result?p=realar) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar)
 
 Reactive state manager for React.
 
-Imperative, Light, Fast and Pretty looked :kissing_heart:
+Impressive, Light, Fast, and Pretty looked :kissing_heart:
 
 ### Usage
 
 ```javascript
 import React from "react";
-import { unit, useOwn } from "realar";
 import axios from "axios";
+import { unit, useOwn } from "realar";
 
 const Todos = unit({
-  todos: [],
+  todos: [],            // Init immutable store
   async fetch() {
     const { data } = await axios.get("/api/todos");
-    this.todos = data;
+    this.todos = data;  // Update immutable store
   },
   constructor() {
     this.fetch();
   },
-  // get completed() {
+  // get completed() {  // Cached selector
   //   return this.todos.filter(task => task.completed);
   // },
 });
 
 const App = () => {
+  // Use the own instance of Todos
   const { todos, fetch } = useOwn(Todos);
 
   if (fetch.pending) {
@@ -36,7 +37,7 @@ const App = () => {
     )
   }
   return (
-    <ul>{todos.map((todo) => <li>{todo.text}</li>)}</ul>
+    <ul>{todos.map(todo => <li>{todo.text}</li>)}</ul>
   );
 };
 ```
@@ -45,6 +46,12 @@ const App = () => {
 ### Documentation
 
 + [Realar understanding](./docs/undestanding/index.md)
+
+
+### Demos
+
++ [Hello](https://github.com/realar-project/hello) - shared state demonstration.
++ [Todos](https://github.com/realar-project/todos) - todomvc implementation.
 
 
 ### Installation
@@ -68,11 +75,3 @@ module.exports = {
 
 Enjoy!
 
-
-### Demo
-
-```bash
-git clone git@github.com:betula/realar.git
-cd realar
-npm run start
-# Open http://localhost:1210 in your browser

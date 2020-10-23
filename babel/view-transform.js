@@ -25,34 +25,64 @@ function view_transform(path, _state) {
   let is_arrow_expr = 0;
   let is_arrow_expr_block = 0;
 
-  loop:
-  while (cursor) {
-    switch (true) {
-      case types.isFunctionDeclaration(cursor.parent):
-        is_func_decl = 1;
-        cursor_path = cursor.parentPath;
-        cursor = cursor.parent;
-        break loop;
-      case types.isFunctionExpression(cursor.parent):
-        is_func_expr = 1;
-        cursor_path = cursor.parentPath;
-        cursor = cursor.parent;
-        break loop;
-      case types.isArrowFunctionExpression(cursor.parent):
-        is_arrow_expr = 1;
-        cursor_path = cursor.parentPath;
-        cursor = cursor.parent;
+  let last_fn = 0;
+  let last_fn_path;
 
-        if (types.isBlockStatement(cursor.body)) {
-          is_arrow_expr_block = 1;
-        }
-        break loop;
+  while (cursor) {
+    if (types.isFunctionDeclaration(cursor.parent) ||
+      types.isFunctionExpression(cursor.parent) ||
+      types.isArrowFunctionExpression(cursor.parent)
+    ) {
+      let has_return_statement = types.isArrowFunctionExpression(cursor.parent) &&
+        !types.isBlockStatement(cursor.parent.body);
+
+      if (!has_return_statement) {
+        traverse(cursor.parent, {
+          ReturnStatement(path) {
+            let cur = path;
+
+            loop:
+            while (cur) {
+              switch (true) {
+                case types.isFunctionDeclaration(cur.node):
+                case types.isFunctionExpression(cur.node):
+                case types.isArrowFunctionExpression(cur.node):
+                  if (cur.node !== cursor.parent) return;
+                  break loop;
+              }
+              cur = cur.parentPath;
+            }
+
+            has_return_statement = true;
+          }
+        }, cursor.parentPath.scope, cursor.parentPath);
+      }
+
+      if (has_return_statement) {
+        last_fn = cursor.parent;
+        last_fn_path = cursor.parentPath;
+      }
     }
     if (types.isProgram(cursor.parent)) {
-      cursor = null;
+      break;
     }
-    else {
-      cursor = cursor.parentPath;
+    cursor = cursor.parentPath;
+  }
+
+  if (!last_fn) return;
+  cursor = last_fn;
+  cursor_path = last_fn_path;
+
+  if (types.isFunctionDeclaration(cursor)) {
+    is_func_decl = 1;
+  }
+  else if (types.isFunctionExpression(cursor)) {
+    is_func_expr = 1;
+  }
+  else if (types.isArrowFunctionExpression(cursor)) {
+    is_arrow_expr = 1;
+    if (types.isBlockStatement(cursor.body)) {
+      is_arrow_expr_block = 1;
     }
   }
 
