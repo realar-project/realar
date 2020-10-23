@@ -28,11 +28,6 @@ test("should work unit inside func with JSX", () => {
     const el = mount(<A/>);
   })`;
   const expected = `test(() => {
-  let _c_unit_v = ${view_unit_name},
-      _c_ret_tmp;
-
-  _c_unit_v[0]();
-
   const u_f = unit(function () {
     let _core = unit.c;
     return [(...args) => {
@@ -46,8 +41,6 @@ test("should work unit inside func with JSX", () => {
     }, 0, 0];
   }, [], [], [], []);
   const el = mount(<A />);
-
-  _c_unit_v[1]();
 });`;
   expect(transform(code)).toBe(expected);
 });
@@ -150,10 +143,41 @@ test("should transform nested functions JSX as render functions", () => {
     function br() {
       return <br />;
     }
+
     return <a>{v}{br()}</a>;
   }
+
   return _c_ret_tmp = p.map(v => <div>{a(v)}</div>), _c_unit_v[1](), _c_ret_tmp;
 }`;
   expect(transform(code)).toBe(expected);
 });
 
+test("should transform functions JSX only who has return statement", () => {
+  const code = `
+    test(() => {
+      const A = ({ children }) => <h1>{children}</h1>;
+      function B() {
+        return (() => <br />)();
+      }
+      mount(<A><B /></A>);
+    })
+  `;
+  const expected = `test(() => {
+  const A = ({
+    children
+  }) => {
+    let _c_unit_v = ${view_unit_name},
+        _c_ret_tmp;·
+    _c_unit_v[0]();·
+    return _c_ret_tmp = <h1>{children}</h1>, _c_unit_v[1](), _c_ret_tmp;
+  };·
+  function B() {
+    let _c_unit_v2 = ${view_unit_name},
+        _c_ret_tmp2;·
+    _c_unit_v2[0]();·
+    return _c_ret_tmp2 = (() => <br />)(), _c_unit_v2[1](), _c_ret_tmp2;
+  }·
+  mount(<A><B /></A>);
+});`.replace(/·/gm, "\n");
+  expect(transform(code)).toBe(expected);
+});
