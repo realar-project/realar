@@ -2,7 +2,7 @@
 
 Basic concept is "Move your logic outside React components"
 
-![Separate Logic-View Schema](./images/logic-view-schema.svg)
+![Separate Logic-View Schema](./images/logic-view-schema.png)
 
 
 ![Separate Logic-View Code](./images/logic-view-code.png)
