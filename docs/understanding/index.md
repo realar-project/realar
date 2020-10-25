@@ -1,4 +1,4 @@
-### Basic understanding
+# Basic understanding
 
 ![Seperate logic schema](./images/01-logic-view-schema.png)
 
