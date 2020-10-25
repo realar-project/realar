@@ -45,7 +45,7 @@ const App = () => {
 
 ### Documentation
 
-+ [Realar understanding](./docs/undestanding/index.md)
++ [Basic understanding](./docs/understanding/index.md)
 
 
 ### Demos
