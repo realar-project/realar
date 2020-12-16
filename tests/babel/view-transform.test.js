@@ -1,5 +1,5 @@
 const babel = require('@babel/core');
-const { decorator_fn_name, plugin } = require('../src/plugin');
+const { decorator_fn_name, plugin } = require('../../src/plugin');
 
 function transform(code) {
   return babel.transform(code, {
