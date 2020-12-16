@@ -59,6 +59,9 @@
     "jest",
     "build"
   ],
+  "dependencies": {
+    "reactive-box": ">=0.5.0"
+  },
   "peerDependencies": {
     "react": ">=16.8.0"
   },

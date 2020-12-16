@@ -1,62 +1,62 @@
 import React, { useCallback, useRef, useState } from "react";
-import { unit } from "realar";
+import { box, sel, expression, observe } from "realar";
 
-export {
-  App
-}
+class U {
+	@box u1 = null;
+	@box u2 = null;
+	@box c = 0;
+	@box x1 = 0; // input
+	@box x2 = 66;
+  @box x3 = 0; // output
 
-const u_unit = unit({
-	u1: null,
-	u2: null,
-	c: 0,
-	x1: 0, // input
-	x2: 66,
-	x3: 0, // output
-	get c1() {
+	@sel get c1() {
 		return this.x1 + this.x2 + 17 + this.c;
-	},
-	get c2() {
+	};
+	@sel get c2() {
 		return this.x2 + 5 + this.c1;
-	},
-	get c3() {
+	};
+	@sel get c3() {
 		return this.c2 + this.c1 + this.x2 + this.c;
-	},
-	m1(x) {
+  };
+
+	m1 = (x) => {
 		return this.c3 + this.c2 + this.c1 + this.x1 + this.x2 + x;
-	},
-	m2(x) {
+	};
+	m2 = (x) => {
 		return this.m1(x) + this.c2;
-	},
+	};
 	constructor(c, u1, u2) {
 		this.u1 = u1;
 		this.u2 = u2;
-		this.c = c || 0;
-	},
-	expression() {
-    let x3 = this.m2(this.x1);
-		if (this.u1) {
-			x3 += this.u1.x3;
-		}
-		if (this.u2) {
-			x3 += this.u2.x3;
-    }
-    this.x3 = x3;
-	}
-});
+    this.c = c || 0;
 
-const runner = unit({
-  a: null, //null,
-  z: null,
-  inp: 0,
-  out: 0,
-  tick() {
+    expression(() => {
+      let x3 = this.m2(this.x1);
+      if (this.u1) {
+        x3 += this.u1.x3;
+      }
+      if (this.u2) {
+        x3 += this.u2.x3;
+      }
+      this.x3 = x3;
+    });
+	};
+}
+
+class Runner {
+  @box a = null;
+  @box z = null;
+  @box inp = 0;
+  @box out = 0;
+
+  tick = () => {
     this.inp += 1;
-  },
+  }
   constructor() {
     let m = 10;
     let i, k, d;
     let w = 1;
-    let res = [[u_unit(w)]];
+    let res = [[new U(w)]];
     let curr = 0;
     let next_curr;
     for (d = 0; d < m; d++) {
@@ -66,7 +66,7 @@ const runner = unit({
 
       for(i = 0; i < w; i++) {
         k = (i - i % 2) / 2;
-        res[next_curr].push(u_unit(w + i, res[curr][k]));
+        res[next_curr].push(new U(w + i, res[curr][k]));
       }
       curr = next_curr;
     }
@@ -79,28 +79,27 @@ const runner = unit({
       w = w / 2;
       for(i = 0; i < w; i++) {
         k = i * 2;
-        res[next_curr].push(u_unit(u + i, res[curr][k], res[curr][k + 1]));
+        res[next_curr].push(new U(u + i, res[curr][k], res[curr][k + 1]));
       }
       curr = next_curr;
       u += w;
     }
 
-    // console.log("RES", res);
     this.a = res[0][0];
     this.z = res[m * 2][0];
-  },
-  expression() {
-    this.a.x1 = this.inp;
-    this.out = this.z.x3;
-  }
-});
 
-function App() {
+    expression(() => {
+      this.a.x1 = this.inp;
+      this.out = this.z.x3;
+    });
+  }
+}
+
+export const App = observe(() => {
   const box = useRef();
   if (!box.current) {
     let time = Date.now();
-    let inst = runner();
-    unit.link(inst);
+    let inst = new Runner();
     let init_time = Date.now() - time;
 
     box.current = { inst, init_time, tick_time: 0 };
@@ -127,4 +126,4 @@ function App() {
       <p>Init time {init_time} ms</p>
     </>
 	);
-}
+});

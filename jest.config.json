@@ -6,10 +6,10 @@
     "<rootDir>/jest"
   ],
   "modulePathIgnorePatterns": [
-    "<rootDir>/lib/"
+    "<rootDir>/src/"
   ],
   "testMatch": [
-    "<rootDir>/test/**/*.test.js"
+    "<rootDir>/tests/**/*.test.js"
   ],
   "moduleNameMapper": {
     "realar": "<rootDir>"

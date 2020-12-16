@@ -1,8 +1,0 @@
-{
-  "compilerOptions": {
-    "jsx": "react",
-    "noEmit": true,
-    "strict": true,
-    "esModuleInterop": true
-  }
-}

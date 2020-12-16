@@ -1,36 +1,23 @@
-const
-  { unit_transform } = require("./unit-transform"),
-  { view_transform, view_processed } = require("./view-transform");
+const { view_transform } = require('./view-transform');
 
-module.exports = {
-  plugin
-}
-
+const decorator_fn_name = "require('realar').observe";
 
 function plugin() {
   return {
-    name: "babel-plugin-realar",
+    name: 'babel-plugin-realar',
     manipulateOptions(_opts, parserOpts) {
-      parserOpts.plugins.push("jsx");
+      parserOpts.plugins.push('jsx');
     },
     visitor: {
-      Program(_path, _state) {
-        view_processed.clear();
+      'JSXElement|JSXFragment'(path, state) {
+        const { decorator } = state.opts || {};
+        view_transform(path, decorator || decorator_fn_name);
       },
-      "JSXElement|JSXFragment"(path, state) {
-        view_transform(path, state);
-      },
-      CallExpression(path, state) {
-        switch (path.node.callee.name) {
-          case "unit":
-            unit_transform(path, state);
-            break;
-          case "useOwn":
-          case "useShared":
-            view_transform(path, state);
-            break;
-        }
-      }
     },
   };
+}
+
+module.exports = {
+  decorator_fn_name,
+  plugin
 }
