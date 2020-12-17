@@ -1,4 +1,4 @@
-import React, { useRef, useReducer, useEffect, useMemo } from 'react';
+import { useRef, useReducer, useEffect, useMemo, FC, memo } from 'react';
 import { expr, box, sel } from 'reactive-box';
 
 const ssr_map = new Map();
@@ -17,6 +17,7 @@ export {
   observe,
   use,
   free,
+  mock
 };
 
 function ssr_decorator(key: string) {
@@ -72,6 +73,11 @@ function initial(data: any): void {
   initial_data = data;
 }
 
+function mock<M>(Class: new (init?: any) => M, mocked: M): M {
+  shareds.set(Class, mocked);
+  return mocked;
+}
+
 function shared<M>(Class: new (init?: any) => M): M {
   let instance = shareds.get(Class);
   if (!instance) {
@@ -94,8 +100,8 @@ function useForceUpdate() {
   return useReducer(() => [], [])[1] as () => void;
 }
 
-function observe<T extends React.FC<P>, P>(Component: T) {
-  return React.memo((props: P) => {
+function observe<T extends FC<P>, P>(Component: T) {
+  return memo((props: P) => {
     const forceUpdate = useForceUpdate();
     const ref = useRef<[T, () => void]>();
     if (!ref.current) {
@@ -112,7 +118,12 @@ function use<T extends unknown[], M>(Class: new (...args: T) => M, deps?: T): M 
 }
 
 function free() {
-  // run destructors
-  shareds.clear();
-  initial_data = void 0;
+  try {
+    shareds.forEach((instance) => {
+      instance.destructor && instance.destructor();
+    });
+  } finally {
+    shareds.clear();
+    initial_data = void 0;
+  }
 }

@@ -1,12 +1,4 @@
 {
   "version": "0.2.2",
-  "packages": [
-    "."
-  ],
-  "hoist": false,
-  "npmClient": "npm",
-  "npmClientArgs": [
-    "--no-package-lock"
-  ],
-  "loglevel": "verbose"
+  "packages": ["."]
 }

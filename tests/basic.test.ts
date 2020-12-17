@@ -1,6 +1,6 @@
-import { box, sel, reaction } from "realar";
+import { box, sel, reaction } from "../src";
 
-test("should work", () => {
+test("should work basic operations with box, sel and reaction", () => {
   const spy = jest.fn();
   class A {
     @box a = 10;
@@ -10,8 +10,9 @@ test("should work", () => {
   }
   const a = new A();
   reaction(() => a.b, spy);
-  expect(spy).toHaveBeenNthCalledWith(1, 11);
+  expect(spy).toBeCalledTimes(0);
 
   a.a += 10;
-  expect(spy).toHaveBeenNthCalledWith(2, 21);
+  expect(spy).toHaveBeenNthCalledWith(1, 21);
+  expect(spy).toBeCalledTimes(1);
 });
