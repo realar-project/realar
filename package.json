@@ -21,8 +21,9 @@
     "build": "tsc",
     "build:watch": "tsc -w",
     "test": "jest",
-    "publish": "lerna publish",
-    "format": "prettier --write src tests babel jest"
+    "publish": "npm run clear && npm run build && lerna publish",
+    "format": "prettier --write src tests babel jest",
+    "clear": "rimraf build"
   },
   "dependencies": {
     "reactive-box": ">=0.5.0"
