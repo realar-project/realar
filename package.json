@@ -78,9 +78,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "alias": {
-    "realar": "./build"
-  },
   "prettier": {
     "arrowParens": "avoid",
     "printWidth": 100,

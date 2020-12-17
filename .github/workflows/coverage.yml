@@ -21,7 +21,7 @@ jobs:
           node-version: ${{ matrix.node }}
       - run: node --version
       - run: npm --version
-      - run: npm ci
+      - run: npm i
       - run: npm run build
       - run: npm run test -- --coverage
       - uses: coverallsapp/github-action@master
