@@ -1,1 +1,1 @@
-module.exports = require("./plugin").plugin;
+module.exports = require('babel-plugin-realar');

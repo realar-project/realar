@@ -1,17 +1,17 @@
 {
   "setupFiles": [
-    "<rootDir>/jest-setup"
+    "<rootDir>/jest-setup.ts"
   ],
   "setupFilesAfterEnv": [
     "<rootDir>/jest"
   ],
   "modulePathIgnorePatterns": [
-    "<rootDir>/lib/"
+    "<rootDir>/src/"
   ],
   "testMatch": [
-    "<rootDir>/test/**/*.test.js"
+    "<rootDir>/tests/**/*.test.ts*"
   ],
   "moduleNameMapper": {
-    "realar": "<rootDir>"
+    "realar": "<rootDir>/src"
   }
 }

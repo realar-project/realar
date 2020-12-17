@@ -1,4 +1,4 @@
-name: test
+name: coverage
 on: [push]
 env:
   CI: true
@@ -21,9 +21,9 @@ jobs:
           node-version: ${{ matrix.node }}
       - run: node --version
       - run: npm --version
-      - run: npm run bootstrap
-      - run: npm run build:prod
-      - run: npm run test:ci
+      - run: npm i
+      - run: npm run build
+      - run: npm run test -- --coverage
       - uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
