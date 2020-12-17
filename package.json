@@ -8,6 +8,7 @@
   "bugs": {
     "url": "https://github.com/betula/realar/issues"
   },
+  "homepage": "https://github.com/betula/realar#readme",
   "license": "MIT",
   "scripts": {
     "bootstrap": "npx lerna bootstrap --no-ci && npm run build",
@@ -49,14 +50,14 @@
     "react hooks",
     "reactive programming",
     "typescript",
-    "javascript"
+    "javascript",
+    "jsx",
+    "decorator"
   ],
   "main": "build/index.js",
   "module": "build/index.esm.js",
   "types": "build/index.d.ts",
   "files": [
-    "babel",
-    "jest",
     "build"
   ],
   "dependencies": {
@@ -73,19 +74,12 @@
     "@rollup/plugin-node-resolve": "8.4.0",
     "@types/react": "16.9.49",
     "babel-jest": "26.2.2",
-    "chokidar-cli": "2.1.0",
-    "concurrently": "5.3.0",
-    "cpy-cli": "3.1.1",
+    "babel-plugin-realar": ">=0.1.1",
     "cross-env": "7.0.2",
-    "deasync": "0.1.20",
     "enzyme": "3.11.0",
     "enzyme-adapter-react-16": "1.15.3",
-    "execa": "4.0.3",
     "jest": "26.2.2",
     "lerna": "3.22.1",
-    "mobx": "5.15.5",
-    "mobx-react": "6.2.5",
-    "parcel": "1.12.4",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "rimraf": "3.0.2",
@@ -102,5 +96,13 @@
   },
   "alias": {
     "realar": "./build"
+  },
+  "prettier": {
+    "arrowParens": "avoid",
+    "printWidth": 100,
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "useTabs": false
   }
 }

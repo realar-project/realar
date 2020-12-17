@@ -1,6 +1,6 @@
 # Realar
 
-[![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar?style=flat-square)](https://bundlephobia.com/result?p=realar) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar)
+[![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar?style=flat-square)](https://bundlephobia.com/result?p=realar) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar) [![typescript supported](https://img.shields.io/npm/types/typescript?style=flat-square)](./src/index.ts)
 
 Reactive state manager for React based on [reactive-box](https://github.com/betula/reactive-box).
 
@@ -10,7 +10,7 @@ Light, Fast, and Pretty looked :kissing_heart:
 
 ```javascript
 import React from "react";
-import { box, sel, observe, shared } from "realar";
+import { box, sel, shared } from "realar";
 
 class Counter {
   @box value = 0;
@@ -39,36 +39,20 @@ const App = () => {
 };
 ```
 
-<!--
-### Documentation
-
-+ [Basic understanding](./docs/understanding/index.md)
-
 
 ### Demos
 
 + [Hello](https://github.com/realar-project/hello) - shared state demonstration.
-+ [Todos](https://github.com/realar-project/todos) - todomvc implementation. -->
++ [Todos](https://github.com/realar-project/todos) - todomvc implementation.
 
 
 ### Installation
 
 ```bash
-npm i -P realar
+npm install --save realar
 # or
 yarn add realar
 ```
 
-And update your babel config:
-
-```javascript
-// .babelrc.js
-module.exports = {
-  "plugins": [
-    "realar/babel"
-  ]
-}
-```
-
-Enjoy!
+Enjoy and happy coding!
 

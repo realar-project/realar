@@ -27,10 +27,6 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
-# parcel
-dist
-.cache
-
 # build
 build
 
