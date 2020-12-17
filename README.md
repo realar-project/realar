@@ -54,5 +54,16 @@ npm install --save realar
 yarn add realar
 ```
 
+And update your babel config if your want to use [babel-plugin](https://github.com/betula/babel-plugin-realar) for automatic decorated arrow function components:
+
+```javascript
+// .babelrc
+{
+  "plugins": [
+    "realar/babel"
+  ]
+}
+```
+
 Enjoy and happy coding!
 
