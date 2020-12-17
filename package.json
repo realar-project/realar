@@ -15,7 +15,8 @@
   "files": [
     "build",
     "babel",
-    "jest"
+    "jest",
+    "src"
   ],
   "scripts": {
     "build": "tsc",
