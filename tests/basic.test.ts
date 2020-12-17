@@ -1,6 +1,6 @@
-import { box, sel, reaction } from "../src";
+import { box, sel, reaction } from '../src';
 
-test("should work basic operations with box, sel and reaction", () => {
+test('should work basic operations with box, sel and reaction', () => {
   const spy = jest.fn();
   class A {
     @box a = 10;

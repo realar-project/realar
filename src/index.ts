@@ -17,7 +17,7 @@ export {
   observe,
   use,
   free,
-  mock
+  mock,
 };
 
 function ssr_decorator(key: string) {
@@ -119,7 +119,7 @@ function use<T extends unknown[], M>(Class: new (...args: T) => M, deps?: T): M 
 
 function free() {
   try {
-    shareds.forEach((instance) => {
+    shareds.forEach(instance => {
       instance.destructor && instance.destructor();
     });
   } finally {

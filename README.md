@@ -9,8 +9,8 @@ Light, Fast, and Pretty looked :kissing_heart:
 ### Usage
 
 ```javascript
-import React from "react";
-import { box, sel, shared } from "realar";
+import React from 'react';
+import { box, sel, shared } from 'realar';
 
 class Counter {
   @box value = 0;
@@ -39,11 +39,11 @@ const App = () => {
 };
 ```
 
-
+<!--
 ### Demos
 
 + [Hello](https://github.com/realar-project/hello) - shared state demonstration.
-+ [Todos](https://github.com/realar-project/todos) - todomvc implementation.
++ [Todos](https://github.com/realar-project/todos) - todomvc implementation. -->
 
 
 ### Installation
