@@ -39,7 +39,7 @@ const App = () => {
 
 + [Hello](https://github.com/realar-project/hello) - shared state demonstration.
 + [Todos](https://github.com/realar-project/todos) - todomvc implementation.
-
++ [Jest](https://github.com/realar-project/jest) - unit test example.
 
 ### Installation
 
