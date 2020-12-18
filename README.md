@@ -1,6 +1,6 @@
 # Realar
 
-[![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar@0.3.0?style=flat-square)](https://bundlephobia.com/result?p=realar@0.3.0) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar) [![typescript supported](https://img.shields.io/npm/types/typescript?style=flat-square)](./src/index.ts)
+[![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar?style=flat-square)](https://bundlephobia.com/result?p=realar) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar) [![typescript supported](https://img.shields.io/npm/types/typescript?style=flat-square)](./src/index.ts)
 
 Reactive state manager for React based on [reactive-box](https://github.com/betula/reactive-box).
 
@@ -34,8 +34,9 @@ const App = () => {
 };
 ```
 
-If you no have possibilities for using [babel plugin](https://github.com/betula/babel-plugin-realar), your code will be not so beautiful look like, because otherwise necessary to wrap all React function components that use reactive values inside to `observe` wrapper.
+If you no have possibilities for using [realar babel plugin](https://github.com/betula/babel-plugin-realar), your code will be not so beautiful look like, because otherwise necessary to wrap all React function components that use reactive values inside to `observe` wrapper.
 
+[See wrapped version on CodeSandbox](https://codesandbox.io/s/realar-counter-k9kmw?file=/src/App.tsx).
 
 ### Demos
 
