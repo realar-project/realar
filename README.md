@@ -10,7 +10,7 @@ Light, Fast, and Pretty looked :kissing_heart:
 
 ```javascript
 import React from 'react';
-import { box, sel, shared } from 'realar';
+import { box, shared } from 'realar';
 
 class Counter {
   @box value = 0;
