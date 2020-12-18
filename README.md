@@ -34,6 +34,8 @@ const App = () => {
 };
 ```
 
+If you no have possibilities for using [babel plugin](https://github.com/betula/babel-plugin-realar), your code will be not so beautiful look like, because otherwise necessary to wrap all React function components that use reactive values inside to `observe` wrapper.
+
 
 ### Demos
 
@@ -49,7 +51,7 @@ npm install --save realar
 yarn add realar
 ```
 
-And update your babel config if your want to use [babel-plugin](https://github.com/betula/babel-plugin-realar) for automatic decorated arrow function components.
+And update your babel config if you want to use [babel plugin](https://github.com/betula/babel-plugin-realar) for automatic observation for arrow function components.
 
 Enjoy and happy coding!
 
