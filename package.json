@@ -14,7 +14,6 @@
   "types": "build/index.d.ts",
   "files": [
     "build",
-    "babel",
     "jest",
     "src"
   ],
@@ -27,7 +26,6 @@
     "clear": "rimraf build"
   },
   "dependencies": {
-    "babel-plugin-realar": ">=0.1.2",
     "reactive-box": ">=0.5.0"
   },
   "peerDependencies": {
@@ -44,6 +42,7 @@
     "@types/jest": "26.0.19",
     "@types/react": "17.0.0",
     "babel-jest": "26.6.3",
+    "babel-plugin-realar": ">=0.1.1",
     "cross-env": "7.0.3",
     "enzyme": "3.11.0",
     "enzyme-adapter-react-16": "1.15.5",

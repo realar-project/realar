@@ -15,10 +15,6 @@ import { box, sel, shared } from 'realar';
 class Counter {
   @box value = 0;
 
-  @sel get next() {
-    return this.value + 1;
-  }
-
   increment = () => this.value += 1;
   decrement = () => this.value -= 1;
 }
@@ -26,11 +22,10 @@ class Counter {
 const sharedCounter = () => shared(Counter);
 
 const App = () => {
-  const { value, next, increment, decrement } = sharedCounter();
-
+  const { value, increment, decrement } = sharedCounter();
   return (
     <p>
-      Counter: {value} (next value: {next})
+      Counter: {value}
       <br />
       <button onClick={decrement}>Prev</button>
       <button onClick={increment}>Next</button>
@@ -39,11 +34,11 @@ const App = () => {
 };
 ```
 
-<!--
+
 ### Demos
 
 + [Hello](https://github.com/realar-project/hello) - shared state demonstration.
-+ [Todos](https://github.com/realar-project/todos) - todomvc implementation. -->
++ [Todos](https://github.com/realar-project/todos) - todomvc implementation.
 
 
 ### Installation
@@ -54,16 +49,7 @@ npm install --save realar
 yarn add realar
 ```
 
-And update your babel config if your want to use [babel-plugin](https://github.com/betula/babel-plugin-realar) for automatic decorated arrow function components:
-
-```javascript
-// .babelrc
-{
-  "plugins": [
-    "realar/babel"
-  ]
-}
-```
+And update your babel config if your want to use [babel-plugin](https://github.com/betula/babel-plugin-realar) for automatic decorated arrow function components.
 
 Enjoy and happy coding!
 
