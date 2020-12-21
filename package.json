@@ -28,7 +28,7 @@
   "dependencies": {
     "reactive-box": ">=0.5.0"
   },
-  "peerDependencies": {
+  "optionalDependencies": {
     "react": ">=16.8.0"
   },
   "devDependencies": {
