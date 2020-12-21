@@ -1,13 +1,11 @@
 import { useRef, useReducer, useEffect, useMemo, FC, memo } from 'react';
 import { expr, box, sel } from 'reactive-box';
 
-const ssr_map = new Map();
 const shareds = new Map();
 
 let initial_data: any;
 
 export {
-  ssr_decorator as ssr,
   box_decorator as box,
   sel_decorator as sel,
   reaction,
@@ -19,12 +17,6 @@ export {
   free,
   mock,
 };
-
-function ssr_decorator(key: string) {
-  return function (constructor: any) {
-    ssr_map.set(constructor, key);
-  };
-}
 
 function box_decorator(_proto: any, key: any, descriptor?: any): any {
   const { initializer } = descriptor || {};
@@ -81,17 +73,7 @@ function mock<M>(Class: new (init?: any) => M, mocked: M): M {
 function shared<M>(Class: new (init?: any) => M): M {
   let instance = shareds.get(Class);
   if (!instance) {
-    if (ssr_map.has(Class)) {
-      const key: string = ssr_map.get(Class);
-      if (initial_data && initial_data.hasOwnProperty(key)) {
-        instance = new Class(initial_data[key]);
-      } else {
-        instance = new Class();
-      }
-    } else {
-      instance = new Class();
-    }
-    shareds.set(Class, instance);
+    shareds.set(Class, (instance = new Class(initial_data)));
   }
   return instance;
 }
