@@ -22,7 +22,7 @@
     "build:watch": "tsc -w",
     "test": "jest",
     "publish": "npm run clear && npm run build && lerna publish",
-    "format": "prettier --write src tests babel jest",
+    "format": "prettier --write src tests jest",
     "clear": "rimraf build"
   },
   "dependencies": {

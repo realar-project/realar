@@ -2,7 +2,7 @@ import { shared, initial, free } from '../src';
 
 test('should work initial data with shared', () => {
   const spy = jest.fn();
-  const a = {a: 10};
+  const a = { a: 10 };
   class A {
     constructor(data: typeof a) {
       spy(data);
