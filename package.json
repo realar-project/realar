@@ -42,7 +42,7 @@
     "@types/jest": "26.0.19",
     "@types/react": "17.0.0",
     "babel-jest": "26.6.3",
-    "babel-plugin-realar": "0.1.5",
+    "babel-plugin-realar": "0.2.1",
     "cross-env": "7.0.3",
     "enzyme": "3.11.0",
     "enzyme-adapter-react-16": "1.15.5",
