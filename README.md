@@ -21,7 +21,7 @@ class Counter {
 
 const sharedCounter = () => shared(Counter);
 
-const App = () => {
+const CounterView = () => {
   const { value, increment, decrement } = sharedCounter();
   return (
     <p>
