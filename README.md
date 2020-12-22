@@ -47,7 +47,7 @@ If you no have possibilities for using [realar babel plugin](https://github.com/
 ### Installation
 
 ```bash
-npm install --save realar
+npm install realar
 # or
 yarn add realar
 ```
