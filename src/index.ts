@@ -87,6 +87,7 @@ function useForceUpdate() {
 }
 
 function observe<T extends FC<P>, P>(Component: T) {
+  // Todo: check forwardRef support
   return memo((props: P) => {
     const forceUpdate = useForceUpdate();
     const ref = useRef<[T, () => void]>();
