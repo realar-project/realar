@@ -73,9 +73,10 @@ function mock<M>(Class: new (init?: any) => M, mocked: M): M {
 function shared<M>(Class: (new (init?: any) => M) | ((init?: any) => M)): M {
   let instance = shareds.get(Class);
   if (!instance) {
-    instance = (typeof Class.prototype === 'undefined')
-          ? (Class as (init?: any) => M)(initial_data)
-          : new (Class as new (init?: any) => M)(initial_data);
+    instance =
+      typeof Class.prototype === 'undefined'
+        ? (Class as (init?: any) => M)(initial_data)
+        : new (Class as new (init?: any) => M)(initial_data);
     shareds.set(Class, instance);
   }
   return instance;
