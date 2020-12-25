@@ -51,7 +51,7 @@ function reaction<T>(target: () => T, listener: (value: T, prev?: T) => void) {
   const [get] = sel(target);
   const [run, stop] = expr(get, () => {
     const prev = value;
-    listener(value = run(), prev);
+    listener((value = run()), prev);
   });
   value = run();
   return stop;
