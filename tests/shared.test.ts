@@ -19,7 +19,7 @@ test('should work initial data with shared', () => {
 
 test('should work with arrow functions not only with class', () => {
   const spy = jest.fn().mockReturnValue(10);
-  const A = init => spy(init);
+  const A = (init: any) => spy(init);
   initial('initial');
   expect(shared(A)).toBe(10);
   expect(shared(A)).toBe(10);

@@ -46,12 +46,14 @@ function sel_decorator(_proto: any, key: any, descriptor: any): any {
   };
 }
 
-function reaction<T>(target: () => T, listener: (value: T) => void) {
+function reaction<T>(target: () => T, listener: (value: T, prev?: T) => void) {
+  let value: T;
   const [get] = sel(target);
   const [run, stop] = expr(get, () => {
-    listener(run());
+    const prev = value;
+    listener(value = run(), prev);
   });
-  run();
+  value = run();
   return stop;
 }
 
