@@ -20,17 +20,15 @@ test('should work use function', () => {
       effect();
       return effect_unlink;
     }
-  };
+  }
 
   function A() {
     const [value, setValue] = useState(10);
     inst = use(Unit, [value]);
-    return (
-      <button onClick={() => setValue(20)} />
-    )
+    return <button onClick={() => setValue(20)} />;
   }
 
-  const el = mount(<A/>);
+  const el = mount(<A />);
 
   expect(constr).toHaveBeenCalledTimes(1);
   expect(constr).toHaveBeenCalledWith(10);
@@ -39,11 +37,11 @@ test('should work use function', () => {
   expect(effect).toHaveBeenCalledWith();
 
   prev = inst;
-  el.find("button").simulate("click");
+  el.find('button').simulate('click');
   expect(inst).not.toBe(prev);
 
   prev = inst;
-  el.find("button").simulate("click");
+  el.find('button').simulate('click');
   expect(inst).toBe(prev);
 
   expect(free).toHaveBeenCalledTimes(1);
@@ -56,7 +54,6 @@ test('should work use function', () => {
   expect(free).toHaveBeenCalledTimes(2);
   expect(effect_unlink).toHaveBeenCalledTimes(2);
 });
-
 
 test('should throw exception if deps not an array', () => {
   class Unit {}
