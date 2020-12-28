@@ -102,14 +102,32 @@ function observe<T extends FC<P>, P>(Component: T) {
   });
 }
 
-function use<T extends unknown[], M>(Class: new (...args: T) => M, deps?: T): M {
-  return useMemo(() => (deps ? new Class(...deps) : new (Class as any)()), deps || []);
+function use<T extends unknown[], M>(Class: new (...args: T) => M, deps = [] as T): M {
+  if (!Array.isArray(deps)) {
+    throw 'TypeError: deps argument should be an array';
+  }
+  const [inst, effect] = useMemo(() => {
+    const inst = new Class(...deps as any) as any;
+    const effect = () => {
+      const un = inst.effect && inst.effect();
+      return () => {
+        try {
+          un && un();
+        } finally {
+          inst.free && inst.free();
+        }
+      }
+    }
+    return [inst, effect];
+  }, deps);
+  useEffect(effect, [inst]);
+  return inst;
 }
 
 function free() {
   try {
     shareds.forEach(instance => {
-      instance.destructor && instance.destructor();
+      instance.free && instance.free();
     });
   } finally {
     shareds.clear();
