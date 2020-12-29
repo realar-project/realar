@@ -106,16 +106,12 @@ function use<T extends unknown[], M>(Class: new (...args: T) => M, deps = [] as 
   if (!Array.isArray(deps)) {
     throw 'TypeError: deps argument should be an array';
   }
-  return useMemo(() => (
-    new Class(...(deps as any)) as any
-  ), deps);
+  return useMemo(() => new Class(...(deps as any)) as any, deps);
 }
 
 function free() {
   try {
-    shareds.forEach(instance => (
-      instance.destructor && instance.destructor()
-    ));
+    shareds.forEach(instance => instance.destructor && instance.destructor());
   } finally {
     shareds.clear();
     initial_data = void 0;
