@@ -2,15 +2,21 @@ import { shared, initial, free } from '../src';
 
 test('should work initial data with shared', () => {
   const spy = jest.fn();
+  const destr = jest.fn();
   const a = { a: 10 };
   class A {
     constructor(data: typeof a) {
       spy(data);
     }
+    destructor = destr;
   }
   shared(A);
   expect(spy).toHaveBeenNthCalledWith(1, undefined);
+
+  expect(destr).not.toBeCalled();
   free();
+  expect(destr).toBeCalled();
+
   initial(a);
   shared(A);
   expect(spy).toHaveBeenNthCalledWith(2, a);

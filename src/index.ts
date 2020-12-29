@@ -106,29 +106,16 @@ function use<T extends unknown[], M>(Class: new (...args: T) => M, deps = [] as 
   if (!Array.isArray(deps)) {
     throw 'TypeError: deps argument should be an array';
   }
-  const [inst, effect] = useMemo(() => {
-    const inst = new Class(...(deps as any)) as any;
-    const effect = () => {
-      const un = inst.effect && inst.effect();
-      return () => {
-        try {
-          un && un();
-        } finally {
-          inst.free && inst.free();
-        }
-      };
-    };
-    return [inst, effect];
-  }, deps);
-  useEffect(effect, [inst]);
-  return inst;
+  return useMemo(() => (
+    new Class(...(deps as any)) as any
+  ), deps);
 }
 
 function free() {
   try {
-    shareds.forEach(instance => {
-      instance.free && instance.free();
-    });
+    shareds.forEach(instance => (
+      instance.destructor && instance.destructor()
+    ));
   } finally {
     shareds.clear();
     initial_data = void 0;
