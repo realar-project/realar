@@ -25,20 +25,20 @@ import { box, shared } from 'realar';
 class Counter {
   @box value = 0;
 
-  increment = () => this.value += 1;
-  decrement = () => this.value -= 1;
+  inc = () => this.value += 1;
+  dec = () => this.value -= 1;
 }
 
 const sharedCounter = () => shared(Counter);
 
 const View = () => {
-  const { value, increment, decrement } = sharedCounter();
+  const { value, inc, dec } = sharedCounter();
   return (
     <p>
       Counter: {value}
       <br />
-      <button onClick={decrement}>Prev</button>
-      <button onClick={increment}>Next</button>
+      <button onClick={dec}>Prev</button>
+      <button onClick={inc}>Next</button>
     </p>
   );
 };
