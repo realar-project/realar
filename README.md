@@ -8,7 +8,7 @@ Reactive state manager for React based on [reactive-box](https://github.com/betu
 
 Realar targeted to clean code, minimal abstraction, minimal additional functions, modulable architecture, and time of delivery user experience.
 
-### Start
+Start!
 
 You can start development with knows only two functions:
 
