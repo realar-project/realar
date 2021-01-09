@@ -4,7 +4,17 @@
 
 Reactive state manager for React based on [reactive-box](https://github.com/betula/reactive-box).
 
-Light, Fast, and Pretty looked :kissing_heart:
+[Light](https://bundlephobia.com/result?p=realar), [Fast](https://github.com/betula/reactive-box-performance), and Pretty looked :kissing_heart:
+
+Realar targeted to clean code, minimal abstraction, minimal additional functions, modulable architecture, and time of delivery user experience.
+
+### Start
+
+You can start development with knows only two functions:
+
+`box`. Reactive value marker. Each reactive value has an immutable state. If the immutable state will update, all React components that depend on It will refresh.
+
+`shared`. One of the primary reasons for using state manager in your application is a shared state accessing, and using shared logic between scattered React components.
 
 ### Usage
 
