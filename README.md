@@ -14,7 +14,7 @@ You can start development with knows only two functions:
 
 `box`. Reactive value marker. Each reactive value has an immutable state. If the immutable state will update, all React components that depend on It will refresh.
 
-`shared`. One of the primary reasons for using state manager in your application is a shared state accessing, and using shared logic between scattered React components.
+`shared`. One of the primary reasons for using state manager in your application is a shared state accessing, and using shared logic between scattered React components and any place of your code.
 
 ### Usage
 
@@ -58,9 +58,9 @@ const App = () => (
 export default App;
 ```
 
-If you no have possibilities for using [realar babel plugin](https://github.com/betula/babel-plugin-realar), your code will be not so beautiful look like, because otherwise necessary to wrap all React function components that use reactive values inside to `observe` wrapper.
+If you no have possibilities for using [realar babel plugin](https://github.com/betula/babel-plugin-realar), your code will be not so beautiful look like, because otherwise necessary to wrap all React function components that use reactive values inside to `observe` wrapper. [See wrapped version on CodeSandbox](https://codesandbox.io/s/realar-counter-k9kmw?file=/src/App.tsx).
 
-[See wrapped version on CodeSandbox](https://codesandbox.io/s/realar-counter-k9kmw?file=/src/App.tsx).
+
 
 ### Demos
 
@@ -76,7 +76,23 @@ npm install realar
 yarn add realar
 ```
 
-And update your babel config if you want to use [babel plugin](https://github.com/betula/babel-plugin-realar) for automatic observation for arrow function components.
+And update your babel config for support decorators and using [babel plugin](https://github.com/betula/babel-plugin-realar) for automatic observation arrow function components.
+
+```javascript
+//.babelrc
+{
+  "plugins": [
+    ["@babel/plugin-proposal-decorators", { "legacy": true }],
+    ["@babel/plugin-proposal-class-properties", { "loose": true }],
+    ["realar", {
+      "include": [
+        "src/components/*",
+        "src/pages/*"
+      ]
+    }]
+  ]
+}
+```
 
 Enjoy and happy coding!
 
