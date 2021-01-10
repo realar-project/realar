@@ -7,7 +7,7 @@ test('should work use function', () => {
   let inst, prev;
 
   class Unit {
-    constructor(...args) {
+    constructor(...args: any[]) {
       constr(...args);
     }
   }

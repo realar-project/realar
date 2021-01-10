@@ -1,4 +1,4 @@
-import { useRef, useReducer, useEffect, useMemo, FC, memo } from 'react';
+import { useRef, useReducer, useEffect, useMemo, FC } from 'react';
 import { expr, box, sel } from 'reactive-box';
 
 const shareds = new Map();
@@ -88,30 +88,26 @@ function useForceUpdate() {
   return useReducer(() => [], [])[1] as () => void;
 }
 
-function observe<T extends FC<P>, P>(Component: T) {
-  // Todo: check forwardRef support
-  return memo((props: P) => {
+function observe<T extends FC>(FunctionComponent: T): T {
+  return function () {
     const forceUpdate = useForceUpdate();
     const ref = useRef<[T, () => void]>();
-    if (!ref.current) {
-      const [Observed, free] = expr(Component, forceUpdate);
-      ref.current = [Observed, free];
-    }
+    if (!ref.current) ref.current = expr(FunctionComponent, forceUpdate);
     useEffect(() => ref.current![1], []);
-    return ref.current[0](props);
-  });
+    return ref.current[0].apply(this, arguments);
+  } as any;
 }
 
 function use<T extends unknown[], M>(Class: new (...args: T) => M, deps = [] as T): M {
   if (!Array.isArray(deps)) {
-    throw 'TypeError: deps argument should be an array';
+    throw new Error('TypeError: deps argument should be an array in "use" call');
   }
   return useMemo(() => new Class(...(deps as any)) as any, deps);
 }
 
 function free() {
   try {
-    shareds.forEach(instance => instance.destructor && instance.destructor());
+    shareds.forEach(instance => instance && instance.destructor && instance.destructor());
   } finally {
     shareds.clear();
     initial_data = void 0;
