@@ -90,21 +90,18 @@ function useForceUpdate() {
 
 function observe<T extends FC<P>, P>(Component: T) {
   // Todo: check forwardRef support
-  return memo((props: P) => {
+  return memo((props: P, context?: any) => {
     const forceUpdate = useForceUpdate();
     const ref = useRef<[T, () => void]>();
-    if (!ref.current) {
-      const [Observed, free] = expr(Component, forceUpdate);
-      ref.current = [Observed, free];
-    }
+    if (!ref.current) ref.current = expr(Component, forceUpdate);
     useEffect(() => ref.current![1], []);
-    return ref.current[0](props);
+    return ref.current[0](props, context);
   });
 }
 
 function use<T extends unknown[], M>(Class: new (...args: T) => M, deps = [] as T): M {
   if (!Array.isArray(deps)) {
-    throw 'TypeError: deps argument should be an array';
+    throw new Error('TypeError: deps argument should be an array');
   }
   return useMemo(() => new Class(...(deps as any)) as any, deps);
 }
