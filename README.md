@@ -31,24 +31,31 @@ class Counter {
 
 const sharedCounter = () => shared(Counter);
 
-const View = () => {
-  const { value, inc, dec } = sharedCounter();
+const Count = () => {
+  const { value } = sharedCounter();
+  return <p>{value}</p>;
+};
+
+const Buttons = () => {
+  const { inc, dec } = sharedCounter();
   return (
-    <p>
-      Counter: {value}
-      <br />
-      <button onClick={dec}>Prev</button>
-      <button onClick={inc}>Next</button>
-    </p>
+    <>
+      <button onClick={inc}>+</button>
+      <button onClick={dec}>-</button>
+    </>
   );
 };
 
-export const App = () => (
+const App = () => (
   <>
-    <View />
-    <View />
+    <Count />
+    <Buttons />
+    <Count />
+    <Buttons />
   </>
 );
+
+export default App;
 ```
 
 If you no have possibilities for using [realar babel plugin](https://github.com/betula/babel-plugin-realar), your code will be not so beautiful look like, because otherwise necessary to wrap all React function components that use reactive values inside to `observe` wrapper.
