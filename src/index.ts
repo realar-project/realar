@@ -6,10 +6,11 @@ const shareds = new Map();
 let initial_data: any;
 
 export {
-  box_decorator as box,
-  sel_decorator as sel,
-  reaction,
-  expression,
+  action,
+  prop,
+  cache,
+  on,
+  cycle,
   shared,
   initial,
   observe,
@@ -18,25 +19,50 @@ export {
   mock,
 };
 
-function box_decorator(_proto: any, key: any, descriptor?: any): any {
-  const { initializer } = descriptor || {};
-  const applyProperty = (target: any) => {
-    const [get, set] = box(initializer && initializer());
-    Object.defineProperty(target, key, { get, set });
+function action<T = void>() {
+  let resolve: (v: T) => void;
+  const [getInfo, setInfo] = box([void 0, false] as [T|void, boolean]);
+
+  const fn = function(data?: T) {
+    const ready = resolve;
+    promisify();
+    setInfo([data, true]);
+    ready(data!);
   };
+
+  fn[0] = getInfo;
+
+  promisify();
+
+  function promisify() {
+    const promise = new Promise<T>(r => (resolve = r));
+    ['then', 'catch', 'finally'].forEach((prop) => {
+      (fn as any)[prop] = (promise as any)[prop].bind(promise);
+    });
+  }
+
+  return fn;
+}
+
+function boxProperty(target: any, key: any, initializer: any) {
+  const [get, set] = box(initializer && initializer());
+  Object.defineProperty(target, key, { get, set });
+};
+
+function prop(_proto: any, key: any, descriptor?: any): any {
   return {
     get() {
-      applyProperty(this);
+      boxProperty(this, key, descriptor?.initializer);
       return this[key];
     },
     set(value: any) {
-      applyProperty(this);
+      boxProperty(this, key, descriptor?.initializer);
       this[key] = value;
     },
   };
 }
 
-function sel_decorator(_proto: any, key: any, descriptor: any): any {
+function cache(_proto: any, key: any, descriptor: any): any {
   return {
     get() {
       const [get] = sel(descriptor.get);
@@ -46,18 +72,21 @@ function sel_decorator(_proto: any, key: any, descriptor: any): any {
   };
 }
 
-function reaction<T>(target: () => T, listener: (value: T, prev?: T) => void) {
+function on<T>(target: () => T | {0: () => T} | [() => T], listener: (value: T, prev?: T) => void) {
+  if (!target) return;
+  else if ((target as any)[0]) target = (target as any)[0]; // box or selector or custom reactive
+
   let value: T;
-  const [get] = sel(target);
+  const [get, free] = sel(target);
   const [run, stop] = expr(get, () => {
     const prev = value;
-    listener((value = run()), prev);
+    listener((value = run() as any), prev);
   });
-  value = run();
-  return stop;
+  value = run() as any;
+  return () => (free(), stop());
 }
 
-function expression(body: () => void) {
+function cycle(body: () => void) {
   const [run, stop] = expr(body);
   run();
   return stop;

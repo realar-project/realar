@@ -1,15 +1,15 @@
-import { box, sel, reaction } from '../src';
+import { prop, cache, on } from '../src';
 
-test('should work basic operations with box, sel and reaction', () => {
+test('should work basic operations with prop, cache and on', () => {
   const spy = jest.fn();
   class A {
-    @box a = 10;
-    @sel get b() {
+    @prop a = 10;
+    @cache get b() {
       return this.a + 1;
     }
   }
   const a = new A();
-  reaction(() => a.b, spy);
+  on(() => a.b, spy);
   expect(spy).toBeCalledTimes(0);
 
   a.a += 10;

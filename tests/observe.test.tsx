@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { use, box, observe } from '../src';
+import { use, prop, observe } from '../src';
 
 type ForwardRefButtonProps = {
   data?: { value: string };
@@ -18,7 +18,7 @@ test('should support ref forwarding', () => {
   let node;
 
   class Data {
-    @box value = '';
+    @prop value = '';
     add = () => (this.value += 'a');
   }
 

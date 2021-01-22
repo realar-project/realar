@@ -12,7 +12,7 @@ Start!
 
 You can start development with knows only two functions:
 
-`box`. Reactive value marker. Each reactive value has an immutable state. If the immutable state will update, all React components that depend on It will refresh.
+`prop`. Reactive value marker. Each reactive value has an immutable state. If the immutable state will update, all React components that depend on It will refresh.
 
 `shared`. One of the primary reasons for using state manager in your application is a shared state accessing, and using shared logic between scattered React components and any place of your code.
 
@@ -20,10 +20,10 @@ You can start development with knows only two functions:
 
 ```javascript
 import React from 'react';
-import { box, shared } from 'realar';
+import { prop, shared } from 'realar';
 
 class Counter {
-  @box value = 0;
+  @prop value = 0;
 
   inc = () => this.value += 1;
   dec = () => this.value -= 1;
