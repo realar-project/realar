@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { mount } from 'enzyme';
-import { useLocal } from '../src';
+import { useLocal, effect } from '../src';
 
 test('should work use function', () => {
   let constr = jest.fn();
+  let spy = jest.fn();
   let inst, prev;
 
   class Unit {
     constructor(...args: any[]) {
       constr(...args);
+      effect(() => spy);
     }
   }
 
@@ -22,6 +24,7 @@ test('should work use function', () => {
 
   expect(constr).toHaveBeenCalledTimes(1);
   expect(constr).toHaveBeenCalledWith(10);
+  expect(spy).toBeCalledTimes(0);
 
   prev = inst;
   el.find('button').simulate('click');
@@ -33,6 +36,7 @@ test('should work use function', () => {
 
   expect(constr).toHaveBeenCalledTimes(2);
   expect(constr).toHaveBeenLastCalledWith(20);
+  expect(spy).toBeCalledTimes(1);
 });
 
 test('should throw exception if deps not an array', () => {

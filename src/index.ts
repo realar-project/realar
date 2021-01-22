@@ -4,6 +4,8 @@ import { expr, box, sel } from 'reactive-box';
 const shareds = new Map();
 
 let initial_data: any;
+let context_unsubs: any;
+let shared_unsubs = [] as any;
 
 export {
   action,
@@ -11,6 +13,7 @@ export {
   cache,
   on,
   cycle,
+  effect,
   shared,
   initial,
   observe,
@@ -87,12 +90,21 @@ function on<T>(target: () => T | {0: () => T} | [() => T], listener: (value: T, 
     listener((value = run() as any), prev);
   });
   value = run() as any;
-  return () => (free(), stop());
+  const unsub = () => (free(), stop());
+  if (context_unsubs) context_unsubs.push(unsub);
+  return unsub;
+}
+
+function effect(fn: any) {
+  const unsub = fn();
+  if (unsub && context_unsubs) context_unsubs.push(unsub);
+  return fn;
 }
 
 function cycle(body: () => void) {
   const [run, stop] = expr(body);
   run();
+  if (context_unsubs) context_unsubs.push(stop);
   return stop;
 }
 
@@ -108,10 +120,17 @@ function mock<M>(Class: new (init?: any) => M, mocked: M): M {
 function shared<M>(Class: (new (init?: any) => M) | ((init?: any) => M)): M {
   let instance = shareds.get(Class);
   if (!instance) {
-    instance =
-      typeof Class.prototype === 'undefined'
+    const stack = context_unsubs;
+    context_unsubs = [];
+    try {
+      instance = typeof Class.prototype === 'undefined'
         ? (Class as (init?: any) => M)(initial_data)
         : new (Class as new (init?: any) => M)(initial_data);
+    } finally {
+      shared_unsubs.push(...context_unsubs);
+      context_unsubs = stack;
+    }
+
     shareds.set(Class, instance);
   }
   return instance;
@@ -135,7 +154,26 @@ function useLocal<T extends unknown[], M>(Class: new (...args: T) => M, deps = [
   if (!Array.isArray(deps)) {
     throw new Error('TypeError: deps argument should be an array in "use" call');
   }
-  return useMemo(() => new Class(...(deps as any)) as any, deps);
+  const h = useMemo(() => {
+    let inst, unsubs: (() => void)[];
+    const stack = context_unsubs;
+    context_unsubs = [];
+    try {
+      inst = typeof Class.prototype === 'undefined'
+        ? (Class as any)(...(deps as any))
+        : new Class(...(deps as any)) as any;
+    } finally {
+      unsubs = context_unsubs;
+      context_unsubs = stack;
+    }
+    return [
+      inst,
+      () => () => unsubs.forEach((fn) => fn())
+    ];
+  }, deps);
+
+  useEffect(h[1], deps);
+  return h[0];
 }
 
 function useValue<T>(target: () => T | {0: () => T} | [() => T]): T {
@@ -161,7 +199,7 @@ function useValue<T>(target: () => T | {0: () => T} | [() => T]): T {
 
 function free() {
   try {
-    shareds.forEach(instance => instance && instance.destructor && instance.destructor());
+    shared_unsubs.forEach((fn: () => void) => fn());
   } finally {
     shareds.clear();
     initial_data = void 0;
