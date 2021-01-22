@@ -14,7 +14,7 @@ export {
   shared,
   initial,
   observe,
-  use,
+  useValue,
   useLocal,
   free,
   mock,
@@ -138,7 +138,7 @@ function useLocal<T extends unknown[], M>(Class: new (...args: T) => M, deps = [
   return useMemo(() => new Class(...(deps as any)) as any, deps);
 }
 
-function use<T>(target: () => T | {0: () => T} | [() => T]): T {
+function useValue<T>(target: () => T | {0: () => T} | [() => T]): T {
   if (!target) return;
   const forceUpdate = useForceUpdate();
   const ref = useRef<[() => void, any]>();
