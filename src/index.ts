@@ -95,10 +95,12 @@ function on<T>(target: () => T | {0: () => T} | [() => T], listener: (value: T, 
   return unsub;
 }
 
+function effect(fn: () => void): void;
+function effect(fn: () => () => any): () => any;
 function effect(fn: any) {
   const unsub = fn();
   if (unsub && context_unsubs) context_unsubs.push(unsub);
-  return fn;
+  return unsub;
 }
 
 function cycle(body: () => void) {
