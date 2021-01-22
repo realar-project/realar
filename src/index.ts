@@ -23,14 +23,14 @@ export {
   mock,
   box,
   sel,
-  expr
+  expr,
 };
 
 function action<T = void>() {
   let resolve: (v: T) => void;
-  const [getInfo, setInfo] = box([void 0, false] as [T|void, boolean]);
+  const [getInfo, setInfo] = box([void 0, false] as [T | void, boolean]);
 
-  const fn = function(data?: T) {
+  const fn = function (data?: T) {
     const ready = resolve;
     promisify();
     setInfo([data, true]);
@@ -43,7 +43,7 @@ function action<T = void>() {
 
   function promisify() {
     const promise = new Promise<T>(r => (resolve = r));
-    ['then', 'catch', 'finally'].forEach((prop) => {
+    ['then', 'catch', 'finally'].forEach(prop => {
       (fn as any)[prop] = (promise as any)[prop].bind(promise);
     });
   }
@@ -54,7 +54,7 @@ function action<T = void>() {
 function boxProperty(target: any, key: any, initializer: any) {
   const [get, set] = box(initializer && initializer());
   Object.defineProperty(target, key, { get, set });
-};
+}
 
 function prop(_proto: any, key: any, descriptor?: any): any {
   return {
@@ -79,7 +79,10 @@ function cache(_proto: any, key: any, descriptor: any): any {
   };
 }
 
-function on<T>(target: () => T | {0: () => T} | [() => T], listener: (value: T, prev?: T) => void) {
+function on<T>(
+  target: () => T | { 0: () => T } | [() => T],
+  listener: (value: T, prev?: T) => void
+) {
   if (!target) return;
   else if ((target as any)[0]) target = (target as any)[0]; // box or selector or custom reactive
 
@@ -125,9 +128,10 @@ function shared<M>(Class: (new (init?: any) => M) | ((init?: any) => M)): M {
     const stack = context_unsubs;
     context_unsubs = [];
     try {
-      instance = typeof Class.prototype === 'undefined'
-        ? (Class as (init?: any) => M)(initial_data)
-        : new (Class as new (init?: any) => M)(initial_data);
+      instance =
+        typeof Class.prototype === 'undefined'
+          ? (Class as (init?: any) => M)(initial_data)
+          : new (Class as new (init?: any) => M)(initial_data);
     } finally {
       shared_unsubs.push(...context_unsubs);
       context_unsubs = stack;
@@ -161,37 +165,32 @@ function useLocal<T extends unknown[], M>(Class: new (...args: T) => M, deps = [
     const stack = context_unsubs;
     context_unsubs = [];
     try {
-      inst = typeof Class.prototype === 'undefined'
-        ? (Class as any)(...(deps as any))
-        : new Class(...(deps as any)) as any;
+      inst =
+        typeof Class.prototype === 'undefined'
+          ? (Class as any)(...(deps as any))
+          : (new Class(...(deps as any)) as any);
     } finally {
       unsubs = context_unsubs;
       context_unsubs = stack;
     }
-    return [
-      inst,
-      () => () => unsubs.forEach((fn) => fn())
-    ];
+    return [inst, () => () => unsubs.forEach(fn => fn())];
   }, deps);
 
   useEffect(h[1], deps);
   return h[0];
 }
 
-function useValue<T>(target: (() => T) | {0: () => T} | [() => T]): T {
+function useValue<T>(target: (() => T) | { 0: () => T } | [() => T]): T {
   if (!target) return;
   const forceUpdate = useForceUpdate();
   const ref = useRef<[() => void, any]>();
   if (!ref.current) {
     if ((target as any)[0]) target = (target as any)[0]; // box or selector or custom reactive
 
-    const [run, stop] = expr(
-      target as any,
-      () => {
-        forceUpdate();
-        run();
-      }
-    );
+    const [run, stop] = expr(target as any, () => {
+      forceUpdate();
+      run();
+    });
     run();
     ref.current = [stop, target];
   }

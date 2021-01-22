@@ -22,4 +22,3 @@ test('should work useValue function', () => {
   el.find('button').simulate('click');
   expect(spy).toBeCalledTimes(2);
 });
-
