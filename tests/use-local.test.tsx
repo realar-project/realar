@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { mount } from 'enzyme';
 import { useLocal, effect } from '../src';
 
-test('should work use function', () => {
+test('should work useLocal function', () => {
   let constr = jest.fn();
   let spy = jest.fn();
   let inst, prev;

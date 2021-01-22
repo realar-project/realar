@@ -176,7 +176,7 @@ function useLocal<T extends unknown[], M>(Class: new (...args: T) => M, deps = [
   return h[0];
 }
 
-function useValue<T>(target: () => T | {0: () => T} | [() => T]): T {
+function useValue<T>(target: (() => T) | {0: () => T} | [() => T]): T {
   if (!target) return;
   const forceUpdate = useForceUpdate();
   const ref = useRef<[() => void, any]>();
@@ -184,7 +184,7 @@ function useValue<T>(target: () => T | {0: () => T} | [() => T]): T {
     if ((target as any)[0]) target = (target as any)[0]; // box or selector or custom reactive
 
     const [run, stop] = expr(
-      target,
+      target as any,
       () => {
         forceUpdate();
         run();
