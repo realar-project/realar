@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { use, prop, observe } from '../src';
+import { useLocal, prop, observe } from '../src';
 
 type ForwardRefButtonProps = {
   data?: { value: string };
@@ -23,7 +23,7 @@ test('should support ref forwarding', () => {
   }
 
   function A() {
-    const data = use(Data);
+    const data = useLocal(Data);
     return <ForwardRefButton onClick={data.add} data={data} ref={(n: any) => (node = n)} />;
   }
 

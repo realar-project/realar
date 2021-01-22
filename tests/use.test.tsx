@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { mount } from 'enzyme';
-import { use } from '../src';
+import { useLocal } from '../src';
 
 test('should work use function', () => {
   let constr = jest.fn();
@@ -14,7 +14,7 @@ test('should work use function', () => {
 
   function A() {
     const [value, setValue] = useState(10);
-    inst = use(Unit, [value]);
+    inst = useLocal(Unit, [value]);
     return <button onClick={() => setValue(20)} />;
   }
 
@@ -39,6 +39,6 @@ test('should throw exception if deps not an array', () => {
   class Unit {}
 
   expect(() => {
-    use(Unit, 1 as any);
+    useLocal(Unit, 1 as any);
   }).toThrowError('TypeError: deps argument should be an array');
 });

@@ -15,8 +15,12 @@ export {
   initial,
   observe,
   use,
+  useLocal,
   free,
   mock,
+  box,
+  sel,
+  expr
 };
 
 function action<T = void>() {
@@ -127,11 +131,32 @@ function observe<T extends FC>(FunctionComponent: T): T {
   } as any;
 }
 
-function use<T extends unknown[], M>(Class: new (...args: T) => M, deps = [] as T): M {
+function useLocal<T extends unknown[], M>(Class: new (...args: T) => M, deps = [] as T): M {
   if (!Array.isArray(deps)) {
     throw new Error('TypeError: deps argument should be an array in "use" call');
   }
   return useMemo(() => new Class(...(deps as any)) as any, deps);
+}
+
+function use<T>(target: () => T | {0: () => T} | [() => T]): T {
+  if (!target) return;
+  const forceUpdate = useForceUpdate();
+  const ref = useRef<[() => void, any]>();
+  if (!ref.current) {
+    if ((target as any)[0]) target = (target as any)[0]; // box or selector or custom reactive
+
+    const [run, stop] = expr(
+      target,
+      () => {
+        forceUpdate();
+        run();
+      }
+    );
+    run();
+    ref.current = [stop, target];
+  }
+  useEffect(() => ref.current[0], []);
+  return ref.current[1]();
 }
 
 function free() {

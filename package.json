@@ -27,7 +27,7 @@
     "clear": "rimraf build"
   },
   "dependencies": {
-    "reactive-box": "0.5.5"
+    "reactive-box": ">=0.5.5"
   },
   "peerDependencies": {
     "react": ">=16.8.0"
