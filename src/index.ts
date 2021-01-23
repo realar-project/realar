@@ -27,11 +27,11 @@ export {
   expr,
 };
 
-function action<T = void>(): ({
+function action<T = void>(): {
   (data?: T): void;
   (): void;
   0: () => [void | T, boolean];
-}) {
+} {
   let resolve: (v: T) => void;
   const [getInfo, setInfo] = box([void 0, false] as [T | void, boolean]);
 
@@ -161,7 +161,10 @@ function observe<T extends FC>(FunctionComponent: T): T {
   } as any;
 }
 
-function useLocal<T extends unknown[], M>(Class: (new (...args: T) => M) | ((...args: T) => M), deps = [] as T): M {
+function useLocal<T extends unknown[], M>(
+  Class: (new (...args: T) => M) | ((...args: T) => M),
+  deps = [] as T
+): M {
   if (!Array.isArray(deps)) {
     throw new Error('TypeError: deps argument should be an array in "use" call');
   }

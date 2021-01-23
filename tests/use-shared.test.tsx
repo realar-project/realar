@@ -7,7 +7,7 @@ test('should work useShared function', () => {
   const inc = action<number>();
   const h = () => {
     const [get, set] = box(0);
-    on(inc, () => set(get() + 1))
+    on(inc, () => set(get() + 1));
     return get;
   };
 
