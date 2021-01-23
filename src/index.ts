@@ -19,6 +19,7 @@ export {
   observe,
   useValue,
   useLocal,
+  useShared,
   free,
   mock,
   box,
@@ -26,7 +27,11 @@ export {
   expr,
 };
 
-function action<T = void>() {
+function action<T = void>(): ({
+  (data?: T): void;
+  (): void;
+  0: () => [void | T, boolean];
+}) {
   let resolve: (v: T) => void;
   const [getInfo, setInfo] = box([void 0, false] as [T | void, boolean]);
 
@@ -117,7 +122,7 @@ function initial(data: any): void {
   initial_data = data;
 }
 
-function mock<M>(Class: new (init?: any) => M, mocked: M): M {
+function mock<M>(Class: (new (init?: any) => M) | ((init?: any) => M), mocked: M): M {
   shareds.set(Class, mocked);
   return mocked;
 }
@@ -156,7 +161,7 @@ function observe<T extends FC>(FunctionComponent: T): T {
   } as any;
 }
 
-function useLocal<T extends unknown[], M>(Class: new (...args: T) => M, deps = [] as T): M {
+function useLocal<T extends unknown[], M>(Class: (new (...args: T) => M) | ((...args: T) => M), deps = [] as T): M {
   if (!Array.isArray(deps)) {
     throw new Error('TypeError: deps argument should be an array in "use" call');
   }
@@ -168,7 +173,7 @@ function useLocal<T extends unknown[], M>(Class: new (...args: T) => M, deps = [
       inst =
         typeof Class.prototype === 'undefined'
           ? (Class as any)(...(deps as any))
-          : (new Class(...(deps as any)) as any);
+          : (new (Class as any)(...(deps as any)) as any);
     } finally {
       unsubs = context_unsubs;
       context_unsubs = stack;
@@ -181,21 +186,29 @@ function useLocal<T extends unknown[], M>(Class: new (...args: T) => M, deps = [
 }
 
 function useValue<T>(target: (() => T) | { 0: () => T } | [() => T]): T {
-  if (!target) return;
   const forceUpdate = useForceUpdate();
-  const ref = useRef<[() => void, any]>();
+  const ref = useRef<[() => void, any, any?]>();
   if (!ref.current) {
     if ((target as any)[0]) target = (target as any)[0]; // box or selector or custom reactive
 
-    const [run, stop] = expr(target as any, () => {
-      forceUpdate();
+    if (typeof target === 'function') {
+      const [run, stop] = expr(target as any, () => {
+        forceUpdate();
+        run();
+      });
       run();
-    });
-    run();
-    ref.current = [stop, target];
+      ref.current = [stop, target];
+    } else {
+      ref.current = [void 0, target];
+    }
   }
-  useEffect(() => ref.current[0], []);
-  return ref.current[1]();
+  const cur = ref.current;
+  useEffect(() => cur[0], []);
+  return cur[0] ? cur[1]() : cur[1];
+}
+
+function useShared<T>(target: () => (() => T) | { 0: () => T } | [() => T]): T {
+  return useValue(shared(target));
 }
 
 function free() {
