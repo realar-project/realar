@@ -25,7 +25,7 @@ export {
   box,
   sel,
   expr,
-  transaction
+  transaction,
 };
 
 function action<T = void>(): {
