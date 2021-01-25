@@ -62,7 +62,7 @@ For best possibilities use [realar babel plugin](https://github.com/betula/babel
 
 But otherwise necessary to wrap all React function components that use reactive values inside to `observe` wrapper. [See wrapped version on CodeSandbox](https://codesandbox.io/s/realar-counter-k9kmw?file=/src/App.tsx).
 
-_Documentation not ready yet for `action`, `cache`, `on`, `cycle`, `effect`, `shared`, `initial`, `mock`, `free`, `useLocal`, `observe`, `useValue`, `useShared` functions. It's coming soon._
+_Documentation not ready yet for `action`, `cache`, `on`, `cycle`, `effect`, `shared`, `initial`, `mock`, `free`, `useLocal`, `observe`, `useValue`, `useShared`, `transaction` functions. It's coming soon._
 
 ### Demos
 

@@ -1,5 +1,5 @@
 import { useRef, useReducer, useEffect, useMemo, FC } from 'react';
-import { expr, box, sel } from 'reactive-box';
+import { expr, box, sel, transaction } from 'reactive-box';
 
 const shareds = new Map();
 
@@ -25,6 +25,7 @@ export {
   box,
   sel,
   expr,
+  transaction
 };
 
 function action<T = void>(): {
