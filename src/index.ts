@@ -31,7 +31,7 @@ export {
 function action<T = void>(init?: T): {
   (data?: T): void;
   (): void;
-  0: () => T | void;
+  0: () => T | undefined;
 } {
   let resolve: (v: T) => void;
   const [get, set] = box([init]);
