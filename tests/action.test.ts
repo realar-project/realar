@@ -43,7 +43,7 @@ test('should work action in on', () => {
   const spy = jest.fn();
 
   const a = action<'up' | 'down'>();
-  on(a, (v) => {
+  on(a, v => {
     spy(v);
   });
 
@@ -51,8 +51,7 @@ test('should work action in on', () => {
   a('up');
   expect(spy).toHaveBeenNthCalledWith(1, 'up');
   expect(spy).toBeCalledTimes(1);
-  a('down');
-  expect(spy).toHaveBeenNthCalledWith(2, 'down');
+  a('up');
+  expect(spy).toHaveBeenNthCalledWith(2, 'up');
   expect(spy).toBeCalledTimes(2);
 });
-

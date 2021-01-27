@@ -28,7 +28,9 @@ export {
   transaction,
 };
 
-function action<T = void>(init?: T): {
+function action<T = void>(
+  init?: T
+): {
   (data?: T): void;
   (): void;
   0: () => T | undefined;
@@ -89,17 +91,26 @@ function on<T>(
   target: (() => T) | { 0: () => T } | [() => T],
   listener: (value: T, prev?: T) => void
 ) {
+  let free: (() => void) | undefined;
+
   if (!target) return;
-  else if ((target as any)[0]) target = (target as any)[0]; // box or selector or custom reactive
+  else if ((target as any)[0]) {
+    target = (target as any)[0]; // box or selector or custom reactive
+  } else {
+    [target, free] = sel(target as any);
+  }
 
   let value: T;
-  const [get, free] = sel(target as any);
-  const [run, stop] = expr(get, () => {
+
+  const [run, stop] = expr(target as any, () => {
     const prev = value;
     listener((value = run() as any), prev);
   });
   value = run() as any;
-  const unsub = () => (free(), stop());
+  const unsub = () => {
+    if (free) free();
+    stop();
+  };
   if (context_unsubs) context_unsubs.push(unsub);
   return unsub;
 }
