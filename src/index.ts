@@ -28,22 +28,22 @@ export {
   transaction,
 };
 
-function action<T = void>(): {
+function action<T = void>(init?: T): {
   (data?: T): void;
   (): void;
-  0: () => [void | T, boolean];
+  0: () => T | void;
 } {
   let resolve: (v: T) => void;
-  const [getInfo, setInfo] = box([void 0, false] as [T | void, boolean]);
+  const [get, set] = box([init]);
 
   const fn = function (data?: T) {
     const ready = resolve;
     promisify();
-    setInfo([data, true]);
+    set([data]);
     ready(data!);
   };
 
-  fn[0] = getInfo;
+  fn[0] = () => get()[0];
 
   promisify();
 
@@ -86,14 +86,14 @@ function cache(_proto: any, key: any, descriptor: any): any {
 }
 
 function on<T>(
-  target: () => T | { 0: () => T } | [() => T],
+  target: (() => T) | { 0: () => T } | [() => T],
   listener: (value: T, prev?: T) => void
 ) {
   if (!target) return;
   else if ((target as any)[0]) target = (target as any)[0]; // box or selector or custom reactive
 
   let value: T;
-  const [get, free] = sel(target);
+  const [get, free] = sel(target as any);
   const [run, stop] = expr(get, () => {
     const prev = value;
     listener((value = run() as any), prev);
