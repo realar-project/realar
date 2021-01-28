@@ -28,6 +28,7 @@ export {
   transaction,
   boxProperty,
   selProperty,
+  boxProperties,
   Ensurable,
 };
 
@@ -225,6 +226,19 @@ function boxProperty(o: any, p: string | number | symbol, init?: any): any {
 function selProperty(o: any, p: string | number | symbol, selector: () => any): any {
   const [get] = sel(selector);
   Object.defineProperty(o, p, { get });
+  return o;
+}
+
+function boxProperties<T extends {}>(props: T): T;
+function boxProperties<O extends Object, T extends {}>(o: O, props: T): O & T;
+function boxProperties(o: any, props?: any) {
+  if (!props) {
+    props = o;
+    o = {};
+  }
+  Object.keys(props).forEach((key) => {
+    boxProperty(o, key, props[key]);
+  });
   return o;
 }
 
