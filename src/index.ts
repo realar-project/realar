@@ -26,6 +26,8 @@ export {
   sel,
   expr,
   transaction,
+  boxProperty,
+  selProperty,
   Ensurable,
 };
 
@@ -214,19 +216,27 @@ function free() {
   }
 }
 
-function boxProperty(target: any, key: any, initializer: any) {
-  const [get, set] = box(initializer && initializer());
-  Object.defineProperty(target, key, { get, set });
+function boxProperty(o: any, p: string | number | symbol, init?: any): any {
+  const [get, set] = box(init);
+  Object.defineProperty(o, p, { get, set });
+  return o;
+}
+
+function selProperty(o: any, p: string | number | symbol, selector: () => any): any {
+  const [get] = sel(selector);
+  Object.defineProperty(o, p, { get });
+  return o;
 }
 
 function prop(_proto: any, key: any, descriptor?: any): any {
+  const initializer = descriptor?.initializer;
   return {
     get() {
-      boxProperty(this, key, descriptor?.initializer);
+      boxProperty(this, key, initializer && initializer());
       return this[key];
     },
     set(value: any) {
-      boxProperty(this, key, descriptor?.initializer);
+      boxProperty(this, key, initializer && initializer());
       this[key] = value;
     },
   };
@@ -235,8 +245,7 @@ function prop(_proto: any, key: any, descriptor?: any): any {
 function cache(_proto: any, key: any, descriptor: any): any {
   return {
     get() {
-      const [get] = sel(descriptor.get);
-      Object.defineProperty(this, key, { get });
+      selProperty(this, key, descriptor.get);
       return this[key];
     },
   };
