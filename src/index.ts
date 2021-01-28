@@ -26,7 +26,6 @@ export {
   sel,
   expr,
   transaction,
-
   Ensurable,
 };
 
@@ -63,7 +62,6 @@ function action<T = undefined>(
   return fn;
 }
 
-
 function on<T>(
   target: { 0: () => Ensurable<T> } | [() => Ensurable<T>] | (() => Ensurable<T>),
   listener: (value: T, prev?: T) => void
@@ -72,14 +70,11 @@ function on<T>(
   target: { 0: () => T } | [() => T] | (() => T),
   listener: (value: T, prev?: T) => void
 ): () => void;
-function on(
-  target: any,
-  listener: (value: any, prev?: any) => void
-): () => void {
+function on(target: any, listener: (value: any, prev?: any) => void): () => void {
   let free: (() => void) | undefined;
 
   if (!target) return;
-  else if ((target)[0]) {
+  else if (target[0]) {
     target = target[0]; // box or selector or custom reactive
   } else {
     [target, free] = sel(target);
@@ -185,7 +180,7 @@ function useLocal<T extends unknown[], M>(
   return useValue(h[0]);
 }
 
-function useValue<T>(target: ((() => T) | { 0: () => T } | [() => T]), deps: any[] = []): T {
+function useValue<T>(target: (() => T) | { 0: () => T } | [() => T], deps: any[] = []): T {
   const forceUpdate = useForceUpdate();
   const h = useMemo(() => {
     if ((target as any)[0]) target = (target as any)[0]; // box or selector or custom reactive
