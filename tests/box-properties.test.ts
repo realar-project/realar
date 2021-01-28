@@ -4,7 +4,7 @@ test('should work box properties', () => {
   const spy = jest.fn();
   const m = boxProperties({
     a: 1,
-    b: 2
+    b: 2,
   });
 
   on(() => [m.a, m.b], spy);

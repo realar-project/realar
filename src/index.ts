@@ -236,7 +236,7 @@ function boxProperties(o: any, props?: any) {
     props = o;
     o = {};
   }
-  Object.keys(props).forEach((key) => {
+  Object.keys(props).forEach(key => {
     boxProperty(o, key, props[key]);
   });
   return o;
