@@ -8,9 +8,9 @@ let context_unsubs: any;
 let shared_unsubs = [] as any;
 
 export {
-  action,
   prop,
   cache,
+  action,
   on,
   cycle,
   effect,
@@ -26,14 +26,18 @@ export {
   sel,
   expr,
   transaction,
+
+  Ensurable,
 };
 
-function action<T = void>(
+type Ensurable<T> = T | void;
+
+function action<T = undefined>(
   init?: T
 ): {
-  (data?: T): void;
+  (data: T): void;
   (): void;
-  0: () => T | undefined;
+  0: () => Ensurable<T>;
 } {
   let resolve: (v: T) => void;
   const [get, set] = box([init]);
@@ -45,7 +49,7 @@ function action<T = void>(
     ready(data!);
   };
 
-  fn[0] = () => get()[0];
+  fn[0] = (() => get()[0]) as () => Ensurable<T>;
 
   promisify();
 
@@ -59,54 +63,35 @@ function action<T = void>(
   return fn;
 }
 
-function boxProperty(target: any, key: any, initializer: any) {
-  const [get, set] = box(initializer && initializer());
-  Object.defineProperty(target, key, { get, set });
-}
-
-function prop(_proto: any, key: any, descriptor?: any): any {
-  return {
-    get() {
-      boxProperty(this, key, descriptor?.initializer);
-      return this[key];
-    },
-    set(value: any) {
-      boxProperty(this, key, descriptor?.initializer);
-      this[key] = value;
-    },
-  };
-}
-
-function cache(_proto: any, key: any, descriptor: any): any {
-  return {
-    get() {
-      const [get] = sel(descriptor.get);
-      Object.defineProperty(this, key, { get });
-      return this[key];
-    },
-  };
-}
 
 function on<T>(
-  target: (() => T) | { 0: () => T } | [() => T],
+  target: { 0: () => Ensurable<T> } | [() => Ensurable<T>] | (() => Ensurable<T>),
   listener: (value: T, prev?: T) => void
-) {
+): () => void;
+function on<T>(
+  target: { 0: () => T } | [() => T] | (() => T),
+  listener: (value: T, prev?: T) => void
+): () => void;
+function on(
+  target: any,
+  listener: (value: any, prev?: any) => void
+): () => void {
   let free: (() => void) | undefined;
 
   if (!target) return;
-  else if ((target as any)[0]) {
-    target = (target as any)[0]; // box or selector or custom reactive
+  else if ((target)[0]) {
+    target = target[0]; // box or selector or custom reactive
   } else {
-    [target, free] = sel(target as any);
+    [target, free] = sel(target);
   }
 
-  let value: T;
+  let value: any;
 
-  const [run, stop] = expr(target as any, () => {
+  const [run, stop] = expr(target, () => {
     const prev = value;
-    listener((value = run() as any), prev);
+    listener((value = run()), prev);
   });
-  value = run() as any;
+  value = run();
   const unsub = () => {
     if (free) free();
     stop();
@@ -194,16 +179,15 @@ function useLocal<T extends unknown[], M>(
       context_unsubs = stack;
     }
     return [inst, () => () => unsubs.forEach(fn => fn())];
-  }, deps);
+  }, [Class, ...deps]);
 
-  useEffect(h[1], deps);
-  return h[0];
+  useEffect(h[1], [h]);
+  return useValue(h[0]);
 }
 
-function useValue<T>(target: (() => T) | { 0: () => T } | [() => T]): T {
+function useValue<T>(target: ((() => T) | { 0: () => T } | [() => T]), deps: any[] = []): T {
   const forceUpdate = useForceUpdate();
-  const ref = useRef<[() => void, any, any?]>();
-  if (!ref.current) {
+  const h = useMemo(() => {
     if ((target as any)[0]) target = (target as any)[0]; // box or selector or custom reactive
 
     if (typeof target === 'function') {
@@ -212,14 +196,14 @@ function useValue<T>(target: (() => T) | { 0: () => T } | [() => T]): T {
         run();
       });
       run();
-      ref.current = [stop, target];
+      return [target, () => stop, 1];
     } else {
-      ref.current = [void 0, target];
+      return [target as any, () => {}];
     }
-  }
-  const cur = ref.current;
-  useEffect(() => cur[0], []);
-  return cur[0] ? cur[1]() : cur[1];
+  }, [target, ...deps]);
+
+  useEffect(h[1], [h]);
+  return h[2] ? h[0]() : h[0];
 }
 
 function useShared<T>(target: () => (() => T) | { 0: () => T } | [() => T]): T {
@@ -233,4 +217,32 @@ function free() {
     shareds.clear();
     initial_data = void 0;
   }
+}
+
+function boxProperty(target: any, key: any, initializer: any) {
+  const [get, set] = box(initializer && initializer());
+  Object.defineProperty(target, key, { get, set });
+}
+
+function prop(_proto: any, key: any, descriptor?: any): any {
+  return {
+    get() {
+      boxProperty(this, key, descriptor?.initializer);
+      return this[key];
+    },
+    set(value: any) {
+      boxProperty(this, key, descriptor?.initializer);
+      this[key] = value;
+    },
+  };
+}
+
+function cache(_proto: any, key: any, descriptor: any): any {
+  return {
+    get() {
+      const [get] = sel(descriptor.get);
+      Object.defineProperty(this, key, { get });
+      return this[key];
+    },
+  };
 }
