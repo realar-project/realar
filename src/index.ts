@@ -41,6 +41,7 @@ if (react) {
   useEffect = react.useEffect;
   useMemo = react.useMemo;
 } else {
+  /* istanbul ignore next */
   useRef = useReducer = useEffect = useMemo = (() => {
     throw new Error('Missed "react" dependency');
   }) as any;
