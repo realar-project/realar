@@ -23,12 +23,11 @@ export {
   Ensurable,
 };
 
-
 let react;
 
 try {
   react = require('react');
-} catch(e) {}
+} catch (e) {}
 
 let useRef: typeof React.useRef;
 let useReducer: typeof React.useReducer;
