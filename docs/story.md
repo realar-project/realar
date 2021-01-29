@@ -17,6 +17,8 @@ set(get() + 1);
 console.log(get()); // 1
 ```
 
+[Edit on RunKit](https://runkit.com/betula/6013af7649e8720019c9cf2a)
+
 In that example
 - for a first we created `box` container for number with initial zero;
 - After that, we got the box value, and set to box its value plus one;
@@ -25,3 +27,16 @@ In that example
 We learned how to create a box, set, and get its value.
 
 **on**
+
+<!-- The next basical abstraction is expression.
+Expression is a function -->
+
+```javascript
+const [get, set] = box(0);
+
+const next = () => get() + 1;
+on(next, console.log);
+
+set(1);
+// We will see `2` and `1` in developer console output, It are new and previous value
+```
