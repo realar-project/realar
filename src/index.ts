@@ -52,7 +52,7 @@ const shareds = new Map();
 let initial_data: any;
 let context_unsubs: any;
 let shared_unsubs = [] as any;
-let inside_sync: any;
+let is_sync: any;
 
 type Ensurable<T> = T | void;
 
@@ -96,7 +96,10 @@ function on<T>(
   listener: (value: T, prev?: T) => void
 ): () => void;
 function on(target: any, listener: (value: any, prev?: any) => void): () => void {
+  const sync_mode = is_sync;
   let free: (() => void) | undefined;
+
+  is_sync = 0;
 
   if (!target) return;
   else if (target[0]) {
@@ -117,7 +120,7 @@ function on(target: any, listener: (value: any, prev?: any) => void): () => void
     stop();
   };
   if (context_unsubs) context_unsubs.push(unsub);
-  if (inside_sync) listener(value);
+  if (sync_mode) listener(value);
   return unsub;
 }
 
@@ -130,13 +133,8 @@ function sync<T>(
   listener: (value: T, prev?: T) => void
 ): () => void;
 function sync(target: any, listener: (value: any, prev?: any) => void): () => void {
-  const stack = inside_sync;
-  inside_sync = 1;
-  try {
-    return on(target, listener);
-  } finally {
-    inside_sync = stack;
-  }
+  is_sync = 1;
+  return on(target, listener);
 }
 
 function effect(fn: () => void): void;
