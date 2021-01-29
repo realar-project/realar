@@ -1,11 +1,5 @@
-import { useRef, useReducer, useEffect, useMemo, FC } from 'react';
+import React, { FC } from 'react';
 import { expr, box, sel, transaction } from 'reactive-box';
-
-const shareds = new Map();
-
-let initial_data: any;
-let context_unsubs: any;
-let shared_unsubs = [] as any;
 
 export {
   prop,
@@ -28,6 +22,30 @@ export {
   transaction,
   Ensurable,
 };
+
+let react = require('react');
+
+let useRef: typeof React.useRef;
+let useReducer: typeof React.useReducer;
+let useEffect: typeof React.useEffect;
+let useMemo: typeof React.useMemo;
+
+if (react) {
+  useRef = react.useRef;
+  useReducer = react.useReducer;
+  useEffect = react.useEffect;
+  useMemo = react.useMemo;
+} else {
+  useRef = useReducer = useEffect = useMemo = (() => {
+    throw new Error('Missed "react" dependency');
+  }) as any;
+}
+
+const shareds = new Map();
+
+let initial_data: any;
+let context_unsubs: any;
+let shared_unsubs = [] as any;
 
 type Ensurable<T> = T | void;
 
