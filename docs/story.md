@@ -28,8 +28,10 @@ We learned how to create a box, set, and get its value.
 
 **on**
 
-<!-- The next basical abstraction is expression.
-Expression is a function -->
+The next basic abstraction is expression.
+Expression is a function that read reactive boxes or _selectors_. It can return value and write reactive boxes inside.
+
+We can subscribe to change any reactive expression
 
 ```javascript
 const [get, set] = box(0);
@@ -40,3 +42,5 @@ on(next, console.log);
 set(1);
 // We will see `2` and `1` in developer console output, It are new and previous value
 ```
+
+In that example expression is `next` function, because It get box value and return that plus one.
