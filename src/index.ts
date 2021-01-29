@@ -125,14 +125,9 @@ function on(target: any, listener: (value: any, prev?: any) => void): () => void
 }
 
 function sync<T>(
-  target: { 0: () => Ensurable<T> } | [() => Ensurable<T>] | (() => Ensurable<T>),
-  listener: (value: T, prev?: T) => void
-): () => void;
-function sync<T>(
   target: { 0: () => T } | [() => T] | (() => T),
   listener: (value: T, prev?: T) => void
-): () => void;
-function sync(target: any, listener: (value: any, prev?: any) => void): () => void {
+): () => void {
   is_sync = 1;
   return on(target, listener);
 }
