@@ -40,12 +40,16 @@ const next = () => get() + 1;
 
 on(next, (val, prev) => console.log(val, prev));
 
-set(1); // We will see `2` and `1` in developer console output, It are new and previous value
+set(5); // We will see 6, 1 in developer console output, It are new and previous value
 ```
 [Edit on RunKit](https://runkit.com/betula/6013ea214e0cf9001ac18e71)
 
 In that example expression is `next` function, because It get box value and return that plus one.
 
+**action**
+
 **sel**
+
+**shared**
 
 
