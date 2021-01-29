@@ -17,4 +17,11 @@ set(get() + 1);
 console.log(get()); // 1
 ```
 
+In that example
+- for a first we created `box` container for number with initial zero;
+- After that, we got the box value, and set to box its value plus one;
+- Let's print the result to the developer console, that will is one.
+
+We learned how to create a box, set, and get its value.
+
 **on**
