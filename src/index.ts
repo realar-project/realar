@@ -35,13 +35,13 @@ let useReducer: typeof React.useReducer;
 let useEffect: typeof React.useEffect;
 let useMemo: typeof React.useMemo;
 
+/* istanbul ignore next */
 if (react) {
   useRef = react.useRef;
   useReducer = react.useReducer;
   useEffect = react.useEffect;
   useMemo = react.useMemo;
 } else {
-  /* istanbul ignore next */
   useRef = useReducer = useEffect = useMemo = (() => {
     throw new Error('Missed "react" dependency');
   }) as any;
