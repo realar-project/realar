@@ -53,6 +53,7 @@ let initial_data: any;
 let context_unsubs: any;
 let shared_unsubs = [] as any;
 let is_sync: any;
+let is_observe: any;
 
 type Ensurable<T> = T | void;
 
@@ -186,7 +187,14 @@ function observe<T extends FC>(FunctionComponent: T): T {
     const ref = useRef<[T, () => void]>();
     if (!ref.current) ref.current = expr(FunctionComponent, forceUpdate);
     useEffect(() => ref.current![1], []);
-    return ref.current[0].apply(this, arguments);
+
+    const stack = is_observe;
+    is_observe = 1;
+    try {
+      return ref.current[0].apply(this, arguments);
+    } finally {
+      is_observe = stack;
+    }
   } as any;
 }
 
@@ -218,23 +226,27 @@ function useLocal<T extends unknown[], M>(
 }
 
 function useValue<T>(target: (() => T) | { 0: () => T } | [() => T], deps: any[] = []): T {
-  const forceUpdate = useForceUpdate();
+  const forceUpdate = is_observe || useForceUpdate();
   const h = useMemo(() => {
     if ((target as any)[0]) target = (target as any)[0]; // box or selector or custom reactive
 
     if (typeof target === 'function') {
-      const [run, stop] = expr(target as any, () => {
-        forceUpdate();
+      if (is_observe) {
+        return [target, 0, 1]
+      } else {
+        const [run, stop] = expr(target as any, () => {
+          forceUpdate();
+          run();
+        });
         run();
-      });
-      run();
-      return [target, () => stop, 1];
+        return [target, () => stop, 1];
+      }
     } else {
       return [target as any, () => {}];
     }
   }, [target, ...deps]);
 
-  useEffect(h[1], [h]);
+  is_observe || useEffect(h[1], [h]);
   return h[2] ? h[0]() : h[0];
 }
 
