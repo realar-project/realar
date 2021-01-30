@@ -17,6 +17,7 @@ export {
   useShared,
   free,
   mock,
+  unmock,
   box,
   sel,
   expr,
@@ -157,6 +158,13 @@ function mock<M>(Class: (new (init?: any) => M) | ((init?: any) => M), mocked: M
   return mocked;
 }
 
+function unmock(
+  Class: (new (init?: any) => any) | ((init?: any) => any),
+  ...Classes: ((new (init?: any) => any) | ((init?: any) => any))[]
+) {
+  Classes.concat(Class).forEach(Class => shareds.delete(Class));
+}
+
 function shared<M>(Class: (new (init?: any) => M) | ((init?: any) => M)): M {
   let instance = shareds.get(Class);
   if (!instance) {
@@ -232,7 +240,7 @@ function useValue<T>(target: (() => T) | { 0: () => T } | [() => T], deps: any[]
 
     if (typeof target === 'function') {
       if (is_observe) {
-        return [target, 0, 1]
+        return [target, 0, 1];
       } else {
         const [run, stop] = expr(target as any, () => {
           forceUpdate();

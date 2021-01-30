@@ -66,7 +66,7 @@ But otherwise necessary to wrap all React function components that use reactive 
 
 - [Intro](./docs/story.md) - story about `box`, `on`.
 
-_Documentation not ready yet for `action`, `cache`, `on`, `sync`, `cycle`, `effect`, `shared`, `initial`, `mock`, `free`, `useLocal`, `observe`, `useValue`, `useShared`, `transaction`, `box`, `sel` functions. It's coming soon._
+_Documentation not ready yet for `action`, `cache`, `on`, `sync`, `cycle`, `effect`, `shared`, `initial`, `mock`, `unmock`, `free`, `useLocal`, `observe`, `useValue`, `useShared`, `transaction`, `box`, `sel` functions. It's coming soon._
 
 ### Demos
 

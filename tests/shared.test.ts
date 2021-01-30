@@ -1,4 +1,4 @@
-import { shared, initial, free, effect } from '../src';
+import { shared, initial, free, effect, mock, unmock } from '../src';
 
 test('should work initial data with shared', () => {
   const spy = jest.fn();
@@ -31,4 +31,13 @@ test('should work with arrow functions not only with class', () => {
   expect(shared(A)).toBe(10);
   expect(spy).toHaveBeenCalledWith('initial');
   expect(spy).toBeCalledTimes(1);
+});
+
+test('should work mock and unmock', () => {
+  const A = () => 10;
+  expect(shared(A)).toBe(10);
+  mock(A, 15);
+  expect(shared(A)).toBe(15);
+  unmock(A);
+  expect(shared(A)).toBe(10);
 });
