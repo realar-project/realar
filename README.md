@@ -8,9 +8,9 @@ Reactive state manager for React based on [reactive-box](https://github.com/betu
 
 Realar targeted to clean code, minimal abstraction, minimal additional functions, modulable architecture, and time of delivery user experience.
 
-Realar supported two kinds of data and logic definitions.
+Realar supported two kinds of data and logic definitions. One of them is [OOP](https://en.wikipedia.org/wiki/Object-oriented_programming).
 
-You can start development in [OOP](https://en.wikipedia.org/wiki/Object-oriented_programming) style with knows only two functions:
+You can start development with classes and decorators knows only two functions:
 
 `prop`. Reactive value marker. Each reactive value has an immutable state. If the immutable state will update, all React components that depend on It will refresh.
 
