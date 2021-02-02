@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar?style=flat-square)](https://bundlephobia.com/result?p=realar) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar) [![typescript supported](https://img.shields.io/npm/types/typescript?style=flat-square)](./src/index.ts)
 
-Multiparadigmal state manager for React based on [reactive-box](https://github.com/betula/reactive-box).
+**Multiparadigmal** state manager for React based on [reactive mathematic](https://github.com/betula/reactive-box).
 
 [Light](https://bundlephobia.com/result?p=realar), [Fast](https://github.com/betula/reactive-box-performance), and Pretty looked :kissing_heart:
 
@@ -10,7 +10,7 @@ Realar targeted to clean code, minimal abstraction, minimal additional functions
 
 Realar supported two kinds of data and logic definitions.
 
-> If you don't have an interest in classes or decorators, you can code in [pure style](#pure-usage) with a wide and full feature API.
+> If you don't have an interest in classes or decorators, you can code in [functional style](#functional-usage) with a wide and full feature API.
 
 But if you like, it looks likes very clear and natively, and you can start development knows only two functions.
 
@@ -64,7 +64,7 @@ For best possibilities use [realar babel plugin](https://github.com/betula/babel
 
 But otherwise necessary to wrap all React function components that use reactive values inside to `observe` wrapper. [Try wrapped version on CodeSandbox](https://codesandbox.io/s/realar-counter-k9kmw?file=/src/App.tsx).
 
-### Pure usage
+### Functional usage
 
 ```javascript
 import React from "react";
