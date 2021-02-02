@@ -10,7 +10,7 @@ Realar targeted to clean code, minimal abstraction, minimal additional functions
 
 Realar supported two kinds of data and logic definitions.
 
-If you don't have an interest in classes or decorators, you can code in [pure style](#pure-usage) with a wide and full feature API.
+> If you don't have an interest in classes or decorators, you can code in [pure style](#pure-usage) with a wide and full feature API.
 
 But if you like, it looks likes very clear and natively, and you can start development knows only two functions.
 
