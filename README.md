@@ -2,11 +2,11 @@
 
 [![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar?style=flat-square)](https://bundlephobia.com/result?p=realar) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar) [![typescript supported](https://img.shields.io/npm/types/typescript?style=flat-square)](./src/index.ts)
 
-Reactive state manager for React based on [reactive-box](https://github.com/betula/reactive-box).
+Multiparadigmal state manager for React based on [reactive-box](https://github.com/betula/reactive-box).
 
 [Light](https://bundlephobia.com/result?p=realar), [Fast](https://github.com/betula/reactive-box-performance), and Pretty looked :kissing_heart:
 
-Realar targeted to clean code, minimal abstraction, minimal additional functions, modulable architecture, multiparadigmal, and time of delivery user experience.
+Realar targeted to clean code, minimal abstraction, minimal additional functions, modulable architecture, and time of delivery user experience.
 
 Realar supported two kinds of data and logic definitions.
 
