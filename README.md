@@ -10,7 +10,7 @@ Realar targeted to clean code, minimal abstraction, minimal additional functions
 
 Realar supported two kinds of data and logic definitions.
 
-> If you don't have an interest in classes or decorators, you can code in your own style with a wide and full feature [API _(see below)_](#documentation).
+If you don't have an interest in classes or decorators, you can code in [pure style](#pure-usage) with a wide and full feature API.
 
 But if you like, it looks likes very clear and natively, and you can start development knows only two functions.
 
@@ -62,7 +62,44 @@ export default App;
 
 For best possibilities use [realar babel plugin](https://github.com/betula/babel-plugin-realar), your code will be so beautiful to look like.
 
-But otherwise necessary to wrap all React function components that use reactive values inside to `observe` wrapper. [See wrapped version on CodeSandbox](https://codesandbox.io/s/realar-counter-k9kmw?file=/src/App.tsx).
+But otherwise necessary to wrap all React function components that use reactive values inside to `observe` wrapper. [Try wrapped version on CodeSandbox](https://codesandbox.io/s/realar-counter-k9kmw?file=/src/App.tsx).
+
+### Pure usage
+
+```javascript
+import React from "react";
+import { box, useValue } from "realar";
+
+const [get, set] = box(0);
+
+const next = () => get() + 1;
+const inc = () => set(next());
+const dec = () => set(get() - 1);
+
+const Current = () => {
+  const value = useValue(get);
+  return <p>current: {value}</p>;
+};
+
+const Next = () => {
+  const value = useValue(next);
+  return <p>next: {value}</p>;
+};
+
+const App = () => (
+  <>
+    <Current />
+    <Next />
+
+    <button onClick={inc}>+</button>
+    <button onClick={dec}>-</button>
+  </>
+);
+
+export default App;
+```
+[Try on CodeSandbox](https://codesandbox.io/s/realar-pure-counter-1ue4h?file=/src/App.tsx).
+
 
 ### Documentation
 
