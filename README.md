@@ -8,15 +8,17 @@ Reactive state manager for React based on [reactive-box](https://github.com/betu
 
 Realar targeted to clean code, minimal abstraction, minimal additional functions, modulable architecture, and time of delivery user experience.
 
-Realar supported two kinds of data and logic definitions. One of them is [OOP](https://en.wikipedia.org/wiki/Object-oriented_programming).
+Realar supported two kinds of data and logic definitions.
 
-You can start development with classes and decorators knows only two functions:
+> If you don't have an interest in classes or decorators, you can code in your own style with a wide and full feature API _[(see below)](#documentation)_.
+
+But if you like, it looks likes very clear and natively, and you can start development knows only two functions.
+
+### Usage
 
 `prop`. Reactive value marker. Each reactive value has an immutable state. If the immutable state will update, all React components that depend on It will refresh.
 
 `shared`. One of the primary reasons for using state manager in your application is a shared state accessing, and using shared logic between scattered React components and any place of your code.
-
-### Usage
 
 ```javascript
 import React from 'react';
@@ -110,6 +112,25 @@ set(5); // We will see 6 and 1 in developer console output, It are new and previ
 [Edit on RunKit](https://runkit.com/betula/6013ea214e0cf9001ac18e71)
 
 In that example expression is `next` function, because It get box value and return that plus one.
+
+**cycle**
+
+```javascript
+const [get, set] = box(0);
+
+cycle(() => {
+  console.log(get() + 1);
+});
+
+set(1);
+set(2);
+
+// In output of developer console will be 2, 3 and 4.
+```
+
+- Takes a function as reactive expression.
+- After each run: subscribe to all reactive boxes accessed while running
+- Re-run on data changes
 
 _Documentation not ready yet for `action`, `sel`, `shared`, `sync`, `cycle`, `effect`, `initial`, `mock`, `unmock`, `free`, `useLocal`, `useValue`, `useShared`, `observe`, `transaction`, `cache` functions. It's coming soon._
 
