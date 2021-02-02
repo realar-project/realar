@@ -10,11 +10,11 @@ Realar targeted to clean code, minimal abstraction, minimal additional functions
 
 Realar supported two kinds of data and logic definitions.
 
-> If you don't have an interest in classes or decorators, you can code in your own style with a wide and full feature API _[(see below)](#documentation)_.
+> If you don't have an interest in classes or decorators, you can code in your own style with a wide and full feature [API _(see below)_](#documentation).
 
 But if you like, it looks likes very clear and natively, and you can start development knows only two functions.
 
-### Usage
+### Classes usage
 
 `prop`. Reactive value marker. Each reactive value has an immutable state. If the immutable state will update, all React components that depend on It will refresh.
 
