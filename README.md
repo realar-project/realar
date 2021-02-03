@@ -6,7 +6,7 @@
 
 [Light](https://bundlephobia.com/result?p=realar), [Fast](https://github.com/betula/reactive-box-performance), and Pretty looked :kissing_heart:
 
-Realar targeted to clean code, minimal abstraction, minimal additional functions, modulable architecture, and time of delivery user experience.
+Realar targeted to clean code, modulable architecture, and time of delivery user experience.
 
 Realar supported two kinds of data and logic definitions.
 
