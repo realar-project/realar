@@ -209,9 +209,7 @@ function call_array(arr: (() => void)[]) {
 }
 
 function get_scope_context(): Context<any> {
-  return scope_context
-    ? scope_context
-    : (scope_context = (createContext as any)())
+  return scope_context ? scope_context : (scope_context = (createContext as any)());
 }
 
 const useScoped = <M>(target: (new (init?: any) => M) | ((init?: any) => M)): M => {
@@ -222,8 +220,8 @@ const useScoped = <M>(target: (new (init?: any) => M) | ((init?: any) => M)): M 
 
   let instance;
   if (context_data[0].has(target)) {
-    instance = context_data[0].get(target)
-  } else  {
+    instance = context_data[0].get(target);
+  } else {
     const h = inst(target, [initial_data]);
     instance = h[0];
     context_data[1].push(...h[1]);
@@ -276,7 +274,7 @@ function useLocal<T extends unknown[], M>(
 function useValue<T>(target: (() => T) | { 0: () => T } | [() => T], deps: any[] = []): T {
   const forceUpdate = is_observe || useForceUpdate();
   const h = useMemo(() => {
-    if (!target) return [target, () => {}]
+    if (!target) return [target, () => {}];
     if ((target as any)[0]) target = (target as any)[0]; // box or selector or custom reactive
 
     if (typeof target === 'function') {

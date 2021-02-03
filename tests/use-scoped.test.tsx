@@ -22,8 +22,13 @@ test('should work useScoped function', async () => {
     <Scope>
       <A />
       <A />
-      <Scope><A /></Scope>
-      <Scope><A /><A /></Scope>
+      <Scope>
+        <A />
+      </Scope>
+      <Scope>
+        <A />
+        <A />
+      </Scope>
     </Scope>
   );
 
