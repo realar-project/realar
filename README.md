@@ -169,7 +169,7 @@ set(2);
 - After each run: subscribe to all reactive boxes accessed while running
 - Re-run on data changes
 
-_Documentation not ready yet for `on`, `action`, `sel`, `shared`, `sync`, `cycle`, `effect`, `initial`, `mock`, `unmock`, `free`, `useLocal`, `useValue`, `useShared`, `observe`, `transaction`, `cache` functions. It's coming soon._
+_Documentation not ready yet for `on`, `action`, `sel`, `shared`, `sync`, `cycle`, `effect`, `initial`, `mock`, `unmock`, `free`, `useLocal`, `useValue`, `useShared`, `useScoped`, `Scope`, `observe`, `transaction`, `cache` functions. It's coming soon._
 
 ### Demos
 

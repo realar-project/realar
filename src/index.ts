@@ -15,7 +15,8 @@ export {
   useValue,
   useLocal,
   useShared,
-  scope,
+  useScoped,
+  Scope,
   free,
   mock,
   unmock,
@@ -62,6 +63,7 @@ let context_unsubs: any;
 let shared_unsubs = [] as any;
 let is_sync: any;
 let is_observe: any;
+let scope_context: any;
 
 type Ensurable<T> = T | void;
 
@@ -206,32 +208,36 @@ function call_array(arr: (() => void)[]) {
   arr.forEach(fn => fn());
 }
 
-function scope<T>() {
-  const map = new Map();
-  const context = (createContext as any)() as Context<any>;
-  const context_unsubs = [] as (() => void)[];
-
-  const useScoped = <M>(target: (new (init?: any) => M) | ((init?: any) => M)): M => {
-    const context_map = useContext(context);
-    if (!context_map) {
-      throw new Error('"Scope" parent component didn\'t find');
-    }
-    let instance = context_map.get(target);
-    if (!instance) {
-      const h = inst(target, [initial_data]);
-      instance = h[0];
-      context_unsubs.push(...h[1]);
-    }
-    return useValue(instance);
-  };
-
-  const Scope: FC = ({ children }) => {
-    useContext(context) || useEffect(() => () => call_array(context_unsubs), []);
-    return createElement(context.Provider, { value: map }, children);
-  };
-
-  return [Scope, useScoped];
+function get_scope_context(): Context<any> {
+  return scope_context
+    ? scope_context
+    : (scope_context = (createContext as any)())
 }
+
+const useScoped = <M>(target: (new (init?: any) => M) | ((init?: any) => M)): M => {
+  const context_data = useContext(get_scope_context());
+  if (!context_data) {
+    throw new Error('"Scope" parent component didn\'t find');
+  }
+
+  let instance;
+  if (context_data[0].has(target)) {
+    instance = context_data[0].get(target)
+  } else  {
+    const h = inst(target, [initial_data]);
+    instance = h[0];
+    context_data[1].push(...h[1]);
+
+    context_data[0].set(target, instance);
+  }
+  return useValue(instance);
+};
+
+const Scope: FC = ({ children }) => {
+  const h = useMemo(() => [new Map(), []], []) as any;
+  useEffect(() => () => call_array(h[1]), []);
+  return createElement(get_scope_context().Provider, { value: h }, children);
+};
 
 function useForceUpdate() {
   return useReducer(() => [], [])[1] as () => void;
@@ -270,6 +276,7 @@ function useLocal<T extends unknown[], M>(
 function useValue<T>(target: (() => T) | { 0: () => T } | [() => T], deps: any[] = []): T {
   const forceUpdate = is_observe || useForceUpdate();
   const h = useMemo(() => {
+    if (!target) return [target, () => {}]
     if ((target as any)[0]) target = (target as any)[0]; // box or selector or custom reactive
 
     if (typeof target === 'function') {
