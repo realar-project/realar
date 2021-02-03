@@ -44,5 +44,5 @@ test('should throw exception if deps not an array', () => {
 
   expect(() => {
     useLocal(Unit, 1 as any);
-  }).toThrowError('TypeError: deps argument should be an array');
+  }).toThrow();
 });

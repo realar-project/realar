@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { Context, FC } from 'react';
 import { expr, box, sel, transaction } from 'reactive-box';
 
 export {
@@ -15,6 +15,7 @@ export {
   useValue,
   useLocal,
   useShared,
+  scope,
   free,
   mock,
   unmock,
@@ -35,6 +36,9 @@ let useRef: typeof React.useRef;
 let useReducer: typeof React.useReducer;
 let useEffect: typeof React.useEffect;
 let useMemo: typeof React.useMemo;
+let useContext: typeof React.useContext;
+let createContext: typeof React.createContext;
+let createElement: typeof React.createElement;
 
 /* istanbul ignore next */
 if (react) {
@@ -42,8 +46,11 @@ if (react) {
   useReducer = react.useReducer;
   useEffect = react.useEffect;
   useMemo = react.useMemo;
+  useContext = react.useContext;
+  createContext = react.createContext;
+  createElement = react.createElement;
 } else {
-  useRef = useReducer = useEffect = useMemo = (() => {
+  useRef = useReducer = useEffect = useMemo = useContext = createContext = createElement = (() => {
     throw new Error('Missed "react" dependency');
   }) as any;
 }
@@ -153,36 +160,77 @@ function initial(data: any): void {
   initial_data = data;
 }
 
-function mock<M>(Class: (new (init?: any) => M) | ((init?: any) => M), mocked: M): M {
-  shareds.set(Class, mocked);
+function mock<M>(target: (new (init?: any) => M) | ((init?: any) => M), mocked: M): M {
+  shareds.set(target, mocked);
   return mocked;
 }
 
 function unmock(
-  Class: (new (init?: any) => any) | ((init?: any) => any),
-  ...Classes: ((new (init?: any) => any) | ((init?: any) => any))[]
+  target: (new (init?: any) => any) | ((init?: any) => any),
+  ...targets: ((new (init?: any) => any) | ((init?: any) => any))[]
 ) {
-  Classes.concat(Class).forEach(Class => shareds.delete(Class));
+  targets.concat(target).forEach(target => shareds.delete(target));
 }
 
-function shared<M>(Class: (new (init?: any) => M) | ((init?: any) => M)): M {
-  let instance = shareds.get(Class);
+function shared<M>(target: (new (init?: any) => M) | ((init?: any) => M)): M {
+  let instance = shareds.get(target);
   if (!instance) {
-    const stack = context_unsubs;
-    context_unsubs = [];
-    try {
-      instance =
-        typeof Class.prototype === 'undefined'
-          ? (Class as (init?: any) => M)(initial_data)
-          : new (Class as new (init?: any) => M)(initial_data);
-    } finally {
-      shared_unsubs.push(...context_unsubs);
-      context_unsubs = stack;
-    }
-
-    shareds.set(Class, instance);
+    const h = inst(target, [initial_data]);
+    instance = h[0];
+    shared_unsubs.push(...h[1]);
+    shareds.set(target, instance);
   }
   return instance;
+}
+
+function inst<M, K extends any[]>(
+  target: (new (...args: K) => M) | ((...args: K) => M),
+  args: K
+): [M, (() => void)[]] {
+  let instance;
+  const stack = context_unsubs;
+  context_unsubs = [];
+  try {
+    instance =
+      typeof target.prototype === 'undefined'
+        ? (target as any)(...args)
+        : new (target as any)(...args);
+  } finally {
+    const unsubs = context_unsubs;
+    context_unsubs = stack;
+    return [instance, unsubs];
+  }
+}
+
+function call_array(arr: (() => void)[]) {
+  arr.forEach(fn => fn());
+}
+
+function scope<T>() {
+  const map = new Map();
+  const context = (createContext as any)() as Context<any>;
+  const context_unsubs = [] as (() => void)[];
+
+  const useScoped = <M>(target: (new (init?: any) => M) | ((init?: any) => M)): M => {
+    const context_map = useContext(context);
+    if (!context_map) {
+      throw new Error('"Scope" parent component didn\'t find');
+    }
+    let instance = context_map.get(target);
+    if (!instance) {
+      const h = inst(target, [initial_data]);
+      instance = h[0];
+      context_unsubs.push(...h[1]);
+    }
+    return useValue(instance);
+  };
+
+  const Scope: FC = ({ children }) => {
+    useContext(context) || useEffect(() => () => call_array(context_unsubs), []);
+    return createElement(context.Provider, { value: map }, children);
+  };
+
+  return [Scope, useScoped];
 }
 
 function useForceUpdate() {
@@ -207,30 +255,16 @@ function observe<T extends FC>(FunctionComponent: T): T {
 }
 
 function useLocal<T extends unknown[], M>(
-  Class: (new (...args: T) => M) | ((...args: T) => M),
+  target: (new (...args: T) => M) | ((...args: T) => M),
   deps = [] as T
 ): M {
-  if (!Array.isArray(deps)) {
-    throw new Error('TypeError: deps argument should be an array in "use" call');
-  }
   const h = useMemo(() => {
-    let inst, unsubs: (() => void)[];
-    const stack = context_unsubs;
-    context_unsubs = [];
-    try {
-      inst =
-        typeof Class.prototype === 'undefined'
-          ? (Class as any)(...(deps as any))
-          : (new (Class as any)(...(deps as any)) as any);
-    } finally {
-      unsubs = context_unsubs;
-      context_unsubs = stack;
-    }
-    return [inst, () => () => unsubs.forEach(fn => fn())];
-  }, [Class, ...deps]);
+    const i = inst(target, deps);
+    return [i[0], () => () => call_array(i[1])] as any;
+  }, deps);
 
   useEffect(h[1], [h]);
-  return useValue(h[0]);
+  return useValue(h[0], [h]);
 }
 
 function useValue<T>(target: (() => T) | { 0: () => T } | [() => T], deps: any[] = []): T {
@@ -252,7 +286,7 @@ function useValue<T>(target: (() => T) | { 0: () => T } | [() => T], deps: any[]
     } else {
       return [target as any, () => {}];
     }
-  }, [target, ...deps]);
+  }, deps);
 
   is_observe || useEffect(h[1], [h]);
   return h[2] ? h[0]() : h[0];
@@ -264,7 +298,7 @@ function useShared<T>(target: () => (() => T) | { 0: () => T } | [() => T]): T {
 
 function free() {
   try {
-    shared_unsubs.forEach((fn: () => void) => fn());
+    call_array(shared_unsubs);
   } finally {
     shareds.clear();
     initial_data = void 0;
