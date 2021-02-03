@@ -49,5 +49,5 @@ test('should throw exception if used without parent component', () => {
   jest.spyOn(console, 'error').mockImplementation(() => {});
   expect(() => {
     mount(<A />);
-  }).toThrow();
+  }).toThrow('"Scope" parent component didn\'t find');
 });
