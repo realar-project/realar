@@ -162,14 +162,30 @@ cycle(() => {
 set(1);
 set(2);
 
-// In output of developer console will be 2, 3 and 4.
+// In output of developer console will be 1, 2 and 3.
 ```
+[Edit on RunKit](https://runkit.com/betula/601a733c5bfc4e001a38def8)
 
 - Takes a function as reactive expression.
 - After each run: subscribe to all reactive boxes accessed while running
 - Re-run on data changes
 
-_Documentation not ready yet for `on`, `action`, `sel`, `shared`, `sync`, `cycle`, `effect`, `initial`, `mock`, `unmock`, `free`, `useLocal`, `useValue`, `useShared`, `useScoped`, `Scope`, `observe`, `transaction`, `cache` functions. It's coming soon._
+**sync**
+
+```javascript
+const [getSource, setSource] = box(0);
+const [getTarget, setTarget] = box(0);
+
+sync(getSource, setTarget);
+// same as sync(() => getSource(), val => setTarget(val));
+
+setSource(10);
+
+console.log(getTarget()) // 10
+```
+[Edit on RunKit](https://runkit.com/betula/601a73b26adfe70020a0e229)
+
+_Documentation not ready yet for `action`, `sel`, `shared`, `effect`, `initial`, `mock`, `unmock`, `free`, `useLocal`, `useValue`, `useShared`, `useScoped`, `Scope`, `observe`, `transaction`, `cache`, `prop` functions. It's coming soon._
 
 ### Demos
 
