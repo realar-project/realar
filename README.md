@@ -105,6 +105,7 @@ import React from "react";
 import { box, useValue } from "realar";
 
 const [get, set] = box(0);
+
 const next = () => get() + 1;
 
 const inc = () => set(next());
