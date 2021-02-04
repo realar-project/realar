@@ -236,7 +236,7 @@ npm install realar
 yarn add realar
 ```
 
-And (if you like OOP) update your babel config for support decorators and using [babel plugin](https://github.com/betula/babel-plugin-realar) for automatic observation arrow function components.
+If you like OOP update your babel config for support decorators and using [babel plugin](https://github.com/betula/babel-plugin-realar) for automatic observation arrow function components.
 
 ```javascript
 //.babelrc
