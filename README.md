@@ -8,7 +8,7 @@
 
 Realar targeted to clean code, modulable architecture, and time of delivery user experience.
 
-Realar supported two kinds of data and logic definitions.
+Supported two kinds of data and logic definitions.
 
 - Plain functional reactive programming with only functions
 
