@@ -46,7 +46,7 @@ const App = () => (
 
 Realar **targeted to** all scale applications up to complex enterprise solutions on microfrontends architecture.
 
-You can use as many from Realar as you want. For small websites or theme switchers, two functions are enough:ok_hand: Step by step on the applications scale stairs you can take more and more. From sharing state to all application parts, to modulable architecture with apps composition.
+You can use as many from Realar as you want. For small websites or theme switchers, two functions are enough:ok_hand: Step by step on applications scale stairs you can take more and more. From sharing state to all application parts, to modulable architecture with apps composition.
 
 ### Classes usage
 
