@@ -9,8 +9,40 @@
 Realar targeted to clean code, modulable architecture, and time of delivery user experience.
 
 Realar supported two kinds of data and logic definitions.
+- Plain functional reactive programming with only functions
+- And transparent functional reactive programming with classes and decorators
 
-> If you don't have an interest in classes or decorators, you can code in [functional style](#functional-usage) with a wide and full feature API.
+```javascript
+const [getCount, set] = box(0);
+
+const tick = () => set(getCount() + 1);
+setInterval(tick, 200);
+
+const App = () => {
+  const count = useValue(getCount);
+  return (
+    <p>{count}</>
+  )
+}
+```
+
+and
+
+```javascript
+class Ticker {
+  @prop count = 0
+  tick = () => ++this.count;
+}
+
+const ticker = new Ticker();
+setInterval(ticker.tick, 200);
+
+const App = () => (
+  <p>{ticker.count}</>
+)
+```
+
+If you don't have an interest in classes or decorators, you can code in [functional style](#functional-usage) with a wide and full feature API.
 
 But if you like, it looks likes very clear and natively, and you can start development knows only two functions.
 
