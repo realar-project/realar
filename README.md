@@ -9,8 +9,8 @@
 Realar targeted to clean code, modulable architecture, and time of delivery user experience.
 
 Realar supported two kinds of data and logic definitions.
+
 - Plain functional reactive programming with only functions
-- And transparent functional reactive programming with classes and decorators
 
 ```javascript
 const [getCount, set] = box(0);
@@ -21,12 +21,12 @@ setInterval(tick, 200);
 const App = () => {
   const count = useValue(getCount);
   return (
-    <p>{count}</>
+    <p>{count}</p>
   )
 }
 ```
 
-and
+- And transparent functional reactive programming with classes and decorators
 
 ```javascript
 class Ticker {
@@ -38,7 +38,7 @@ const ticker = new Ticker();
 setInterval(ticker.tick, 200);
 
 const App = () => (
-  <p>{ticker.count}</>
+  <p>{ticker.count}</p>
 )
 ```
 
