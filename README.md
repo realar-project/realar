@@ -8,7 +8,7 @@
 
 Realar targeted to clean code, modulable architecture, and time of delivery user experience.
 
-Supported two kinds of data and logic definitions.
+Supported **two kinds** of data and logic definitions.
 
 - Plain functional reactive programming with only functions
 
@@ -44,11 +44,15 @@ const App = () => (
 ```
 [Try wrapped version on CodeSandbox](https://codesandbox.io/s/realar-ticker-classes-c9819?file=/src/App.tsx)
 
+Realar **targeted to** all scale applications up to complex enterprise solutions on microfrontends architecture.
+
+You can use as many from Realar as you want. For small websites or theme switchers, two functions are enough:ok_hand: Step by step on the applications scale stairs you can take more and more. From sharing state to all application parts, to modulable architecture with apps composition.
+
+### Classes usage
+
 If you don't have an interest in classes or decorators, you can code in [functional style](#functional-usage) with a wide and full feature API.
 
 But if you like, it looks likes very clear and natively, and you can start development knows only two functions.
-
-### Classes usage
 
 `prop`. Reactive value marker. Each reactive value has an immutable state. If the immutable state will update, all React components that depend on It will refresh.
 
