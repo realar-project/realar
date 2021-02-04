@@ -27,7 +27,7 @@ const App = () => {
 ```
 [Try on CodeSandbox](https://codesandbox.io/s/realar-ticker-functional-6s3mx?file=/src/App.tsx)
 
-- And transparent functional reactive programming with classes and decorators
+- And transparent functional reactive programming with classes, decorators and [jsx wrapper](https://github.com/betula/babel-plugin-realar).
 
 ```javascript
 class Ticker {
