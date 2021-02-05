@@ -48,6 +48,57 @@ Realar **targeted to** all scale applications up to complex enterprise solutions
 
 You can use as many from Realar as you want. For small websites or theme switchers, two functions are enough:ok_hand: Step by step on applications scale stairs you can take more and more. From sharing state to all application parts, to modulable architecture with apps composition.
 
+### Abstraction
+
+The abstraction of the core is an implementation of functional reactive programming on javascript and binding that with React.
+
+It uses usual mathematic to describe dependencies and commutation between reactive values.
+
+In contradistinction to _stream pattern_, operator functions not needed. The reactive “sum” operator used a simple “+” operator (for example).
+
+```javascript
+const [getA, setA] = box(0)
+const [getB, setB] = box(0)
+
+const sum = () => getA() + getB()
+
+on(sum, console.log)
+```
+
+That code has a graph of dependencies inside. “sum” - reactive expression depends from “A” and “B”, and will react if “A” or “B” changed. It is perfectly demonstrated with “on” function (that subscribes to reactive expression) and “console.log” (developer console output).
+
+On each change of “A” or “B” a new value of that sum will appear in the developer console output.
+
+And for tasty easy binding reactive expressions and values with React components.
+
+```javascript
+const App = () => {
+  const val = useValue(sum);
+  return (
+    <p>{val}</p>
+  );
+}
+```
+
+That component will be updated every time when new sum value is coming.
+
+The difference from exists an implementation of functional reactive programming (mobx) in Realar dependency collector provides the possibility to write in selectors and nested writable reactions.
+
+Realar provides big possibility abstractions for reactive flow. We already know about reactive value container, reactive expressions, and subscribe mechanism. But also have synchronization between data, cycled reactions, cached selectors, and transactions.
+
+**Below I will talk about high level abstractions** provided from Realar out of the box.
+
+- __Shared instances decomposition__. The pattern for decomposing applications logic to separate independent or one direction dependent modules. Each module can have its own set of reactive values. (ssr, comfort “mock” mechanism for simple unit testing)
+
+
+- __Actions__ are a necessary part of reactive communication, well knows for most javascript developers. Possibility for subscribing to action, call action, and wait for the next action value everywhere on the code base.
+
+
+- __React components context level scopes__. Declaration one scope and use as many reactive value containers as you want no need to define a new React context for each changeable value.
+
+
+- __Decorators for clasess lovers__. And babel plugin for automatic wrap all arrow functions defined in the global scope with JSX inside to observe wrapper for the total implementation of transparent functional reactive programming (TFRP) in javascript with React.
+
 ### Classes usage
 
 If you don't have an interest in classes or decorators, you can code in [functional style](#functional-usage) with a wide and full feature API.
