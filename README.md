@@ -193,6 +193,38 @@ export default App;
 
 ### Documentation
 
+**action**
+
+The action allows you to trigger an event and delivers the functionality to subscribe to it anywhere in your application code.
+
+```javascript
+const add = action();
+
+const [get, set] = box(1);
+on(add, num => set(get() + num));
+
+add(15);
+console.log(get()); // 16
+```
+[Edit on RunKit](https://runkit.com/betula/6013af7649e8720019c9cf2a)
+
+An action is convenient to use as a promise.
+
+```javascript
+const fire = action();
+
+const listen = async () => {
+  for (;;) {
+    await fire; // await as a usual promise
+    console.log('Fire');
+  }
+}
+
+listen();
+setInterval(fire, 500);
+```
+[Edit on RunKit](https://runkit.com/betula/601e3b0056b62d001bfa391b)
+
 **box**
 
 The first abstraction of Realar is reactive container - `box`.
@@ -225,7 +257,7 @@ We learned how to create a box, set, and get its value.
 The next basic abstraction is expression.
 Expression is a function that read reactive boxes or selectors. It can return value and write reactive boxes inside.
 
-We can subscribe to change any reactive expression using `on` function.
+We can subscribe to change any reactive expression using `on` function _(which also works with action)_.
 
 ```javascript
 const [get, set] = box(0);
@@ -275,7 +307,7 @@ console.log(getTarget()) // 10
 ```
 [Edit on RunKit](https://runkit.com/betula/601a73b26adfe70020a0e229)
 
-_Documentation not ready yet for `action`, `sel`, `shared`, `effect`, `initial`, `mock`, `unmock`, `free`, `useLocal`, `useValue`, `useShared`, `useScoped`, `Scope`, `observe`, `transaction`, `cache`, `prop` functions. It's coming soon._
+_Documentation not ready yet for `sel`, `shared`, `effect`, `initial`, `mock`, `unmock`, `free`, `useLocal`, `useValue`, `useShared`, `useScoped`, `Scope`, `observe`, `transaction`, `cache`, `prop` functions. It's coming soon._
 
 ### Demos
 
