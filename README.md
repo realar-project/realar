@@ -190,12 +190,9 @@ export default App;
 ```
 [Try on CodeSandbox](https://codesandbox.io/s/realar-pure-counter-1ue4h?file=/src/App.tsx).
 
+### Actions
 
-### Documentation
-
-**action**
-
-The action allows you to trigger an event and delivers the functionality to subscribe to it anywhere in your application code.
+The `action` allows you to trigger an event and delivers the functionality to subscribe to it anywhere in your application code.
 
 ```javascript
 const add = action();
@@ -224,6 +221,65 @@ listen();
 setInterval(fire, 500);
 ```
 [Edit on RunKit](https://runkit.com/betula/601e3b0056b62d001bfa391b)
+
+### Access visibility levels
+
+The basic level of scopes for React developers is a **component level scope** (_for example `useState`, and other standard React hooks has that level_).
+
+Every React component instance has its own local state, which is saved every render for the component as long as the component is mounted.
+
+In the Realar ecosystem `useLocal` hook used to make components local state.
+
+```javascript
+const CounterLogic = () => {
+
+  const [get, set] = box(0);
+  const inc = () => set(get() + 1);
+
+  return sel(() => ({
+    value: get(),
+    inc
+  }));
+}
+
+const Counter = () => {
+  const { value, inc } = useLocal(CounterLogic);
+
+  return (
+    <p>{value} <button onClick={inc}>+</button></p>
+  );
+}
+
+export const App = () => (
+  <>
+    <Counter />
+    <Counter />
+  </>
+);
+```
+[Play on CodeSandbox](https://codesandbox.io/s/realar-component-level-scope-functional-5pjdy?file=/src/App.tsx)
+
+Or If you coding in classes style:
+
+```javascript
+class CounterLogic {
+  @prop value = 0;
+  inc = () => this.value += 1
+}
+
+const Counter = () => {
+  const { value, inc } = useLocal(CounterLogic);
+
+  return (
+    <p>{value} <button onClick={inc}>+</button></p>
+  );
+}
+```
+[Play wrapped on CodeSandbox](https://codesandbox.io/s/realar-component-level-scope-classes-m0i10?file=/src/App.tsx)
+
+This feature can be useful for removing logic from the body of a component to keep that free of unnecessary code, and therefore cleaner.
+
+### Documentation
 
 **box**
 
@@ -307,7 +363,7 @@ console.log(getTarget()) // 10
 ```
 [Edit on RunKit](https://runkit.com/betula/601a73b26adfe70020a0e229)
 
-_Documentation not ready yet for `sel`, `shared`, `effect`, `initial`, `mock`, `unmock`, `free`, `useLocal`, `useValue`, `useShared`, `useScoped`, `Scope`, `observe`, `transaction`, `cache`, `prop` functions. It's coming soon._
+_Documentation not ready yet for `sel`, `shared`, `effect`, `initial`, `mock`, `unmock`, `free`, `useValue`, `useShared`, `useScoped`, `Scope`, `observe`, `transaction`, `cache`, `prop` functions. It's coming soon._
 
 ### Demos
 
