@@ -212,7 +212,7 @@ function get_scope_context(): Context<any> {
   return scope_context ? scope_context : (scope_context = (createContext as any)());
 }
 
-const useScoped = <M>(target: (new (init?: any) => M) | ((init?: any) => M)): M => {
+const useScoped = <M>(target: (new (init?: any) => M | (() => M) | { 0: () => M } | [() => M]) | ((init?: any) => M | (() => M) | { 0: () => M } | [() => M])): M => {
   const context_data = useContext(get_scope_context());
   if (!context_data) {
     throw new Error('"Scope" parent component didn\'t find');
@@ -259,7 +259,7 @@ function observe<T extends FC>(FunctionComponent: T): T {
 }
 
 function useLocal<T extends unknown[], M>(
-  target: (new (...args: T) => M) | ((...args: T) => M),
+  target: (new (...args: T) => M | (() => M) | { 0: () => M } | [() => M]) | ((...args: T) => M | (() => M) | { 0: () => M } | [() => M]),
   deps = [] as T
 ): M {
   const h = useMemo(() => {
