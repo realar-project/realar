@@ -303,8 +303,12 @@ function useValue<T>(target: (() => T) | { 0: () => T } | [() => T], deps: any[]
   return h[2] ? h[0]() : h[0];
 }
 
-function useShared<T>(target: () => (() => T) | { 0: () => T } | [() => T]): T {
-  return useValue(shared(target));
+function useShared<M>(
+  target:
+  | (new (init?: any) => M | (() => M) | { 0: () => M } | [() => M])
+  | ((init?: any) => M | (() => M) | { 0: () => M } | [() => M])
+): M {
+  return useValue(shared(target as any));
 }
 
 function free() {
