@@ -68,6 +68,7 @@ let scope_context: any;
 type Ensurable<T> = T | void;
 type Action<T, K = T> = {
   (data: T): void;
+  (this: T extends void ? void : `Error: Expected 1 argument, but got 0`, data?: T): void;
   0: () => K;
 } & Pick<Promise<T>, 'then' | 'catch' | 'finally'>;
 
