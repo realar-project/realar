@@ -71,7 +71,6 @@ function action<T = undefined>(
   init?: T
 ): {
   (data: T): void;
-  (): void;
   0: () => Ensurable<T>;
 } {
   let resolve: (v: T) => void;
