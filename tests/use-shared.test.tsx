@@ -4,7 +4,7 @@ import { box, useShared, shared, action, on, sel, prop, observe } from '../src';
 
 test('should work useShared function', () => {
   const spy = jest.fn();
-  const inc = action<number>();
+  const inc = action();
   const h = () => {
     const [get, set] = box(0);
     on(inc, () => set(get() + 1));
