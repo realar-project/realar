@@ -66,37 +66,32 @@ let is_observe: any;
 let scope_context: any;
 
 type Ensurable<T> = T | void;
-
-function action<T = undefined>(
-  init?: T
-): (
-  T extends (undefined | void)
-  ? {
-    (data?: T): void;
-    0: () => Ensurable<T>;
-  }
-  : {
+type Action<T, K = T> = (
+  {
     (data: T): void;
-    0: () => Ensurable<T>;
+    0: () => K;
   }
-) & Pick<Promise<T>, 'then' | 'catch' | 'finally'>
-{
-  let resolve: (v: T) => void;
+) & Pick<Promise<T>, 'then' | 'catch' | 'finally'>;
+
+function action<T = void>(): Action<T, Ensurable<T>>;
+function action<T = void>(init: T): Action<T>;
+function action(init?: any) {
+  let resolve: any;
   const [get, set] = box([init]);
 
-  const fn = function (data?: T) {
+  const fn = function (data?: any) {
     const ready = resolve;
     promisify();
     set([data]);
     ready(data!);
   };
 
-  fn[0] = (() => get()[0]) as () => Ensurable<T>;
+  fn[0] = () => get()[0];
 
   promisify();
 
   function promisify() {
-    const promise = new Promise<T>(r => (resolve = r));
+    const promise = new Promise(r => (resolve = r));
     ['then', 'catch', 'finally'].forEach(prop => {
       (fn as any)[prop] = (promise as any)[prop].bind(promise);
     });
