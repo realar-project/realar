@@ -67,12 +67,20 @@ let scope_context: any;
 
 type Ensurable<T> = T | void;
 
-function action<T = undefined & void>(
+function action<T = undefined>(
   init?: T
-): {
-  (data: T): void;
-  0: () => Ensurable<T>;
-} {
+): (
+  T extends (undefined | void)
+  ? {
+    (data?: T): void;
+    0: () => Ensurable<T>;
+  }
+  : {
+    (data: T): void;
+    0: () => Ensurable<T>;
+  }
+) & Pick<Promise<T>, 'then' | 'catch' | 'finally'>
+{
   let resolve: (v: T) => void;
   const [get, set] = box([init]);
 
@@ -94,7 +102,7 @@ function action<T = undefined & void>(
     });
   }
 
-  return fn;
+  return fn as any;
 }
 
 function on<T>(
