@@ -66,12 +66,10 @@ let is_observe: any;
 let scope_context: any;
 
 type Ensurable<T> = T | void;
-type Action<T, K = T> = (
-  {
-    (data: T): void;
-    0: () => K;
-  }
-) & Pick<Promise<T>, 'then' | 'catch' | 'finally'>;
+type Action<T, K = T> = {
+  (data: T): void;
+  0: () => K;
+} & Pick<Promise<T>, 'then' | 'catch' | 'finally'>;
 
 function action<T = void>(): Action<T, Ensurable<T>>;
 function action<T = void>(init: T): Action<T>;
@@ -307,8 +305,8 @@ function useValue<T>(target: (() => T) | { 0: () => T } | [() => T], deps: any[]
 
 function useShared<M>(
   target:
-  | (new (init?: any) => M | (() => M) | { 0: () => M } | [() => M])
-  | ((init?: any) => M | (() => M) | { 0: () => M } | [() => M])
+    | (new (init?: any) => M | (() => M) | { 0: () => M } | [() => M])
+    | ((init?: any) => M | (() => M) | { 0: () => M } | [() => M])
 ): M {
   return useValue(shared(target as any));
 }

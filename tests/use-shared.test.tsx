@@ -34,10 +34,7 @@ test('should work useShared with sel factory function', () => {
   const h = () => {
     const [get, set] = box(0);
     const inc = () => set(get() + 1);
-    return sel(() => [
-      get(),
-      inc
-    ] as [number, () => void]);
+    return sel(() => [get(), inc] as [number, () => void]);
   };
 
   function A() {
@@ -62,14 +59,14 @@ test('should work useShared with class', () => {
   const spy = jest.fn();
   class H {
     @prop val = 0;
-    inc = () => this.val += 1;
+    inc = () => (this.val += 1);
   }
 
   const A = observe(() => {
-    const {val, inc} = useShared(H);
+    const { val, inc } = useShared(H);
     spy(val);
     return <button onClick={inc} />;
-  })
+  });
 
   const el = mount(<A />);
 
