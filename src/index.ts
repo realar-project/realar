@@ -67,7 +67,7 @@ let scope_context: any;
 
 type Ensurable<T> = T | void;
 
-function action<T = undefined>(
+function action<T = undefined & void>(
   init?: T
 ): {
   (data: T): void;
