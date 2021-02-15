@@ -135,15 +135,9 @@ Every React component instance has its own local state, which is saved every ren
 In the Realar ecosystem `useLocal` hook used to make components local state.
 
 ```javascript
-const CounterLogic = () => {
-
-  const [get, set] = box(0);
-  const inc = () => set(get() + 1);
-
-  return sel(() => ({
-    value: get(),
-    inc
-  }));
+class CounterLogic {
+  @prop value = 0;
+  inc = () => this.value += 1
 }
 
 const Counter = () => {
@@ -161,27 +155,25 @@ export const App = () => (
   </>
 );
 ```
-[Play on CodeSandbox](https://codesandbox.io/s/realar-component-level-scope-functional-5pjdy?file=/src/App.tsx)
-
-Or If you coding in classes style:
-
-```javascript
-class CounterLogic {
-  @prop value = 0;
-  inc = () => this.value += 1
-}
-
-const Counter = () => {
-  const { value, inc } = useLocal(CounterLogic);
-
-  return (
-    <p>{value} <button onClick={inc}>+</button></p>
-  );
-}
-```
 [Play wrapped on CodeSandbox](https://codesandbox.io/s/realar-component-level-scope-classes-m0i10?file=/src/App.tsx)
 
 This feature can be useful for removing logic from the body of a component to keep that free of unnecessary code, and therefore cleaner.
+
+Or If you coding in low level style:
+
+```javascript
+const CounterLogic = () => {
+
+  const [get, set] = box(0);
+  const inc = () => set(get() + 1);
+
+  return sel(() => ({
+    value: get(),
+    inc
+  }));
+}
+```
+[Play on CodeSandbox](https://codesandbox.io/s/realar-component-level-scope-functional-5pjdy?file=/src/App.tsx)
 
 ### Core
 
