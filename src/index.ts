@@ -24,6 +24,7 @@ export {
   sel,
   expr,
   transaction,
+  untrack,
   Ensurable,
 };
 
