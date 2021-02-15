@@ -94,38 +94,6 @@ For best possibilities use [realar babel plugin](https://github.com/betula/babel
 
 But otherwise necessary to wrap all React function components that use reactive values inside to `observe` wrapper. [Try wrapped version on CodeSandbox](https://codesandbox.io/s/realar-counter-k9kmw?file=/src/App.tsx).
 
-### Actions
-
-The `action` allows you to trigger an event and delivers the functionality to subscribe to it anywhere in your application code.
-
-```javascript
-const add = action();
-
-const [get, set] = box(1);
-on(add, num => set(get() + num));
-
-add(15);
-console.log(get()); // 16
-```
-[Edit on RunKit](https://runkit.com/betula/6013af7649e8720019c9cf2a)
-
-An action is convenient to use as a promise.
-
-```javascript
-const fire = action();
-
-const listen = async () => {
-  for (;;) {
-    await fire; // await as a usual promise
-    console.log('Fire');
-  }
-}
-
-listen();
-setInterval(fire, 500);
-```
-[Edit on RunKit](https://runkit.com/betula/601e3b0056b62d001bfa391b)
-
 ### Access visibility levels
 
 The basic level of scopes for React developers is a **component level scope** (_for example `useState`, and other standard React hooks has that level_).
@@ -174,6 +142,38 @@ const CounterLogic = () => {
 }
 ```
 [Play on CodeSandbox](https://codesandbox.io/s/realar-component-level-scope-functional-5pjdy?file=/src/App.tsx)
+
+### Actions
+
+The `action` allows you to trigger an event and delivers the functionality to subscribe to it anywhere in your application code.
+
+```javascript
+const add = action();
+
+const [get, set] = box(1);
+on(add, num => set(get() + num));
+
+add(15);
+console.log(get()); // 16
+```
+[Edit on RunKit](https://runkit.com/betula/6013af7649e8720019c9cf2a)
+
+An action is convenient to use as a promise.
+
+```javascript
+const fire = action();
+
+const listen = async () => {
+  for (;;) {
+    await fire; // await as a usual promise
+    console.log('Fire');
+  }
+}
+
+listen();
+setInterval(fire, 500);
+```
+[Edit on RunKit](https://runkit.com/betula/601e3b0056b62d001bfa391b)
 
 ### Core
 
