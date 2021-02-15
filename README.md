@@ -35,7 +35,7 @@ You can use as many from Realar as you want. For small websites or theme switche
 
 - __Shared stateful logic decomposition__. The pattern for decomposing applications logic to separate independent or one direction dependent modules. Each module can have its own set of reactive values. (logic isolation, ssr, comfort “mock” mechanism for simple unit testing)
 
-- __Lightweight and Fast__. Really light ~ 2kb. And only those components are updated in which it is really necessary to make changes and only they.
+- __Lightweight and Fast__. Really light ~ 2kb. And only those components are updated in which it is really necessary to make changes.
 
 - __React component context level scopes__. Declaration one scope and use as many reactive values as you want without the need to define a new React context for each changeable value.
 
