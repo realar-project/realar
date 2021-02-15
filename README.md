@@ -37,9 +37,9 @@ You can use as many from Realar as you want. For small websites or theme switche
 
 - __Lightweight and Fast__. Really light ~ 2kb. And only those components are updated in which it is really necessary to make changes and only they.
 
-- __Actions__ are a necessary part of reactive communication, well knows for most javascript developers. Possibility for subscribing to action, call action, and wait for the next action value everywhere on the code base.
-
 - __React component context level scopes__. Declaration one scope and use as many reactive values as you want without the need to define a new React context for each changeable value.
+
+- __Actions__ are a necessary part of reactive communication, well knows for most javascript developers. Possibility for subscribing to action, call action, and wait for the next action value everywhere on the code base.
 
 
 ### Usage
