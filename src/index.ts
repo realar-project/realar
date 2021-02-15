@@ -1,5 +1,5 @@
 import React, { Context, FC } from 'react';
-import { expr, box, sel, transaction } from 'reactive-box';
+import { expr, box, sel, transaction, untrack } from 'reactive-box';
 
 export {
   prop,
@@ -197,12 +197,14 @@ function inst<M, K extends any[]>(
   let instance;
   const stack = context_unsubs;
   context_unsubs = [];
+  const track = untrack();
   try {
     instance =
       typeof target.prototype === 'undefined'
         ? (target as any)(...args)
         : new (target as any)(...args);
   } finally {
+    track();
     const unsubs = context_unsubs;
     context_unsubs = stack;
     return [instance, unsubs];
