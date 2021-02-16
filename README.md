@@ -127,21 +127,29 @@ export const App = () => (
 
 This feature can be useful for removing logic from the body of a component to keep that free of unnecessary code, and therefore cleaner.
 
-Or If you coding in low level style:
+**context component level scope**
 
 ```javascript
-const CounterLogic = () => {
+const Counter = () => {
+  const { value, inc } = useScoped(CounterLogic);
 
-  const [get, set] = box(0);
-  const inc = () => set(get() + 1);
-
-  return sel(() => ({
-    value: get(),
-    inc
-  }));
+  return (
+    <p>{value} <button onClick={inc}>+</button></p>
+  );
 }
+
+export const App = () => (
+  <Scope>
+    <Scope>
+      <Counter />
+      <Counter />
+    </Scope>
+    <Counter />
+  </Scope>
+);
 ```
-[Play on CodeSandbox](https://codesandbox.io/s/realar-component-level-scope-functional-5pjdy?file=/src/App.tsx)
+
+[Play wrapped on CodeSandbox](https://codesandbox.io/s/realar-context-component-level-scope-classes-wivjv?file=/src/App.tsx)
 
 ### Actions
 
