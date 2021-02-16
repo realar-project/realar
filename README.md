@@ -8,7 +8,7 @@ Object oriented state manager for React based on [reactive mathematic](https://g
 
 Realar targeted to clean code, modulable architecture, and time of delivery user experience.
 
-Ttransparent functional reactive programming with classes, decorators and [babel jsx wrapper](https://github.com/betula/babel-plugin-realar)
+Transparent functional reactive programming with classes, decorators and [babel jsx wrapper](https://github.com/betula/babel-plugin-realar)
 
 ```javascript
 class Ticker {
