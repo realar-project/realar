@@ -2,6 +2,7 @@ import React, { Context, FC } from 'react';
 import { expr, box, sel, transaction, untrack } from 'reactive-box';
 
 export {
+  value,
   prop,
   cache,
   action,
@@ -57,6 +58,7 @@ if (react) {
   }) as any;
 }
 
+const key = 'val';
 const shareds = new Map();
 
 let initial_data: any;
@@ -65,6 +67,40 @@ let shared_unsubs = [] as any;
 let is_sync: any;
 let is_observe: any;
 let scope_context: any;
+
+type Selector<T> = {
+  0: () => T;
+  readonly val: T;
+} & [() => T];
+type Callable<T> = {
+  (data: T): void;
+} & (T extends void
+  ? {
+      (): void;
+    }
+  : {});
+type Value<T> = Callable<T> & {
+  0: () => T;
+  1: (value: T) => void;
+  val: T;
+} & [() => T, (value: T) => void];
+type Signal<T> = Callable<T> & Selector<T> & Pick<Promise<T>, 'then' | 'catch' | 'finally'>;
+
+function value<T = void>(): Value<T>;
+function value<T = void>(init: T): Value<T>;
+function value(init?: any): any {
+  const [get, set] = box(init);
+
+  (set as any)[Symbol.iterator] = function* () {
+    yield get;
+    yield set;
+  };
+  (set as any)[0] = get;
+  (set as any)[1] = set;
+
+  Object.defineProperty(set, key, { get, set });
+  return set;
+}
 
 type Ensurable<T> = T | void;
 type Action<T, K = T> = {
