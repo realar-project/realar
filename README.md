@@ -357,7 +357,7 @@ console.log(getTarget()) // 10
 ```
 [Edit on RunKit](https://runkit.com/betula/601a73b26adfe70020a0e229)
 
-_Documentation not ready yet for `sel`, `shared`, `effect`, `initial`, `mock`, `unmock`, `free`, `useValue`, `useShared`, `useScoped`, `Scope`, `observe`, `transaction`, `cache`, `prop` functions. It's coming soon._
+_Documentation not ready yet for `sel`, `effect`, `initial`, `mock`, `unmock`, `free`, `useScoped`, `Scope`, `observe`, `transaction`, `untrack`, `cache` functions. It's coming soon._
 
 ### Demos
 
