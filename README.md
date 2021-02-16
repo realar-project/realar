@@ -25,7 +25,7 @@ const App = () => (
 ```
 [Try wrapped version on CodeSandbox](https://codesandbox.io/s/realar-ticker-classes-c9819?file=/src/App.tsx)
 
-Realar **targeted to** all scale applications up to complex enterprise solutions on microfrontends architecture.
+Realar **targeted to** all scale applications up to complex enterprise solutions on micro apps architecture.
 
 You can use as many from Realar as you want. For small websites or theme switchers, two functions are enough:ok_hand: Step by step on applications scale stairs you can take more and more. From sharing state to all application parts, to modulable architecture with micro apps composition.
 
