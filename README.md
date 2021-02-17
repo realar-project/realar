@@ -39,7 +39,7 @@ You can use as many from Realar as you want. For small websites or theme switche
 
 - __React component context level scopes__. Declaration one scope and use as many reactive values as you want without the need to define a new React context for each changeable value.
 
-- __Actions__ are a necessary part of reactive communication, well knows for most javascript developers. Possibility for subscribing to action, call action, and wait for the next action value everywhere on the code base.
+- __Actions__ are a necessary part of reactive communication, well knows for most javascript developers. In Realar that possibility provides through signal abstraction. Possibility for subscribing to signal, call signal and wait for the next signal value everywhere on the codebase. And for a tasty, reading the last called value from a signal.
 
 
 ### Usage
@@ -151,25 +151,25 @@ export const App = () => (
 
 [Play wrapped on CodeSandbox](https://codesandbox.io/s/realar-context-component-level-scope-classes-wivjv?file=/src/App.tsx)
 
-### Actions
+### Signals
 
-The `action` allows you to trigger an event and delivers the functionality to subscribe to it anywhere in your application code.
+The `signal` allows you to trigger an event or action and delivers the functionality to subscribe to it anywhere in your application code.
 
 ```javascript
-const add = action();
+const add = signal();
 
-const [get, set] = box(1);
-on(add, num => set(get() + num));
+const store = value(1);
+on(add, num => store.val += num);
 
 add(15);
-console.log(get()); // 16
+console.log(store.val); // 16
 ```
 [Edit on RunKit](https://runkit.com/betula/6013af7649e8720019c9cf2a)
 
-An action is convenient to use as a promise.
+An signal is convenient to use as a promise.
 
 ```javascript
-const fire = action();
+const fire = signal();
 
 const listen = async () => {
   for (;;) {
@@ -192,10 +192,10 @@ It uses usual mathematic to describe dependencies and commutation between reacti
 In contradistinction to _stream pattern_, operator functions not needed. The reactive “sum” operator used a simple “+” operator (for example).
 
 ```javascript
-const [getA, setA] = box(0)
-const [getB, setB] = box(0)
+const a = value(0)
+const b = value(0)
 
-const sum = () => getA() + getB()
+const sum = () => a.val + b.val
 
 on(sum, console.log)
 ```
@@ -224,13 +224,13 @@ Realar provides big possibility abstractions for reactive flow. We already know 
 ### Low level usage
 
 ```javascript
-const [getCount, set] = box(0);
+const count = value(0);
 
-const tick = () => set(getCount() + 1);
+const tick = () => count.val++;
 setInterval(tick, 200);
 
 const App = () => {
-  const count = useValue(getCount);
+  const count = useValue(count);
   return (
     <p>{count}</p>
   )
@@ -240,9 +240,9 @@ const App = () => {
 
 ```javascript
 import React from "react";
-import { box, useValue } from "realar";
+import { value, useValue } from "realar";
 
-const [get, set] = box(0);
+const [get, set] = value(0);
 
 const next = () => get() + 1;
 
@@ -275,19 +275,19 @@ export default App;
 
 ### API
 
-**box**
+**value**
 
-The first abstraction of Realar is reactive container - `box`.
-The `box` is a place where your store some data as an immutable struct.
-When you change box value (rewrite to a new immutable struct) all who depend on It will be updated synchronously.
+The first abstraction of Realar is reactive container - `value`.
+The `value` is a place where your store some data as an immutable struct.
+When you change value (rewrite to a new immutable struct) all who depend on It will be updated synchronously.
 
-For create new box we need `box` function from `realar`, and initial value that will store in reactive container.
-The call of `box` function returns array of two functions.
+For create new value we need `value` function from `realar`, and initial value that will store in reactive container.
+The call of `value` function returns array of two functions.
 - The first is value getter.
 - The second one is necessary for save new value to reactive container.
 
 ```javascript
-const [get, set] = box(0);
+const [get, set] = value(0);
 
 set(get() + 1);
 
@@ -296,21 +296,21 @@ console.log(get()); // 1
 [Edit on RunKit](https://runkit.com/betula/6013af7649e8720019c9cf2a)
 
 In that example
-- for a first we created `box` container for number with initial zero;
-- After that, we got the box value, and set to box its value plus one;
+- for a first we created `value` container for number with initial zero;
+- After that, we got the value, and set to its value plus one;
 - Let's print the result to the developer console, that will is one.
 
-We learned how to create a box, set, and get its value.
+We learned how to create a value, set, and get it.
 
 **on**
 
 The next basic abstraction is expression.
-Expression is a function that read reactive boxes or selectors. It can return value and write reactive boxes inside.
+Expression is a function that read reactive boxes or selectors. It can return value and write reactive values inside.
 
-We can subscribe to change any reactive expression using `on` function _(which also works with action)_.
+We can subscribe to change any reactive expression using `on` function _(which also works with signal)_.
 
 ```javascript
-const [get, set] = box(0);
+const [get, set] = value(0);
 
 const next = () => get() + 1;
 
@@ -320,12 +320,12 @@ set(5); // We will see 6 and 1 in developer console output, It are new and previ
 ```
 [Edit on RunKit](https://runkit.com/betula/6013ea214e0cf9001ac18e71)
 
-In that example expression is `next` function, because It get box value and return that plus one.
+In that example expression is `next` function, because It get value and return that plus one.
 
 **cycle**
 
 ```javascript
-const [get, set] = box(0);
+const [get, set] = value(0);
 
 cycle(() => {
   console.log(get() + 1);
@@ -339,14 +339,14 @@ set(2);
 [Edit on RunKit](https://runkit.com/betula/601a733c5bfc4e001a38def8)
 
 - Takes a function as reactive expression.
-- After each run: subscribe to all reactive boxes accessed while running
+- After each run: subscribe to all reactive values accessed while running
 - Re-run on data changes
 
 **sync**
 
 ```javascript
-const [getSource, setSource] = box(0);
-const [getTarget, setTarget] = box(0);
+const [getSource, setSource] = value(0);
+const [getTarget, setTarget] = value(0);
 
 sync(getSource, setTarget);
 // same as sync(() => getSource(), val => setTarget(val));

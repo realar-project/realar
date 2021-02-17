@@ -1,10 +1,10 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { box, observe, useValue } from '../src';
+import { value, observe, useValue } from '../src';
 
 test('should work useValue function', () => {
   const spy = jest.fn();
-  const h = box(0);
+  const h = value(0);
 
   function A() {
     const val = useValue(h);
@@ -25,7 +25,7 @@ test('should work useValue function', () => {
 
 test('should work with observe together', () => {
   const spy = jest.fn();
-  const h = box(0);
+  const h = value(0);
 
   const A = observe(() => {
     const val = useValue(h);

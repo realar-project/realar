@@ -1,4 +1,4 @@
-import { prop, cache, on, box } from '../src';
+import { prop, cache, on, value } from '../src';
 
 test('should work basic operations with prop, cache and on', () => {
   const spy = jest.fn();
@@ -19,7 +19,7 @@ test('should work basic operations with prop, cache and on', () => {
 
 test('should cache return value in on', () => {
   const spy = jest.fn();
-  const a = box(0);
+  const a = value(0);
 
   on(() => Math.floor(a[0]() / 2), spy);
 

@@ -1,4 +1,4 @@
-import { prop, cache, sync, box } from '../src';
+import { prop, cache, sync, value } from '../src';
 
 test('should work basic operations with prop, cache and sync', () => {
   const spy = jest.fn();
@@ -20,7 +20,7 @@ test('should work basic operations with prop, cache and sync', () => {
 
 test('should cache return value in sync', () => {
   const spy = jest.fn();
-  const a = box(0);
+  const a = value(0);
 
   sync(() => Math.floor(a[0]() / 2), spy);
   expect(spy).toBeCalledTimes(1);
