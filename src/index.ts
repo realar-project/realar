@@ -3,6 +3,7 @@ import { expr, box, sel, transaction, untrack } from 'reactive-box';
 
 export {
   value,
+  selector,
   prop,
   cache,
   action,
@@ -70,8 +71,9 @@ let scope_context: any;
 
 type Selector<T> = {
   0: () => T;
+  1: () => void;
   readonly val: T;
-} & [() => T];
+} & [() => T, () => void];
 type Callable<T> = {
   (data: T): void;
 } & (T extends void
@@ -89,18 +91,27 @@ type Signal<T> = Callable<T> & Selector<T> & Pick<Promise<T>, 'then' | 'catch' |
 function value<T = void>(): Value<T>;
 function value<T = void>(init: T): Value<T>;
 function value(init?: any): any {
-  const [get, set] = box(init);
+  const [get, set] = box(init) as any;
 
-  (set as any)[Symbol.iterator] = function* () {
+  set[Symbol.iterator] = function* () {
     yield get;
     yield set;
   };
-  (set as any)[0] = get;
-  (set as any)[1] = set;
+  set[0] = get;
+  set[1] = set;
 
   Object.defineProperty(set, key, { get, set });
   return set;
 }
+
+function selector<T>(body: () => T): Selector<T> {
+  const h = sel(body);
+  const get = h[0];
+
+  Object.defineProperty(h, key, { get });
+  return h as any;
+}
+
 
 type Ensurable<T> = T | void;
 type Action<T, K = T> = {
