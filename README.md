@@ -39,7 +39,7 @@ You can use as many from Realar as you want. For small websites or theme switche
 
 - __React component context level scopes__. Declaration one scope and use as many reactive values as you want without the need to define a new React context for each changeable value.
 
-- __Actions__ are a necessary part of reactive communication, well knows for most javascript developers. In Realar that possibility provides through signal abstraction. Possibility for subscribing to signal, call signal and wait for the next signal value everywhere on the codebase. And for a tasty, reading the last called value from a signal.
+- __Signals__ are a necessary part of reactive communication, well knows for most javascript developers as actions or events. In Realar that possibility provides through signal abstraction. Possibility for subscribing to signal, call signal and wait for the next signal value everywhere on the codebase. And for a tasty, reading the last called value from a signal.
 
 
 ### Usage
