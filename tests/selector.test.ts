@@ -8,7 +8,7 @@ test('should work basic operations with selector', () => {
 
   const [get, stop] = s;
 
-  sync(s, (v) => spy_2(v));
+  sync(s, v => spy_2(v));
 
   expect(spy_1).toHaveBeenNthCalledWith(1, 7);
   expect(spy_2).toHaveBeenNthCalledWith(1, 7);

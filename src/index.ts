@@ -6,7 +6,7 @@ export {
   selector,
   prop,
   cache,
-  action,
+  signal,
   on,
   sync,
   cycle,
@@ -66,11 +66,8 @@ let is_sync: any;
 let is_observe: any;
 let scope_context: any;
 
-type Selector<T> = {
-  0: () => T;
-  1: () => void;
-  readonly val: T;
-} & [() => T, () => void];
+type Ensurable<T> = T | void;
+
 type Callable<T> = {
   (data: T): void;
 } & (T extends void
@@ -78,12 +75,24 @@ type Callable<T> = {
       (): void;
     }
   : {});
+
+type Selector<T> = {
+  0: () => T;
+  1: () => void;
+  readonly val: T;
+} & [() => T, () => void];
+
 type Value<T> = Callable<T> & {
   0: () => T;
   1: (value: T) => void;
   val: T;
 } & [() => T, (value: T) => void];
-type Signal<T> = Callable<T> & Selector<T> & Pick<Promise<T>, 'then' | 'catch' | 'finally'>;
+
+type Signal<T, K = T> = Callable<T> &
+  Pick<Promise<T>, 'then' | 'catch' | 'finally'> & {
+    0: () => K;
+    readonly val: K;
+  } & [() => K];
 
 function value<T = void>(): Value<T>;
 function value<T = void>(init: T): Value<T>;
@@ -109,32 +118,26 @@ function selector<T>(body: () => T): Selector<T> {
   return h as any;
 }
 
-
-type Ensurable<T> = T | void;
-type Action<T, K = T> = {
-  (data: T): void;
-  0: () => K;
-} & Pick<Promise<T>, 'then' | 'catch' | 'finally'> &
-  (T extends void
-    ? {
-        (): void;
-      }
-    : {});
-
-function action<T = void>(): Action<T, Ensurable<T>>;
-function action<T = void>(init: T): Action<T>;
-function action(init?: any) {
+function signal<T = void>(): Signal<T, Ensurable<T>>;
+function signal<T = void>(init: T): Signal<T>;
+function signal(init?: any) {
   let resolve: any;
   const [get, set] = box([init]);
 
-  const fn = function (data?: any) {
+  const fn = function (data: any) {
     const ready = resolve;
     promisify();
     set([data]);
-    ready(data!);
+    ready(data);
+  };
+  const val = () => get()[0];
+
+  fn[0] = val;
+  fn[Symbol.iterator] = function* () {
+    yield val;
   };
 
-  fn[0] = () => get()[0];
+  Object.defineProperty(fn, key, { get: val });
 
   promisify();
 

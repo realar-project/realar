@@ -1,10 +1,10 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { value, useShared, shared, action, on, selector, prop, observe } from '../src';
+import { value, useShared, shared, signal, on, selector, prop, observe } from '../src';
 
 test('should work useShared function', () => {
   const spy = jest.fn();
-  const inc = action();
+  const inc = signal();
   const h = () => {
     const [get, set] = value(0);
     on(inc, () => set(get() + 1));

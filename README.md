@@ -39,7 +39,7 @@ You can use as many from Realar as you want. For small websites or theme switche
 
 - __React component context level scopes__. Declaration one scope and use as many reactive values as you want without the need to define a new React context for each changeable value.
 
-- __Actions__ are a necessary part of reactive communication, well knows for most javascript developers. Possibility for subscribing to action, call action, and wait for the next action value everywhere on the code base.
+- __Actions__ are a necessary part of reactive communication, well knows for most javascript developers. In Realar that possibility provides through signal abstraction. Possibility for subscribing to signal, call signal and wait for the next signal value everywhere on the codebase. And for a tasty, reading the last called value from a signal.
 
 
 ### Usage
@@ -151,12 +151,12 @@ export const App = () => (
 
 [Play wrapped on CodeSandbox](https://codesandbox.io/s/realar-context-component-level-scope-classes-wivjv?file=/src/App.tsx)
 
-### Actions
+### Signals
 
-The `action` allows you to trigger an event and delivers the functionality to subscribe to it anywhere in your application code.
+The `signal` allows you to trigger an event or action and delivers the functionality to subscribe to it anywhere in your application code.
 
 ```javascript
-const add = action();
+const add = signal();
 
 const store = value(1);
 on(add, num => store.val += num);
@@ -166,10 +166,10 @@ console.log(store.val); // 16
 ```
 [Edit on RunKit](https://runkit.com/betula/6013af7649e8720019c9cf2a)
 
-An action is convenient to use as a promise.
+An signal is convenient to use as a promise.
 
 ```javascript
-const fire = action();
+const fire = signal();
 
 const listen = async () => {
   for (;;) {
@@ -307,7 +307,7 @@ We learned how to create a value, set, and get it.
 The next basic abstraction is expression.
 Expression is a function that read reactive boxes or selectors. It can return value and write reactive values inside.
 
-We can subscribe to change any reactive expression using `on` function _(which also works with action)_.
+We can subscribe to change any reactive expression using `on` function _(which also works with signal)_.
 
 ```javascript
 const [get, set] = value(0);

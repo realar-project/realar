@@ -1,9 +1,35 @@
-import { action, cycle, on } from '../src';
+import { signal, cycle, on } from '../src';
 
-test('should work action in cycle', () => {
+test('should work signal different using', () => {
   const spy = jest.fn();
 
-  const a = action<number>();
+  const a = signal(10);
+  on(a, spy);
+
+  const [get] = a;
+
+  expect(a.val).toBe(10);
+  expect(a[0]()).toBe(10);
+  expect(get()).toBe(10);
+
+  expect(spy).toBeCalledTimes(0);
+  a(10);
+  expect(spy).toBeCalledTimes(1);
+  expect(spy).toHaveBeenLastCalledWith(10, 10);
+
+  a(a.val + 5);
+  expect(a.val).toBe(15);
+  expect(a[0]()).toBe(15);
+  expect(get()).toBe(15);
+
+  expect(spy).toBeCalledTimes(2);
+  expect(spy).toHaveBeenLastCalledWith(15, 10);
+});
+
+test('should work signal in cycle', () => {
+  const spy = jest.fn();
+
+  const a = signal<number>();
   cycle(() => {
     const data = a[0]();
     spy(data);
@@ -18,10 +44,10 @@ test('should work action in cycle', () => {
   expect(spy).toBeCalledTimes(3);
 });
 
-test('should work action as promise', async () => {
+test('should work signal as promise', async () => {
   const spy = jest.fn();
 
-  const a = action<number>();
+  const a = signal<number>();
   const fn = async () => {
     spy(await a);
   };
@@ -39,10 +65,10 @@ test('should work action as promise', async () => {
   expect(spy).toHaveBeenNthCalledWith(2, 10);
 });
 
-test('should work action in on', () => {
+test('should work signal in on', () => {
   const spy = jest.fn();
 
-  const a = action<'up' | 'down'>();
+  const a = signal<'up' | 'down'>();
   on(a, v => {
     spy(v);
   });
