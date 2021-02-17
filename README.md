@@ -230,9 +230,9 @@ const tick = () => count.val++;
 setInterval(tick, 200);
 
 const App = () => {
-  const count = useValue(count);
+  const value = useValue(count);
   return (
-    <p>{count}</p>
+    <p>{value}</p>
   )
 }
 ```

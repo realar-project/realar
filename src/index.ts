@@ -94,6 +94,8 @@ type Signal<T, K = T> = Callable<T> &
     readonly val: K;
   } & [() => K];
 
+type Reactionable<T> = { 0: () => T } | [() => T] | (() => T);
+
 function value<T = void>(): Value<T>;
 function value<T = void>(init: T): Value<T>;
 function value(init?: any): any {
@@ -152,11 +154,11 @@ function signal(init?: any) {
 }
 
 function on<T>(
-  target: { 0: () => Ensurable<T> } | [() => Ensurable<T>] | (() => Ensurable<T>),
+  target: Reactionable<Ensurable<T>>,
   listener: (value: T, prev?: T) => void
 ): () => void;
 function on<T>(
-  target: { 0: () => T } | [() => T] | (() => T),
+  target: Reactionable<T>,
   listener: (value: T, prev?: T) => void
 ): () => void;
 function on(target: any, listener: (value: any, prev?: any) => void): () => void {
@@ -189,7 +191,7 @@ function on(target: any, listener: (value: any, prev?: any) => void): () => void
 }
 
 function sync<T>(
-  target: { 0: () => T } | [() => T] | (() => T),
+  target: Reactionable<T>,
   listener: (value: T, prev?: T) => void
 ): () => void {
   is_sync = 1;
@@ -269,8 +271,8 @@ function get_scope_context(): Context<any> {
 
 const useScoped = <M>(
   target:
-    | (new (init?: any) => M | (() => M) | { 0: () => M } | [() => M])
-    | ((init?: any) => M | (() => M) | { 0: () => M } | [() => M])
+    | (new (init?: any) => M | Reactionable<M>)
+    | ((init?: any) => M | Reactionable<M>)
 ): M => {
   const context_data = useContext(get_scope_context());
   if (!context_data) {
@@ -319,8 +321,8 @@ function observe<T extends FC>(FunctionComponent: T): T {
 
 function useLocal<T extends unknown[], M>(
   target:
-    | (new (...args: T) => M | (() => M) | { 0: () => M } | [() => M])
-    | ((...args: T) => M | (() => M) | { 0: () => M } | [() => M]),
+    | (new (...args: T) => M | Reactionable<M>)
+    | ((...args: T) => M | Reactionable<M>),
   deps = [] as T
 ): M {
   const h = useMemo(() => {
@@ -332,7 +334,7 @@ function useLocal<T extends unknown[], M>(
   return useValue(h[0], [h]);
 }
 
-function useValue<T>(target: (() => T) | { 0: () => T } | [() => T], deps: any[] = []): T {
+function useValue<T>(target: Reactionable<T>, deps: any[] = []): T {
   const forceUpdate = is_observe || useForceUpdate();
   const h = useMemo(() => {
     if (!target) return [target, () => {}];
@@ -360,8 +362,8 @@ function useValue<T>(target: (() => T) | { 0: () => T } | [() => T], deps: any[]
 
 function useShared<M>(
   target:
-    | (new (init?: any) => M | (() => M) | { 0: () => M } | [() => M])
-    | ((init?: any) => M | (() => M) | { 0: () => M } | [() => M])
+    | (new (init?: any) => M | Reactionable<M>)
+    | ((init?: any) => M | Reactionable<M>)
 ): M {
   return useValue(shared(target as any));
 }
