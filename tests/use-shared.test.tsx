@@ -1,12 +1,12 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { box, useShared, shared, action, on, sel, prop, observe } from '../src';
+import { value, useShared, shared, action, on, selector, prop, observe } from '../src';
 
 test('should work useShared function', () => {
   const spy = jest.fn();
   const inc = action();
   const h = () => {
-    const [get, set] = box(0);
+    const [get, set] = value(0);
     on(inc, () => set(get() + 1));
     return get;
   };
@@ -32,9 +32,9 @@ test('should work useShared function', () => {
 test('should work useShared with sel factory function', () => {
   const spy = jest.fn();
   const h = () => {
-    const [get, set] = box(0);
+    const [get, set] = value(0);
     const inc = () => set(get() + 1);
-    return sel(() => [get(), inc] as [number, () => void]);
+    return selector(() => [get(), inc] as [number, () => void]);
   };
 
   function A() {
