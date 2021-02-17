@@ -357,7 +357,7 @@ console.log(getTarget()) // 10
 ```
 [Edit on RunKit](https://runkit.com/betula/601a73b26adfe70020a0e229)
 
-_Documentation not ready yet for `sel`, `effect`, `initial`, `mock`, `unmock`, `free`, `cache`, `observe`, `transaction`, `untrack` functions. It's coming soon._
+_Documentation not ready yet for `selector`, `effect`, `initial`, `mock`, `unmock`, `free`, `cache`, `observe`, `transaction`, `untrack` functions. It's coming soon._
 
 ### Demos
 
