@@ -269,11 +269,11 @@ function get_scope_context(): Context<any> {
   return scope_context ? scope_context : (scope_context = (createContext as any)());
 }
 
-const useScoped = <M>(
+function useScoped<M>(
   target:
     | (new (init?: any) => M | Reactionable<M>)
     | ((init?: any) => M | Reactionable<M>)
-): M => {
+): M {
   const context_data = useContext(get_scope_context());
   if (!context_data) {
     throw new Error('"Scope" parent component didn\'t find');
