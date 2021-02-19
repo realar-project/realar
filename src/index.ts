@@ -167,8 +167,7 @@ function on(target: any, listener: (value: any, prev?: any) => void): () => void
 
   is_sync = 0;
 
-  if (!target) return;
-  else if (target[0]) {
+  if (target[0]) {
     target = target[0]; // box or selector or custom reactive
   } else {
     [target, free] = sel(target);
