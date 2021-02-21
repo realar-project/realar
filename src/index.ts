@@ -157,10 +157,7 @@ function on<T>(
   target: Reactionable<Ensurable<T>>,
   listener: (value: T, prev?: T) => void
 ): () => void;
-function on<T>(
-  target: Reactionable<T>,
-  listener: (value: T, prev?: T) => void
-): () => void;
+function on<T>(target: Reactionable<T>, listener: (value: T, prev?: T) => void): () => void;
 function on(target: any, listener: (value: any, prev?: any) => void): () => void {
   const sync_mode = is_sync;
   let free: (() => void) | undefined;
@@ -189,10 +186,7 @@ function on(target: any, listener: (value: any, prev?: any) => void): () => void
   return unsub;
 }
 
-function sync<T>(
-  target: Reactionable<T>,
-  listener: (value: T, prev?: T) => void
-): () => void {
+function sync<T>(target: Reactionable<T>, listener: (value: T, prev?: T) => void): () => void {
   is_sync = 1;
   return on(target, listener);
 }
@@ -269,9 +263,7 @@ function get_scope_context(): Context<any> {
 }
 
 function useScoped<M>(
-  target:
-    | (new (init?: any) => M | Reactionable<M>)
-    | ((init?: any) => M | Reactionable<M>)
+  target: (new (init?: any) => M | Reactionable<M>) | ((init?: any) => M | Reactionable<M>)
 ): M {
   const context_data = useContext(get_scope_context());
   if (!context_data) {
@@ -289,7 +281,7 @@ function useScoped<M>(
     context_data[0].set(target, instance);
   }
   return useValue(instance);
-};
+}
 
 const Scope: FC = ({ children }) => {
   const h = useMemo(() => [new Map(), []], []) as any;
@@ -319,9 +311,7 @@ function observe<T extends FC>(FunctionComponent: T): T {
 }
 
 function useLocal<T extends unknown[], M>(
-  target:
-    | (new (...args: T) => M | Reactionable<M>)
-    | ((...args: T) => M | Reactionable<M>),
+  target: (new (...args: T) => M | Reactionable<M>) | ((...args: T) => M | Reactionable<M>),
   deps = [] as T
 ): M {
   const h = useMemo(() => {
@@ -360,9 +350,7 @@ function useValue<T>(target: Reactionable<T>, deps: any[] = []): T {
 }
 
 function useShared<M>(
-  target:
-    | (new (init?: any) => M | Reactionable<M>)
-    | ((init?: any) => M | Reactionable<M>)
+  target: (new (init?: any) => M | Reactionable<M>) | ((init?: any) => M | Reactionable<M>)
 ): M {
   return useValue(shared(target as any));
 }
