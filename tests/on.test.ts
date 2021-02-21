@@ -29,3 +29,16 @@ test('should cache return value in on', () => {
   a[1](2);
   expect(spy).toHaveBeenNthCalledWith(1, 1, 0);
 });
+
+test('should work on stop', () => {
+  const spy = jest.fn();
+  const a = value(0);
+
+  const stop = on(() => a.val, spy);
+
+  a.val = 1;
+  expect(spy).toHaveBeenNthCalledWith(1, 1, 0);
+  stop();
+  a.val = 2;
+  expect(spy).toBeCalledTimes(1);
+});
