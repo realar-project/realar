@@ -27,7 +27,7 @@
     "clear": "rimraf build"
   },
   "dependencies": {
-    "reactive-box": ">=0.6.3 <=0.6.x"
+    "reactive-box": "0.6.4"
   },
   "devDependencies": {
     "@babel/core": "7.12.10",
