@@ -362,18 +362,18 @@ on(address, ({ city }) => console.log(city)); // Subscribe to address selector
 
 console.log(address.val.city); // Write current value of address selector
 
-store({
-  ...store.val,
-   user: {}
-});
+store.update(state => ({
+  ...state,
+  user: {}
+}));
 // Store changed but non reaction from address selector
 
-store({
-  ...store.val,
+store.update(state => ({
+  ...state,
   address: {
     city: 'LA'
   }
-});
+}));
 // We can see reaction on deleveloper console output with new address selector value
 ```
 [Edit on RunKit](https://runkit.com/betula/60338ff8dbe368001a10be8c)
