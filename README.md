@@ -366,7 +366,7 @@ store({
   ...store.val,
    user: {}
 });
-// Store changed but non reaction from adress selector
+// Store changed but non reaction from address selector
 
 store({
   ...store.val,
