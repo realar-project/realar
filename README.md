@@ -360,7 +360,7 @@ const address = selector(() => store.val.address);
 
 on(address, ({ city }) => console.log(city)); // Subscribe to address selector
 
-console.log(address.val.city); // Write current value of address selector
+console.log(address.val.city); // Log current value of address selector
 
 store.update(state => ({
   ...state,
