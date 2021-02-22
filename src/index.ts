@@ -86,12 +86,7 @@ type Value<T> = Callable<T> & {
   0: () => T;
   1: (value: T) => void;
   val: T;
-
   update: (fn: (state: T) => T) => void;
-  on: {
-    <K>(target: Reactionable<Ensurable<K>>, fn: (state: T, value: K) => T): () => void;
-    <K>(target: Reactionable<K>, fn: (state: T, value: K) => T): () => void;
-  };
 } & [() => T, (value: T) => void];
 
 type Signal<T, K = T> = Callable<T> &
@@ -115,7 +110,6 @@ function value(init?: any): any {
   set[1] = set;
 
   set.update = (fn: any) => set(fn(get()));
-  set.on = (source: any, fn: any) => on(source, data => set(fn(get(), data)));
 
   Object.defineProperty(set, key, { get, set });
   return set;

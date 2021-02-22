@@ -29,13 +29,3 @@ test('should work value update', () => {
   a.update(v => v + 3);
   expect(a.val).toBe(13);
 });
-
-test('should work value on', () => {
-  const a = value(10);
-  const s = signal(0);
-
-  a.on(s, (v, k) => v + k);
-  expect(a.val).toBe(10);
-  s(5);
-  expect(a.val).toBe(15);
-});
