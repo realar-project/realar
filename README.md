@@ -345,6 +345,53 @@ set(5); // We will see 6 and 1 in developer console output, It are new and previ
 
 In that example expression is `next` function, because It get value and return that plus one.
 
+**selector**
+
+Necessary for making high-cost calculations and cache them for many times of accessing without changing source dependencies. And for downgrade (selection from) your hierarchical store.
+
+```javascript
+const store = value({
+  address: {
+    city: 'NY'
+  }
+});
+
+const address = selector(() => store.val.address);
+
+on(address, ({ city }) => console.log(city)); // Subscribe to address selector
+
+console.log(address.val.city); // Write current value of address selector
+
+store({
+  ...store.val,
+   user: {}
+});
+// Store changed but non reaction from adress selector
+
+store({
+  ...store.val,
+  address: {
+    city: 'LA'
+  }
+});
+// We can see reaction on deleveloper console output with new address selector value
+```
+[Edit on RunKit](https://runkit.com/betula/60338ff8dbe368001a10be8c)
+
+**cache**
+
+`cache` - is the decorator for define `selector` on class getter.
+
+```javascript
+class Todos {
+  @prop items = [];
+
+  @cache get completed() {
+    return this.items.filter(item => item.completed);
+  }
+}
+```
+
 **cycle**
 
 ```javascript
@@ -380,7 +427,7 @@ console.log(getTarget()) // 10
 ```
 [Edit on RunKit](https://runkit.com/betula/601a73b26adfe70020a0e229)
 
-_Documentation not ready yet for `selector`, `effect`, `initial`, `mock`, `unmock`, `free`, `cache`, `observe`, `transaction`, `untrack` functions. It's coming soon._
+_Documentation not ready yet for `effect`, `initial`, `mock`, `unmock`, `free`, `transaction`, `untrack` functions. It's coming soon._
 
 ### Demos
 
