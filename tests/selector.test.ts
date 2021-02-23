@@ -15,6 +15,7 @@ test('should work basic operations with selector', () => {
 
   expect(get()).toBe(7);
   expect(s.val).toBe(7);
+  expect(a.get()).toBe(7);
 
   a.val++;
   expect(spy_1).toHaveBeenNthCalledWith(2, 8);

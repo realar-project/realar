@@ -22,6 +22,9 @@ test('should work basic operations with value', () => {
 
   a(1);
   expect(spy).toHaveBeenCalledTimes(5);
+
+  a.set(a.get() + 7);
+  expect(spy).toHaveBeenNthCalledWith(6, 8, 1);
 });
 
 test('should work value update', () => {

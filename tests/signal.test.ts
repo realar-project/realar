@@ -21,6 +21,7 @@ test('should work signal different using', () => {
   expect(a.val).toBe(15);
   expect(a[0]()).toBe(15);
   expect(get()).toBe(15);
+  expect(a.get()).toBe(15);
 
   expect(spy).toBeCalledTimes(2);
   expect(spy).toHaveBeenLastCalledWith(15, 10);

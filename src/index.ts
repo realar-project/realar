@@ -80,6 +80,7 @@ type Selector<T> = {
   0: () => T;
   1: () => void;
   readonly val: T;
+  get(): T;
 } & [() => T, () => void];
 
 type Value<T> = Callable<T> & {
@@ -87,12 +88,15 @@ type Value<T> = Callable<T> & {
   1: (value: T) => void;
   val: T;
   update: (fn: (state: T) => T) => void;
+  get(): T;
+  set(value: T): void;
 } & [() => T, (value: T) => void];
 
 type Signal<T, K = T> = Callable<T> &
   Pick<Promise<T>, 'then' | 'catch' | 'finally'> & {
     0: () => K;
     readonly val: K;
+    get(): K;
   } & [() => K];
 
 type Reactionable<T> = { 0: () => T } | [() => T] | (() => T);
@@ -108,6 +112,8 @@ function value(init?: any): any {
   };
   set[0] = get;
   set[1] = set;
+  set.get = get;
+  set.set = set;
 
   set.update = (fn: any) => set(fn(get()));
 
@@ -116,11 +122,11 @@ function value(init?: any): any {
 }
 
 function selector<T>(body: () => T): Selector<T> {
-  const h = sel(body);
+  const h = sel(body) as any;
   const get = h[0];
-
+  h.get = get;
   Object.defineProperty(h, key, { get });
-  return h as any;
+  return h;
 }
 
 function signal<T = void>(): Signal<T, Ensurable<T>>;
@@ -135,14 +141,15 @@ function signal(init?: any) {
     set([data]);
     ready(data);
   };
-  const val = () => get()[0];
+  const get_val = () => get()[0];
 
-  fn[0] = val;
+  fn[0] = get_val;
   fn[Symbol.iterator] = function* () {
-    yield val;
+    yield get_val;
   };
+  fn.get = get_val;
 
-  Object.defineProperty(fn, key, { get: val });
+  Object.defineProperty(fn, key, { get: get_val });
 
   promisify();
 
