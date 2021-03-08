@@ -13,5 +13,9 @@
   ],
   "moduleNameMapper": {
     "realar": "<rootDir>/src"
-  }
+  },
+  "coveragePathIgnorePatterns": [
+    "node_modules",
+    "tests"
+  ]
 }
