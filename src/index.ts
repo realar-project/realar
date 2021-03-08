@@ -233,9 +233,13 @@ function loop(body: () => Promise<any>) {
 
 function isolate() {
   const stack = context_unsubs;
-  context_unsubs = 0;
+  context_unsubs = [];
   return () => {
-    context_unsubs = stack
+    const unsubs = context_unsubs;
+    context_unsubs = stack;
+    return () => {
+      if (unsubs) call_array(unsubs);
+    }
   };
 }
 
@@ -260,7 +264,7 @@ function shared<M>(target: (new (init?: any) => M) | ((init?: any) => M)): M {
   if (!instance) {
     const h = inst(target, [initial_data]);
     instance = h[0];
-    shared_unsubs.push(...h[1]);
+    shared_unsubs.push(h[1]);
     shareds.set(target, instance);
   }
   return instance;
@@ -269,10 +273,9 @@ function shared<M>(target: (new (init?: any) => M) | ((init?: any) => M)): M {
 function inst<M, K extends any[]>(
   target: (new (...args: K) => M) | ((...args: K) => M),
   args: K
-): [M, (() => void)[]] {
+): [M, () => void] {
   let instance;
-  const stack = context_unsubs;
-  context_unsubs = [];
+  const collect = isolate();
   const track = untrack();
   try {
     instance =
@@ -281,9 +284,7 @@ function inst<M, K extends any[]>(
         : new (target as any)(...args);
   } finally {
     track();
-    const unsubs = context_unsubs;
-    context_unsubs = stack;
-    return [instance, unsubs];
+    return [instance, collect()];
   }
 }
 
@@ -309,7 +310,7 @@ function useScoped<M>(
   } else {
     const h = inst(target, [initial_data]);
     instance = h[0];
-    context_data[1].push(...h[1]);
+    context_data[1].push(h[1]);
 
     context_data[0].set(target, instance);
   }
@@ -349,7 +350,7 @@ function useLocal<T extends unknown[], M>(
 ): M {
   const h = useMemo(() => {
     const i = inst(target, deps);
-    return [i[0], () => () => call_array(i[1])] as any;
+    return [i[0], () => i[1]] as any;
   }, deps);
 
   useEffect(h[1], [h]);
