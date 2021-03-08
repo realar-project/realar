@@ -10,7 +10,9 @@ export {
   on,
   sync,
   cycle,
+  loop,
   effect,
+  isolate,
   shared,
   initial,
   observe,
@@ -214,6 +216,27 @@ function cycle(body: () => void) {
   run();
   if (context_unsubs) context_unsubs.push(stop);
   return stop;
+}
+
+function loop(body: () => Promise<any>) {
+  let running = 1;
+  const fn = async () => {
+    while (running) await body();
+  }
+  const unsub = () => {
+    if (running) running = 0;
+  };
+  if (context_unsubs) context_unsubs.push(unsub);
+  fn();
+  return unsub;
+}
+
+function isolate() {
+  const stack = context_unsubs;
+  context_unsubs = 0;
+  return () => {
+    context_unsubs = stack
+  };
 }
 
 function initial(data: any): void {
