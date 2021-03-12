@@ -68,6 +68,8 @@ let is_sync: any;
 let is_observe: any;
 let scope_context: any;
 
+const def_prop = Object.defineProperty;
+
 type Ensurable<T> = T | void;
 
 type Callable<T> = {
@@ -119,7 +121,7 @@ function value(init?: any): any {
 
   set.update = (fn: any) => set(fn(get()));
 
-  Object.defineProperty(set, key, { get, set });
+  def_prop(set, key, { get, set });
   return set;
 }
 
@@ -127,7 +129,7 @@ function selector<T>(body: () => T): Selector<T> {
   const h = sel(body) as any;
   const get = h[0];
   h.get = get;
-  Object.defineProperty(h, key, { get });
+  def_prop(h, key, { get });
   return h;
 }
 
@@ -153,7 +155,7 @@ function signal(init?: any, transform?: any) {
   };
   fn.get = get_val;
 
-  Object.defineProperty(fn, key, { get: get_val });
+  def_prop(fn, key, { get: get_val });
 
   promisify();
 
@@ -231,6 +233,71 @@ function loop(body: () => Promise<any>) {
   if (context_unsubs) context_unsubs.push(unsub);
   fn();
   return unsub;
+}
+
+type Pool<A extends any[], T> = {
+  (...args: A): Promise<T>;
+  count: number;
+  threads: ThreadContext[];
+  pending: boolean;
+}
+type ThreadContext = {
+  stop(): void;
+  active: boolean;
+}
+
+/*
+
+
+pool(async () => {
+  const stop = stoppable();
+
+  if (stop.val) return;
+  stop();
+  // stop.abortController
+
+});
+
+*/
+
+
+function pool<T, A extends any[]>(body: (context?: ThreadContext, ...args: A) => Promise<T>): Pool<A, T> {
+  const [get_threads, set_threads] = box([]);
+  const [get_count] = sel(() => get_threads().length);
+  const [get_pending] = sel(() => get_count() > 0);
+
+  function run() {
+    const [get_active, set_active] = box(true);
+    const stop = () => {
+      if (get_active()) {
+        const commit = transaction();
+        set_active(false);
+        set_threads(get_threads().filter((ctx) => ctx !== context));
+        commit();
+      }
+    };
+    const context = { stop };
+    def_prop(context, 'active', { get: get_active });
+
+    set_threads(get_threads().concat(context));
+    let ret;
+    try {
+      ret = body.apply(this, [context as any].concat(arguments));
+    } finally {
+      if (ret && ret.finally) {
+        ret.finally(stop);
+      } else {
+        stop();
+      }
+    };
+    return ret;
+  }
+
+  def_prop(run, 'count', { get: get_count });
+  def_prop(run, 'threads', { get: get_threads });
+  def_prop(run, 'pending', { get: get_pending });
+
+  return run as any;
 }
 
 function isolate() {
@@ -400,20 +467,20 @@ function free() {
   }
 }
 
-function boxProperty(o: any, p: string | number | symbol, init?: any): any {
-  const [get, set] = box(init);
-  Object.defineProperty(o, p, { get, set });
+function box_property(o: any, p: string | number | symbol, init?: any): any {
+  const b = box(init);
+  def_prop(o, p, { get: b[0], set: b[1] });
 }
 
 function prop(_proto: any, key: any, descriptor?: any): any {
   const initializer = descriptor?.initializer;
   return {
     get() {
-      boxProperty(this, key, initializer && initializer());
+      box_property(this, key, initializer && initializer());
       return this[key];
     },
     set(value: any) {
-      boxProperty(this, key, initializer && initializer());
+      box_property(this, key, initializer && initializer());
       this[key] = value;
     },
   };
@@ -423,7 +490,7 @@ function cache(_proto: any, key: any, descriptor: any): any {
   return {
     get() {
       const [get] = sel(descriptor.get);
-      Object.defineProperty(this, key, { get });
+      def_prop(this, key, { get });
       return this[key];
     },
   };
