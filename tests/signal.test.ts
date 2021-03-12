@@ -82,3 +82,20 @@ test('should work signal in on', () => {
   expect(spy).toHaveBeenNthCalledWith(2, 'up');
   expect(spy).toBeCalledTimes(2);
 });
+
+test('should work signal with transform', () => {
+  const spy = jest.fn();
+
+  const a = signal(0, (s: string) => parseInt(s) + 10);
+  on(a, v => {
+    spy(v);
+  });
+
+  expect(spy).toBeCalledTimes(0);
+  a('7');
+  expect(spy).toHaveBeenNthCalledWith(1, 17);
+  expect(spy).toBeCalledTimes(1);
+  a('7');
+  expect(spy).toHaveBeenNthCalledWith(2, 17);
+  expect(spy).toBeCalledTimes(2);
+});

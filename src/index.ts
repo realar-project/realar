@@ -133,12 +133,14 @@ function selector<T>(body: () => T): Selector<T> {
 
 function signal<T = void>(): Signal<T, Ensurable<T>>;
 function signal<T = void>(init: T): Signal<T>;
-function signal(init?: any) {
+function signal<T = void, R = T>(init: R, transform: (data: T) => R): Signal<T, R>;
+function signal(init?: any, transform?: any) {
   let resolve: any;
   const [get, set] = box([init]);
 
   const fn = function (data: any) {
     const ready = resolve;
+    if (transform) data = transform(data);
     promisify();
     set([data]);
     ready(data);
