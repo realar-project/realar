@@ -1,5 +1,5 @@
 import { loop, signal, on } from '../src';
-import { nextTick } from './lib';
+import { delay } from './lib';
 
 test('should work basic operations with loop', async () => {
   const spy = jest.fn();
@@ -13,29 +13,29 @@ test('should work basic operations with loop', async () => {
   });
   on(c, () => spy());
 
-  await nextTick();
+  await delay();
   expect(spy).not.toBeCalled();
   a();
-  await nextTick();
+  await delay();
   expect(spy).not.toBeCalled();
   b();
-  await nextTick();
+  await delay();
   expect(spy).toBeCalled();
 
   a();
   b();
-  await nextTick();
+  await delay();
   expect(spy).toBeCalledTimes(2);
 
   stop();
   a();
   b();
-  await nextTick();
+  await delay();
   expect(spy).toBeCalledTimes(3);
 
   a();
   b();
-  await nextTick();
+  await delay();
   expect(spy).toBeCalledTimes(3);
 
 });

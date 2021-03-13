@@ -11,6 +11,8 @@ export {
   sync,
   cycle,
   loop,
+  pool,
+  stoppable,
   effect,
   isolate,
   shared,
@@ -67,6 +69,9 @@ let shared_unsubs = [] as any;
 let is_sync: any;
 let is_observe: any;
 let scope_context: any;
+let pool_context: any;
+
+const def_prop = Object.defineProperty;
 
 type Ensurable<T> = T | void;
 
@@ -119,7 +124,7 @@ function value(init?: any): any {
 
   set.update = (fn: any) => set(fn(get()));
 
-  Object.defineProperty(set, key, { get, set });
+  def_prop(set, key, { get, set });
   return set;
 }
 
@@ -127,7 +132,7 @@ function selector<T>(body: () => T): Selector<T> {
   const h = sel(body) as any;
   const get = h[0];
   h.get = get;
-  Object.defineProperty(h, key, { get });
+  def_prop(h, key, { get });
   return h;
 }
 
@@ -140,31 +145,36 @@ function signal(init?: any, transform?: any) {
 
   const fn = function (data: any) {
     const ready = resolve;
+    const finish = untrack();
     if (transform) data = transform(data);
-    promisify();
+    resolve = def_promisify(fn);
     set([data]);
     ready(data);
+    finish();
   };
-  const get_val = () => get()[0];
 
-  fn[0] = get_val;
-  fn[Symbol.iterator] = function* () {
-    yield get_val;
-  };
-  fn.get = get_val;
-
-  Object.defineProperty(fn, key, { get: get_val });
-
-  promisify();
-
-  function promisify() {
-    const promise = new Promise(r => (resolve = r));
-    ['then', 'catch', 'finally'].forEach(prop => {
-      (fn as any)[prop] = (promise as any)[prop].bind(promise);
-    });
-  }
+  def_get(fn, () => get()[0]);
+  resolve = def_promisify(fn);
 
   return fn as any;
+}
+
+function def_get(ctx: any, get: () => any) {
+  ctx[0] = get;
+  ctx[Symbol.iterator] = function* () {
+    yield get;
+  };
+  ctx.get = get;
+  def_prop(ctx, key, { get });
+}
+
+function def_promisify(ctx: any) {
+  let resolve;
+  const promise = new Promise(r => (resolve = r));
+  ['then', 'catch', 'finally'].forEach(prop => {
+    ctx[prop] = (promise as any)[prop].bind(promise);
+  });
+  return resolve;
 }
 
 function on<T>(
@@ -231,6 +241,69 @@ function loop(body: () => Promise<any>) {
   if (context_unsubs) context_unsubs.push(unsub);
   fn();
   return unsub;
+}
+
+type Pool<K> = K & {
+  count: number;
+  threads: StopSignal[];
+  pending: boolean;
+}
+
+type StopSignal = Signal<void, boolean>;
+
+function stoppable(): StopSignal {
+  if (!pool_context) throw new Error('Parent "pool" didn\'t find');
+  return pool_context;
+}
+
+function pool<K extends () => Promise<any>>(body: K): Pool<K> {
+  const [get_threads, set_threads] = box([]);
+  const get_count = () => get_threads().length;
+  const [get_pending] = sel(() => get_count() > 0);
+
+  function run() {
+    let resolve: (inactive: boolean) => void;
+    const [get_inactive, set_inactive] = box(false);
+    const stop = () => {
+      const finish = untrack();
+      if (!get_inactive()) {
+        const commit = transaction();
+        set_inactive(true);
+        set_threads(get_threads().filter((ctx) => ctx !== stop));
+        commit();
+        resolve(true);
+      }
+      finish();
+    };
+
+    resolve = def_promisify(stop);
+    def_get(stop, get_inactive);
+
+    set_threads(get_threads().concat(stop));
+
+    const stack = pool_context;
+    pool_context = stop;
+
+    let ret;
+    try {
+      ret = body.apply(this, arguments);
+    } finally {
+      pool_context = stack;
+
+      if (ret && ret.finally) {
+        ret.finally(stop);
+      } else {
+        stop();
+      }
+    };
+    return ret;
+  }
+
+  def_prop(run, 'count', { get: get_count });
+  def_prop(run, 'threads', { get: get_threads });
+  def_prop(run, 'pending', { get: get_pending });
+
+  return run as any;
 }
 
 function isolate() {
@@ -400,20 +473,20 @@ function free() {
   }
 }
 
-function boxProperty(o: any, p: string | number | symbol, init?: any): any {
-  const [get, set] = box(init);
-  Object.defineProperty(o, p, { get, set });
+function box_property(o: any, p: string | number | symbol, init?: any): any {
+  const b = box(init);
+  def_prop(o, p, { get: b[0], set: b[1] });
 }
 
 function prop(_proto: any, key: any, descriptor?: any): any {
   const initializer = descriptor?.initializer;
   return {
     get() {
-      boxProperty(this, key, initializer && initializer());
+      box_property(this, key, initializer && initializer());
       return this[key];
     },
     set(value: any) {
-      boxProperty(this, key, initializer && initializer());
+      box_property(this, key, initializer && initializer());
       this[key] = value;
     },
   };
@@ -423,7 +496,7 @@ function cache(_proto: any, key: any, descriptor: any): any {
   return {
     get() {
       const [get] = sel(descriptor.get);
-      Object.defineProperty(this, key, { get });
+      def_prop(this, key, { get });
       return this[key];
     },
   };

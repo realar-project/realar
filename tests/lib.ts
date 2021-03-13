@@ -1,4 +1,4 @@
 
-export function nextTick() {
-  return new Promise(r => setTimeout(r));
+export function delay(ms?: number) {
+  return new Promise(r => setTimeout(r, ms));
 }
