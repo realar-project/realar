@@ -11,6 +11,8 @@ export {
   sync,
   cycle,
   loop,
+  pool,
+  stoppable,
   effect,
   isolate,
   shared,
@@ -67,6 +69,7 @@ let shared_unsubs = [] as any;
 let is_sync: any;
 let is_observe: any;
 let scope_context: any;
+let pool_context: any;
 
 const def_prop = Object.defineProperty;
 
@@ -142,31 +145,36 @@ function signal(init?: any, transform?: any) {
 
   const fn = function (data: any) {
     const ready = resolve;
+    const finish = untrack();
     if (transform) data = transform(data);
-    promisify();
+    resolve = def_promisify(fn);
     set([data]);
     ready(data);
+    finish();
   };
-  const get_val = () => get()[0];
 
-  fn[0] = get_val;
-  fn[Symbol.iterator] = function* () {
-    yield get_val;
-  };
-  fn.get = get_val;
-
-  def_prop(fn, key, { get: get_val });
-
-  promisify();
-
-  function promisify() {
-    const promise = new Promise(r => (resolve = r));
-    ['then', 'catch', 'finally'].forEach(prop => {
-      (fn as any)[prop] = (promise as any)[prop].bind(promise);
-    });
-  }
+  def_get(fn, () => get()[0]);
+  resolve = def_promisify(fn);
 
   return fn as any;
+}
+
+function def_get(ctx: any, get: () => any) {
+  ctx[0] = get;
+  ctx[Symbol.iterator] = function* () {
+    yield get;
+  };
+  ctx.get = get;
+  def_prop(ctx, key, { get });
+}
+
+function def_promisify(ctx: any) {
+  let resolve;
+  const promise = new Promise(r => (resolve = r));
+  ['then', 'catch', 'finally'].forEach(prop => {
+    ctx[prop] = (promise as any)[prop].bind(promise);
+  });
+  return resolve;
 }
 
 function on<T>(
@@ -235,55 +243,53 @@ function loop(body: () => Promise<any>) {
   return unsub;
 }
 
-type Pool<A extends any[], T> = {
-  (...args: A): Promise<T>;
+type Pool<K> = K & {
   count: number;
-  threads: ThreadContext[];
+  threads: StopSignal[];
   pending: boolean;
 }
-type ThreadContext = {
-  stop(): void;
-  active: boolean;
+
+type StopSignal = Signal<void, boolean>;
+
+function stoppable(): StopSignal {
+  if (!pool_context) throw new Error('Parent "pool" didn\'t find');
+  return pool_context;
 }
 
-/*
-
-
-pool(async () => {
-  const stop = stoppable();
-
-  if (stop.val) return;
-  stop();
-  // stop.abortController
-
-});
-
-*/
-
-
-function pool<T, A extends any[]>(body: (context?: ThreadContext, ...args: A) => Promise<T>): Pool<A, T> {
+function pool<K extends () => Promise<any>>(body: K): Pool<K> {
   const [get_threads, set_threads] = box([]);
-  const [get_count] = sel(() => get_threads().length);
+  const get_count = () => get_threads().length;
   const [get_pending] = sel(() => get_count() > 0);
 
   function run() {
-    const [get_active, set_active] = box(true);
+    let resolve: (inactive: boolean) => void;
+    const [get_inactive, set_inactive] = box(false);
     const stop = () => {
-      if (get_active()) {
+      const finish = untrack();
+      if (!get_inactive()) {
         const commit = transaction();
-        set_active(false);
-        set_threads(get_threads().filter((ctx) => ctx !== context));
+        set_inactive(true);
+        set_threads(get_threads().filter((ctx) => ctx !== stop));
         commit();
+        resolve(true);
       }
+      finish();
     };
-    const context = { stop };
-    def_prop(context, 'active', { get: get_active });
 
-    set_threads(get_threads().concat(context));
+    resolve = def_promisify(stop);
+    def_get(stop, get_inactive);
+
+    set_threads(get_threads().concat(stop));
+
+    const stack = pool_context;
+    pool_context = stop;
+
     let ret;
     try {
-      ret = body.apply(this, [context as any].concat(arguments));
+      ret = body.apply(this, arguments);
     } finally {
+      pool_context = stack;
+
       if (ret && ret.finally) {
         ret.finally(stop);
       } else {
