@@ -6,7 +6,7 @@ test('should work basic operations with pool', async () => {
   let i = 0;
 
   const p = pool(async () => {
-    const id = i ++;
+    const id = i++;
     const stop = stoppable();
     spy(stop.val, id);
     await delay(10);

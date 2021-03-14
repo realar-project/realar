@@ -8,7 +8,7 @@ test('should work basic operations with loop', async () => {
   const c = signal();
 
   const stop = loop(async () => {
-    await Promise.all([a,b]);
+    await Promise.all([a, b]);
     c();
   });
   on(c, () => spy());
@@ -37,5 +37,4 @@ test('should work basic operations with loop', async () => {
   b();
   await delay();
   expect(spy).toBeCalledTimes(3);
-
 });

@@ -163,13 +163,7 @@ function ready(init?: any) {
   return fn as any;
 }
 
-
-function def_format(
-  ctx: any,
-  get: any,
-  set?: any,
-  no_set_update?: any
-) {
+function def_format(ctx: any, get: any, set?: any, no_set_update?: any) {
   if (!Array.isArray(ctx)) {
     ctx[Symbol.iterator] = function* () {
       yield get;
@@ -201,19 +195,26 @@ function def_promisify(ctx: any) {
   return resolve;
 }
 
-
 function stop_signal() {
   return wrap(ready(false), () => true);
 }
 
 function wrap<T, K, P>(target: Signal<T, K>, set: () => T, get: (data: K) => P): Signal<void, P>;
-function wrap<T, K, P, M = T>(target: Signal<T, K>, set: (data: M) => T, get: (data: K) => P): Signal<M, P>;
+function wrap<T, K, P, M = T>(
+  target: Signal<T, K>,
+  set: (data: M) => T,
+  get: (data: K) => P
+): Signal<M, P>;
 
 function wrap<T, K>(target: Signal<T, K>, set: () => T): Signal<void, K>;
 function wrap<T, K, M = T>(target: Signal<T, K>, set: (data: M) => T): Signal<M, K>;
 
 function wrap<T, K, P>(target: Value<T, K>, set: () => T, get: (data: K) => P): Value<void, P>;
-function wrap<T, K, P, M = T>(target: Value<T, K>, set: (data: M) => T, get: (data: K) => P): Value<M, P>;
+function wrap<T, K, P, M = T>(
+  target: Value<T, K>,
+  set: (data: M) => T,
+  get: (data: K) => P
+): Value<M, P>;
 function wrap<T, K>(target: Value<T, K>, set: () => T): Signal<void, K>;
 function wrap<T, K, M = T>(target: Value<T, K>, set: (data: M) => T): Signal<M, K>;
 
@@ -237,7 +238,7 @@ function wrap(target: any, set?: any, get?: any) {
   let dest_set: any;
 
   if (set) {
-    dest = dest_set = function(data?: any) {
+    dest = dest_set = function (data?: any) {
       const finish = untrack();
       const stack = stoppable_context;
       stoppable_context = stop_signal();
@@ -245,19 +246,16 @@ function wrap(target: any, set?: any, get?: any) {
       try {
         data = set(data);
         if (!stoppable_context[0]()) source_set(data);
-      }
-      finally {
+      } finally {
         stoppable_context = stack;
         finish();
       }
-    }
-  }
-  else if (source_set) {
-    dest = function(data?: any) {
+    };
+  } else if (source_set) {
+    dest = function (data?: any) {
       source_set(data);
-    }
-  }
-  else {
+    };
+  } else {
     dest = [];
   }
 
@@ -268,14 +266,14 @@ function wrap(target: any, set?: any, get?: any) {
         get() {
           const promise = target.then(get);
           return promise.then.bind(promise);
-        }
+        },
       });
     } else {
       methods.push('then');
     }
     methods.forEach(prop => {
       def_prop(dest, prop, {
-        get: () => target[prop]
+        get: () => target[prop],
       });
     });
   }
@@ -292,7 +290,7 @@ function loop(body: () => Promise<any>) {
   let running = 1;
   const fn = async () => {
     while (running) await body();
-  }
+  };
   const unsub = () => {
     if (running) running = 0;
   };
@@ -305,7 +303,7 @@ type Pool<K> = K & {
   count: number;
   threads: StopSignal[];
   pending: boolean;
-}
+};
 
 type StopSignal = Signal<void, boolean>;
 
@@ -322,9 +320,7 @@ function pool<K extends () => Promise<any>>(body: K): Pool<K> {
   function run() {
     const stop = stop_signal();
     const isolate_finish = isolate();
-    once(stop, () => (
-      set_threads(get_threads().filter((ctx) => ctx !== stop))
-    ));
+    once(stop, () => set_threads(get_threads().filter(ctx => ctx !== stop)));
     isolate_finish();
 
     set_threads(get_threads().concat(stop));
@@ -343,7 +339,7 @@ function pool<K extends () => Promise<any>>(body: K): Pool<K> {
       } else {
         stop();
       }
-    };
+    }
     return ret;
   }
 
@@ -431,7 +427,7 @@ function isolate() {
     context_unsubs = stack;
     return () => {
       if (unsubs) call_array(unsubs);
-    }
+    };
   };
 }
 

@@ -4,7 +4,11 @@ test('should work basic operations with wrap and signal', async () => {
   const spy = jest.fn();
 
   const s = signal(0);
-  const s_1 = wrap(s, (v: string) => parseInt(v + v), (g: number) => g + 77);
+  const s_1 = wrap(
+    s,
+    (v: string) => parseInt(v + v),
+    (g: number) => g + 77
+  );
   const s_2 = wrap(s_1, (v: number) => '' + (v + 1));
 
   expect(s_1.val).toBe(77);
@@ -51,7 +55,11 @@ test('should throw exception if wrap with empty parameters', () => {
 
 test('should throw exception if wrap with incorrect parameters', () => {
   expect(() => {
-    (wrap as any)(selector(() => 0), () => 0, () => 0);
+    (wrap as any)(
+      selector(() => 0),
+      () => 0,
+      () => 0
+    );
   }).toThrow('Incorrect wrapping target');
 
   expect(() => {

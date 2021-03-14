@@ -10,9 +10,9 @@ test('should work basic operations with isolate', async () => {
     effect(() => () => destr_1());
     const finish = isolate();
     unsub = effect(() => () => destr_2());
-    effect(() => () => destr_3())
+    effect(() => () => destr_3());
     unsubs = finish();
-  }
+  };
 
   shared(A);
   free();
