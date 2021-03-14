@@ -148,13 +148,19 @@ function signal(init?: any) {
 
 function ready<T = void>(): Signal<T, Ensurable<T>>;
 function ready<T = void>(init: T): Signal<T>;
-function ready(init?: any) {
+function ready<T>(init: T, to: T): Signal<void>;
+function ready(init?: any, to?: any) {
+  let resolved = false;
   let resolve: any;
   const [get, set] = box([init]);
 
   const fn = function (data: any) {
-    set([data]);
-    resolve(data);
+    if (!resolved) {
+      resolved = true;
+      if (to) data = to;
+      set([data]);
+      resolve(data);
+    }
   };
 
   def_format(fn, () => get()[0], fn, 1);
