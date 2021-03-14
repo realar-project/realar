@@ -203,7 +203,7 @@ function def_promisify(ctx: any) {
 }
 
 function stop_signal() {
-  return wrap(ready(false), () => true);
+  return ready(false, true);
 }
 
 function wrap<T, K, P>(target: Signal<T, K>, set: () => T, get: (data: K) => P): Signal<void, P>;
