@@ -7,13 +7,16 @@ export {
   prop,
   cache,
   signal,
+  ready,
   on,
+  once,
+  effect,
   sync,
   cycle,
   loop,
   pool,
   stoppable,
-  effect,
+  wrap,
   isolate,
   shared,
   initial,
@@ -69,7 +72,7 @@ let shared_unsubs = [] as any;
 let is_sync: any;
 let is_observe: any;
 let scope_context: any;
-let pool_context: any;
+let stoppable_context: any;
 
 const def_prop = Object.defineProperty;
 
@@ -85,26 +88,27 @@ type Callable<T> = {
 
 type Selector<T> = {
   0: () => T;
-  1: () => void;
   readonly val: T;
   get(): T;
-} & [() => T, () => void];
+  free(): void;
+} & [() => T];
 
-type Value<T> = Callable<T> & {
-  0: () => T;
+type Value<T, K = T> = Callable<T> & {
+  0: () => K;
   1: (value: T) => void;
-  val: T;
-  update: (fn: (state: T) => T) => void;
-  get(): T;
+  val: T & K;
+  update: (fn: (state: K) => T) => void;
+  get(): K;
   set(value: T): void;
-} & [() => T, (value: T) => void];
+} & [() => K, (value: T) => void];
 
 type Signal<T, K = T> = Callable<T> &
   Pick<Promise<T>, 'then' | 'catch' | 'finally'> & {
     0: () => K;
+    1: (value: T) => void;
     readonly val: K;
     get(): K;
-  } & [() => K];
+  } & [() => K, (value: T) => void];
 
 type Reactionable<T> = { 0: () => T } | [() => T] | (() => T);
 
@@ -112,60 +116,80 @@ function value<T = void>(): Value<T>;
 function value<T = void>(init: T): Value<T>;
 function value(init?: any): any {
   const [get, set] = box(init) as any;
-
-  set[Symbol.iterator] = function* () {
-    yield get;
-    yield set;
-  };
-  set[0] = get;
-  set[1] = set;
-  set.get = get;
-  set.set = set;
-
-  set.update = (fn: any) => set(fn(get()));
-
-  def_prop(set, key, { get, set });
+  def_format(set, get, set);
   return set;
 }
 
 function selector<T>(body: () => T): Selector<T> {
-  const h = sel(body) as any;
-  const get = h[0];
-  h.get = get;
-  def_prop(h, key, { get });
+  const [get, free] = sel(body);
+  const h = def_format([], get);
+  h.free = free;
   return h;
 }
 
 function signal<T = void>(): Signal<T, Ensurable<T>>;
 function signal<T = void>(init: T): Signal<T>;
-function signal<T = void, R = T>(init: R, transform: (data: T) => R): Signal<T, R>;
-function signal(init?: any, transform?: any) {
+function signal(init?: any) {
   let resolve: any;
   const [get, set] = box([init]);
 
   const fn = function (data: any) {
     const ready = resolve;
-    const finish = untrack();
-    if (transform) data = transform(data);
     resolve = def_promisify(fn);
     set([data]);
     ready(data);
-    finish();
   };
 
-  def_get(fn, () => get()[0]);
+  def_format(fn, () => get()[0], fn, 1);
   resolve = def_promisify(fn);
 
   return fn as any;
 }
 
-function def_get(ctx: any, get: () => any) {
-  ctx[0] = get;
-  ctx[Symbol.iterator] = function* () {
-    yield get;
+function ready<T = void>(): Signal<T, Ensurable<T>>;
+function ready<T = void>(init: T): Signal<T>;
+function ready(init?: any) {
+  let resolve: any;
+  const [get, set] = box([init]);
+
+  const fn = function (data: any) {
+    set([data]);
+    resolve(data);
   };
+
+  def_format(fn, () => get()[0], fn, 1);
+  resolve = def_promisify(fn);
+
+  return fn as any;
+}
+
+
+function def_format(
+  ctx: any,
+  get: any,
+  set?: any,
+  no_set_update?: any
+) {
+  if (!Array.isArray(ctx)) {
+    ctx[Symbol.iterator] = function* () {
+      yield get;
+      if (set) yield set;
+    };
+  }
+  ctx[0] = get;
   ctx.get = get;
-  def_prop(ctx, key, { get });
+
+  const val_prop = { get } as any;
+  if (set) {
+    ctx[1] = set;
+    if (!no_set_update) {
+      ctx.set = set;
+      ctx.update = (fn: any) => set(fn(get()));
+      val_prop.set = set;
+    }
+  }
+  def_prop(ctx, key, val_prop);
+  return ctx;
 }
 
 function def_promisify(ctx: any) {
@@ -175,6 +199,159 @@ function def_promisify(ctx: any) {
     ctx[prop] = (promise as any)[prop].bind(promise);
   });
   return resolve;
+}
+
+
+function stop_signal() {
+  return wrap(ready(false), () => true);
+}
+
+function wrap<T, K, P>(target: Signal<T, K>, set: () => T, get: (data: K) => P): Signal<void, P>;
+function wrap<T, K, P, M = T>(target: Signal<T, K>, set: (data: M) => T, get: (data: K) => P): Signal<M, P>;
+
+function wrap<T, K>(target: Signal<T, K>, set: () => T): Signal<void, K>;
+function wrap<T, K, M = T>(target: Signal<T, K>, set: (data: M) => T): Signal<M, K>;
+
+function wrap<T, K, P>(target: Value<T, K>, set: () => T, get: (data: K) => P): Value<void, P>;
+function wrap<T, K, P, M = T>(target: Value<T, K>, set: (data: M) => T, get: (data: K) => P): Value<M, P>;
+function wrap<T, K>(target: Value<T, K>, set: () => T): Signal<void, K>;
+function wrap<T, K, M = T>(target: Value<T, K>, set: (data: M) => T): Signal<M, K>;
+
+function wrap<M, T>(target: Selector<T>, get: (data: T) => M): Selector<M>;
+
+function wrap(target: any, set?: any, get?: any) {
+  let source_get: any, source_set: any;
+  if (target[0]) {
+    source_get = target[0];
+    if (target[1]) source_set = target[1];
+  }
+  if (!get && set && !source_set) {
+    get = set;
+    set = 0;
+  }
+  if ((set && !source_set) || (get && !source_get)) {
+    throw new Error('Incorrect wrapping target');
+  }
+
+  let dest: any;
+  let dest_set: any;
+
+  if (set) {
+    dest = dest_set = function(data?: any) {
+      const finish = untrack();
+      const stack = stoppable_context;
+      stoppable_context = stop_signal();
+
+      try {
+        data = set(data);
+        if (!stoppable_context[0]()) source_set(data);
+      }
+      finally {
+        stoppable_context = stack;
+        finish();
+      }
+    }
+  }
+  else if (source_set) {
+    dest = function(data?: any) {
+      source_set(data);
+    }
+  }
+  else {
+    dest = [];
+  }
+
+  if (target.then) {
+    const methods = ['catch', 'finally'];
+    if (get) {
+      def_prop(dest, 'then', {
+        get() {
+          const promise = target.then(get);
+          return promise.then.bind(promise);
+        }
+      });
+    } else {
+      methods.push('then');
+    }
+    methods.forEach(prop => {
+      def_prop(dest, prop, {
+        get: () => target[prop]
+      });
+    });
+  }
+
+  return def_format(
+    dest,
+    get ? () => get(source_get()) : source_get,
+    dest_set || source_set,
+    !target.update
+  );
+}
+
+function loop(body: () => Promise<any>) {
+  let running = 1;
+  const fn = async () => {
+    while (running) await body();
+  }
+  const unsub = () => {
+    if (running) running = 0;
+  };
+  if (context_unsubs) context_unsubs.push(unsub);
+  fn();
+  return unsub;
+}
+
+type Pool<K> = K & {
+  count: number;
+  threads: StopSignal[];
+  pending: boolean;
+}
+
+type StopSignal = Signal<void, boolean>;
+
+function stoppable(): StopSignal {
+  if (!stoppable_context) throw new Error('Parent "pool" or "wrap" didn\'t find');
+  return stoppable_context;
+}
+
+function pool<K extends () => Promise<any>>(body: K): Pool<K> {
+  const [get_threads, set_threads] = box([]);
+  const get_count = () => get_threads().length;
+  const [get_pending] = sel(() => get_count() > 0);
+
+  function run() {
+    const stop = stop_signal();
+    const isolate_finish = isolate();
+    once(stop, () => (
+      set_threads(get_threads().filter((ctx) => ctx !== stop))
+    ));
+    isolate_finish();
+
+    set_threads(get_threads().concat(stop));
+
+    const stack = stoppable_context;
+    stoppable_context = stop;
+
+    let ret;
+    try {
+      ret = body.apply(this, arguments);
+    } finally {
+      stoppable_context = stack;
+
+      if (ret && ret.finally) {
+        ret.finally(stop);
+      } else {
+        stop();
+      }
+    };
+    return ret;
+  }
+
+  def_prop(run, 'count', { get: get_count });
+  def_prop(run, 'threads', { get: get_threads });
+  def_prop(run, 'pending', { get: get_pending });
+
+  return run as any;
 }
 
 function on<T>(
@@ -210,6 +387,22 @@ function on(target: any, listener: (value: any, prev?: any) => void): () => void
   return unsub;
 }
 
+function once<T>(
+  target: Reactionable<Ensurable<T>>,
+  listener: (value: T, prev?: T) => void
+): () => void;
+function once<T>(target: Reactionable<T>, listener: (value: T, prev?: T) => void): () => void;
+function once(target: any, listener: (value: any, prev?: any) => void): () => void {
+  const unsub = on(target, (value, prev) => {
+    try {
+      listener(value, prev);
+    } finally {
+      unsub();
+    }
+  });
+  return unsub;
+}
+
 function sync<T>(target: Reactionable<T>, listener: (value: T, prev?: T) => void): () => void {
   is_sync = 1;
   return on(target, listener);
@@ -228,82 +421,6 @@ function cycle(body: () => void) {
   run();
   if (context_unsubs) context_unsubs.push(stop);
   return stop;
-}
-
-function loop(body: () => Promise<any>) {
-  let running = 1;
-  const fn = async () => {
-    while (running) await body();
-  }
-  const unsub = () => {
-    if (running) running = 0;
-  };
-  if (context_unsubs) context_unsubs.push(unsub);
-  fn();
-  return unsub;
-}
-
-type Pool<K> = K & {
-  count: number;
-  threads: StopSignal[];
-  pending: boolean;
-}
-
-type StopSignal = Signal<void, boolean>;
-
-function stoppable(): StopSignal {
-  if (!pool_context) throw new Error('Parent "pool" didn\'t find');
-  return pool_context;
-}
-
-function pool<K extends () => Promise<any>>(body: K): Pool<K> {
-  const [get_threads, set_threads] = box([]);
-  const get_count = () => get_threads().length;
-  const [get_pending] = sel(() => get_count() > 0);
-
-  function run() {
-    let resolve: (inactive: boolean) => void;
-    const [get_inactive, set_inactive] = box(false);
-    const stop = () => {
-      const finish = untrack();
-      if (!get_inactive()) {
-        const commit = transaction();
-        set_inactive(true);
-        set_threads(get_threads().filter((ctx) => ctx !== stop));
-        commit();
-        resolve(true);
-      }
-      finish();
-    };
-
-    resolve = def_promisify(stop);
-    def_get(stop, get_inactive);
-
-    set_threads(get_threads().concat(stop));
-
-    const stack = pool_context;
-    pool_context = stop;
-
-    let ret;
-    try {
-      ret = body.apply(this, arguments);
-    } finally {
-      pool_context = stack;
-
-      if (ret && ret.finally) {
-        ret.finally(stop);
-      } else {
-        stop();
-      }
-    };
-    return ret;
-  }
-
-  def_prop(run, 'count', { get: get_count });
-  def_prop(run, 'threads', { get: get_threads });
-  def_prop(run, 'pending', { get: get_pending });
-
-  return run as any;
 }
 
 function isolate() {

@@ -6,7 +6,8 @@ test('should work basic operations with selector', () => {
   const a = value(7);
   const s = selector(() => (spy_1(a.val), a.val));
 
-  const [get, stop] = s;
+  const [get] = s;
+  const { free } = s;
 
   sync(s, v => spy_2(v));
 
@@ -21,7 +22,7 @@ test('should work basic operations with selector', () => {
   expect(spy_1).toHaveBeenNthCalledWith(2, 8);
   expect(spy_2).toHaveBeenNthCalledWith(2, 8);
 
-  stop();
+  free();
   a.val++;
   expect(spy_1).toBeCalledTimes(2);
   expect(spy_2).toBeCalledTimes(2);

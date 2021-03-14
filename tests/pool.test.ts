@@ -39,9 +39,3 @@ test('should work basic operations with pool', async () => {
   expect(p.pending).toBe(false);
   expect(p.count).toBe(0);
 });
-
-test('should throw exception if run stoppable outside of pool context', () => {
-  expect(() => {
-    stoppable();
-  }).toThrow('Parent "pool" didn\'t find');
-});
