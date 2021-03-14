@@ -153,11 +153,12 @@ function ready(init?: any, to?: any) {
   let resolved = 0;
   let resolve: any;
   const [get, set] = box([init]);
+  const has_to = arguments.length > 1;
 
   const fn = function (data: any) {
     if (!resolved) {
       resolved = 1;
-      if (to) data = to;
+      if (has_to) data = to;
       set([data]);
       resolve(data);
     }
