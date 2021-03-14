@@ -150,13 +150,13 @@ function ready<T = void>(): Signal<T, Ensurable<T>>;
 function ready<T = void>(init: T): Signal<T>;
 function ready<T>(init: T, to: T): Signal<void>;
 function ready(init?: any, to?: any) {
-  let resolved = false;
+  let resolved = 0;
   let resolve: any;
   const [get, set] = box([init]);
 
   const fn = function (data: any) {
     if (!resolved) {
-      resolved = true;
+      resolved = 1;
       if (to) data = to;
       set([data]);
       resolve(data);
