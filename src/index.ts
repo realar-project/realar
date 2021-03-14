@@ -148,7 +148,7 @@ function signal(init?: any) {
 
 function ready<T = void>(): Signal<T, Ensurable<T>>;
 function ready<T = void>(init: T): Signal<T>;
-function ready<T>(init: T, to: T): Signal<void>;
+function ready<T = void>(init: T, to: T): Signal<void, T>;
 function ready(init?: any, to?: any) {
   let resolved = 0;
   let resolve: any;
