@@ -411,7 +411,7 @@ function sync<T>(target: Reactionable<T>, listener: (value: T, prev?: T) => void
   return on(target, listener);
 }
 
-function effect(fn: () => void): void;
+function effect(fn: () => void): () => void;
 function effect(fn: () => () => any): () => any;
 function effect(fn: any) {
   const unsub = fn();
@@ -426,7 +426,13 @@ function cycle(body: () => void) {
   return stop;
 }
 
-function isolate() {
+function isolate(): () => () => void;
+function isolate(fn: () => void): () => void;
+function isolate(fn?: any) {
+  if (fn) {
+    context_unsubs = context_unsubs.filter((i: any) => i !== fn);
+    return fn;
+  }
   const stack = context_unsubs;
   context_unsubs = [];
   return () => {
