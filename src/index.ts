@@ -594,7 +594,7 @@ function free() {
 }
 
 function box_property(o: any, p: string | number | symbol, init?: any): any {
-  const b = box(init);
+  const b = box(init && init());
   def_prop(o, p, { get: b[0], set: b[1] });
 }
 
@@ -602,11 +602,11 @@ function prop(_proto: any, key: any, descriptor?: any): any {
   const initializer = descriptor?.initializer;
   return {
     get() {
-      box_property(this, key, initializer && initializer());
+      box_property(this, key, initializer);
       return this[key];
     },
     set(value: any) {
-      box_property(this, key, initializer && initializer());
+      box_property(this, key, initializer);
       this[key] = value;
     },
   };
