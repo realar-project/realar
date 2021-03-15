@@ -430,7 +430,8 @@ function isolate(): () => () => void;
 function isolate(fn: () => void): () => void;
 function isolate(fn?: any) {
   if (fn) {
-    context_unsubs = context_unsubs.filter((i: any) => i !== fn);
+    if (context_unsubs)
+      context_unsubs = context_unsubs.filter((i: any) => i !== fn);
     return fn;
   }
   const stack = context_unsubs;

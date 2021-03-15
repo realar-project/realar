@@ -45,3 +45,10 @@ test('should work isolate with argument', async () => {
   unsub_2();
   expect(destr_1).toBeCalledTimes(4);
 });
+
+test('should work isolate with no context', async () => {
+  const destr_1 = jest.fn();
+  const unsub_1 = isolate(effect(() => () => destr_1()));
+  unsub_1();
+  expect(destr_1).toBeCalledTimes(1);
+});
