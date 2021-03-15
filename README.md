@@ -6,7 +6,7 @@ Object oriented state manager for React based on [reactive mathematic](https://g
 
 [Light](https://bundlephobia.com/result?p=realar), [Fast](https://github.com/betula/reactive-box-performance), and Pretty looked :kissing_heart:
 
-Realar targeted to clean code, modulable architecture, and time of delivery user experience.
+Realar targeted to clean code, modulable architecture, and time to delivery user experience.
 
 Transparent functional reactive programming with classes, decorators and [babel jsx wrapper](https://github.com/betula/babel-plugin-realar)
 
