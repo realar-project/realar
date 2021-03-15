@@ -227,11 +227,15 @@ function wrap<T, K, M = T>(target: Value<T, K>, set: (data: M) => T): Signal<M, 
 
 function wrap<M, T>(target: Selector<T>, get: (data: T) => M): Selector<M>;
 
+function wrap<T>(target: () => T): Selector<T>;
+
 function wrap(target: any, set?: any, get?: any) {
   let source_get: any, source_set: any;
   if (target[0]) {
     source_get = target[0];
     if (target[1]) source_set = target[1];
+  } else if (typeof target === 'function') {
+    source_get = target;
   }
   if (!get && set && !source_set) {
     get = set;

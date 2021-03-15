@@ -47,6 +47,20 @@ test('should work basic operations with wrap and stoppable', async () => {
   expect(spy).toHaveBeenCalledTimes(2);
 });
 
+test('should convert function to selector like with wrap', async () => {
+  const spy = jest.fn();
+
+  const s = signal(0);
+  const s_1 = wrap(() => s.val + 1);
+
+  on(s_1, spy);
+
+  expect(s_1.val).toBe(1);
+  s(0)
+  expect(spy).toHaveBeenCalledWith(1, 1);
+  expect(spy).toBeCalledTimes(1);
+});
+
 test('should throw exception if wrap with empty parameters', () => {
   expect(() => {
     (wrap as any)();
