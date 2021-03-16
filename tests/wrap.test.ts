@@ -1,15 +1,14 @@
-import { wrap, signal, stoppable, selector, on } from '../src';
+import { signal, stoppable, selector, on } from '../src';
 
 test('should work basic operations with wrap and signal', async () => {
   const spy = jest.fn();
 
   const s = signal(0);
-  const s_1 = wrap(
-    s,
+  const s_1 = s.wrap(
     (v: string) => parseInt(v + v),
     (g: number) => g + 77
   );
-  const s_2 = wrap(s_1, (v: number) => '' + (v + 1));
+  const s_2 = s_1.wrap((v: number) => '' + (v + 1));
 
   expect(s_1.val).toBe(77);
   s_1('1');
@@ -28,7 +27,7 @@ test('should work basic operations with wrap and stoppable', async () => {
   const spy = jest.fn();
 
   const s = signal(0);
-  const s_1 = wrap(s, (v: number) => {
+  const s_1 = s.wrap((v: number) => {
     const stop = stoppable();
 
     expect((stop as any).reset).not.toBeDefined();
@@ -50,36 +49,11 @@ test('should work basic operations with wrap and stoppable', async () => {
   expect(spy).toHaveBeenCalledTimes(2);
 });
 
-test('should convert function to selector like with wrap', async () => {
-  const spy = jest.fn();
-
-  const s = signal(0);
-  const s_1 = wrap(() => s.val + 1);
-
-  on(s_1, spy);
-
-  expect(s_1.val).toBe(1);
-  s(0);
-  expect(spy).toHaveBeenCalledWith(1, 1);
-  expect(spy).toBeCalledTimes(1);
-});
-
-test('should throw exception if wrap with empty parameters', () => {
-  expect(() => {
-    (wrap as any)();
-  }).toThrow();
-});
-
 test('should throw exception if wrap with incorrect parameters', () => {
   expect(() => {
-    (wrap as any)(
-      selector(() => 0),
+    (selector(() => 0).wrap as any)(
       () => 0,
       () => 0
     );
-  }).toThrow('Incorrect wrapping target');
-
-  expect(() => {
-    (wrap as any)([], null, () => 0);
-  }).toThrow('Incorrect wrapping target');
+  }).toThrow('Incorrect wrapping');
 });

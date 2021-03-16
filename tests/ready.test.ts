@@ -27,7 +27,7 @@ test('should work ready with one value', async () => {
 
 test('should work ready with two values', async () => {
   const spy = jest.fn();
-  const a = ready(0, 1);
+  const a = ready(0).to(1);
   on(a, spy);
 
   expect(a.val).toBe(0);
@@ -41,7 +41,7 @@ test('should work ready with two values', async () => {
 
 test('should work ready reset', async () => {
   const spy = jest.fn();
-  const a = ready(0, 1);
+  const a = ready(0).to(1);
   on(a, spy);
 
   expect(a.val).toBe(0);
@@ -65,4 +65,34 @@ test('should work ready reset', async () => {
   expect(spy).toHaveBeenNthCalledWith(1, 1, 0);
   expect(spy).toHaveBeenNthCalledWith(2, 0, 1);
   expect(spy).toHaveBeenNthCalledWith(3, 1, 0);
+});
+
+test('should work ready wrapped to', async () => {
+  const spy = jest.fn();
+  const a = ready(0)
+    .wrap((v: number) => v * 2)
+    .to(10);
+  on(a, spy);
+
+  expect(a.val).toBe(0);
+  a();
+  expect(a.val).toBe(20);
+  a.reset();
+  expect(a.val).toBe(0);
+
+  const m = async () => {
+    expect(await a).toBe(20);
+  };
+  const k = async () => {
+    await delay(10);
+    a();
+  };
+  await Promise.all([m(), k()]);
+
+  expect(a.val).toBe(20);
+
+  expect(spy).toBeCalledTimes(3);
+  expect(spy).toHaveBeenNthCalledWith(1, 20, 0);
+  expect(spy).toHaveBeenNthCalledWith(2, 0, 20);
+  expect(spy).toHaveBeenNthCalledWith(3, 20, 0);
 });

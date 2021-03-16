@@ -1,4 +1,4 @@
-import { signal, cycle, on, wrap } from '../src';
+import { signal, cycle, on } from '../src';
 
 test('should work signal different using', () => {
   const spy = jest.fn();
@@ -86,7 +86,7 @@ test('should work signal in on', () => {
 test('should work signal with transform', () => {
   const spy = jest.fn();
 
-  const a = wrap(signal(0), (s: string) => parseInt(s) + 10);
+  const a = signal(0).wrap((s: string) => parseInt(s) + 10);
   on(a, v => {
     spy(v);
   });

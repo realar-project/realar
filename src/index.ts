@@ -16,7 +16,6 @@ export {
   loop,
   pool,
   stoppable,
-  wrap,
   isolate,
   shared,
   initial,
@@ -92,7 +91,9 @@ type Selector<T> = {
   readonly val: T;
   get(): T;
   free(): void;
-} & [() => T];
+} & [() => T] & {
+    wrap<M>(get: (data: T) => M): Selector<M>;
+  };
 
 type Value<T, K = T> = Callable<T> & {
   0: () => K;
@@ -101,15 +102,25 @@ type Value<T, K = T> = Callable<T> & {
   update: (fn: (state: K) => T) => void;
   get(): K;
   set(value: T): void;
-} & [() => K, (value: T) => void];
+} & [() => K, (value: T) => void] & {
+    wrap<P>(set: () => T, get: (data: K) => P): Value<void, P>;
+    wrap<P, M = T>(set: (data: M) => T, get: (data: K) => P): Value<M, P>;
+    wrap(set: () => T): Value<void, K>;
+    wrap<M = T>(set: (data: M) => T): Value<M, K>;
+  };
 
-type Signal<T, K = T> = Callable<T> &
+type Signal<T, K = T, E = {}> = Callable<T> &
   Pick<Promise<T>, 'then' | 'catch' | 'finally'> & {
     0: () => K;
     1: (value: T) => void;
     readonly val: K;
     get(): K;
-  } & [() => K, (value: T) => void];
+  } & [() => K, (value: T) => void] & {
+    wrap<P>(set: () => T, get: (data: K) => P): Signal<void, P, E>;
+    wrap<P, M = T>(set: (data: M) => T, get: (data: K) => P): Signal<M, P>;
+    wrap(set: () => T): Signal<void, K, E>;
+    wrap<M = T>(set: (data: M) => T): Signal<M, K, E>;
+  } & E;
 
 type Reactionable<T> = { 0: () => T } | [() => T] | (() => T);
 
@@ -123,7 +134,8 @@ function value(init?: any): any {
 
 function selector<T>(body: () => T): Selector<T> {
   const [get, free] = sel(body);
-  const h = def_format([], get);
+  const h = [] as any;
+  def_format(h, get);
   h.free = free;
   return h;
 }
@@ -147,23 +159,34 @@ function signal(init?: any) {
   return fn as any;
 }
 
-type SignalReset = {
+type ResetedSignal = {
   reset(): void;
 };
 
-function ready<T = void>(): Signal<T, Ensurable<T>> & SignalReset;
-function ready<T = void>(init: T): Signal<T> & SignalReset;
-function ready<T = void>(init: T, to: T): Signal<void, T> & SignalReset;
-function ready(init?: any, to?: any) {
+function ready<T = void>(): Signal<
+  T,
+  Ensurable<T>,
+  ResetedSignal & {
+    to(value: T): Signal<void, Ensurable<T>, ResetedSignal>;
+  }
+>;
+function ready<T = void>(
+  init: T
+): Signal<
+  T,
+  T,
+  ResetedSignal & {
+    to(value: T): Signal<void, T, ResetedSignal>;
+  }
+>;
+function ready(init?: any) {
   let resolved = 0;
   let resolve: any;
   const [get, set] = box([init]);
-  const has_to = arguments.length > 1;
 
   const fn = function (data: any) {
     if (!resolved) {
       resolved = 1;
-      if (has_to) data = to;
       set([data]);
       resolve(data);
     }
@@ -175,13 +198,23 @@ function ready(init?: any, to?: any) {
       set([init]);
     };
   }
-  def_format(fn, () => get()[0], fn, 1);
+  def_format(fn, () => get()[0], fn, 1, 1);
   resolve = def_promisify(fn);
-
   return fn as any;
 }
 
-function def_format(ctx: any, get: any, set?: any, no_set_update?: any) {
+type StopSignal = Signal<void, boolean>;
+
+function stop_signal(): StopSignal {
+  no_reset = 1;
+  try {
+    return ready(false).to(true);
+  } finally {
+    no_reset = 0;
+  }
+}
+
+function def_format(ctx: any, get: any, set?: any, no_set_update?: any, has_to?: any) {
   if (!Array.isArray(ctx)) {
     ctx[Symbol.iterator] = function* () {
       yield get;
@@ -201,7 +234,11 @@ function def_format(ctx: any, get: any, set?: any, no_set_update?: any) {
     }
   }
   def_prop(ctx, key, val_prop);
-  return ctx;
+
+  if (has_to) {
+    ctx.to = (value: any) => (wrap as any)(ctx, () => value);
+  }
+  ctx.wrap = (set: any, get: any) => wrap(ctx, set, get);
 }
 
 function def_promisify(ctx: any) {
@@ -213,54 +250,16 @@ function def_promisify(ctx: any) {
   return resolve;
 }
 
-type StopSignal = Signal<void, boolean>;
-
-function stop_signal(): StopSignal {
-  no_reset = 1;
-  try {
-    return ready(false, true);
-  } finally {
-    no_reset = 0;
-  }
-}
-
-function wrap<T, K, P>(target: Signal<T, K>, set: () => T, get: (data: K) => P): Signal<void, P>;
-function wrap<T, K, P, M = T>(
-  target: Signal<T, K>,
-  set: (data: M) => T,
-  get: (data: K) => P
-): Signal<M, P>;
-
-function wrap<T, K>(target: Signal<T, K>, set: () => T): Signal<void, K>;
-function wrap<T, K, M = T>(target: Signal<T, K>, set: (data: M) => T): Signal<M, K>;
-
-function wrap<T, K, P>(target: Value<T, K>, set: () => T, get: (data: K) => P): Value<void, P>;
-function wrap<T, K, P, M = T>(
-  target: Value<T, K>,
-  set: (data: M) => T,
-  get: (data: K) => P
-): Value<M, P>;
-function wrap<T, K>(target: Value<T, K>, set: () => T): Signal<void, K>;
-function wrap<T, K, M = T>(target: Value<T, K>, set: (data: M) => T): Signal<M, K>;
-
-function wrap<M, T>(target: Selector<T>, get: (data: T) => M): Selector<M>;
-
-function wrap<T>(target: () => T): Selector<T>;
-
 function wrap(target: any, set?: any, get?: any) {
-  let source_get: any, source_set: any;
-  if (target[0]) {
-    source_get = target[0];
-    if (target[1]) source_set = target[1];
-  } else if (typeof target === 'function') {
-    source_get = target;
-  }
+  const source_get = target[0];
+  const source_set = target[1];
+
   if (!get && set && !source_set) {
     get = set;
     set = 0;
   }
-  if ((set && !source_set) || (get && !source_get)) {
-    throw new Error('Incorrect wrapping target');
+  if (set && !source_set) {
+    throw new Error('Incorrect wrapping');
   }
 
   let dest: any;
@@ -307,12 +306,17 @@ function wrap(target: any, set?: any, get?: any) {
     });
   }
 
-  return def_format(
+  if (target.reset) dest.reset = target.reset;
+
+  def_format(
     dest,
     get ? () => get(source_get()) : source_get,
     dest_set || source_set,
-    !target.update
+    !target.update,
+    target.to
   );
+
+  return dest;
 }
 
 function loop(body: () => Promise<any>) {
