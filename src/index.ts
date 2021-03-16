@@ -92,7 +92,8 @@ type Selector<T> = {
   get(): T;
   free(): void;
 } & [() => T] & {
-    wrap<M>(get: (data: T) => M): Selector<M>;
+    view<P>(get: (data: T) => P): Selector<P>;
+    select<P>(get: (data: T) => P): Selector<P>;
 
     watch(listener: (value: T, prev?: T) => void): () => void;
   };
@@ -110,31 +111,44 @@ type Value<T, K = T> = Callable<T> & {
     wrap(set: () => T): Value<void, K>;
     wrap<M = T>(set: (data: M) => T): Value<M, K>;
 
+    view<P>(get: (data: K) => P): Value<T, P>;
+    select<P>(get: (data: K) => P): Selector<P>;
     watch(listener: (value: K, prev?: K) => void): () => void;
+    reset(): void;
   };
 
-type Signal<T, K = T, E = {}> = Callable<T> &
+type Signal<T, K = T, E = {}, R = { reset(): void }> = Callable<T> &
   Pick<Promise<T>, 'then' | 'catch' | 'finally'> & {
     0: () => K;
     1: (value: T) => void;
     readonly val: K;
     get(): K;
   } & [() => K, (value: T) => void] & {
-    wrap<P>(set: () => T, get: (data: K) => P): Signal<void, P, E>;
-    wrap<P, M = T>(set: (data: M) => T, get: (data: K) => P): Signal<M, P>;
-    wrap(set: () => T): Signal<void, K, E>;
-    wrap<M = T>(set: (data: M) => T): Signal<M, K, E>;
+    wrap<P>(set: () => T, get: (data: K) => P): Signal<void, P, E, R>;
+    wrap<P, M = T>(set: (data: M) => T, get: (data: K) => P): Signal<M, P, E, R>;
+    wrap(set: () => T): Signal<void, K, E, R>;
+    wrap<M = T>(set: (data: M) => T): Signal<M, K, E, R>;
 
+    view<P>(get: (data: K) => P): Signal<T, P, E, R>;
+    select<P>(get: (data: K) => P): Selector<P>;
     watch(listener: (value: K extends Ensurable<infer P> ? P : K, prev?: K) => void): () => void;
-  } & E;
+  } & R &
+  E;
 
+type StopSignal = Signal<void, boolean, {}, {}>;
 type Reactionable<T> = { 0: () => T } | [() => T] | (() => T);
+type Pool<K> = K & {
+  count: number;
+  threads: StopSignal[];
+  pending: boolean;
+};
 
 function value<T = void>(): Value<T>;
 function value<T = void>(init: T): Value<T>;
 function value(init?: any): any {
   const [get, set] = box(init) as any;
   def_format(set, get, set);
+  set.reset = () => set(init);
   return set;
 }
 
@@ -159,21 +173,17 @@ function signal(init?: any) {
     ready(data);
   };
 
-  def_format(fn, () => get()[0], fn, 1);
   resolve = def_promisify(fn);
-
+  def_format(fn, () => get()[0], fn, 1);
+  fn.reset = () => set([init]);
   return fn as any;
 }
-
-type ResetedSignal = {
-  reset(): void;
-};
 
 function ready<T = void>(): Signal<
   T,
   Ensurable<T>,
-  ResetedSignal & {
-    to(value: T): Signal<void, Ensurable<T>, ResetedSignal>;
+  {
+    to(value: T): Signal<void, Ensurable<T>>;
   }
 >;
 function ready<T = void>(
@@ -181,8 +191,8 @@ function ready<T = void>(
 ): Signal<
   T,
   T,
-  ResetedSignal & {
-    to(value: T): Signal<void, T, ResetedSignal>;
+  {
+    to(value: T): Signal<void, T>;
   }
 >;
 function ready(init?: any) {
@@ -197,6 +207,10 @@ function ready(init?: any) {
       resolve(data);
     }
   };
+
+  resolve = def_promisify(fn);
+  def_format(fn, () => get()[0], fn, 1, 1);
+
   if (!no_reset) {
     fn.reset = () => {
       resolve = def_promisify(fn);
@@ -204,12 +218,9 @@ function ready(init?: any) {
       set([init]);
     };
   }
-  def_format(fn, () => get()[0], fn, 1, 1);
-  resolve = def_promisify(fn);
+
   return fn as any;
 }
-
-type StopSignal = Signal<void, boolean>;
 
 function stop_signal(): StopSignal {
   no_reset = 1;
@@ -244,8 +255,12 @@ function def_format(ctx: any, get: any, set?: any, no_set_update?: any, has_to?:
   if (has_to) {
     ctx.to = (value: any) => (wrap as any)(ctx, () => value);
   }
-  ctx.wrap = (set: any, get: any) => wrap(ctx, set, get);
+  if (set) {
+    ctx.wrap = (set: any, get: any) => wrap(ctx, set, get);
+  }
+  ctx.view = (get: any) => wrap(ctx, 0, get);
   ctx.watch = (fn: any) => on(ctx, fn);
+  ctx.select = (fn: any) => selector(() => fn(get()));
 }
 
 function def_promisify(ctx: any) {
@@ -260,14 +275,6 @@ function def_promisify(ctx: any) {
 function wrap(target: any, set?: any, get?: any) {
   const source_get = target[0];
   const source_set = target[1];
-
-  if (!get && set && !source_set) {
-    get = set;
-    set = 0;
-  }
-  if (set && !source_set) {
-    throw new Error('Incorrect wrapping');
-  }
 
   let dest: any;
   let dest_set: any;
@@ -338,12 +345,6 @@ function loop(body: () => Promise<any>) {
   fn();
   return unsub;
 }
-
-type Pool<K> = K & {
-  count: number;
-  threads: StopSignal[];
-  pending: boolean;
-};
 
 function stoppable(): StopSignal {
   if (!stoppable_context) throw new Error('Parent "pool" or "wrap" didn\'t find');

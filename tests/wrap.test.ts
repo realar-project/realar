@@ -48,12 +48,3 @@ test('should work basic operations with wrap and stoppable', async () => {
   s_1(16);
   expect(spy).toHaveBeenCalledTimes(2);
 });
-
-test('should throw exception if wrap with incorrect parameters', () => {
-  expect(() => {
-    (selector(() => 0).wrap as any)(
-      () => 0,
-      () => 0
-    );
-  }).toThrow('Incorrect wrapping');
-});
