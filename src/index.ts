@@ -93,6 +93,8 @@ type Selector<T> = {
   free(): void;
 } & [() => T] & {
     wrap<M>(get: (data: T) => M): Selector<M>;
+
+    watch(listener: (value: T, prev?: T) => void): () => void;
   };
 
 type Value<T, K = T> = Callable<T> & {
@@ -107,6 +109,8 @@ type Value<T, K = T> = Callable<T> & {
     wrap<P, M = T>(set: (data: M) => T, get: (data: K) => P): Value<M, P>;
     wrap(set: () => T): Value<void, K>;
     wrap<M = T>(set: (data: M) => T): Value<M, K>;
+
+    watch(listener: (value: K, prev?: K) => void): () => void;
   };
 
 type Signal<T, K = T, E = {}> = Callable<T> &
@@ -120,6 +124,8 @@ type Signal<T, K = T, E = {}> = Callable<T> &
     wrap<P, M = T>(set: (data: M) => T, get: (data: K) => P): Signal<M, P>;
     wrap(set: () => T): Signal<void, K, E>;
     wrap<M = T>(set: (data: M) => T): Signal<M, K, E>;
+
+    watch(listener: (value: K extends Ensurable<infer P> ? P : K, prev?: K) => void): () => void;
   } & E;
 
 type Reactionable<T> = { 0: () => T } | [() => T] | (() => T);
@@ -239,6 +245,7 @@ function def_format(ctx: any, get: any, set?: any, no_set_update?: any, has_to?:
     ctx.to = (value: any) => (wrap as any)(ctx, () => value);
   }
   ctx.wrap = (set: any, get: any) => wrap(ctx, set, get);
+  ctx.watch = (fn: any) => on(ctx, fn);
 }
 
 function def_promisify(ctx: any) {
