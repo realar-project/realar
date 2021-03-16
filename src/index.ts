@@ -70,6 +70,7 @@ let initial_data: any;
 let context_unsubs: any;
 let shared_unsubs = [] as any;
 let is_sync: any;
+let no_reset: any;
 let is_observe: any;
 let scope_context: any;
 let stoppable_context: any;
@@ -167,11 +168,13 @@ function ready(init?: any, to?: any) {
       resolve(data);
     }
   };
-  fn.reset = () => {
-    resolve = def_promisify(fn);
-    resolved = 0;
-    set([init]);
-  };
+  if (!no_reset) {
+    fn.reset = () => {
+      resolve = def_promisify(fn);
+      resolved = 0;
+      set([init]);
+    };
+  }
   def_format(fn, () => get()[0], fn, 1);
   resolve = def_promisify(fn);
 
@@ -210,8 +213,15 @@ function def_promisify(ctx: any) {
   return resolve;
 }
 
-function stop_signal() {
-  return ready(false, true);
+type StopSignal = Signal<void, boolean>;
+
+function stop_signal(): StopSignal {
+  no_reset = 1;
+  try {
+    return ready(false, true);
+  } finally {
+    no_reset = 0;
+  }
 }
 
 function wrap<T, K, P>(target: Signal<T, K>, set: () => T, get: (data: K) => P): Signal<void, P>;
@@ -324,8 +334,6 @@ type Pool<K> = K & {
   pending: boolean;
 };
 
-type StopSignal = Signal<void, boolean>;
-
 function stoppable(): StopSignal {
   if (!stoppable_context) throw new Error('Parent "pool" or "wrap" didn\'t find');
   return stoppable_context;
@@ -338,9 +346,7 @@ function pool<K extends () => Promise<any>>(body: K): Pool<K> {
 
   function run() {
     const stop = stop_signal();
-    const isolate_finish = isolate();
-    once(stop, () => set_threads(get_threads().filter(ctx => ctx !== stop)));
-    isolate_finish();
+    isolate(once(stop, () => set_threads(get_threads().filter(ctx => ctx !== stop))));
 
     set_threads(get_threads().concat(stop));
 

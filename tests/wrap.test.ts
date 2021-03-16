@@ -30,6 +30,9 @@ test('should work basic operations with wrap and stoppable', async () => {
   const s = signal(0);
   const s_1 = wrap(s, (v: number) => {
     const stop = stoppable();
+
+    expect((stop as any).reset).not.toBeDefined();
+
     if (v === 10 || v === 15) {
       stop();
     }
