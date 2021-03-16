@@ -148,7 +148,7 @@ function signal(init?: any) {
 
 type SignalReset = {
   reset(): void;
-}
+};
 
 function ready<T = void>(): Signal<T, Ensurable<T>> & SignalReset;
 function ready<T = void>(init: T): Signal<T> & SignalReset;
@@ -442,8 +442,7 @@ function isolate(): () => () => void;
 function isolate(fn: () => void): () => void;
 function isolate(fn?: any) {
   if (fn) {
-    if (context_unsubs)
-      context_unsubs = context_unsubs.filter((i: any) => i !== fn);
+    if (context_unsubs) context_unsubs = context_unsubs.filter((i: any) => i !== fn);
     return fn;
   }
   const stack = context_unsubs;

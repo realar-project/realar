@@ -56,7 +56,7 @@ test('should convert function to selector like with wrap', async () => {
   on(s_1, spy);
 
   expect(s_1.val).toBe(1);
-  s(0)
+  s(0);
   expect(spy).toHaveBeenCalledWith(1, 1);
   expect(spy).toBeCalledTimes(1);
 });

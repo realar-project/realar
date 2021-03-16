@@ -45,7 +45,7 @@ test('should work ready reset', async () => {
   on(a, spy);
 
   expect(a.val).toBe(0);
-  a()
+  a();
   expect(a.val).toBe(1);
   a.reset();
   expect(a.val).toBe(0);
