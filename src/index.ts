@@ -94,6 +94,7 @@ type Selector<T> = {
 } & [() => T] & {
     view<P>(get: (data: T) => P): Selector<P>;
     select<P>(get: (data: T) => P): Selector<P>;
+    select(): Selector<T>;
 
     watch(listener: (value: T, prev?: T) => void): () => void;
   };
@@ -113,6 +114,7 @@ type Value<T, K = T> = Callable<T> & {
 
     view<P>(get: (data: K) => P): Value<T, P>;
     select<P>(get: (data: K) => P): Selector<P>;
+    select(): Selector<K>;
     watch(listener: (value: K, prev?: K) => void): () => void;
     reset(): void;
   };
@@ -131,6 +133,7 @@ type Signal<T, K = T, E = {}, R = { reset(): void }> = Callable<T> &
 
     view<P>(get: (data: K) => P): Signal<T, P, E, R>;
     select<P>(get: (data: K) => P): Selector<P>;
+    select(): Selector<K>;
     watch(listener: (value: K extends Ensurable<infer P> ? P : K, prev?: K) => void): () => void;
   } & R &
   E;
@@ -260,7 +263,7 @@ function def_format(ctx: any, get: any, set?: any, no_set_update?: any, has_to?:
   }
   ctx.view = (get: any) => wrap(ctx, 0, get);
   ctx.watch = (fn: any) => on(ctx, fn);
-  ctx.select = (fn: any) => selector(() => fn(get()));
+  ctx.select = (fn: any) => selector(fn ? () => fn(get()) : get);
 }
 
 function def_promisify(ctx: any) {
