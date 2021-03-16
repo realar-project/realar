@@ -146,9 +146,13 @@ function signal(init?: any) {
   return fn as any;
 }
 
-function ready<T = void>(): Signal<T, Ensurable<T>>;
-function ready<T = void>(init: T): Signal<T>;
-function ready<T = void>(init: T, to: T): Signal<void, T>;
+type SignalReset = {
+  reset(): void;
+}
+
+function ready<T = void>(): Signal<T, Ensurable<T>> & SignalReset;
+function ready<T = void>(init: T): Signal<T> & SignalReset;
+function ready<T = void>(init: T, to: T): Signal<void, T> & SignalReset;
 function ready(init?: any, to?: any) {
   let resolved = 0;
   let resolve: any;
@@ -163,7 +167,11 @@ function ready(init?: any, to?: any) {
       resolve(data);
     }
   };
-
+  fn.reset = () => {
+    resolve = def_promisify(fn);
+    resolved = 0;
+    set([init]);
+  };
   def_format(fn, () => get()[0], fn, 1);
   resolve = def_promisify(fn);
 
