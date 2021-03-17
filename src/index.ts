@@ -30,7 +30,11 @@ export {
   unmock,
   transaction,
   untrack,
+
   Ensurable,
+  Selector,
+  Value,
+  Signal
 };
 
 let react;
