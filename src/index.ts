@@ -34,14 +34,12 @@ export {
   Ensurable,
   Selector,
   Value,
-  Signal
+  Signal,
+  StopSignal,
+  ReadySignal
 };
 
 let react;
-
-try {
-  react = require('react');
-} catch (e) {}
 
 let useRef: typeof React.useRef;
 let useReducer: typeof React.useReducer;
@@ -51,8 +49,11 @@ let useContext: typeof React.useContext;
 let createContext: typeof React.createContext;
 let createElement: typeof React.createElement;
 
+
 /* istanbul ignore next */
-if (react) {
+try {
+  react = require('react');
+
   useRef = react.useRef;
   useReducer = react.useReducer;
   useEffect = react.useEffect;
@@ -60,7 +61,8 @@ if (react) {
   useContext = react.useContext;
   createContext = react.createContext;
   createElement = react.createElement;
-} else {
+
+} catch (e) {
   useRef = useReducer = useEffect = useMemo = useContext = createContext = createElement = (() => {
     throw new Error('Missed "react" dependency');
   }) as any;
@@ -83,6 +85,7 @@ const def_prop = Object.defineProperty;
 type Ensurable<T> = T | void;
 
 type Callable<T> = {
+  name: never
   (data: T): void;
 } & (T extends void
   ? {
@@ -99,7 +102,6 @@ type Selector<T> = {
     view<P>(get: (data: T) => P): Selector<P>;
     select<P>(get: (data: T) => P): Selector<P>;
     select(): Selector<T>;
-
     watch(listener: (value: T, prev?: T) => void): () => void;
   };
 
@@ -110,39 +112,52 @@ type Value<T, K = T> = Callable<T> & {
   update: (fn: (state: K) => T) => void;
   get(): K;
   set(value: T): void;
-} & [() => K, (value: T) => void] & {
-    wrap<P>(set: () => T, get: (data: K) => P): Value<void, P>;
-    wrap<P, M = T>(set: (data: M) => T, get: (data: K) => P): Value<M, P>;
-    wrap(set: () => T): Value<void, K>;
-    wrap<M = T>(set: (data: M) => T): Value<M, K>;
+} & {
+  wrap<P>(set: () => T, get: (data: K) => P): Value<void, P>;
+  wrap<P, M = T>(set: (data: M) => T, get: (data: K) => P): Value<M, P>;
+  wrap(set: () => T): Value<void, K>;
+  wrap<M = T>(set: (data: M) => T): Value<M, K>;
 
-    view<P>(get: (data: K) => P): Value<T, P>;
-    select<P>(get: (data: K) => P): Selector<P>;
-    select(): Selector<K>;
-    watch(listener: (value: K, prev?: K) => void): () => void;
-    reset(): void;
-  };
+  filter(fn: (data: T) => any): Value<T, K>;
 
-type Signal<T, K = T, E = {}, R = { reset(): void }> = Callable<T> &
+  view<P>(get: (data: K) => P): Value<T, P>;
+  select<P>(get: (data: K) => P): Selector<P>;
+  select(): Selector<K>;
+  watch(listener: (value: K, prev?: K) => void): () => void;
+  reset(): void;
+} & {
+  [P in Exclude<keyof Array<void>, 'filter' | number>]: never;
+} & [() => K, (value: T) => void];
+
+type Signal<T, K = T, X = {}, E = { reset(): void }> = Callable<T> &
   Pick<Promise<T>, 'then' | 'catch' | 'finally'> & {
     0: () => K;
     1: (value: T) => void;
     readonly val: K;
     get(): K;
-  } & [() => K, (value: T) => void] & {
-    wrap<P>(set: () => T, get: (data: K) => P): Signal<void, P, E, R>;
-    wrap<P, M = T>(set: (data: M) => T, get: (data: K) => P): Signal<M, P, E, R>;
-    wrap(set: () => T): Signal<void, K, E, R>;
-    wrap<M = T>(set: (data: M) => T): Signal<M, K, E, R>;
+  } & {
+    wrap<P>(set: () => T, get: (data: K) => P): Signal<void, P, X, E>;
+    wrap<P, M = T>(set: (data: M) => T, get: (data: K) => P): Signal<M, P, X, E>;
+    wrap(set: () => T): Signal<void, K, X, E>;
+    wrap<M = T>(set: (data: M) => T): Signal<M, K, X, E>;
 
-    view<P>(get: (data: K) => P): Signal<T, P, E, R>;
+    filter(fn: (data: T) => any): Signal<T, K, X, E>;
+
+    view<P>(get: (data: K) => P): Signal<T, P, X, E>;
     select<P>(get: (data: K) => P): Selector<P>;
     select(): Selector<K>;
     watch(listener: (value: K extends Ensurable<infer P> ? P : K, prev?: K) => void): () => void;
-  } & R &
-  E;
+  } & E & X & {
+    [P in Exclude<keyof Array<void>, 'filter' | number>]: never;
+  } & [() => K, (value: T) => void];
 
-type StopSignal = Signal<void, boolean, {}, {}>;
+type StopSignal = Signal<void, boolean, {
+  stop(): void
+}, {}>;
+type ReadySignal<T, K = T> = Signal<T, K, {
+  to(value: T): Signal<void, K>;
+}>;
+
 type Reactionable<T> = { 0: () => T } | [() => T] | (() => T);
 type Pool<K> = K & {
   count: number;
@@ -186,22 +201,10 @@ function signal(init?: any) {
   return fn as any;
 }
 
-function ready<T = void>(): Signal<
-  T,
-  Ensurable<T>,
-  {
-    to(value: T): Signal<void, Ensurable<T>>;
-  }
->;
-function ready<T = void>(
-  init: T
-): Signal<
-  T,
-  T,
-  {
-    to(value: T): Signal<void, T>;
-  }
->;
+signal.stop = stop_signal;
+
+function ready<T = void>(): ReadySignal<T, Ensurable<T>>;
+function ready<T = void>(init: T): ReadySignal<T>;
 function ready(init?: any) {
   let resolved = 0;
   let resolve: any;
@@ -232,7 +235,8 @@ function ready(init?: any) {
 function stop_signal(): StopSignal {
   no_reset = 1;
   try {
-    return ready(false).to(true);
+    const ctx = ready(false).to(true) as any;
+    return ctx.stop = ctx;
   } finally {
     no_reset = 0;
   }
@@ -264,6 +268,9 @@ function def_format(ctx: any, get: any, set?: any, no_set_update?: any, has_to?:
   }
   if (set) {
     ctx.wrap = (set: any, get: any) => wrap(ctx, set, get);
+    ctx.filter = (fn: any) => wrap(ctx, (v: any) => (
+      fn(v) ? v : stoppable().stop()
+    ));
   }
   ctx.view = (get: any) => wrap(ctx, 0, get);
   ctx.watch = (fn: any) => on(ctx, fn);
@@ -290,11 +297,11 @@ function wrap(target: any, set?: any, get?: any) {
     dest = dest_set = function (data?: any) {
       const finish = untrack();
       const stack = stoppable_context;
-      stoppable_context = stop_signal();
+      stoppable_context = 1;
 
       try {
         data = set(data);
-        if (!stoppable_context[0]()) source_set(data);
+        if (stoppable_context === 1 || !stoppable_context[0]()) source_set(data);
       } finally {
         stoppable_context = stack;
         finish();
@@ -328,6 +335,7 @@ function wrap(target: any, set?: any, get?: any) {
   }
 
   if (target.reset) dest.reset = target.reset;
+  if (target.stop) target.stop = target;
 
   def_format(
     dest,
@@ -354,7 +362,8 @@ function loop(body: () => Promise<any>) {
 }
 
 function stoppable(): StopSignal {
-  if (!stoppable_context) throw new Error('Parent "pool" or "wrap" didn\'t find');
+  if (!stoppable_context) throw new Error('Parent context not found');
+  if (stoppable_context === 1) stoppable_context = stop_signal();
   return stoppable_context;
 }
 
@@ -457,8 +466,19 @@ function effect(fn: any) {
 }
 
 function cycle(body: () => void) {
-  const [run, stop] = expr(body);
-  run();
+  const iter = () => {
+    const stack = stoppable_context;
+    stoppable_context = 1;
+    try {
+      run()
+      if (stoppable_context !== 1 && stoppable_context[0]()) stop();
+    } finally {
+      stoppable_context = stack;
+    }
+  }
+
+  const [run, stop] = expr(body, iter);
+  iter();
   if (context_unsubs) context_unsubs.push(stop);
   return stop;
 }
