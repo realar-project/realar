@@ -1,4 +1,4 @@
-import { cycle, stoppable, value } from '../src';
+import { cycle, on, stoppable, value } from '../src';
 
 test('should work stoppable stop method', () => {
   const spy = jest.fn();
@@ -18,12 +18,11 @@ test('should work stoppable stop method', () => {
   expect(spy).toHaveBeenNthCalledWith(2, 4, 2);
 });
 
-test('should work stoppable in cycle', () => {
+test('should work stoppable in cycle not first iteration', () => {
   const spy = jest.fn();
 
   const a = value(1);
   a.watch(spy);
-
   cycle(() => {
     a.val += a.val;
     if (a.val > 10) stoppable().stop();
@@ -31,6 +30,21 @@ test('should work stoppable in cycle', () => {
 
   expect(spy).toHaveBeenNthCalledWith(4, 16, 8);
   expect(spy).toBeCalledTimes(4);
+});
+
+test('should work stoppable in cycle first iteration', () => {
+  const spy = jest.fn();
+
+  const a = value(1);
+  a.watch(spy);
+
+  cycle(() => {
+    stoppable().stop();
+    a.update(v => v + v);
+  });
+
+  expect(spy).toHaveBeenNthCalledWith(1, 2, 1);
+  expect(spy).toBeCalledTimes(1);
 });
 
 test('should throw exception if run stoppable outside of stoppable context', () => {

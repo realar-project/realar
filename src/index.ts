@@ -476,10 +476,10 @@ function effect(fn: any) {
 function cycle(body: () => void) {
   const iter = () => {
     const stack = stoppable_context;
-    stoppable_context = 1;
+    stoppable_context = stop_signal();
+    isolate(on(stoppable_context, stop));
     try {
       run();
-      if (stoppable_context !== 1 && stoppable_context[0]()) stop();
     } finally {
       stoppable_context = stack;
     }
