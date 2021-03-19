@@ -30,13 +30,12 @@ export {
   unmock,
   transaction,
   untrack,
-
   Ensurable,
   Selector,
   Value,
   Signal,
   StopSignal,
-  ReadySignal
+  ReadySignal,
 };
 
 let react;
@@ -49,7 +48,6 @@ let useContext: typeof React.useContext;
 let createContext: typeof React.createContext;
 let createElement: typeof React.createElement;
 
-
 /* istanbul ignore next */
 try {
   react = require('react');
@@ -61,7 +59,6 @@ try {
   useContext = react.useContext;
   createContext = react.createContext;
   createElement = react.createElement;
-
 } catch (e) {
   useRef = useReducer = useEffect = useMemo = useContext = createContext = createElement = (() => {
     throw new Error('Missed "react" dependency');
@@ -85,7 +82,7 @@ const def_prop = Object.defineProperty;
 type Ensurable<T> = T | void;
 
 type Callable<T> = {
-  name: never
+  name: never;
   (data: T): void;
 } & (T extends void
   ? {
@@ -126,8 +123,9 @@ type Value<T, K = T> = Callable<T> & {
   watch(listener: (value: K, prev?: K) => void): () => void;
   reset(): void;
 } & {
-  [P in Exclude<keyof Array<void>, 'filter' | number>]: never;
-} & [() => K, (value: T) => void];
+    [P in Exclude<keyof Array<void>, 'filter' | number>]: never;
+  } &
+  [() => K, (value: T) => void];
 
 type Signal<T, K = T, X = {}, E = { reset(): void }> = Callable<T> &
   Pick<Promise<T>, 'then' | 'catch' | 'finally'> & {
@@ -147,16 +145,28 @@ type Signal<T, K = T, X = {}, E = { reset(): void }> = Callable<T> &
     select<P>(get: (data: K) => P): Selector<P>;
     select(): Selector<K>;
     watch(listener: (value: K extends Ensurable<infer P> ? P : K, prev?: K) => void): () => void;
-  } & E & X & {
+  } & E &
+  X &
+  {
     [P in Exclude<keyof Array<void>, 'filter' | number>]: never;
-  } & [() => K, (value: T) => void];
+  } &
+  [() => K, (value: T) => void];
 
-type StopSignal = Signal<void, boolean, {
-  stop(): void
-}, {}>;
-type ReadySignal<T, K = T> = Signal<T, K, {
-  to(value: T): Signal<void, K>;
-}>;
+type StopSignal = Signal<
+  void,
+  boolean,
+  {
+    stop(): void;
+  },
+  {}
+>;
+type ReadySignal<T, K = T> = Signal<
+  T,
+  K,
+  {
+    to(value: T): Signal<void, K>;
+  }
+>;
 
 type Reactionable<T> = { 0: () => T } | [() => T] | (() => T);
 type Pool<K> = K & {
@@ -236,7 +246,7 @@ function stop_signal(): StopSignal {
   no_reset = 1;
   try {
     const ctx = ready(false).to(true) as any;
-    return ctx.stop = ctx;
+    return (ctx.stop = ctx);
   } finally {
     no_reset = 0;
   }
@@ -268,9 +278,7 @@ function def_format(ctx: any, get: any, set?: any, no_set_update?: any, has_to?:
   }
   if (set) {
     ctx.wrap = (set: any, get: any) => wrap(ctx, set, get);
-    ctx.filter = (fn: any) => wrap(ctx, (v: any) => (
-      fn(v) ? v : stoppable().stop()
-    ));
+    ctx.filter = (fn: any) => wrap(ctx, (v: any) => (fn(v) ? v : stoppable().stop()));
   }
   ctx.view = (get: any) => wrap(ctx, 0, get);
   ctx.watch = (fn: any) => on(ctx, fn);
@@ -470,12 +478,12 @@ function cycle(body: () => void) {
     const stack = stoppable_context;
     stoppable_context = 1;
     try {
-      run()
+      run();
       if (stoppable_context !== 1 && stoppable_context[0]()) stop();
     } finally {
       stoppable_context = stack;
     }
-  }
+  };
 
   const [run, stop] = expr(body, iter);
   iter();

@@ -6,7 +6,7 @@ test('should work stoppable stop method', () => {
   const a = value(0).wrap((v: number) => {
     if (v % 2) stoppable().stop();
     return v;
-  })
+  });
   a.watch(spy);
 
   a(1);
