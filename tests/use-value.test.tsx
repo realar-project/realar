@@ -43,3 +43,15 @@ test('should work with observe together', () => {
   el.find('button').simulate('click');
   expect(spy).toBeCalledTimes(2);
 });
+
+test('should work with not a function', () => {
+  const spy = jest.fn();
+  function A() {
+    const val = (useValue as any)(10);
+    spy(val);
+    return <button />;
+  }
+
+  mount(<A />);
+  expect(spy).toHaveBeenNthCalledWith(1, 10);
+});

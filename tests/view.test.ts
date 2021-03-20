@@ -21,7 +21,7 @@ test('should work basic operations with view methods for signal', () => {
   const v_1 = v.view(v => v + v);
 
   on(v_1, spy);
-  v(1);
+  v_1(1);
   expect(v_1.val).toBe(2);
 
   expect(spy).toBeCalledWith(2, 0);

@@ -1,4 +1,4 @@
-import { pool, stoppable } from '../src';
+import { on, pool, stoppable } from '../src';
 import { delay } from './lib';
 
 test('should work basic operations with pool', async () => {
@@ -38,4 +38,24 @@ test('should work basic operations with pool', async () => {
 
   expect(p.pending).toBe(false);
   expect(p.count).toBe(0);
+});
+
+test('should work correct pool with not async function', async () => {
+  const spy = jest.fn();
+
+  const p = (pool as any)(() => {
+    expect(p.pending).toBe(true);
+    return 10;
+  });
+
+  expect(p.pending).toBe(false);
+  on(() => p.pending, spy);
+
+  expect(p()).toBe(10);
+  expect(p.threads).toEqual([]);
+  expect(p.pending).toBe(false);
+
+  expect(spy).toBeCalledTimes(2);
+  expect(spy).toHaveBeenNthCalledWith(1, true, false);
+  expect(spy).toHaveBeenNthCalledWith(2, false, true);
 });

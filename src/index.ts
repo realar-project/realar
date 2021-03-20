@@ -22,8 +22,8 @@ export {
   observe,
   useValue,
   useLocal,
-  useShared,
   useScoped,
+  shared as useShared,
   Scope,
   free,
   mock,
@@ -563,7 +563,7 @@ function get_scope_context(): Context<any> {
 }
 
 function useScoped<M>(
-  target: (new (init?: any) => M | Reactionable<M>) | ((init?: any) => M | Reactionable<M>)
+  target: (new (init?: any) => M) | ((init?: any) => M)
 ): M {
   const context_data = useContext(get_scope_context());
   if (!context_data) {
@@ -580,7 +580,7 @@ function useScoped<M>(
 
     context_data[0].set(target, instance);
   }
-  return useValue(instance);
+  return instance;
 }
 
 const Scope: FC = ({ children }) => {
@@ -611,7 +611,7 @@ function observe<T extends FC>(FunctionComponent: T): T {
 }
 
 function useLocal<T extends unknown[], M>(
-  target: (new (...args: T) => M | Reactionable<M>) | ((...args: T) => M | Reactionable<M>),
+  target: (new (...args: T) => M) | ((...args: T) => M),
   deps = [] as T
 ): M {
   const h = useMemo(() => {
@@ -620,7 +620,7 @@ function useLocal<T extends unknown[], M>(
   }, deps);
 
   useEffect(h[1], [h]);
-  return useValue(h[0], [h]);
+  return h[0];
 }
 
 function useValue<T>(target: Reactionable<T>, deps: any[] = []): T {
@@ -647,12 +647,6 @@ function useValue<T>(target: Reactionable<T>, deps: any[] = []): T {
 
   is_observe || useEffect(h[1], [h]);
   return h[2] ? h[0]() : h[0];
-}
-
-function useShared<M>(
-  target: (new (init?: any) => M | Reactionable<M>) | ((init?: any) => M | Reactionable<M>)
-): M {
-  return useValue(shared(target as any));
 }
 
 function free() {
