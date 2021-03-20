@@ -99,7 +99,11 @@ type Selector<T> = {
     view<P>(get: (data: T) => P): Selector<P>;
     select<P>(get: (data: T) => P): Selector<P>;
     select(): Selector<T>;
-    watch(listener: (value: T, prev?: T) => void): () => void;
+
+    watch: {
+      (listener: (value: T, prev?: T) => void): () => void;
+      once(listener: (value: T, prev?: T) => void): () => void;
+    }
   };
 
 type Value<T, K = T> = Callable<T> & {
@@ -120,7 +124,10 @@ type Value<T, K = T> = Callable<T> & {
   view<P>(get: (data: K) => P): Value<T, P>;
   select<P>(get: (data: K) => P): Selector<P>;
   select(): Selector<K>;
-  watch(listener: (value: K, prev?: K) => void): () => void;
+  watch: {
+    (listener: (value: K, prev?: K) => void): () => void;
+    once(listener: (value: K, prev?: K) => void): () => void;
+  }
   reset(): void;
 } & {
     [P in Exclude<keyof Array<void>, 'filter' | number>]: never;
@@ -144,7 +151,11 @@ type Signal<T, K = T, X = {}, E = { reset(): void }> = Callable<T> &
     view<P>(get: (data: K) => P): Signal<T, P, X, E>;
     select<P>(get: (data: K) => P): Selector<P>;
     select(): Selector<K>;
-    watch(listener: (value: K extends Ensurable<infer P> ? P : K, prev?: K) => void): () => void;
+
+    watch: {
+      (listener: (value: K extends Ensurable<infer P> ? P : K, prev?: K) => void): () => void;
+      once(listener: (value: K extends Ensurable<infer P> ? P : K, prev?: K) => void): () => void;
+    }
   } & E &
   X &
   {
@@ -282,6 +293,8 @@ function def_format(ctx: any, get: any, set?: any, no_set_update?: any, has_to?:
   }
   ctx.view = (get: any) => wrap(ctx, 0, get);
   ctx.watch = (fn: any) => on(ctx, fn);
+  ctx.watch.once = (fn: any) => once(ctx, fn);
+
   ctx.select = (fn: any) => selector(fn ? () => fn(get()) : get);
 }
 
@@ -382,10 +395,10 @@ function pool<K extends () => Promise<any>>(body: K): Pool<K> {
 
   function run() {
     const stop = stop_signal();
-    isolate(once(
-      stop,
-      () => threads.update(t => t.filter(ctx => ctx !== stop))
-    ));
+    isolate(stop.watch.once(() => (
+      threads.update(t => t.filter(ctx => ctx !== stop))
+    )));
+
     threads.update(t => t.concat(stop));
 
     const stack = stoppable_context;
