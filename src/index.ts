@@ -90,6 +90,8 @@ type Callable<T> = {
     }
   : {});
 
+type Reactionable<T> = { 0: () => T } | [() => T] | (() => T);
+
 type Selector<T> = {
   0: () => T;
   readonly val: T;
@@ -111,6 +113,12 @@ type Value<T, K = T> = Callable<T> & {
   1: (value: T) => void;
   val: T & K;
   update: (fn: (state: K) => T) => void;
+
+  sub: {
+    <S>(reactionable: Reactionable<S>, fn: (data?: K, value?: S, prev?: S) => T): (() => void);
+    once<S>(reactionable: Reactionable<S>, fn: (data?: K, value?: S, prev?: S) => T): (() => void);
+  }
+
   get(): K;
   set(value: T): void;
 } & {
@@ -179,7 +187,6 @@ type ReadySignal<T, K = T> = Signal<
   }
 >;
 
-type Reactionable<T> = { 0: () => T } | [() => T] | (() => T);
 type Pool<K> = K & {
   count: Selector<number>;
   threads: Selector<StopSignal[]>;
@@ -223,6 +230,7 @@ function signal(init?: any) {
 }
 
 signal.stop = stop_signal;
+signal.ready = ready;
 
 function ready<T = void>(): ReadySignal<T, Ensurable<T>>;
 function ready<T = void>(init: T): ReadySignal<T>;
@@ -280,6 +288,16 @@ function def_format(ctx: any, get: any, set?: any, no_set_update?: any, has_to?:
       ctx.set = set;
       ctx.update = (fn: any) => set(fn(get()));
       val_prop.set = set;
+      ctx.sub = (s: any, fn: any) => (
+        on(s, (v, v_prev) => (
+          set(fn(get(), v, v_prev))
+        ))
+      );
+      ctx.sub.once = (s: any, fn: any) => (
+        once(s, (v, v_prev) => (
+          set(fn(get(), v, v_prev))
+        ))
+      );
     }
   }
   def_prop(ctx, key, val_prop);
@@ -395,10 +413,7 @@ function pool<K extends () => Promise<any>>(body: K): Pool<K> {
 
   function run() {
     const stop = stop_signal();
-    isolate(stop.watch.once(() => (
-      threads.update(t => t.filter(ctx => ctx !== stop))
-    )));
-
+    isolate(threads.sub.once(stop, t => t.filter(ctx => ctx !== stop)));
     threads.update(t => t.concat(stop));
 
     const stack = stoppable_context;
@@ -457,6 +472,8 @@ function on(target: any, listener: (value: any, prev?: any) => void): () => void
   if (sync_mode) listener(value);
   return unsub;
 }
+
+on.once = once;
 
 function once<T>(
   target: Reactionable<Ensurable<T>>,

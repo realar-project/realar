@@ -32,3 +32,34 @@ test('should work value update', () => {
   a.update(v => v + 3);
   expect(a.val).toBe(13);
 });
+
+test('should work value sub method', () => {
+  const a = value(0);
+  const b = value(0);
+  const r = signal(0);
+  a.sub(r, (a, r, r_prev) => (
+    a * 100 + r * 10 + r_prev
+  ));
+  a.sub(() => b.val + 1, (a, r, r_prev) => (
+    a * 100 + r * 10 + r_prev
+  ));
+
+  r(1);
+  expect(a.val).toBe(10);
+  b(1);
+  expect(a.val).toBe(1021);
+  r(1);
+  expect(a.val).toBe(102111);
+});
+
+test('should work value sub once method', () => {
+  const a = value(1);
+  const r = signal(0);
+  a.sub.once(r, (a, r, r_prev) => (
+    a * 100 + r * 10 + r_prev
+  ));
+  r(5);
+  r(6);
+
+  expect(a.val).toBe(150);
+});

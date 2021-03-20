@@ -1,4 +1,4 @@
-import { on, ready } from '../src';
+import { on, ready, signal } from '../src';
 import { delay } from './lib';
 
 test('should work ready with one value', async () => {
@@ -27,7 +27,7 @@ test('should work ready with one value', async () => {
 
 test('should work ready with two values', async () => {
   const spy = jest.fn();
-  const a = ready(0).to(1);
+  const a = signal.ready(0).to(1);
   on(a, spy);
 
   expect(a.val).toBe(0);
