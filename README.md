@@ -427,7 +427,7 @@ console.log(getTarget()) // 10
 ```
 [Edit on RunKit](https://runkit.com/betula/601a73b26adfe70020a0e229)
 
-_Documentation not ready yet for `effect`, `loop`, `pool`, `stoppable`, `initial`, `mock`, `unmock`, `free`, `transaction`, `untrack`, `isolate`, `ready`, `once` functions. It's coming soon._
+_Documentation not ready yet for `effect`, `loop`, `pool`, `stoppable`, `initial`, `mock`, `unmock`, `free`, `transaction`, `untrack`, `isolate`, `ready`, `once`, `un` functions. It's coming soon._
 
 ### Demos
 

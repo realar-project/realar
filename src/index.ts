@@ -11,6 +11,7 @@ export {
   on,
   once,
   effect,
+  un,
   sync,
   cycle,
   loop,
@@ -387,7 +388,7 @@ function loop(body: () => Promise<any>) {
   const unsub = () => {
     if (running) running = 0;
   };
-  if (context_unsubs) context_unsubs.push(unsub);
+  un(unsub);
   fn();
   return unsub;
 }
@@ -460,7 +461,7 @@ function on(target: any, listener: (value: any, prev?: any) => void): () => void
     if (free) free();
     stop();
   };
-  if (context_unsubs) context_unsubs.push(unsub);
+  un(unsub);
   if (sync_mode) listener(value);
   return unsub;
 }
@@ -491,7 +492,10 @@ function sync<T>(target: Reactionable<T>, listener: (value: T, prev?: T) => void
 function effect(fn: () => void): () => void;
 function effect(fn: () => () => any): () => any;
 function effect(fn: any) {
-  const unsub = fn();
+  return un(fn());
+}
+
+function un(unsub: () => void): (() => void) {
   if (unsub && context_unsubs) context_unsubs.push(unsub);
   return unsub;
 }
@@ -510,8 +514,7 @@ function cycle(body: () => void) {
 
   const [run, stop] = expr(body, iter);
   iter();
-  if (context_unsubs) context_unsubs.push(stop);
-  return stop;
+  return un(stop);
 }
 
 function isolate(): () => () => void;
