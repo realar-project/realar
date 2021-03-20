@@ -170,9 +170,9 @@ type ReadySignal<T, K = T> = Signal<
 
 type Reactionable<T> = { 0: () => T } | [() => T] | (() => T);
 type Pool<K> = K & {
-  count: number;
-  threads: StopSignal[];
-  pending: boolean;
+  count: Selector<number>;
+  threads: Selector<StopSignal[]>;
+  pending: Selector<boolean>;
 };
 
 function value<T = void>(): Value<T>;
@@ -376,15 +376,17 @@ function stoppable(): StopSignal {
 }
 
 function pool<K extends () => Promise<any>>(body: K): Pool<K> {
-  const [get_threads, set_threads] = box([]);
-  const get_count = () => get_threads().length;
-  const [get_pending] = sel(() => get_count() > 0);
+  const threads = value([]);
+  const count = threads.select(t => t.length);
+  const pending = count.select(c => c > 0);
 
   function run() {
     const stop = stop_signal();
-    isolate(once(stop, () => set_threads(get_threads().filter(ctx => ctx !== stop))));
-
-    set_threads(get_threads().concat(stop));
+    isolate(once(
+      stop,
+      () => threads.update(t => t.filter(ctx => ctx !== stop))
+    ));
+    threads.update(t => t.concat(stop));
 
     const stack = stoppable_context;
     stoppable_context = stop;
@@ -403,10 +405,9 @@ function pool<K extends () => Promise<any>>(body: K): Pool<K> {
     }
     return ret;
   }
-
-  def_prop(run, 'count', { get: get_count });
-  def_prop(run, 'threads', { get: get_threads });
-  def_prop(run, 'pending', { get: get_pending });
+  run.count = count;
+  run.threads = threads;
+  run.pending = pending;
 
   return run as any;
 }
@@ -477,7 +478,7 @@ function cycle(body: () => void) {
   const iter = () => {
     const stack = stoppable_context;
     stoppable_context = stop_signal();
-    isolate(on(stoppable_context, stop));
+    isolate(once(stoppable_context, stop));
     try {
       run();
     } finally {
