@@ -105,7 +105,7 @@ type Selector<T> = {
     watch: {
       (listener: (value: T, prev?: T) => void): () => void;
       once(listener: (value: T, prev?: T) => void): () => void;
-    }
+    };
   };
 
 type Value<T, K = T> = Callable<T> & {
@@ -115,9 +115,9 @@ type Value<T, K = T> = Callable<T> & {
   update: (fn: (state: K) => T) => void;
 
   sub: {
-    <S>(reactionable: Reactionable<S>, fn: (data?: K, value?: S, prev?: S) => T): (() => void);
-    once<S>(reactionable: Reactionable<S>, fn: (data?: K, value?: S, prev?: S) => T): (() => void);
-  }
+    <S>(reactionable: Reactionable<S>, fn: (data?: K, value?: S, prev?: S) => T): () => void;
+    once<S>(reactionable: Reactionable<S>, fn: (data?: K, value?: S, prev?: S) => T): () => void;
+  };
 
   get(): K;
   set(value: T): void;
@@ -135,7 +135,7 @@ type Value<T, K = T> = Callable<T> & {
   watch: {
     (listener: (value: K, prev?: K) => void): () => void;
     once(listener: (value: K, prev?: K) => void): () => void;
-  }
+  };
   reset(): void;
 } & {
     [P in Exclude<keyof Array<void>, 'filter' | number>]: never;
@@ -163,7 +163,7 @@ type Signal<T, K = T, X = {}, E = { reset(): void }> = Callable<T> &
     watch: {
       (listener: (value: K extends Ensurable<infer P> ? P : K, prev?: K) => void): () => void;
       once(listener: (value: K extends Ensurable<infer P> ? P : K, prev?: K) => void): () => void;
-    }
+    };
   } & E &
   X &
   {
@@ -288,16 +288,8 @@ function def_format(ctx: any, get: any, set?: any, no_set_update?: any, has_to?:
       ctx.set = set;
       ctx.update = (fn: any) => set(fn(get()));
       val_prop.set = set;
-      ctx.sub = (s: any, fn: any) => (
-        on(s, (v, v_prev) => (
-          set(fn(get(), v, v_prev))
-        ))
-      );
-      ctx.sub.once = (s: any, fn: any) => (
-        once(s, (v, v_prev) => (
-          set(fn(get(), v, v_prev))
-        ))
-      );
+      ctx.sub = (s: any, fn: any) => on(s, (v, v_prev) => set(fn(get(), v, v_prev)));
+      ctx.sub.once = (s: any, fn: any) => once(s, (v, v_prev) => set(fn(get(), v, v_prev)));
     }
   }
   def_prop(ctx, key, val_prop);
@@ -593,9 +585,7 @@ function get_scope_context(): Context<any> {
   return scope_context ? scope_context : (scope_context = (createContext as any)());
 }
 
-function useScoped<M>(
-  target: (new (init?: any) => M) | ((init?: any) => M)
-): M {
+function useScoped<M>(target: (new (init?: any) => M) | ((init?: any) => M)): M {
   const context_data = useContext(get_scope_context());
   if (!context_data) {
     throw new Error('"Scope" parent component didn\'t find');
