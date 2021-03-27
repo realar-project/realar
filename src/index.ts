@@ -278,10 +278,12 @@ function ready(init?: any) {
   return fn as any;
 }
 
+ready.flag = () => ready(false).to(true);
+
 function stop_signal(): StopSignal {
   is_stop_signal = 1;
   try {
-    const ctx = ready(false).to(true) as any;
+    const ctx = ready.flag() as any;
     return (ctx.stop = ctx);
   } finally {
     is_stop_signal = 0;
