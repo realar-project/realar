@@ -296,6 +296,16 @@ function ready(init?: any) {
 }
 
 ready.flag = () => ready(false).to(true);
+ready.from = ready_from;
+
+function ready_from<T>(source: Reactionable<T>): ReadySignal<T> {
+  if ((source as any)[0]) source = (source as any)[0];
+
+  const dest = ready((source as any)());
+  on(source, dest);
+
+  return dest as any;
+}
 
 function stop_signal(): StopSignal {
   is_stop_signal = 1;

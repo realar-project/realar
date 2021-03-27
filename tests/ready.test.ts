@@ -1,4 +1,4 @@
-import { on, ready, signal } from '../src';
+import { on, ready, signal, sync } from '../src';
 import { delay } from './lib';
 
 test('should work ready with one value', async () => {
@@ -95,4 +95,20 @@ test('should work ready wrapped to', async () => {
   expect(spy).toHaveBeenNthCalledWith(1, 20, 0);
   expect(spy).toHaveBeenNthCalledWith(2, 0, 20);
   expect(spy).toHaveBeenNthCalledWith(3, 20, 0);
+});
+
+test('should work ready from', async () => {
+  const spy = jest.fn();
+
+  const s = signal(1);
+  const r = ready.from(s);
+
+  sync(r, spy);
+
+  s(2);
+  s(3);
+
+  expect(spy).toBeCalledTimes(2);
+  expect(spy).toHaveBeenNthCalledWith(1, 1);
+  expect(spy).toHaveBeenNthCalledWith(2, 2, 1);
 });
