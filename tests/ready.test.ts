@@ -136,3 +136,9 @@ test('should work ready resolved', async () => {
   expect(r.val).toBe(1);
   expect(await r).toBe(1);
 });
+
+test('should work ready with undefined resolved', async () => {
+  const r = ready.resolved();
+  expect(r.val).toBe(void 0);
+  expect(await r).toBe(void 0);
+});
