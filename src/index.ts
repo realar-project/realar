@@ -137,9 +137,10 @@ type Value<T, K = T> = Callable<T> & {
   view<P>(get: (data: K) => P): Value<T, P>;
   select<P>(get: (data: K) => P): Selector<P>;
   select(): Selector<K>;
+
   watch: {
-    (listener: (value: K, prev: K) => void): () => void;
-    once(listener: (value: K, prev: K) => void): () => void;
+    (listener: (value: K extends Ensurable<infer P> ? P : K, prev: K) => void): () => void;
+    once(listener: (value: K extends Ensurable<infer P> ? P : K, prev: K) => void): () => void;
   };
   reset(): void;
 
@@ -469,17 +470,17 @@ function pool<K extends () => Promise<any>>(body: K): Pool<K> {
   const count = threads.select(t => t.length);
   const pending = count.select(c => c > 0);
 
-  function run() {
+  function run(this: any) {
     const stop = stop_signal();
     isolate(threads.sub.once(stop, t => t.filter(ctx => ctx !== stop)));
-    threads.update(t => t.concat(stop));
+    threads.update(t => t.concat(stop as any));
 
     const stack = stoppable_context;
     stoppable_context = stop;
 
     let ret;
     try {
-      ret = body.apply(this, arguments);
+      ret = (body as any).apply(this, arguments);
     } finally {
       stoppable_context = stack;
 
@@ -500,9 +501,9 @@ function pool<K extends () => Promise<any>>(body: K): Pool<K> {
 
 function on<T>(
   target: Reactionable<Ensurable<T>>,
-  listener: (value: T, prev?: T) => void
+  listener: (value: T, prev: Ensurable<T>) => void
 ): () => void;
-function on<T>(target: Reactionable<T>, listener: (value: T, prev?: T) => void): () => void;
+function on<T>(target: Reactionable<T>, listener: (value: T, prev: T) => void): () => void;
 function on(target: any, listener: (value: any, prev?: any) => void): () => void {
   const sync_mode = is_sync;
   let free: (() => void) | undefined;
@@ -535,9 +536,9 @@ on.once = once;
 
 function once<T>(
   target: Reactionable<Ensurable<T>>,
-  listener: (value: T, prev?: T) => void
+  listener: (value: T, prev: Ensurable<T>) => void
 ): () => void;
-function once<T>(target: Reactionable<T>, listener: (value: T, prev?: T) => void): () => void;
+function once<T>(target: Reactionable<T>, listener: (value: T, prev: T) => void): () => void;
 function once(target: any, listener: (value: any, prev?: any) => void): () => void {
   const unsub = on(target, (value, prev) => {
     try {
@@ -549,7 +550,7 @@ function once(target: any, listener: (value: any, prev?: any) => void): () => vo
   return unsub;
 }
 
-function sync<T>(target: Reactionable<T>, listener: (value: T, prev?: T) => void): () => void {
+function sync<T>(target: Reactionable<T>, listener: (value: T, prev: T) => void): () => void {
   is_sync = 1;
   return on(target, listener);
 }
@@ -683,7 +684,7 @@ function useForceUpdate() {
 }
 
 function observe<T extends FC>(FunctionComponent: T): T {
-  return function () {
+  return function (this: any) {
     const forceUpdate = useForceUpdate();
     const ref = useRef<[T, () => void]>();
     if (!ref.current) ref.current = expr(FunctionComponent, forceUpdate);
@@ -692,7 +693,7 @@ function observe<T extends FC>(FunctionComponent: T): T {
     const stack = is_observe;
     is_observe = 1;
     try {
-      return ref.current[0].apply(this, arguments);
+      return (ref.current[0] as any).apply(this, arguments);
     } finally {
       is_observe = stack;
     }
@@ -701,7 +702,7 @@ function observe<T extends FC>(FunctionComponent: T): T {
 
 function useLocal<T extends unknown[], M>(
   target: (new (...args: T) => M) | ((...args: T) => M),
-  deps = [] as T
+  deps = ([] as unknown) as T
 ): M {
   const h = useMemo(() => {
     const i = inst(target, deps);

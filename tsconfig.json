@@ -11,6 +11,7 @@
     "sourceMap": true,
     "moduleResolution": "node",
     "experimentalDecorators": true,
+    "strict": true
   },
   "include": ["src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"],
   "exclude": ["node_modules", "build"]
