@@ -9,7 +9,6 @@ export {
   signal,
   ready,
   on,
-  once,
   effect,
   un,
   sync,
