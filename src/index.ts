@@ -104,8 +104,8 @@ type Selector<T> = {
     select(): Selector<T>;
 
     watch: {
-      (listener: (value: T, prev?: T) => void): () => void;
-      once(listener: (value: T, prev?: T) => void): () => void;
+      (listener: (value: T, prev: T) => void): () => void;
+      once(listener: (value: T, prev: T) => void): () => void;
     };
 
     flow: {
@@ -121,8 +121,8 @@ type Value<T, K = T> = Callable<T> & {
 
   update: (fn: (state: K) => T) => void;
   sub: {
-    <S>(reactionable: Reactionable<S>, fn: (data?: K, value?: S, prev?: S) => T): () => void;
-    once<S>(reactionable: Reactionable<S>, fn: (data?: K, value?: S, prev?: S) => T): () => void;
+    <S>(reactionable: Reactionable<S>, fn: (data: K, value: S, prev: S) => T): () => void;
+    once<S>(reactionable: Reactionable<S>, fn: (data: K, value: S, prev: S) => T): () => void;
   };
   set(value: T): void;
 } & {
@@ -139,8 +139,8 @@ type Value<T, K = T> = Callable<T> & {
   select<P>(get: (data: K) => P): Selector<P>;
   select(): Selector<K>;
   watch: {
-    (listener: (value: K, prev?: K) => void): () => void;
-    once(listener: (value: K, prev?: K) => void): () => void;
+    (listener: (value: K, prev: K) => void): () => void;
+    once(listener: (value: K, prev: K) => void): () => void;
   };
   reset(): void;
 
@@ -156,8 +156,8 @@ type Signal<T, K = T, X = {}, E = {
   reset(): void;
   update: (fn: (state: K) => T) => void;
   sub: {
-    <S>(reactionable: Reactionable<S>, fn: (data?: K, value?: S, prev?: S) => T): () => void;
-    once<S>(reactionable: Reactionable<S>, fn: (data?: K, value?: S, prev?: S) => T): () => void;
+    <S>(reactionable: Reactionable<S>, fn: (data: K, value: S, prev: S) => T): () => void;
+    once<S>(reactionable: Reactionable<S>, fn: (data: K, value: S, prev: S) => T): () => void;
   };
   set(value: T): void;
 }> = Callable<T> &
@@ -181,8 +181,8 @@ type Signal<T, K = T, X = {}, E = {
     select(): Selector<K>;
 
     watch: {
-      (listener: (value: K extends Ensurable<infer P> ? P : K, prev?: K) => void): () => void;
-      once(listener: (value: K extends Ensurable<infer P> ? P : K, prev?: K) => void): () => void;
+      (listener: (value: K extends Ensurable<infer P> ? P : K, prev: K) => void): () => void;
+      once(listener: (value: K extends Ensurable<infer P> ? P : K, prev: K) => void): () => void;
     };
 
     flow: {
