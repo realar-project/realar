@@ -140,7 +140,7 @@ type Value<T, K = T> = Callable<T> & {
   };
   reset(): void;
 } & {
-    [P in Exclude<keyof Array<void>, 'filter' | number>]: never;
+    [P in Exclude<keyof Array<void>, number>]: never;
   } &
   [() => K, (value: T) => void];
 
@@ -179,7 +179,7 @@ type Signal<T, K = T, X = {}, E = {
   } & E &
   X &
   {
-    [P in Exclude<keyof Array<void>, 'filter' | number>]: never;
+    [P in Exclude<keyof Array<void>, number>]: never;
   } &
   [() => K, (value: T) => void];
 
