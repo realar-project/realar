@@ -307,7 +307,7 @@ function ready_from<T>(source: Reactionable<T>): ReadySignal<T> {
   return dest as any;
 }
 
-function ready_resolved(): ReadySignal<void>
+function ready_resolved(): ReadySignal<void>;
 function ready_resolved<T>(value: T): ReadySignal<void, T>;
 function ready_resolved(value?: any): any {
   const r = ready(value);

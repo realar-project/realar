@@ -130,7 +130,6 @@ test('should work ready from signal', async () => {
   expect(spy).toHaveBeenNthCalledWith(2, 1, 1);
 });
 
-
 test('should work ready resolved', async () => {
   const r = ready.resolved(1);
   expect(r.val).toBe(1);
