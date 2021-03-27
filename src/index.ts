@@ -299,9 +299,8 @@ ready.flag = () => ready(false).to(true);
 ready.from = ready_from;
 
 function ready_from<T>(source: Reactionable<T>): ReadySignal<T> {
-  if ((source as any)[0]) source = (source as any)[0];
-
-  const dest = ready((source as any)());
+  const fn = (source as any)[0] || (source as any);
+  const dest = ready(fn());
   on(source, dest);
 
   return dest as any;
