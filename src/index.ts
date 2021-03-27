@@ -107,6 +107,10 @@ type Selector<T> = {
       (listener: (value: T, prev?: T) => void): () => void;
       once(listener: (value: T, prev?: T) => void): () => void;
     };
+
+    flow: {
+      filter(fn: (data: T) => any): Value<T, Ensurable<T>>
+    }
   };
 
 type Value<T, K = T> = Callable<T> & {
@@ -139,6 +143,10 @@ type Value<T, K = T> = Callable<T> & {
     once(listener: (value: K, prev?: K) => void): () => void;
   };
   reset(): void;
+
+  flow: {
+    filter(fn: (data: K) => any): Value<K, Ensurable<T>>
+  }
 } & {
     [P in Exclude<keyof Array<void>, number>]: never;
   } &
@@ -176,6 +184,10 @@ type Signal<T, K = T, X = {}, E = {
       (listener: (value: K extends Ensurable<infer P> ? P : K, prev?: K) => void): () => void;
       once(listener: (value: K extends Ensurable<infer P> ? P : K, prev?: K) => void): () => void;
     };
+
+    flow: {
+      filter(fn: (data: K) => any): Signal<K, Ensurable<T>>
+    }
   } & E &
   X &
   {
@@ -326,6 +338,9 @@ function def_format(ctx: any, get: any, set?: any, no_update?: any, readonly_val
   ctx.watch.once = (fn: any) => once(ctx, fn);
 
   ctx.select = (fn: any) => selector(fn ? () => fn(get()) : get);
+
+  ctx.flow = {};
+  ctx.flow.filter = (fn: any) => flow_filter(ctx, fn);
 }
 
 function def_promisify(ctx: any) {
@@ -398,6 +413,14 @@ function wrap(target: any, set?: any, get?: any) {
   );
 
   return dest;
+}
+
+function flow_filter<T>(target: Reactionable<T>, fn: (data: T) => boolean) {
+  const f = (target as any).then ? signal<T>() : value<T>();
+  on(target, (v) => {
+    if (fn(v)) f(v);
+  });
+  return f;
 }
 
 function loop(body: () => Promise<any>) {
