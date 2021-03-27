@@ -6,7 +6,7 @@ test('should work basic operations with filter method', async () => {
   const a = signal(0);
   const b = signal(0);
 
-  const c = a.filter(() => b.val);
+  const c = a.wrap.filter(() => b.val);
 
   on(c, spy);
 

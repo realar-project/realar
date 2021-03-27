@@ -73,7 +73,7 @@ let initial_data: any;
 let context_unsubs: any;
 let shared_unsubs = [] as any;
 let is_sync: any;
-let no_reset: any;
+let is_stop_signal: any;
 let is_observe: any;
 let scope_context: any;
 let stoppable_context: any;
@@ -113,22 +113,23 @@ type Value<T, K = T> = Callable<T> & {
   0: () => K;
   1: (value: T) => void;
   val: T & K;
-  update: (fn: (state: K) => T) => void;
+  get(): K;
 
+  update: (fn: (state: K) => T) => void;
   sub: {
     <S>(reactionable: Reactionable<S>, fn: (data?: K, value?: S, prev?: S) => T): () => void;
     once<S>(reactionable: Reactionable<S>, fn: (data?: K, value?: S, prev?: S) => T): () => void;
   };
-
-  get(): K;
   set(value: T): void;
 } & {
-  wrap<P>(set: () => T, get: (data: K) => P): Value<void, P>;
-  wrap<P, M = T>(set: (data: M) => T, get: (data: K) => P): Value<M, P>;
-  wrap(set: () => T): Value<void, K>;
-  wrap<M = T>(set: (data: M) => T): Value<M, K>;
+  wrap: {
+    <P>(set: () => T, get: (data: K) => P): Value<void, P>;
+    <P, M = T>(set: (data: M) => T, get: (data: K) => P): Value<M, P>;
+    (set: () => T): Value<void, K>;
+    <M = T>(set: (data: M) => T): Value<M, K>;
 
-  filter(fn: (data: T) => any): Value<T, K>;
+    filter(fn: (data: T) => any): Value<T, K>;
+  }
 
   view<P>(get: (data: K) => P): Value<T, P>;
   select<P>(get: (data: K) => P): Selector<P>;
@@ -143,19 +144,29 @@ type Value<T, K = T> = Callable<T> & {
   } &
   [() => K, (value: T) => void];
 
-type Signal<T, K = T, X = {}, E = { reset(): void }> = Callable<T> &
+type Signal<T, K = T, X = {}, E = {
+  reset(): void;
+  update: (fn: (state: K) => T) => void;
+  sub: {
+    <S>(reactionable: Reactionable<S>, fn: (data?: K, value?: S, prev?: S) => T): () => void;
+    once<S>(reactionable: Reactionable<S>, fn: (data?: K, value?: S, prev?: S) => T): () => void;
+  };
+  set(value: T): void;
+}> = Callable<T> &
   Pick<Promise<T>, 'then' | 'catch' | 'finally'> & {
     0: () => K;
     1: (value: T) => void;
-    readonly val: K;
+    readonly val: K
     get(): K;
   } & {
-    wrap<P>(set: () => T, get: (data: K) => P): Signal<void, P, X, E>;
-    wrap<P, M = T>(set: (data: M) => T, get: (data: K) => P): Signal<M, P, X, E>;
-    wrap(set: () => T): Signal<void, K, X, E>;
-    wrap<M = T>(set: (data: M) => T): Signal<M, K, X, E>;
+    wrap: {
+      <P>(set: () => T, get: (data: K) => P): Signal<void, P, X, E>;
+      <P, M = T>(set: (data: M) => T, get: (data: K) => P): Signal<M, P, X, E>;
+      (set: () => T): Signal<void, K, X, E>;
+      <M = T>(set: (data: M) => T): Signal<M, K, X, E>;
 
-    filter(fn: (data: T) => any): Signal<T, K, X, E>;
+      filter(fn: (data: T) => any): Signal<T, K, X, E>;
+    }
 
     view<P>(get: (data: K) => P): Signal<T, P, X, E>;
     select<P>(get: (data: K) => P): Selector<P>;
@@ -177,6 +188,11 @@ type StopSignal = Signal<
   boolean,
   {
     stop(): void;
+    set(): void;
+    sub: {
+      (reactionable: Reactionable<any>): () => void;
+      once(reactionable: Reactionable<any>): () => void;
+    };
   },
   {}
 >;
@@ -225,7 +241,7 @@ function signal(init?: any) {
   };
 
   resolve = def_promisify(fn);
-  def_format(fn, () => get()[0], fn, 1);
+  def_format(fn, () => get()[0], fn, 0, 1);
   fn.reset = () => set([init]);
   return fn as any;
 }
@@ -249,9 +265,9 @@ function ready(init?: any) {
   };
 
   resolve = def_promisify(fn);
-  def_format(fn, () => get()[0], fn, 1, 1);
+  def_format(fn, () => get()[0], fn, is_stop_signal, 1, 1);
 
-  if (!no_reset) {
+  if (!is_stop_signal) {
     fn.reset = () => {
       resolve = def_promisify(fn);
       resolved = 0;
@@ -263,16 +279,16 @@ function ready(init?: any) {
 }
 
 function stop_signal(): StopSignal {
-  no_reset = 1;
+  is_stop_signal = 1;
   try {
     const ctx = ready(false).to(true) as any;
     return (ctx.stop = ctx);
   } finally {
-    no_reset = 0;
+    is_stop_signal = 0;
   }
 }
 
-function def_format(ctx: any, get: any, set?: any, no_set_update?: any, has_to?: any) {
+function def_format(ctx: any, get: any, set?: any, no_update?: any, readonly_val?: any, has_to?: any) {
   if (!Array.isArray(ctx)) {
     ctx[Symbol.iterator] = function* () {
       yield get;
@@ -285,13 +301,14 @@ function def_format(ctx: any, get: any, set?: any, no_set_update?: any, has_to?:
   const val_prop = { get } as any;
   if (set) {
     ctx[1] = set;
-    if (!no_set_update) {
-      ctx.set = set;
+    if (!no_update) {
       ctx.update = (fn: any) => set(fn(get()));
-      val_prop.set = set;
-      ctx.sub = (s: any, fn: any) => on(s, (v, v_prev) => set(fn(get(), v, v_prev)));
-      ctx.sub.once = (s: any, fn: any) => once(s, (v, v_prev) => set(fn(get(), v, v_prev)));
     }
+    ctx.set = set;
+    if (!readonly_val) val_prop.set = set;
+
+    ctx.sub = (s: any, fn: any) => on(s, (v, v_prev) => set(fn ? fn(get(), v, v_prev) : void 0));
+    ctx.sub.once = (s: any, fn: any) => once(s, (v, v_prev) => set(fn ? fn(get(), v, v_prev) : void 0));
   }
   def_prop(ctx, key, val_prop);
 
@@ -300,7 +317,7 @@ function def_format(ctx: any, get: any, set?: any, no_set_update?: any, has_to?:
   }
   if (set) {
     ctx.wrap = (set: any, get: any) => wrap(ctx, set, get);
-    ctx.filter = (fn: any) => wrap(ctx, (v: any) => (fn(v) ? v : stoppable().stop()));
+    ctx.wrap.filter = (fn: any) => wrap(ctx, (v: any) => (fn(v) ? v : stoppable().stop()));
   }
   ctx.view = (get: any) => wrap(ctx, 0, get);
   ctx.watch = (fn: any) => on(ctx, fn);
@@ -374,6 +391,7 @@ function wrap(target: any, set?: any, get?: any) {
     get ? () => get(source_get()) : source_get,
     dest_set || source_set,
     !target.update,
+    target.then,
     target.to
   );
 
