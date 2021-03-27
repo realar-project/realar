@@ -297,6 +297,7 @@ function ready(init?: any) {
 
 ready.flag = () => ready(false).to(true);
 ready.from = ready_from;
+ready.resolved = ready_resolved;
 
 function ready_from<T>(source: Reactionable<T>): ReadySignal<T> {
   const fn = (source as any)[0] || (source as any);
@@ -304,6 +305,12 @@ function ready_from<T>(source: Reactionable<T>): ReadySignal<T> {
   on(source, dest);
 
   return dest as any;
+}
+
+function ready_resolved<T>(value: T): ReadySignal<T> {
+  const r = ready(value);
+  r(value);
+  return r;
 }
 
 function stop_signal(): StopSignal {
