@@ -13,7 +13,7 @@ test('should work basic operations with isolate', async () => {
     unsub = effect(() => () => destr_2());
     effect(() => () => destr_3());
     unsubs = finish();
-    un(() => destr_4())
+    un(() => destr_4());
   };
 
   shared(A);

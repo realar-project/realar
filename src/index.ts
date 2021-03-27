@@ -109,8 +109,8 @@ type Selector<T> = {
     };
 
     flow: {
-      filter(fn: (data: T) => any): Value<T, Ensurable<T>>
-    }
+      filter(fn: (data: T) => any): Value<T, Ensurable<T>>;
+    };
   };
 
 type Value<T, K = T> = Callable<T> & {
@@ -133,7 +133,7 @@ type Value<T, K = T> = Callable<T> & {
     <M = T>(set: (data: M) => T): Value<M, K>;
 
     filter(fn: (data: T) => any): Value<T, K>;
-  }
+  };
 
   view<P>(get: (data: K) => P): Value<T, P>;
   select<P>(get: (data: K) => P): Selector<P>;
@@ -145,26 +145,31 @@ type Value<T, K = T> = Callable<T> & {
   reset(): void;
 
   flow: {
-    filter(fn: (data: K) => any): Value<K, Ensurable<T>>
-  }
+    filter(fn: (data: K) => any): Value<K, Ensurable<T>>;
+  };
 } & {
     [P in Exclude<keyof Array<void>, number>]: never;
   } &
   [() => K, (value: T) => void];
 
-type Signal<T, K = T, X = {}, E = {
-  reset(): void;
-  update: (fn: (state: K) => T) => void;
-  sub: {
-    <S>(reactionable: Reactionable<S>, fn: (data: K, value: S, prev: S) => T): () => void;
-    once<S>(reactionable: Reactionable<S>, fn: (data: K, value: S, prev: S) => T): () => void;
-  };
-  set(value: T): void;
-}> = Callable<T> &
+type Signal<
+  T,
+  K = T,
+  X = {},
+  E = {
+    reset(): void;
+    update: (fn: (state: K) => T) => void;
+    sub: {
+      <S>(reactionable: Reactionable<S>, fn: (data: K, value: S, prev: S) => T): () => void;
+      once<S>(reactionable: Reactionable<S>, fn: (data: K, value: S, prev: S) => T): () => void;
+    };
+    set(value: T): void;
+  }
+> = Callable<T> &
   Pick<Promise<T>, 'then' | 'catch' | 'finally'> & {
     0: () => K;
     1: (value: T) => void;
-    readonly val: K
+    readonly val: K;
     get(): K;
   } & {
     wrap: {
@@ -174,7 +179,7 @@ type Signal<T, K = T, X = {}, E = {
       <M = T>(set: (data: M) => T): Signal<M, K, X, E>;
 
       filter(fn: (data: T) => any): Signal<T, K, X, E>;
-    }
+    };
 
     view<P>(get: (data: K) => P): Signal<T, P, X, E>;
     select<P>(get: (data: K) => P): Selector<P>;
@@ -186,8 +191,8 @@ type Signal<T, K = T, X = {}, E = {
     };
 
     flow: {
-      filter(fn: (data: K) => any): Signal<K, Ensurable<T>>
-    }
+      filter(fn: (data: K) => any): Signal<K, Ensurable<T>>;
+    };
   } & E &
   X &
   {
@@ -302,7 +307,14 @@ function stop_signal(): StopSignal {
   }
 }
 
-function def_format(ctx: any, get: any, set?: any, no_update?: any, readonly_val?: any, has_to?: any) {
+function def_format(
+  ctx: any,
+  get: any,
+  set?: any,
+  no_update?: any,
+  readonly_val?: any,
+  has_to?: any
+) {
   if (!Array.isArray(ctx)) {
     ctx[Symbol.iterator] = function* () {
       yield get;
@@ -322,7 +334,8 @@ function def_format(ctx: any, get: any, set?: any, no_update?: any, readonly_val
     if (!readonly_val) val_prop.set = set;
 
     ctx.sub = (s: any, fn: any) => on(s, (v, v_prev) => set(fn ? fn(get(), v, v_prev) : void 0));
-    ctx.sub.once = (s: any, fn: any) => once(s, (v, v_prev) => set(fn ? fn(get(), v, v_prev) : void 0));
+    ctx.sub.once = (s: any, fn: any) =>
+      once(s, (v, v_prev) => set(fn ? fn(get(), v, v_prev) : void 0));
   }
   def_prop(ctx, key, val_prop);
 
@@ -417,7 +430,7 @@ function wrap(target: any, set?: any, get?: any) {
 
 function flow_filter<T>(target: Reactionable<T>, fn: (data: T) => boolean) {
   const f = (target as any).then ? signal<T>() : value<T>();
-  on(target, (v) => {
+  on(target, v => {
     if (fn(v)) f(v);
   });
   return f;
@@ -538,7 +551,7 @@ function effect(fn: any) {
   return un(fn());
 }
 
-function un(unsub: () => void): (() => void) {
+function un(unsub: () => void): () => void {
   if (unsub && context_unsubs) context_unsubs.push(unsub);
   return unsub;
 }
