@@ -1,4 +1,4 @@
-import { signal, cycle, on } from '../src';
+import { signal, cycle, on, value } from '../src';
 
 test('should work signal different using', () => {
   const spy = jest.fn();
@@ -98,4 +98,13 @@ test('should work signal with transform', () => {
   a('7');
   expect(spy).toHaveBeenNthCalledWith(2, 17);
   expect(spy).toBeCalledTimes(2);
+});
+
+test('should work signal from', async () => {
+  const v = value(1)
+  const s = signal.from(v.select(v => v + v));
+
+  setTimeout(() => v.val = 2, 100);
+  expect(s.val).toBe(2);
+  expect(await s).toBe(4);
 });

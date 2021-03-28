@@ -265,6 +265,7 @@ function signal(init?: any) {
 
 signal.stop = stop_signal;
 signal.ready = ready;
+signal.from = signal_from;
 
 function ready<T = void>(): ReadySignal<T, Ensurable<T>>;
 function ready<T = void>(init: T): ReadySignal<T>;
@@ -303,7 +304,6 @@ function ready_from<T>(source: Reactionable<T>): ReadySignal<T> {
   const fn = (source as any)[0] || (source as any);
   const dest = ready(fn());
   on(source, dest);
-
   return dest as any;
 }
 
@@ -313,6 +313,13 @@ function ready_resolved(value?: any): any {
   const r = ready(value);
   r(value);
   return r;
+}
+
+function signal_from<T>(source: Reactionable<T>): Signal<T> {
+  const fn = (source as any)[0] || (source as any);
+  const dest = signal(fn());
+  on(source, dest);
+  return dest as any;
 }
 
 function stop_signal(): StopSignal {
