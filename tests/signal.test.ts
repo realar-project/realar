@@ -101,10 +101,10 @@ test('should work signal with transform', () => {
 });
 
 test('should work signal from', async () => {
-  const v = value(1)
+  const v = value(1);
   const s = signal.from(v.select(v => v + v));
 
-  setTimeout(() => v.val = 2, 100);
+  setTimeout(() => (v.val = 2), 100);
   expect(s.val).toBe(2);
   expect(await s).toBe(4);
 });
@@ -115,7 +115,7 @@ test('should work signal combine', async () => {
   const s = signal.from(v.select(v => v + v));
 
   const c = signal.combine(v, s);
-  c.watch((v) => spy(v));
+  c.watch(v => spy(v));
 
   expect(c.val).toEqual([1, 2]);
   s(10);
