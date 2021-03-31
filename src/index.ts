@@ -266,6 +266,7 @@ function signal(init?: any) {
 signal.stop = stop_signal;
 signal.ready = ready;
 signal.from = signal_from;
+signal.combine = signal_combine;
 
 function ready<T = void>(): ReadySignal<T, Ensurable<T>>;
 function ready<T = void>(init: T): ReadySignal<T>;
@@ -319,6 +320,19 @@ function signal_from<T>(source: Reactionable<T>): Signal<T> {
   const fn = (source as any)[0] || (source as any);
   const dest = signal(fn());
   on(source, dest);
+  return dest as any;
+}
+
+function signal_combine(): Signal<[]>;
+function signal_combine<A>(a: Reactionable<A>): Signal<[A]>;
+function signal_combine<A, B>(a: Reactionable<A>, b: Reactionable<B>): Signal<[A, B]>;
+function signal_combine<A, B, C>(a: Reactionable<A>, b: Reactionable<B>, c: Reactionable<C>): Signal<[A, B, C]>;
+function signal_combine<A, B, C, D>(a: Reactionable<A>, b: Reactionable<B>, c: Reactionable<C>, d: Reactionable<D>): Signal<[A, B, C, D]>;
+function signal_combine<A, B, C, D, E>(a: Reactionable<A>, b: Reactionable<B>, c: Reactionable<C>, d: Reactionable<D>, e: Reactionable<E>): Signal<[A, B, C, D, E]>;
+function signal_combine(...sources: any):any {
+  const get = () => sources.map((src: any) => (src[0] || src)());
+  const dest = signal(get());
+  on([get], dest);
   return dest as any;
 }
 

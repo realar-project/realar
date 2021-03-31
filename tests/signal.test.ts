@@ -108,3 +108,24 @@ test('should work signal from', async () => {
   expect(s.val).toBe(2);
   expect(await s).toBe(4);
 });
+
+test('should work signal combine', async () => {
+  const spy = jest.fn();
+  const v = value(1);
+  const s = signal.from(v.select(v => v + v));
+
+  const c = signal.combine(v, s);
+  c.watch((v) => spy(v));
+
+  expect(c.val).toEqual([1, 2]);
+  s(10);
+  s(10);
+  v(2);
+  v(2);
+
+  expect(spy).toHaveBeenNthCalledWith(1, [1, 10]);
+  expect(spy).toHaveBeenNthCalledWith(2, [1, 10]);
+  expect(spy).toHaveBeenNthCalledWith(3, [2, 10]); // Todo: hmm
+  expect(spy).toHaveBeenNthCalledWith(4, [2, 4]);
+  expect(spy).toBeCalledTimes(4);
+});
