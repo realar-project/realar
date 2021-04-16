@@ -690,8 +690,7 @@ function inst<M, K extends any[]>(
         ? (target as any)(...args)
         : new (target as any)(...args);
     if (!hooks_available && context_hooks.length > 0) throw_hook_error();
-  }
-  finally {
+  } finally {
     unsub = collect();
     track();
     hooks = context_hooks;

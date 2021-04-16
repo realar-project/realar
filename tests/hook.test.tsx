@@ -11,17 +11,16 @@ test('should work hook in useLocal function', () => {
       if (value !== a) set_a(value);
       spy(a);
     });
-  }
+  };
 
   function A() {
     const [v, set_v] = useState(10);
     useLocal(unit, [Math.floor(v / 2)]);
-    return <button onClick={() => set_v((v) => v + 1)} />;
+    return <button onClick={() => set_v(v => v + 1)} />;
   }
 
   const el = mount(<A />);
   const click = () => el.find('button').simulate('click');
-
 
   expect(spy).toHaveBeenNthCalledWith(1, 0);
   expect(spy).toHaveBeenNthCalledWith(2, 5);
@@ -47,13 +46,16 @@ test('should throw exception if not useLocal', () => {
   expect(() => {
     const unit = () => {
       hook(() => {});
-    }
+    };
     function A() {
       useScoped(unit);
       return null;
     }
-    mount(<Scope><A /></Scope>);
+    mount(
+      <Scope>
+        <A />
+      </Scope>
+    );
   }).toThrow('Hook section available only at useLocal');
   console.error = _error;
 });
-
