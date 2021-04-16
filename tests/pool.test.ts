@@ -59,3 +59,20 @@ test('should work correct pool with not async function', async () => {
   expect(spy).toHaveBeenNthCalledWith(1, true, false);
   expect(spy).toHaveBeenNthCalledWith(2, false, true);
 });
+
+test('should work pool threads', async () => {
+  const spy = jest.fn();
+  const p = pool(async () => {
+    spy(p.threads.val.length)
+    await delay(10);
+  });
+
+  p();
+  expect(spy).toHaveBeenNthCalledWith(1, 1);
+  p();
+  expect(spy).toHaveBeenNthCalledWith(2, 2);
+
+  await delay(20);
+  p();
+  expect(spy).toHaveBeenNthCalledWith(3, 1);
+});
