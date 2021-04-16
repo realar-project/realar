@@ -11,6 +11,7 @@ export {
   on,
   effect,
   un,
+  hook,
   sync,
   cycle,
   loop,
@@ -70,6 +71,7 @@ const shareds = new Map();
 
 let initial_data: any;
 let context_unsubs: any;
+let context_hooks: any;
 let shared_unsubs = [] as any;
 let is_sync: any;
 let is_stop_signal: any;
@@ -674,20 +676,37 @@ function shared<M>(target: (new (init?: any) => M) | ((init?: any) => M)): M {
 
 function inst<M, K extends any[]>(
   target: (new (...args: K) => M) | ((...args: K) => M),
-  args: K
-): [M, () => void] {
-  let instance;
+  args: K,
+  hooks_available?: any
+): [M, () => void, (() => void)[]] {
+  let instance, unsub, hooks;
   const collect = isolate();
   const track = untrack();
+  const stack = context_hooks;
+  context_hooks = [];
   try {
     instance =
       typeof target.prototype === 'undefined'
         ? (target as any)(...args)
         : new (target as any)(...args);
-  } finally {
-    track();
-    return [instance, collect()];
+    if (!hooks_available && context_hooks.length > 0) throw_hook_error();
   }
+  finally {
+    unsub = collect();
+    track();
+    hooks = context_hooks;
+    context_hooks = stack;
+  }
+  return [instance, unsub, hooks];
+}
+
+function throw_hook_error() {
+  throw new Error('Hook section available only at useLocal');
+}
+
+function hook(fn: () => void): void {
+  if (!context_hooks) throw_hook_error();
+  fn && context_hooks.push(fn);
 }
 
 function call_array(arr: (() => void)[]) {
@@ -697,31 +716,6 @@ function call_array(arr: (() => void)[]) {
 function get_scope_context(): Context<any> {
   return scope_context ? scope_context : (scope_context = (createContext as any)());
 }
-
-function useScoped<M>(target: (new (init?: any) => M) | ((init?: any) => M)): M {
-  const context_data = useContext(get_scope_context());
-  if (!context_data) {
-    throw new Error('"Scope" parent component didn\'t find');
-  }
-
-  let instance;
-  if (context_data[0].has(target)) {
-    instance = context_data[0].get(target);
-  } else {
-    const h = inst(target, [initial_data]);
-    instance = h[0];
-    context_data[1].push(h[1]);
-
-    context_data[0].set(target, instance);
-  }
-  return instance;
-}
-
-const Scope: FC = ({ children }) => {
-  const h = useMemo(() => [new Map(), []], []) as any;
-  useEffect(() => () => call_array(h[1]), []);
-  return createElement(get_scope_context().Provider, { value: h }, children);
-};
 
 function useForceUpdate() {
   return useReducer(() => [], [])[1] as () => void;
@@ -744,14 +738,40 @@ function observe<T extends FC>(FunctionComponent: T): T {
   } as any;
 }
 
+const Scope: FC = ({ children }) => {
+  const h = useMemo(() => [new Map(), [], []], []) as any;
+  useEffect(() => () => call_array(h[1]), []);
+  return createElement(get_scope_context().Provider, { value: h }, children);
+};
+
+function useScoped<M>(target: (new (init?: any) => M) | ((init?: any) => M)): M {
+  const context_data = useContext(get_scope_context());
+  if (!context_data) {
+    throw new Error('"Scope" parent component didn\'t find');
+  }
+
+  let instance;
+  if (context_data[0].has(target)) {
+    instance = context_data[0].get(target);
+  } else {
+    const h = inst(target, [initial_data]);
+    context_data[0].set(target, (instance = h[0]));
+    context_data[1].push(h[1]);
+  }
+
+  return instance;
+}
+
 function useLocal<T extends unknown[], M>(
   target: (new (...args: T) => M) | ((...args: T) => M),
   deps = ([] as unknown) as T
 ): M {
   const h = useMemo(() => {
-    const i = inst(target, deps);
-    return [i[0], () => i[1]] as any;
+    const i = inst(target, deps, 1);
+    const call_hooks = () => call_array(i[2]);
+    return [i[0], () => i[1], call_hooks] as any;
   }, deps);
+  h[2]();
 
   useEffect(h[1], [h]);
   return h[0];
