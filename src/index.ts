@@ -81,6 +81,262 @@ let stoppable_context: any;
 
 const def_prop = Object.defineProperty;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const obj_equals = Object.is;
+const obj_def_prop = Object.defineProperty;
+const obj_create = Object.create;
+
+const key_proto = "__proto__";
+
+const obj_def_prop_value = (obj, key, value) => (
+  obj_def_prop(obj, key, { value }), value
+);
+
+const proto_def_prop_trait = (obj, key, trait) =>
+  obj_def_prop(obj, key, {
+    get() {
+      return obj_def_prop_value(this, key, trait.bind(void 0, this));
+    }
+  });
+
+const proto_def_prop_trait_with_ns = (obj, key, trait, ns) =>
+  obj_def_prop(obj, key, {
+    get() {
+      const binded = trait.bind(void 0, this);
+      binded[key_proto] = ns;
+      return obj_def_prop_value(this, key, binded);
+    }
+  });
+
+const proto_def_prop_factory = (obj, key, factory) =>
+  obj_def_prop(obj, key, {
+    get() {
+      return obj_def_prop_value(this, key, factory(this));
+    }
+  });
+
+const proto_base_pure_fn = function () {};
+
+const key_get = "get";
+const key_set = "set";
+const key_promise = "promise";
+const key_promise_internal = Symbol();
+const key_reset = "reset";
+const key_initial = Symbol();
+const key_dirty = "dirty";
+const key_sync = "sync";
+
+const proto_def_prop_promise = (obj) => {
+  return obj_def_prop(obj, key_promise, {
+    get() {
+      const ctx = this;
+      if (!ctx[key_promise_internal]) {
+        ctx[key_promise_internal] = new Promise((resolve) =>
+          expr(ctx[key_get], () => {
+            ctx[key_promise_internal] = void 0;
+            resolve(ctx[key_get]());
+          })[0]()
+        );
+      }
+      return ctx[key_promise_internal];
+    }
+  });
+};
+
+const proto_def_prop_promise_for_trigger = (obj) => {
+  return obj_def_prop(obj, key_promise, {
+    get() {
+      const ctx = this;
+      if (!ctx[key_promise_internal]) {
+        ctx[key_promise_internal] = new Promise((resolve) =>
+          expr(ctx[key_get], () => resolve(ctx[key_get]()))[0]()
+        );
+      }
+      return ctx[key_promise_internal];
+    }
+  });
+};
+
+const prop_factory_reset_required_promise_and_initial = (ctx) => {
+  const b = box([]);
+  const ret = () => {
+    if (!obj_equals(ctx[key_initial], ctx[key_get]())) {
+      ctx[key_promise_internal] = 0;
+      ctx[key_set](ctx[key_initial]);
+      b[1]([]);
+    }
+  };
+  ret[key_get] = () => b[0]()[0];
+  ret[key_set] = ret;
+  ret[key_proto] = proto_entity_writtable_non_resetable_value;
+  return ret;
+};
+
+const prop_factory_dirty_required_initial = (ctx) => {
+  const s = sel(() => !obj_equals(ctx[key_get](), ctx[key_initial]) )
+  const ret = {};
+  ret[key_get] = s[0];
+  ret[key_proto] = proto_entity_readable;
+  return ret;
+};
+
+const trait_ent_update = (ctx, fn) => (ctx[key_set](fn && fn(ctx[key_get]())));
+const trait_ent_update_by = (ctx, fn) => console.log("update_by", fn);
+const trait_ent_sync = (ctx, fn) => {
+  const sync = () => {
+    e[0]();
+    fn(ctx[key_get]());
+  };
+  const e = expr(ctx[key_get], sync);
+  sync();
+  return ctx;
+};
+
+const proto_entity_readable = obj_create(proto_base_pure_fn);
+proto_def_prop_trait(proto_entity_readable, key_sync, trait_ent_sync);
+
+const proto_entity_writtable_update_ns = obj_create(proto_base_pure_fn);
+proto_def_prop_trait(proto_entity_writtable_update_ns, "by", trait_ent_update_by);
+
+const proto_entity_writtable = obj_create(proto_base_pure_fn);
+proto_def_prop_trait(proto_entity_writtable, key_sync, trait_ent_sync);
+proto_def_prop_trait_with_ns(
+  proto_entity_writtable,
+  "update",
+  trait_ent_update,
+  proto_entity_writtable_update_ns
+);
+proto_def_prop_factory(
+  proto_entity_writtable,
+  key_dirty,
+  prop_factory_dirty_required_initial
+);
+
+
+const proto_entity_writtable_non_resetable_value = obj_create(
+  proto_entity_writtable
+);
+proto_def_prop_promise(proto_entity_writtable_non_resetable_value);
+
+const proto_entity_writtable_resetable = obj_create(proto_entity_writtable);
+proto_def_prop_factory(
+  proto_entity_writtable_resetable,
+  key_reset,
+  prop_factory_reset_required_promise_and_initial
+);
+
+const proto_entity_writtable_resetable_value = obj_create(
+  proto_entity_writtable_resetable
+);
+proto_def_prop_promise(proto_entity_writtable_resetable_value);
+
+const proto_entity_writtable_resetable_value_trigger = obj_create(
+  proto_entity_writtable_resetable
+);
+proto_def_prop_promise_for_trigger(
+  proto_entity_writtable_resetable_value_trigger
+);
+
+const make_entity_writtable_with_initial = (ctx, initial, writtable_proto) => {
+  const ret = ctx[1];
+  ret[key_proto] = writtable_proto;
+  ret[key_get] = ctx[0];
+  ret[key_set] = ctx[1];
+  ret[key_initial] = initial;
+  return ret;
+};
+
+export const _value = (initial) => {
+  const b = box(initial);
+  return make_entity_writtable_with_initial(
+    b,
+    initial,
+    proto_entity_writtable_resetable_value
+  );
+};
+
+export const _value_trigger = (initial) => {
+  const b = box(initial);
+  return make_entity_writtable_with_initial(
+    b,
+    initial,
+    proto_entity_writtable_resetable_value_trigger
+  );
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 type Ensurable<T> = T | void;
 
 type Callable<T> = {
