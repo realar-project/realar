@@ -92,6 +92,19 @@ const def_prop = Object.defineProperty;
 
 
 
+/*
+  TODOs:
+  [] prev_value to sync
+  [] select
+  [] value.trigger
+  [] value.from
+  [] ...
+
+
+*/
+
+
+
 
 
 
