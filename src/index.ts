@@ -95,6 +95,7 @@ const def_prop = Object.defineProperty;
 /*
   TODOs:
   [] prev_value to sync
+  [] update.by
   [] select
   [] value.trigger
   [] value.from
@@ -158,8 +159,9 @@ const proto_def_prop_promise = (obj) => {
       const ctx = this;
       if (!ctx[key_promise_internal]) {
         ctx[key_promise_internal] = new Promise((resolve) =>
+          // TODO: should be the highest priority.
           expr(ctx[key_get], () => {
-            ctx[key_promise_internal] = void 0;
+            ctx[key_promise_internal] = 0;
             resolve(ctx[key_get]());
           })[0]()
         );
