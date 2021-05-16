@@ -97,7 +97,6 @@ const def_prop = Object.defineProperty;
   [] .val
   [] .initial -- value with binded change_listener
   [] update.by -> ctx
-  [] reset.by -> ctx
   [] select
   [] value.trigger
   [] value.from
@@ -110,6 +109,11 @@ const def_prop = Object.defineProperty;
   [] .to
   [] ...
 
+
+  Backlog (0.7 roadmap)
+  [] reset.by -> ctx (moved to 0.7 roadmap or change reset to funcation)
+  [] reset.to() (proposal to change initial value)
+    ~but its free for initial impl
 */
 
 
@@ -120,8 +124,19 @@ const def_prop = Object.defineProperty;
 const obj_equals = Object.is;
 const obj_def_prop = Object.defineProperty;
 const obj_create = Object.create;
+const proto_base_pure_fn = function () {};
 
 const key_proto = "__proto__";
+const key_get = "get";
+const key_set = "set";
+const key_promise = "promise";
+const key_promise_internal = Symbol();
+const key_reset = "reset";
+const key_initial = Symbol();
+const key_dirty = "dirty";
+const key_sync = "sync";
+const key_ctx = Symbol();
+
 
 const obj_def_prop_value = (obj, key, value) => (
   obj_def_prop(obj, key, { value }), value
@@ -137,9 +152,10 @@ const proto_def_prop_trait = (obj, key, trait) =>
 const proto_def_prop_trait_with_ns = (obj, key, trait, ns) =>
   obj_def_prop(obj, key, {
     get() {
-      const binded = trait.bind(void 0, this);
-      binded[key_proto] = ns;
-      return obj_def_prop_value(this, key, binded);
+      const ret = trait.bind(void 0, this);
+      ret[key_proto] = ns;
+      ret[key_ctx] = this;
+      return obj_def_prop_value(this, key, ret);
     }
   });
 
@@ -149,21 +165,6 @@ const proto_def_prop_factory = (obj, key, factory) =>
       return obj_def_prop_value(this, key, factory(this));
     }
   });
-
-
-
-const proto_base_pure_fn = function () {};
-
-const key_get = "get";
-const key_set = "set";
-const key_promise = "promise";
-const key_promise_internal = Symbol();
-const key_reset = "reset";
-const key_initial = Symbol();
-const key_dirty = "dirty";
-const key_sync = "sync";
-
-
 
 const proto_def_prop_promise_for_non_trigger = (obj) => {
   return obj_def_prop(obj, key_promise, {
@@ -197,6 +198,8 @@ const proto_def_prop_promise_for_trigger = (obj) => {
   });
 };
 
+
+
 const prop_factory_reset_required_promise_and_initial = (ctx) => {
   const b = box([]);
   const ret = () => {
@@ -223,9 +226,19 @@ const prop_factory_dirty_required_initial = (ctx) => {
 
 
 const trait_ent_update = (ctx, fn) => (ctx[key_set](fn && fn(ctx[key_get]())));
-const trait_ent_update_by = (ctx, fn) => {
-  console.log("update_by", fn);
-  return ctx;
+const trait_ent_update_by = (ctx, src, fn) => {
+  const src_get = src[key_get] ? src[key_get] : src;
+  const e = expr(src_get, () => {
+    try {
+      ctx[key_ctx][key_set](
+        fn
+          ? fn(ctx[key_ctx][key_get](), src_get(), prev_value)
+          : src_get()
+      );
+    } finally { prev_value = e[0](); }
+  });
+  let prev_value = e[0]();
+  return ctx[key_ctx];
 };
 const trait_ent_sync = (ctx, fn) => {
   let prev_value;

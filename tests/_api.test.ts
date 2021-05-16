@@ -109,7 +109,26 @@ test('should work _value with dirty', () => {
   expect(spy).toHaveBeenCalledTimes(0);
 });
 
+test('should work _value with update.by', () => {
+  const v = _value(1);
+  const k = _value(0);
+  const m = _value(0);
+  const p = _value(0);
 
+  v
+    .update.by(k, (_v, _k, _k_prev) => _v * 100 + _k * 10 + _k_prev)
+    .update.by(() => m.get() + 1, (_v, _m, _m_prev) => _v * 1000 + _m * 10 + _m_prev)
+    .update.by(p);
+  expect(v.get()).toBe(1);
+  k(1);
+  expect(v.get()).toBe(110);
+  k(2);
+  expect(v.get()).toBe(11021);
+  m(5);
+  expect(v.get()).toBe(11021061);
+  p(10);
+  expect(v.get()).toBe(10);
+});
 
 
 
