@@ -196,6 +196,27 @@ test('should work _value with to', () => {
   expect(spy_to_once).toHaveBeenCalledTimes(0);
 });
 
+test('should work _value with select', () => {
+  const spy = jest.fn();
+  let t;
+  const v = _value(5);
+  const k = _value(0);
+
+  (t = v.select); t((_v) => Math.abs(_v - k.val)).sync(spy);
+
+  expect(spy).toHaveBeenCalledWith(5, void 0);
+  expect(spy).toHaveBeenCalledTimes(1); spy.mockReset();
+  k(10);
+  expect(spy).toHaveBeenCalledTimes(0);
+  v(15);
+  expect(spy).toHaveBeenCalledTimes(0);
+  k(11);
+  expect(spy).toHaveBeenCalledWith(4, 5);
+  expect(spy).toHaveBeenCalledTimes(1); spy.mockReset();
+  v(5);
+  expect(spy).toHaveBeenCalledWith(6, 4);
+  expect(spy).toHaveBeenCalledTimes(1); spy.mockReset();
+});
 
 
 

@@ -94,11 +94,8 @@ const def_prop = Object.defineProperty;
 
 /*
   TODOs:
-  [] .to
-  [] .to.once
-  [] select(fn?)
-  [] .pre
   [] .view
+  [] .pre
   [] .flow
   [] value.trigger
   [] value.from
@@ -138,6 +135,7 @@ const key_update = "update";
 const key_val = "val";
 const key_once = "once";
 const key_to = "to";
+const key_select = "select";
 
 
 const obj_def_prop_value = (obj, key, value) => (
@@ -300,7 +298,10 @@ const trait_ent_to_once = (ctx, fn) => {
   prev_value = e[0]();
   return ctx;
 };
-
+const trait_ent_select = (ctx, fn) => {
+  const s = sel(() => fn ? fn(ctx[key_get]()) : ctx[key_get]);
+  return fill_entity({}, proto_entity_readable, s[0]);
+};
 
 // readable.to:ns
 //   .to.once
@@ -311,6 +312,7 @@ obj_def_prop_trait_ns(proto_entity_readable_to_ns, key_once, trait_ent_to_once);
 //   .sync
 //   .to:readable.to:ns
 //     .to.once
+//   .select
 const proto_entity_readable = obj_create(proto_base_pure_fn);
 obj_def_prop_trait(proto_entity_readable, key_sync, trait_ent_sync);
 obj_def_prop_trait_with_ns(
@@ -319,6 +321,7 @@ obj_def_prop_trait_with_ns(
   trait_ent_to,
   proto_entity_readable_to_ns
 );
+obj_def_prop_trait(proto_entity_readable, key_select, trait_ent_select);
 
 // writtable.update:ns
 //   .update.by
