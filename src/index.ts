@@ -93,17 +93,6 @@ const def_prop = Object.defineProperty;
 
 
 /*
-  // Default method .by for values
-  const v = value(0);
-  const k = value(2);
-  v.by(k) alias to reset.update.by;
-
-  reinit, reset - usually signals/boxes
-  ...
-
-  reinit, reset, update - usually functions, I gonna my flow simpler.
-  ...
-
   TODOs:
   [] .to
   [] select
@@ -117,11 +106,6 @@ const def_prop = Object.defineProperty;
   [] .join    // doubtful (use .val resolve instead)
   [] .chan
   [] ...
-
-
-  Backlog (0.7 roadmap)
-  [] reset.to() (proposal to change initial value)
-    ~but its free for initial impl
 */
 
 
