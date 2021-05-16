@@ -130,6 +130,22 @@ test('should work _value with update.by', () => {
   expect(v.get()).toBe(10);
 });
 
+test('should work _value with val', () => {
+  const v = _value(1);
+  expect(v.val).toBe(1);
+  v.val += 1;
+  expect(v.val).toBe(2);
+  expect(v.dirty.val).toBe(true);
+  expect(v.reset.val).toBeUndefined();
+
+  expect(() => {
+    v.dirty.val = true;
+  }).toThrow('Cannot set property val of [object Object] which has only a getter');
+
+  v.reset.val = 'anything';
+  expect(v.val).toBe(1);
+  expect(v.dirty.val).toBe(false);
+});
 
 
 
