@@ -136,6 +136,7 @@ const key_val = "val";
 const key_once = "once";
 const key_to = "to";
 const key_select = "select";
+const key_view = "view";
 
 
 const obj_def_prop_value = (obj, key, value) => (
@@ -299,9 +300,26 @@ const trait_ent_to_once = (ctx, fn) => {
   return ctx;
 };
 const trait_ent_select = (ctx, fn) => {
-  const s = sel(() => fn ? fn(ctx[key_get]()) : ctx[key_get]);
+  const s = sel(() => fn ? fn(ctx[key_get]()) : ctx[key_get]());
   return fill_entity({}, proto_entity_readable, s[0]);
 };
+const trait_ent_view = (ctx, fn) => (
+  // TODO: view should be inherit parent logic methods and state
+  // it can be proxy ...hm partial proxy
+  // it should have own to, to.once, and sync
+  // own update
+  // own view
+
+  // But it should have dirty from inheritance
+  // And it should have pending from inheritance (custom fields)
+  // It should have reset, and reinit from inheritance
+  //
+  // * "from inheritance" means that access to those properties
+  // should proxy to already exist (instantiated) "parent" or base context
+
+
+  fill_entity({}, proto_entity_readable, () => fn ? fn(ctx[key_get]()) : ctx[key_get]())
+);
 
 // readable.to:ns
 //   .to.once
@@ -313,6 +331,7 @@ obj_def_prop_trait_ns(proto_entity_readable_to_ns, key_once, trait_ent_to_once);
 //   .to:readable.to:ns
 //     .to.once
 //   .select
+//   .view
 const proto_entity_readable = obj_create(proto_base_pure_fn);
 obj_def_prop_trait(proto_entity_readable, key_sync, trait_ent_sync);
 obj_def_prop_trait_with_ns(
@@ -322,6 +341,7 @@ obj_def_prop_trait_with_ns(
   proto_entity_readable_to_ns
 );
 obj_def_prop_trait(proto_entity_readable, key_select, trait_ent_select);
+obj_def_prop_trait(proto_entity_readable, key_view, trait_ent_view);
 
 // writtable.update:ns
 //   .update.by
