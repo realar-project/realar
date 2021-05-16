@@ -101,6 +101,8 @@ const def_prop = Object.defineProperty;
   reinit, reset - usually signals/boxes
   ...
 
+  reinit, reset, update - usually functions, I gonna my flow simpler.
+  ...
 
   TODOs:
   [] reinit(val) -> void
@@ -112,6 +114,7 @@ const def_prop = Object.defineProperty;
   [] signal
   [] v.as.value(), v.as.signal()
   [] .pre
+  [] .view
   [] .combine // doubtful (use .val resolve instead)
   [] .join    // doubtful (use .val resolve instead)
   [] .chan
