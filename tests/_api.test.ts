@@ -9,30 +9,30 @@ test('should work _value with call, get, set, update, sync', () => {
   expect(get()).toBe(0);
   t = v.sync; t(spy);
 
-  expect(spy).toHaveBeenCalledWith(0);
+  expect(spy).toHaveBeenCalledWith(0, void 0);
   spy.mockReset();
 
   t = v.update; r = t(v => v + 1);
   expect(get()).toBe(1);
-  expect(spy).toHaveBeenCalledWith(1);
+  expect(spy).toHaveBeenCalledWith(1, 0);
   spy.mockReset();
   expect(r).toBeUndefined();
 
   t = v.set; t(10);
   expect(get()).toBe(10);
-  expect(spy).toHaveBeenCalledWith(10);
+  expect(spy).toHaveBeenCalledWith(10, 1);
   spy.mockReset();
 
   r = v(11);
   expect(r).toBeUndefined();
   expect(get()).toBe(11);
-  expect(spy).toHaveBeenNthCalledWith(1, 11);
+  expect(spy).toHaveBeenNthCalledWith(1, 11, 10);
   v.call(null, 12);
   expect(get()).toBe(12);
-  expect(spy).toHaveBeenNthCalledWith(2, 12);
+  expect(spy).toHaveBeenNthCalledWith(2, 12, 11);
   v.apply(null, [7]);
   expect(get()).toBe(7);
-  expect(spy).toHaveBeenNthCalledWith(3, 7);
+  expect(spy).toHaveBeenNthCalledWith(3, 7, 12);
   spy.mockReset();
 });
 
@@ -44,7 +44,7 @@ test('should work _value with reset', () => {
   v.sync(spy_value);
   v.reset.sync(spy_reset);
 
-  expect(spy_value).toHaveBeenCalledWith(0); spy_value.mockReset();
+  expect(spy_value).toHaveBeenCalledWith(0, void 0); spy_value.mockReset();
   expect(spy_reset).toHaveBeenCalled(); spy_reset.mockReset();
 
   v.reset();
@@ -54,7 +54,7 @@ test('should work _value with reset', () => {
   expect(spy_reset).toBeCalledTimes(0);
 
   v(5);
-  expect(spy_value).toHaveBeenCalledWith(5); spy_value.mockReset();
+  expect(spy_value).toHaveBeenCalledWith(5, 0); spy_value.mockReset();
   expect(v.reset.get()).toBeUndefined();
   v(0);
   v.reset();
@@ -63,7 +63,7 @@ test('should work _value with reset', () => {
   spy_value.mockReset();
 
   v.reset();
-  expect(spy_value).toHaveBeenCalledWith(0); spy_value.mockReset();
+  expect(spy_value).toHaveBeenCalledWith(0, 10); spy_value.mockReset();
   expect(spy_reset).toHaveBeenCalledTimes(1);
   v.reset.set();
   v.reset.update();
@@ -92,18 +92,18 @@ test('should work _value with dirty', () => {
   const dirty_sync = dirty.sync;
   dirty_sync(spy);
 
-  expect(spy).toHaveBeenCalledWith(false); spy.mockReset();
+  expect(spy).toHaveBeenCalledWith(false, void 0); spy.mockReset();
   v(5);
   v(6);
   v(5);
-  expect(spy).toHaveBeenCalledWith(true);
+  expect(spy).toHaveBeenCalledWith(true, false);
   expect(spy).toHaveBeenCalledTimes(1); spy.mockReset();
   v(0);
-  expect(spy).toHaveBeenCalledWith(false); spy.mockReset();
+  expect(spy).toHaveBeenCalledWith(false, true); spy.mockReset();
   v(10);
-  expect(spy).toHaveBeenCalledWith(true); spy.mockReset();
+  expect(spy).toHaveBeenCalledWith(true, false); spy.mockReset();
   v.reset();
-  expect(spy).toHaveBeenCalledWith(false); spy.mockReset();
+  expect(spy).toHaveBeenCalledWith(false, true); spy.mockReset();
   v(0);
   v.reset();
   expect(spy).toHaveBeenCalledTimes(0);

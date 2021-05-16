@@ -94,7 +94,6 @@ const def_prop = Object.defineProperty;
 
 /*
   TODOs:
-  [] prev_value to sync
   [] .val
   [] .initial -- value with binded change_listener
   [] update.by -> ctx
@@ -151,6 +150,8 @@ const proto_def_prop_factory = (obj, key, factory) =>
     }
   });
 
+
+
 const proto_base_pure_fn = function () {};
 
 const key_get = "get";
@@ -162,7 +163,9 @@ const key_initial = Symbol();
 const key_dirty = "dirty";
 const key_sync = "sync";
 
-const proto_def_prop_promise = (obj) => {
+
+
+const proto_def_prop_promise_for_non_trigger = (obj) => {
   return obj_def_prop(obj, key_promise, {
     get() {
       const ctx = this;
@@ -217,24 +220,38 @@ const prop_factory_dirty_required_initial = (ctx) => {
   return ret;
 };
 
+
+
 const trait_ent_update = (ctx, fn) => (ctx[key_set](fn && fn(ctx[key_get]())));
-const trait_ent_update_by = (ctx, fn) => console.log("update_by", fn);
+const trait_ent_update_by = (ctx, fn) => {
+  console.log("update_by", fn);
+  return ctx;
+};
 const trait_ent_sync = (ctx, fn) => {
+  let prev_value;
   const sync = () => {
-    e[0]();
-    fn(ctx[key_get]());
+    try { fn(ctx[key_get](), prev_value); }
+    finally { prev_value = e[0](); }
   };
   const e = expr(ctx[key_get], sync);
   sync();
   return ctx;
 };
 
+
+// readable
+//   .sync
 const proto_entity_readable = obj_create(proto_base_pure_fn);
 proto_def_prop_trait(proto_entity_readable, key_sync, trait_ent_sync);
 
+// writtable.update:ns
+//   .update.by
 const proto_entity_writtable_update_ns = obj_create(proto_base_pure_fn);
 proto_def_prop_trait(proto_entity_writtable_update_ns, "by", trait_ent_update_by);
 
+// writtable
+//   .sync
+//   .update:writtable.update:ns
 const proto_entity_writtable = obj_create(proto_base_pure_fn);
 proto_def_prop_trait(proto_entity_writtable, key_sync, trait_ent_sync);
 proto_def_prop_trait_with_ns(
@@ -244,12 +261,16 @@ proto_def_prop_trait_with_ns(
   proto_entity_writtable_update_ns
 );
 
-
+// writtable_non_resetable <- writtable
+//   .promise `for non trigger
 const proto_entity_writtable_non_resetable_value = obj_create(
   proto_entity_writtable
 );
-proto_def_prop_promise(proto_entity_writtable_non_resetable_value);
+proto_def_prop_promise_for_non_trigger(proto_entity_writtable_non_resetable_value);
 
+// writtable_resetable <- writtable
+//   .reset
+//   .dirty
 const proto_entity_writtable_resetable = obj_create(proto_entity_writtable);
 proto_def_prop_factory(
   proto_entity_writtable_resetable,
@@ -262,17 +283,24 @@ proto_def_prop_factory(
   prop_factory_dirty_required_initial
 );
 
+// writtable_resetable_value <- writtable_resetable
+//   .promise `for non trigger
 const proto_entity_writtable_resetable_value = obj_create(
   proto_entity_writtable_resetable
 );
-proto_def_prop_promise(proto_entity_writtable_resetable_value);
+proto_def_prop_promise_for_non_trigger(proto_entity_writtable_resetable_value);
 
+// writtable_resetable_value_trigger <- writtable_resetable
+//   .promise `for trigger
 const proto_entity_writtable_resetable_value_trigger = obj_create(
   proto_entity_writtable_resetable
 );
 proto_def_prop_promise_for_trigger(
   proto_entity_writtable_resetable_value_trigger
 );
+
+
+
 
 const make_entity_writtable_with_initial = (ctx, initial, writtable_proto) => {
   const ret = ctx[1];
