@@ -104,8 +104,8 @@ const def_prop = Object.defineProperty;
   [] signal
   [] v.as.value(), v.as.signal()
   [] .pre
-  [] .combine
-  [] .join
+  [] .combine // doubtful (use .val resolve instead)
+  [] .join    // doubtful (use .val resolve instead)
   [] .chan
   [] .to
   [] ...

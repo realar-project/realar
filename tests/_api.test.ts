@@ -2,17 +2,17 @@ import { _value } from '../src';
 
 test('should work _value with call, get, set, update, sync', () => {
   const spy = jest.fn();
-  let t, r;
+  let t, r, k;
   const v = _value(0);
   const get = v.get;
 
   expect(get()).toBe(0);
-  t = v.sync; t(spy);
+  t = v.sync; k = t(spy);
 
   expect(spy).toHaveBeenCalledWith(0, void 0);
   spy.mockReset();
 
-  t = v.update; r = t(v => v + 1);
+  t = k.update; r = t(v => v + 1);
   expect(get()).toBe(1);
   expect(spy).toHaveBeenCalledWith(1, 0);
   spy.mockReset();
