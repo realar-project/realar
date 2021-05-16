@@ -95,12 +95,21 @@ const def_prop = Object.defineProperty;
 /*
   TODOs:
   [] prev_value to sync
-  [] update.by
+  [] .val
+  [] .initial -- value with binded change_listener
+  [] update.by -> ctx
+  [] reset.by -> ctx
   [] select
   [] value.trigger
   [] value.from
+  [] signal
+  [] v.as.value(), v.as.signal()
+  [] .pre
+  [] .combine
+  [] .join
+  [] .chan
+  [] .to
   [] ...
-
 
 */
 
@@ -234,11 +243,6 @@ proto_def_prop_trait_with_ns(
   trait_ent_update,
   proto_entity_writtable_update_ns
 );
-proto_def_prop_factory(
-  proto_entity_writtable,
-  key_dirty,
-  prop_factory_dirty_required_initial
-);
 
 
 const proto_entity_writtable_non_resetable_value = obj_create(
@@ -251,6 +255,11 @@ proto_def_prop_factory(
   proto_entity_writtable_resetable,
   key_reset,
   prop_factory_reset_required_promise_and_initial
+);
+proto_def_prop_factory(
+  proto_entity_writtable_resetable,
+  key_dirty,
+  prop_factory_dirty_required_initial
 );
 
 const proto_entity_writtable_resetable_value = obj_create(
