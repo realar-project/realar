@@ -105,9 +105,7 @@ const def_prop = Object.defineProperty;
   ...
 
   TODOs:
-  [] reinit(val) -> void
-  [] reinit.by(k) -> ctx
-  [] reset.by(k) called inside -> reset.update.by(k) -> ctx
+  [] .to
   [] select
   [] value.trigger
   [] value.from
@@ -118,7 +116,6 @@ const def_prop = Object.defineProperty;
   [] .combine // doubtful (use .val resolve instead)
   [] .join    // doubtful (use .val resolve instead)
   [] .chan
-  [] .to
   [] ...
 
 
@@ -144,9 +141,14 @@ const key_promise = "promise";
 const key_promise_internal = Symbol();
 const key_reset = "reset";
 const key_initial = Symbol();
+const key_initial_accessor_flag = Symbol();
 const key_dirty = "dirty";
 const key_sync = "sync";
 const key_ctx = Symbol();
+const key_by = "by";
+const key_reinit = "reinit";
+const key_update = "update";
+const key_val = "val";
 
 
 const obj_def_prop_value = (obj, key, value) => (
@@ -217,22 +219,28 @@ const obj_def_prop_promise_for_trigger = (obj) => {
 };
 
 
+const fill_entity = (ctx, proto, get, set?, initial?) => {
+  ctx[key_proto] = proto;
+  ctx[key_get] = get;
+  if (!set) {
+    obj_def_prop(ctx, key_val, { get });
+  } else {
+    ctx[key_set] = set;
+    obj_def_prop(ctx, key_val, { get, set });
+    ctx[key_initial] = initial;
+  }
+  return ctx;
+}
 
-const prop_factory_reset_required_promise_and_initial = (ctx) => {
-  const b = box([]);
-  const ret = () => {
-    if (!obj_equals(ctx[key_initial], ctx[key_get]())) {
-      ctx[key_promise_internal] = 0;
-      ctx[key_set](ctx[key_initial]);
-      b[1]([]);
-    }
-  };
-  return fill_blank_entity(ret, proto_entity_writtable_non_resetable_value, () => b[0]()[0], ret);
-};
 
 const prop_factory_dirty_required_initial = (ctx) => {
+  if (!ctx[key_initial_accessor_flag]) {
+    ctx[key_initial_accessor_flag] = 1;
+    const b = box(ctx[key_initial]);
+    obj_def_prop(ctx, key_initial, { get: b[0], set: b[1] });
+  }
   const s = sel(() => !obj_equals(ctx[key_get](), ctx[key_initial]) )
-  return fill_blank_entity({}, proto_entity_readable, s[0]);
+  return fill_entity({}, proto_entity_readable, s[0]);
 };
 
 
@@ -262,6 +270,33 @@ const trait_ent_sync = (ctx, fn) => {
   sync();
   return ctx;
 };
+const trait_ent_reset = (ctx) => {
+  ctx[key_promise_internal] = 0;
+  ctx[key_set](ctx[key_initial]);
+};
+const trait_ent_reset_by = (ctx, src) => {
+  const src_get = src[key_get] ? src[key_get] : src;
+  const e = expr(src_get, () => {
+    ctx[key_reset]();
+    e[0]()
+  });
+  e[0]();
+  return ctx;
+};
+const trait_ent_reinit = (ctx, initial) => {
+  ctx[key_initial] = initial;
+  ctx[key_reset]();
+};
+const trait_ent_reinit_by = (ctx, src) => {
+  const src_get = src[key_get] ? src[key_get] : src;
+  const e = expr(src_get, () => {
+    ctx[key_reinit](src_get());
+    e[0]();
+  });
+  e[0]();
+  return ctx;
+};
+
 
 
 // readable
@@ -272,80 +307,76 @@ obj_def_prop_trait(proto_entity_readable, key_sync, trait_ent_sync);
 // writtable.update:ns
 //   .update.by
 const proto_entity_writtable_update_ns = obj_create(proto_base_pure_fn);
-obj_def_prop_trait_ns(proto_entity_writtable_update_ns, "by", trait_ent_update_by);
+obj_def_prop_trait_ns(proto_entity_writtable_update_ns, key_by, trait_ent_update_by);
+
+// writtable.reset:ns
+//   .reset.by
+const proto_entity_writtable_reset_ns = obj_create(proto_base_pure_fn);
+obj_def_prop_trait_ns(proto_entity_writtable_reset_ns, key_by, trait_ent_reset_by);
+
+// writtable.reinit:ns
+//   .reinit.by
+const proto_entity_writtable_reinit_ns = obj_create(proto_base_pure_fn);
+obj_def_prop_trait_ns(proto_entity_writtable_reinit_ns, key_by, trait_ent_reinit_by);
 
 // writtable
 //   .sync
 //   .update:writtable.update:ns
+//   .reset:writtable.reset:ns
+//   .reinit:writtable.reinit:ns
+//   .dirty
 const proto_entity_writtable = obj_create(proto_base_pure_fn);
 obj_def_prop_trait(proto_entity_writtable, key_sync, trait_ent_sync);
 obj_def_prop_trait_with_ns(
   proto_entity_writtable,
-  "update",
+  key_update,
   trait_ent_update,
   proto_entity_writtable_update_ns
 );
-
-// writtable_non_resetable <- writtable
-//   .promise `for non trigger
-const proto_entity_writtable_non_resetable_value = obj_create(
-  proto_entity_writtable
-);
-obj_def_prop_promise_for_non_trigger(proto_entity_writtable_non_resetable_value);
-
-// writtable_resetable <- writtable
-//   .reset
-//   .dirty
-const proto_entity_writtable_resetable = obj_create(proto_entity_writtable);
-obj_def_prop_factory(
-  proto_entity_writtable_resetable,
+obj_def_prop_trait_with_ns(
+  proto_entity_writtable,
   key_reset,
-  prop_factory_reset_required_promise_and_initial
+  trait_ent_reset,
+  proto_entity_writtable_reset_ns
+);
+obj_def_prop_trait_with_ns(
+  proto_entity_writtable,
+  key_reinit,
+  trait_ent_reinit,
+  proto_entity_writtable_reinit_ns
 );
 obj_def_prop_factory(
-  proto_entity_writtable_resetable,
+  proto_entity_writtable,
   key_dirty,
   prop_factory_dirty_required_initial
 );
 
-// writtable_resetable_value <- writtable_resetable
+// writtable_value <- writtable
 //   .promise `for non trigger
-const proto_entity_writtable_resetable_value = obj_create(
-  proto_entity_writtable_resetable
+const proto_entity_writtable_value = obj_create(
+  proto_entity_writtable
 );
-obj_def_prop_promise_for_non_trigger(proto_entity_writtable_resetable_value);
+obj_def_prop_promise_for_non_trigger(proto_entity_writtable_value);
 
-// writtable_resetable_value_trigger <- writtable_resetable
+// writtable_value_trigger <- writtable
 //   .promise `for trigger
-const proto_entity_writtable_resetable_value_trigger = obj_create(
-  proto_entity_writtable_resetable
+const proto_entity_writtable_value_trigger = obj_create(
+  proto_entity_writtable
 );
 obj_def_prop_promise_for_trigger(
-  proto_entity_writtable_resetable_value_trigger
+  proto_entity_writtable_value_trigger
 );
 
 
-const fill_blank_entity = (ctx, proto, get, set?, initial?) => {
-  ctx[key_proto] = proto;
-  ctx[key_get] = get;
-  if (!set) {
-    obj_def_prop(ctx, key, { get });
-  } else {
-    ctx[key_set] = set;
-    obj_def_prop(ctx, key, { get, set });
-    ctx[key_initial] = initial;
-  }
-  return ctx;
-}
 
 export const _value = (initial) => {
   const b = box(initial);
-  return fill_blank_entity(b[1], proto_entity_writtable_resetable_value, b[0], b[1], initial);
+  return fill_entity(b[1], proto_entity_writtable_value, b[0], b[1], initial);
 };
 
 export const _value_trigger = (initial) => {
   const b = box(initial);
-  return fill_blank_entity(b[1], proto_entity_writtable_resetable_value_trigger, b[0], b[1], initial);
+  return fill_entity(b[1], proto_entity_writtable_value_trigger, b[0], b[1], initial);
 };
 
 

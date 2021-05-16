@@ -38,45 +38,66 @@ test('should work _value with call, get, set, update, sync', () => {
 
 test('should work _value with reset', () => {
   const spy_value = jest.fn();
-  const spy_reset = jest.fn();
   const v = _value(0);
+  const k = _value(0);
+  const m = _value(0);
+  let t;
 
   v.sync(spy_value);
-  v.reset.sync(spy_reset);
-
   expect(spy_value).toHaveBeenCalledWith(0, void 0); spy_value.mockReset();
-  expect(spy_reset).toHaveBeenCalled(); spy_reset.mockReset();
 
-  v.reset();
-  v.reset.set();
-  v.reset.update();
-  expect(v.reset.get()).toBeUndefined();
-  expect(spy_reset).toBeCalledTimes(0);
+  (t = v.reset); t();
+  expect(spy_value).toBeCalledTimes(0);
 
   v(5);
   expect(spy_value).toHaveBeenCalledWith(5, 0); spy_value.mockReset();
-  expect(v.reset.get()).toBeUndefined();
-  v(0);
-  v.reset();
-  expect(spy_reset).toBeCalledTimes(0);
+  expect(v.dirty.val).toBe(true);
+
+  t();
+  expect(v.dirty.val).toBe(false);
+  expect(spy_value).toHaveBeenCalledWith(0, 5);
   v(10);
   spy_value.mockReset();
 
-  v.reset();
-  expect(spy_value).toHaveBeenCalledWith(0, 10); spy_value.mockReset();
-  expect(spy_reset).toHaveBeenCalledTimes(1);
-  v.reset.set();
-  v.reset.update();
-  expect(spy_reset).toHaveBeenCalledTimes(1); spy_reset.mockReset();
-
-  v(5);
-  v.reset.set();
-  expect(spy_reset).toHaveBeenCalledTimes(1); spy_reset.mockReset();
-  v(5);
-  v.reset.update();
-  expect(spy_reset).toHaveBeenCalledTimes(1); spy_reset.mockReset();
+  (t = v.reset); (t = t.by); t(k).reset.by(() => m.val);
+  k(1);
+  expect(spy_value).toHaveBeenCalledWith(0, 10); v(10); spy_value.mockReset();
+  m(1);
+  expect(spy_value).toHaveBeenCalledWith(0, 10); v(10); spy_value.mockReset();
 });
 
+test('should work _value with reinit', () => {
+  const spy_value = jest.fn();
+  const v = _value(0);
+  const k = _value(0);
+  const m = _value(0);
+  let t;
+
+  v.sync(spy_value);
+  expect(spy_value).toHaveBeenCalledWith(0, void 0); spy_value.mockReset();
+
+  (t = v.reinit); t(10);
+  expect(spy_value).toHaveBeenCalledWith(10, 0); spy_value.mockReset();
+  expect(v.dirty.val).toBe(false);
+  expect(v.val).toBe(10);
+
+  v(0);
+  expect(spy_value).toHaveBeenCalledWith(0, 10); spy_value.mockReset();
+  expect(v.dirty.val).toBe(true);
+
+  (t = v.reset); t();
+  expect(v.dirty.val).toBe(false);
+  expect(spy_value).toHaveBeenCalledWith(10, 0); spy_value.mockReset();
+
+  (t = v.reinit); (t = t.by); t(k).reinit.by(() => m.val);
+  k(1);
+  expect(spy_value).toHaveBeenCalledWith(1, 10); spy_value.mockReset();
+  expect(v.dirty.val).toBe(false);
+
+  m(5);
+  expect(spy_value).toHaveBeenCalledWith(5, 1); spy_value.mockReset();
+  expect(v.dirty.val).toBe(false);
+});
 
 test('should work _value with dirty', () => {
   const spy = jest.fn();
@@ -107,6 +128,11 @@ test('should work _value with dirty', () => {
   v(0);
   v.reset();
   expect(spy).toHaveBeenCalledTimes(0);
+
+  v(10);
+  expect(dirty.val).toBe(true);
+  v.reinit(10);
+  expect(dirty.val).toBe(false);
 });
 
 test('should work _value with update.by', () => {
@@ -136,13 +162,12 @@ test('should work _value with val', () => {
   v.val += 1;
   expect(v.val).toBe(2);
   expect(v.dirty.val).toBe(true);
-  expect(v.reset.val).toBeUndefined();
 
   expect(() => {
     v.dirty.val = true;
   }).toThrow('Cannot set property val of [object Object] which has only a getter');
 
-  v.reset.val = 'anything';
+  v.reset();
   expect(v.val).toBe(1);
   expect(v.dirty.val).toBe(false);
 });
