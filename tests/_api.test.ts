@@ -172,6 +172,29 @@ test('should work _value with val', () => {
   expect(v.dirty.val).toBe(false);
 });
 
+test('should work _value with to', () => {
+  const spy_to = jest.fn();
+  const spy_to_once = jest.fn();
+  const v = _value(0);
+  let t;
+  (t = v.to); t(spy_to);
+  (t = t.once); t(spy_to_once);
+
+  expect(spy_to).toHaveBeenCalledTimes(0);
+  expect(spy_to_once).toHaveBeenCalledTimes(0);
+
+  v(0);
+  expect(spy_to).toHaveBeenCalledTimes(0);
+  expect(spy_to_once).toHaveBeenCalledTimes(0);
+
+  v(1);
+  expect(spy_to).toHaveBeenCalledWith(1, 0); spy_to.mockReset();
+  expect(spy_to_once).toHaveBeenCalledWith(1, 0); spy_to_once.mockReset();
+
+  v(2);
+  expect(spy_to).toHaveBeenCalledWith(2, 1); spy_to.mockReset();
+  expect(spy_to_once).toHaveBeenCalledTimes(0);
+});
 
 
 

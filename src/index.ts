@@ -95,13 +95,16 @@ const def_prop = Object.defineProperty;
 /*
   TODOs:
   [] .to
-  [] select
+  [] .to.once
+  [] select(fn?)
+  [] .pre
+  [] .view
+  [] .flow
   [] value.trigger
   [] value.from
   [] signal
   [] v.as.value(), v.as.signal()
-  [] .pre
-  [] .view
+  [] v.as.readonly()
   [] .combine // doubtful (use .val resolve instead)
   [] .join    // doubtful (use .val resolve instead)
   [] .chan
@@ -133,6 +136,8 @@ const key_by = "by";
 const key_reinit = "reinit";
 const key_update = "update";
 const key_val = "val";
+const key_once = "once";
+const key_to = "to";
 
 
 const obj_def_prop_value = (obj, key, value) => (
@@ -280,13 +285,40 @@ const trait_ent_reinit_by = (ctx, src) => {
   e[0]();
   return ctx;
 };
+const trait_ent_to = (ctx, fn) => {
+  let prev_value;
+  const e = expr(ctx[key_get], () => {
+    try { fn(ctx[key_get](), prev_value); }
+    finally { prev_value = e[0](); }
+  });
+  prev_value = e[0]();
+  return ctx;
+};
+const trait_ent_to_once = (ctx, fn) => {
+  let prev_value;
+  const e = expr(ctx[key_get], () => fn(ctx[key_get](), prev_value));
+  prev_value = e[0]();
+  return ctx;
+};
 
 
+// readable.to:ns
+//   .to.once
+const proto_entity_readable_to_ns = obj_create(proto_base_pure_fn);
+obj_def_prop_trait_ns(proto_entity_readable_to_ns, key_once, trait_ent_to_once);
 
 // readable
 //   .sync
+//   .to:readable.to:ns
+//     .to.once
 const proto_entity_readable = obj_create(proto_base_pure_fn);
 obj_def_prop_trait(proto_entity_readable, key_sync, trait_ent_sync);
+obj_def_prop_trait_with_ns(
+  proto_entity_readable,
+  key_to,
+  trait_ent_to,
+  proto_entity_readable_to_ns
+);
 
 // writtable.update:ns
 //   .update.by
@@ -303,14 +335,15 @@ obj_def_prop_trait_ns(proto_entity_writtable_reset_ns, key_by, trait_ent_reset_b
 const proto_entity_writtable_reinit_ns = obj_create(proto_base_pure_fn);
 obj_def_prop_trait_ns(proto_entity_writtable_reinit_ns, key_by, trait_ent_reinit_by);
 
-// writtable
-//   .sync
+// writtable <- readable
 //   .update:writtable.update:ns
+//     .update.by
 //   .reset:writtable.reset:ns
+//     .reset.by
 //   .reinit:writtable.reinit:ns
+//     .reinit.by
 //   .dirty
-const proto_entity_writtable = obj_create(proto_base_pure_fn);
-obj_def_prop_trait(proto_entity_writtable, key_sync, trait_ent_sync);
+const proto_entity_writtable = obj_create(proto_entity_readable);
 obj_def_prop_trait_with_ns(
   proto_entity_writtable,
   key_update,
