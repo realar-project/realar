@@ -218,6 +218,36 @@ test('should work _value with select', () => {
   expect(spy).toHaveBeenCalledTimes(1); spy.mockReset();
 });
 
+test('should work _value with view', () => {
+  const spy = jest.fn();
+  let t;
+  const v = _value(5);
+  const w = ((t = v.view), t((_v) => _v + _v));
+  expect(w.val).toBe(10);
+  w.val = 16;
+  expect(w.val).toBe(32);
+  w.val = 5;
+  expect(w.val).toBe(10);
+  expect(v.val).toBe(5);
+
+  (t = w.sync); t(spy);
+  expect(spy).toHaveBeenCalledWith(10, void 0); spy.mockReset();
+  expect(w.dirty.val).toBe(false);
+  expect(v.dirty.val).toBe(false);
+  w(10);
+  expect(w.val).toBe(20);
+
+  expect(spy).toHaveBeenCalledWith(20, 10); spy.mockReset();
+  expect(w.dirty.val).toBe(true);
+  expect(v.dirty.val).toBe(true);
+  v(5);
+  expect(w.val).toBe(10);
+
+  expect(spy).toHaveBeenCalledWith(10, 20); spy.mockReset();
+  expect(w.dirty.val).toBe(false);
+  expect(v.dirty.val).toBe(false);
+});
+
 
 
 

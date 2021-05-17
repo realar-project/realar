@@ -94,7 +94,6 @@ const def_prop = Object.defineProperty;
 
 /*
   TODOs:
-  [] .view
   [] .pre
   [] .flow
   [] value.trigger
@@ -127,7 +126,7 @@ const key_promise = "promise";
 const key_promise_internal = Symbol();
 const key_reset = "reset";
 const key_initial = Symbol();
-const key_initial_accessor_flag = Symbol();
+const key_dirty_handler = Symbol();
 const key_dirty = "dirty";
 const key_sync = "sync";
 const key_ctx = Symbol();
@@ -209,13 +208,13 @@ const obj_def_prop_promise_for_trigger = (obj) => {
   });
 };
 
-const fill_entity = (handler, has_set, proto, initial?) => {
-  const set = handler[1];
-  const get = handler[0];
-  handler[key_initial] = initial;
+const fill_entity = (handler, proto, has_initial?, initial?, _get?, _set?) => {
+  const set = _set || handler[1];
+  const get = _get || handler[0];
+  has_initial && (handler[key_initial] = initial);
 
   let ctx;
-  if (has_set) {
+  if (set) {
     ctx = set;
     ctx[key_set] = set;
     obj_def_prop(ctx, key_val, { get, set });
@@ -232,13 +231,15 @@ const fill_entity = (handler, has_set, proto, initial?) => {
 
 const prop_factory_dirty_required_initial = (ctx) => {
   const h = ctx[key_handler];
-  if (!h[key_initial_accessor_flag]) {
-    h[key_initial_accessor_flag] = 1;
+  if (!h[key_dirty_handler]) {
     const b = box(h[key_initial]);
     obj_def_prop(h, key_initial, { get: b[0], set: b[1] });
+
+    h[key_dirty_handler] = sel(
+      () => !obj_equals(h[0](), h[key_initial])
+    ).slice(0, 1);
   }
-  const s = sel(() => !obj_equals(h[0](), h[key_initial]) )
-  return fill_entity(s, 0, proto_entity_readable);
+  return fill_entity(h[key_dirty_handler], proto_entity_readable);
 };
 
 
@@ -310,26 +311,14 @@ const trait_ent_to_once = (ctx, fn) => {
   return ctx;
 };
 const trait_ent_select = (ctx, fn) => (
-  fill_entity(sel(() => fn ? fn(ctx[key_get]()) : ctx[key_get]()), 0, proto_entity_readable)
+  fill_entity(sel(() => fn ? fn(ctx[key_get]()) : ctx[key_get]()).slice(0, 1), proto_entity_readable)
 );
 const trait_ent_view = (ctx, fn) => (
-  // TODO: view should be inherit parent logic methods and state
-  // it can be proxy ...hm partial proxy
-  // it should have own to, to.once, and sync
-  // own update
-  // own view
-  // own select
-
-  // But it should have dirty from inheritance
-  // And it should have pending from inheritance (custom fields)
-  // It should have reset, and reinit from inheritance
-  // promise
-  //
-  // * "from inheritance" means that access to those properties
-  // should proxy to already exist (instantiated) "parent" or base context
-
-
-  fill_entity([() => fn ? fn(ctx[key_get]()) : ctx[key_get]()], 0, proto_entity_readable)
+  fill_entity(ctx[key_handler], ctx[key_proto],
+    0, 0,
+    () => fn ? fn(ctx[key_get]()) : ctx[key_get](),
+    ctx[key_set].bind()
+  )
 );
 
 // readable.to:ns
@@ -421,11 +410,11 @@ obj_def_prop_promise_for_trigger(
 
 
 export const _value = (initial) => (
-  fill_entity(box(initial), 1, proto_entity_writtable_value, initial)
+  fill_entity(box(initial), proto_entity_writtable_value, 1, initial)
 );
 
 export const _value_trigger = (initial) => (
-  fill_entity(box(initial), 1, proto_entity_writtable_value_trigger, initial)
+  fill_entity(box(initial), proto_entity_writtable_value_trigger, 1, initial)
 )
 
 
