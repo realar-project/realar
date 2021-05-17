@@ -1,5 +1,5 @@
 import React, { Context, FC } from 'react';
-import { expr, box, sel, transaction, untrack } from 'reactive-box';
+import { expr, box, sel, flow, transaction, untrack } from 'reactive-box';
 
 export {
   value,
@@ -94,7 +94,6 @@ const def_prop = Object.defineProperty;
 
 /*
   TODOs:
-  [] .pre
   [] .flow    // basic/started impl without resolve and stop signal
   [] value.trigger
   [] value.from
@@ -106,9 +105,11 @@ const def_prop = Object.defineProperty;
   [] .chan
   [] ...
 
-  Readonly signal has no pre, because pre depends on write
   Backlog
   [] .view.untrack
+  [] .pre.untrack
+  [] .pre.filter.untrack
+  [] .pre.filter.not.untrack
 */
 
 
@@ -119,7 +120,10 @@ const def_prop = Object.defineProperty;
 const obj_equals = Object.is;
 const obj_def_prop = Object.defineProperty;
 const obj_create = Object.create;
-const proto_base_pure_fn = function () {};
+
+const pure_fn = function () {};
+const pure_arrow_fn_returns_arg = (v) => v;
+const pure_arrow_fn_returns_not_arg = (v) => !v;
 
 const key_proto = "__proto__";
 const key_get = "get";
@@ -141,6 +145,9 @@ const key_to = "to";
 const key_select = "select";
 const key_view = "view";
 const key_handler = Symbol();
+const key_pre = "pre";
+const key_filter = "filter";
+const key_not = "not";
 
 
 const obj_def_prop_value = (obj, key, value) => (
@@ -158,6 +165,17 @@ const obj_def_prop_trait_ns = (obj, key, trait) =>
   obj_def_prop(obj, key, {
     get() {
       return obj_def_prop_value(this, key, trait.bind(void 0, this[key_ctx]));
+    }
+  });
+
+const obj_def_prop_trait_ns_with_ns = (obj, key, trait, ns) =>
+  obj_def_prop(obj, key, {
+    get() {
+      const ctx = this[key_ctx];
+      const ret = trait.bind(void 0, ctx);
+      ret[key_proto] = ns;
+      ret[key_ctx] = ctx;
+      return obj_def_prop_value(this, key, ret);
     }
   });
 
@@ -249,15 +267,14 @@ const prop_factory_dirty_required_initial = (ctx) => {
 const trait_ent_update = (ctx, fn) => (ctx[key_set](fn && fn(ctx[key_get]())));
 const trait_ent_update_by = (ctx, src, fn) => {
   const src_get = src[key_get] ? src[key_get] : src;
-  const e = expr(src_get, () => {
-    try {
-      ctx[key_set](
-        fn
-          ? fn(ctx[key_get](), src_get(), prev_value)
-          : src_get()
-      );
-    } finally { prev_value = e[0](); }
-  });
+  const e = expr(src_get, fn
+    ? () => {
+      try {
+        ctx[key_set](fn(ctx[key_get](), src_get(), prev_value));
+      } finally { prev_value = e[0](); }
+    }
+    : () => (ctx[key_set](src_get()), (prev_value = e[0]()))
+  );
   let prev_value = e[0]();
   return ctx;
 };
@@ -313,19 +330,45 @@ const trait_ent_to_once = (ctx, fn) => {
   return ctx;
 };
 const trait_ent_select = (ctx, fn) => (
-  fill_entity(sel(() => fn ? fn(ctx[key_get]()) : ctx[key_get]()).slice(0, 1), proto_entity_readable)
+  fill_entity(sel(fn ? () => fn(ctx[key_get]()) : ctx[key_get]).slice(0, 1), proto_entity_readable)
 );
 const trait_ent_view = (ctx, fn) => (
   fill_entity(ctx[key_handler], ctx[key_proto],
     0, 0,
-    () => fn ? fn(ctx[key_get]()) : ctx[key_get](),
+    fn ? () => fn(ctx[key_get]()) : ctx[key_get],
     ctx[key_set].bind()
   )
+);
+const trait_ent_pre = (ctx, fn) => (
+  fn
+    ? fill_entity(ctx[key_handler], ctx[key_proto],
+      0, 0,
+      ctx[key_get],
+      (v) => ctx[key_set](fn(v))
+    )
+    : ctx
+);
+const trait_ent_pre_filter = (ctx, fn) => (
+  (fn = fn
+    ? (fn[key_get] ? fn[key_get] : fn)
+    : pure_arrow_fn_returns_arg
+  ), fill_entity(ctx[key_handler], ctx[key_proto],
+    0, 0,
+    ctx[key_get],
+    (v) => fn(v) && ctx[key_set](v)
+  )
+);
+const trait_ent_pre_filter_not = (ctx, fn) => (
+  ctx[key_pre][key_filter](fn
+    ? (fn[key_get]
+      ? (v) => !fn[key_get](v)
+      : (v) => !fn(v))
+    : pure_arrow_fn_returns_not_arg)
 );
 
 // readable.to:ns
 //   .to.once
-const proto_entity_readable_to_ns = obj_create(proto_base_pure_fn);
+const proto_entity_readable_to_ns = obj_create(pure_fn);
 obj_def_prop_trait_ns(proto_entity_readable_to_ns, key_once, trait_ent_to_once);
 
 // readable
@@ -334,7 +377,7 @@ obj_def_prop_trait_ns(proto_entity_readable_to_ns, key_once, trait_ent_to_once);
 //     .to.once
 //   .select
 //   .view
-const proto_entity_readable = obj_create(proto_base_pure_fn);
+const proto_entity_readable = obj_create(pure_fn);
 obj_def_prop_trait(proto_entity_readable, key_sync, trait_ent_sync);
 obj_def_prop_trait_with_ns(
   proto_entity_readable,
@@ -347,18 +390,33 @@ obj_def_prop_trait(proto_entity_readable, key_view, trait_ent_view);
 
 // writtable.update:ns
 //   .update.by
-const proto_entity_writtable_update_ns = obj_create(proto_base_pure_fn);
+const proto_entity_writtable_update_ns = obj_create(pure_fn);
 obj_def_prop_trait_ns(proto_entity_writtable_update_ns, key_by, trait_ent_update_by);
 
 // writtable.reset:ns
 //   .reset.by
-const proto_entity_writtable_reset_ns = obj_create(proto_base_pure_fn);
+const proto_entity_writtable_reset_ns = obj_create(pure_fn);
 obj_def_prop_trait_ns(proto_entity_writtable_reset_ns, key_by, trait_ent_reset_by);
 
 // writtable.reinit:ns
 //   .reinit.by
-const proto_entity_writtable_reinit_ns = obj_create(proto_base_pure_fn);
+const proto_entity_writtable_reinit_ns = obj_create(pure_fn);
 obj_def_prop_trait_ns(proto_entity_writtable_reinit_ns, key_by, trait_ent_reinit_by);
+
+// writtable.pre.filter:ns
+//   .pre.filter.not
+const proto_entity_writtable_pre_filter_ns = obj_create(pure_fn);
+obj_def_prop_trait_ns(proto_entity_writtable_pre_filter_ns, key_not, trait_ent_pre_filter_not);
+
+// writtable.pre:ns
+//   .pre.filter
+const proto_entity_writtable_pre_ns = obj_create(pure_fn);
+obj_def_prop_trait_ns_with_ns(
+  proto_entity_writtable_pre_ns,
+  key_filter,
+  trait_ent_pre_filter,
+  proto_entity_writtable_pre_filter_ns
+);
 
 // writtable <- readable
 //   .update:writtable.update:ns
@@ -367,7 +425,11 @@ obj_def_prop_trait_ns(proto_entity_writtable_reinit_ns, key_by, trait_ent_reinit
 //     .reset.by
 //   .reinit:writtable.reinit:ns
 //     .reinit.by
+//   .pre:writtable.pre:ns
+//     .pre.filter:writtable.pre.filter:ns
+//       pre.filter.not
 //   .dirty
+
 const proto_entity_writtable = obj_create(proto_entity_readable);
 obj_def_prop_trait_with_ns(
   proto_entity_writtable,
@@ -386,6 +448,12 @@ obj_def_prop_trait_with_ns(
   key_reinit,
   trait_ent_reinit,
   proto_entity_writtable_reinit_ns
+);
+obj_def_prop_trait_with_ns(
+  proto_entity_writtable,
+  key_pre,
+  trait_ent_pre,
+  proto_entity_writtable_pre_ns
 );
 obj_def_prop_factory(
   proto_entity_writtable,

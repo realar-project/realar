@@ -248,6 +248,76 @@ test('should work _value with view', () => {
   expect(v.dirty.val).toBe(false);
 });
 
+test('should work _value with nested view', () => {
+  let t;
+  const v = _value(5);
+  const w = ((t = v.view), t((_v) => _v + _v));
+  const k = w.view((_v) => _v + _v);
+
+  expect(k.val).toBe(20);
+  k(1);
+  expect(k.val).toBe(4);
+  expect(w.val).toBe(2);
+  expect(v.val).toBe(1);
+});
+
+test('should work _value with pre', () => {
+  let t;
+  const v = _value(5);
+  const w = ((t = v.pre), t((_v) => _v + _v));
+  const k = w.pre((_v) => _v + 100);
+
+  expect(w.val).toBe(5);
+  w(5);
+  expect(w.val).toBe(10);
+  expect(v.val).toBe(10);
+  expect(k.val).toBe(10);
+  k.val = 1;
+  expect(v.val).toBe(202);
+  expect(k.val).toBe(202);
+});
+
+test('should work _value with pre.filter', () => {
+  let t;
+  const v = _value(5);
+  const f = _value(0);
+
+  const w = v.pre.filter((_v) => _v !== 10);
+  const k = ((t = w.pre.filter), (t = t.not), t(f));
+  const m = k.pre.filter();
+  const n = ((t = k.pre), (t = t.filter.not), t());
+
+  expect(w.val).toBe(5);
+  expect(k.val).toBe(5);
+  expect(m.val).toBe(5);
+  expect(n.val).toBe(5);
+
+  w(10);
+  expect(v.val).toBe(5);
+
+  n(0);
+  expect(v.val).toBe(0);
+  n.val = 1;
+  expect(v.val).toBe(0);
+  expect(m.dirty.val).toBe(true);
+  m(10);
+  expect(v.val).toBe(0);
+  m(11);
+  expect(v.val).toBe(11);
+  expect(n.val).toBe(11);
+  m(10);
+  expect(k.val).toBe(11);
+  m(0);
+  expect(m.val).toBe(11);
+  f(1);
+  k(20);
+  m(30);
+  n(0);
+  expect(m.val).toBe(11);
+  f(0);
+  n(0);
+  expect(v.val).toBe(0);
+});
 
 
 
