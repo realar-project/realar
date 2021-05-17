@@ -106,6 +106,8 @@ const def_prop = Object.defineProperty;
   [] .join    // doubtful (use .val resolve instead)
   [] .chan
   [] ...
+
+  Readonly signal has no pre, because pre depends on write
 */
 
 
@@ -137,6 +139,7 @@ const key_once = "once";
 const key_to = "to";
 const key_select = "select";
 const key_view = "view";
+const key_handler = Symbol();
 
 
 const obj_def_prop_value = (obj, key, value) => (
@@ -206,29 +209,36 @@ const obj_def_prop_promise_for_trigger = (obj) => {
   });
 };
 
+const fill_entity = (handler, has_set, proto, initial?) => {
+  const set = handler[1];
+  const get = handler[0];
+  handler[key_initial] = initial;
 
-const fill_entity = (ctx, proto, get, set?, initial?) => {
-  ctx[key_proto] = proto;
-  ctx[key_get] = get;
-  if (!set) {
-    obj_def_prop(ctx, key_val, { get });
-  } else {
+  let ctx;
+  if (has_set) {
+    ctx = set;
     ctx[key_set] = set;
     obj_def_prop(ctx, key_val, { get, set });
-    ctx[key_initial] = initial;
+  } else {
+    ctx = {};
+    obj_def_prop(ctx, key_val, { get })
   }
+  ctx[key_handler] = handler;
+  ctx[key_proto] = proto;
+  ctx[key_get] = get;
   return ctx;
 }
 
 
 const prop_factory_dirty_required_initial = (ctx) => {
-  if (!ctx[key_initial_accessor_flag]) {
-    ctx[key_initial_accessor_flag] = 1;
-    const b = box(ctx[key_initial]);
-    obj_def_prop(ctx, key_initial, { get: b[0], set: b[1] });
+  const h = ctx[key_handler];
+  if (!h[key_initial_accessor_flag]) {
+    h[key_initial_accessor_flag] = 1;
+    const b = box(h[key_initial]);
+    obj_def_prop(h, key_initial, { get: b[0], set: b[1] });
   }
-  const s = sel(() => !obj_equals(ctx[key_get](), ctx[key_initial]) )
-  return fill_entity({}, proto_entity_readable, s[0]);
+  const s = sel(() => !obj_equals(h[0](), h[key_initial]) )
+  return fill_entity(s, 0, proto_entity_readable);
 };
 
 
@@ -260,7 +270,7 @@ const trait_ent_sync = (ctx, fn) => {
 };
 const trait_ent_reset = (ctx) => {
   ctx[key_promise_internal] = 0;
-  ctx[key_set](ctx[key_initial]);
+  ctx[key_handler][1](ctx[key_handler][key_initial]);
 };
 const trait_ent_reset_by = (ctx, src) => {
   const src_get = src[key_get] ? src[key_get] : src;
@@ -272,7 +282,7 @@ const trait_ent_reset_by = (ctx, src) => {
   return ctx;
 };
 const trait_ent_reinit = (ctx, initial) => {
-  ctx[key_initial] = initial;
+  ctx[key_handler][key_initial] = initial;
   ctx[key_reset]();
 };
 const trait_ent_reinit_by = (ctx, src) => {
@@ -299,26 +309,27 @@ const trait_ent_to_once = (ctx, fn) => {
   prev_value = e[0]();
   return ctx;
 };
-const trait_ent_select = (ctx, fn) => {
-  const s = sel(() => fn ? fn(ctx[key_get]()) : ctx[key_get]());
-  return fill_entity({}, proto_entity_readable, s[0]);
-};
+const trait_ent_select = (ctx, fn) => (
+  fill_entity(sel(() => fn ? fn(ctx[key_get]()) : ctx[key_get]()), 0, proto_entity_readable)
+);
 const trait_ent_view = (ctx, fn) => (
   // TODO: view should be inherit parent logic methods and state
   // it can be proxy ...hm partial proxy
   // it should have own to, to.once, and sync
   // own update
   // own view
+  // own select
 
   // But it should have dirty from inheritance
   // And it should have pending from inheritance (custom fields)
   // It should have reset, and reinit from inheritance
+  // promise
   //
   // * "from inheritance" means that access to those properties
   // should proxy to already exist (instantiated) "parent" or base context
 
 
-  fill_entity({}, proto_entity_readable, () => fn ? fn(ctx[key_get]()) : ctx[key_get]())
+  fill_entity([() => fn ? fn(ctx[key_get]()) : ctx[key_get]()], 0, proto_entity_readable)
 );
 
 // readable.to:ns
@@ -409,15 +420,13 @@ obj_def_prop_promise_for_trigger(
 
 
 
-export const _value = (initial) => {
-  const b = box(initial);
-  return fill_entity(b[1], proto_entity_writtable_value, b[0], b[1], initial);
-};
+export const _value = (initial) => (
+  fill_entity(box(initial), 1, proto_entity_writtable_value, initial)
+);
 
-export const _value_trigger = (initial) => {
-  const b = box(initial);
-  return fill_entity(b[1], proto_entity_writtable_value_trigger, b[0], b[1], initial);
-};
+export const _value_trigger = (initial) => (
+  fill_entity(box(initial), 1, proto_entity_writtable_value_trigger, initial)
+)
 
 
 
