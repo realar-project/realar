@@ -95,7 +95,7 @@ const def_prop = Object.defineProperty;
 /*
   TODOs:
   [] .pre
-  [] .flow
+  [] .flow    // basic/started impl without resolve and stop signal
   [] value.trigger
   [] value.from
   [] signal
@@ -107,6 +107,8 @@ const def_prop = Object.defineProperty;
   [] ...
 
   Readonly signal has no pre, because pre depends on write
+  Backlog
+  [] .view.untrack
 */
 
 
