@@ -96,7 +96,13 @@ const def_prop = Object.defineProperty;
   TODOs:
   [] .flow    // basic/started impl without resolve and stop signal
   [] value.trigger
+  [] value.flag
+  [] value.flag
+  [] value.flag.truthy
+  [] value.flag.trigger
+  [] value.trigger.flag
   [] value.from
+  [] value.trigger.flag.from
   [] signal
   [] v.as.value(), v.as.signal()
   [] v.as.readonly()
