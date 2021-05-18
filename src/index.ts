@@ -104,9 +104,9 @@ const def_prop = Object.defineProperty;
   [] value.trigger.flag.from
   [] signal
   [] v.as.value(), v.as.signal()
-  [] .chan
-  [] .combine // doubtful (use .val resolve instead)
-  [] .join    // doubtful (use .val resolve instead)
+  [] x.combine([a,b,c]) -> [x,a,b,c]
+  [] x.select.multiple({a:fn, b:fn}).op((ctx)=> {ctx.a.to(m); ctx.b.to(p)})
+  [] x.op
   [] ...
   [] combine as root level exportable factory function
   [] flow as root level exportable factory function
@@ -118,6 +118,8 @@ const def_prop = Object.defineProperty;
   [] .pre.filter.not.untrack
   [] v.as.readonly()
   [] flow.resolve
+  [] .chan
+  [] .combine
 */
 
 
@@ -397,9 +399,11 @@ const trait_ent_flow = (ctx, fn) => {
   });
   const h = [
     () => ((started || (f[0](), (started = true))), f[1]()),
-    ctx[key_handler][1]
+    ctx[key_set] && ctx[key_set].bind()
   ];
-  return fill_entity(h, h[1] ? proto_entity_writtable : proto_entity_readable, 0, 0, 0, ctx[key_set].bind());
+  return fill_entity(h,
+    h[1] ? proto_entity_writtable : proto_entity_readable
+  );
 };
 const trait_ent_flow_filter = (ctx, fn) => (
   trait_ent_flow(ctx, fn
@@ -411,7 +415,7 @@ const trait_ent_flow_filter = (ctx, fn) => (
   )
 );
 const trait_ent_flow_filter_not = (ctx, fn) => (
-  ctx[key_flow][key_filter](fn
+  trait_ent_flow_filter(ctx, fn
     ? (fn[key_get] && (fn = fn[key_get]), (v) => !fn(v))
     : pure_arrow_fn_returns_not_arg)
 );

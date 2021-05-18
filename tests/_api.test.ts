@@ -172,7 +172,7 @@ test('should work _value with val', () => {
   expect(v.dirty.val).toBe(false);
 });
 
-test('should work _value with to', () => {
+test('should work _value with to, to.once', () => {
   const spy_to = jest.fn();
   const spy_to_once = jest.fn();
   const v = _value(0);
@@ -198,12 +198,13 @@ test('should work _value with to', () => {
 
 test('should work _value with select', () => {
   const spy = jest.fn();
-  let t;
+  let t, s;
   const v = _value(5);
   const k = _value(0);
 
-  (t = v.select); t((_v) => Math.abs(_v - k.val)).sync(spy);
+  (t = v.select); s = t((_v) => Math.abs(_v - k.val)).sync(spy);
 
+  expect(s.val).toBe(5);
   expect(spy).toHaveBeenCalledWith(5, void 0);
   expect(spy).toHaveBeenCalledTimes(1); spy.mockReset();
   k(10);
@@ -216,6 +217,7 @@ test('should work _value with select', () => {
   v(5);
   expect(spy).toHaveBeenCalledWith(6, 4);
   expect(spy).toHaveBeenCalledTimes(1); spy.mockReset();
+  expect(s.get()).toBe(6);
 });
 
 test('should work _value with view', () => {
@@ -277,7 +279,7 @@ test('should work _value with pre', () => {
   expect(k.val).toBe(202);
 });
 
-test('should work _value with pre.filter', () => {
+test('should work _value with pre.filter, pre.filter.not', () => {
   let t;
   const v = _value(5);
   const f = _value(0);
@@ -340,7 +342,7 @@ test('should work _value with flow', () => {
 });
 
 
-test('should work _value with flow.filter', () => {
+test('should work _value with flow.filter, flow.filter.not', () => {
   let t;
   const v = _value(5);
   const f = _value(0);
@@ -349,6 +351,10 @@ test('should work _value with flow.filter', () => {
   const k = ((t = w.flow.filter), (t = t.not), t(f));
   const m = k.flow.filter();
   const n = ((t = k.flow), (t = t.filter.not), t());
+
+  expect(n.dirty).toBeUndefined();
+  expect(m.reset).toBeUndefined();
+  expect(k.reinit).toBeUndefined();
 
   expect(w.val).toBe(5);
   expect(k.val).toBe(5);
@@ -380,6 +386,21 @@ test('should work _value with flow.filter', () => {
   expect(w.val).toBe(11);
 });
 
+test('should work _value with readable flow', () => {
+  const v = _value("Hi");
+  const f = v.select((_v) => _v[1]).flow((v) => v + v);
+
+  expect(typeof f).toBe("object");
+  expect(f.set).toBeUndefined();
+  expect(f.update).toBeUndefined();
+  expect(f.reset).toBeUndefined();
+  expect(f.reinit).toBeUndefined();
+  expect(f.dirty).toBeUndefined();
+  expect(f.get()).toBe('ii');
+  expect(f.val).toBe('ii');
+  v("/+");
+  expect(f.val).toBe('++');
+});
 
 
 
