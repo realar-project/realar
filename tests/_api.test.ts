@@ -464,7 +464,64 @@ test('should work _value with promise for value, select, view, pre, flow, readab
   ]);
 });
 
+test('should work _value.trigger common support and promise', async () => {
+  let t;
+  const v = _value.trigger(0);
 
+  let promise = v.promise;
+  expect(v.promise).toBe(promise);
 
+  setTimeout(v.bind(0, 1));
+  expect(await v.promise).toBe(1);
+  expect(v.promise).toBe(promise);
+  expect(v.val).toBe(1);
+
+  v.val = 2;
+  expect(v.promise).toBe(promise);
+  expect(v.val).toBe(1);
+
+  v.reset();
+  expect(v.promise).not.toBe(promise);
+  promise = v.promise;
+  expect(v.val).toBe(0);
+  setTimeout(v.bind(0, 5));
+  expect(await v.promise).toBe(5);
+  expect(v.val).toBe(5);
+
+  v(7);
+  expect(v.promise).toBe(promise);
+  expect(v.val).toBe(5);
+
+  v.reinit(10);
+  expect(v.get()).toBe(10);
+  expect(v.promise).not.toBe(promise);
+  promise = v.promise;
+  v.update(v => v + 5);
+  expect(((t = v.get), t())).toBe(15);
+  expect(v.promise).toBe(promise);
+});
+
+test('should work _value.trigger with select, update.by, flow, pre, view', () => {
+  const p = _value('');
+  const v = _value.trigger('e');
+  const t = v.pre((k) => 'h' + k).view((k) => k + 'lo').update.by(p);
+  const s = t.select((v) => v.slice(0, 3));
+  const f = t.flow((v) => v.slice(-3) + p.val);
+
+  expect(s.val).toBe('elo');
+  expect(f.val).toBe('elo');
+  p.update(() => 'el');
+  expect(t.val).toBe('hello');
+  expect(s.val).toBe('hel');
+  expect(f.val).toBe('lloel');
+  p('x');
+  expect(t.val).toBe('hello');
+  expect(s.val).toBe('hel');
+  expect(f.val).toBe('llox');
+
+  t.reset();
+  expect(s.val).toBe('elo');
+  expect(f.val).toBe('elox');
+});
 
 

@@ -2,6 +2,8 @@ import React, { Context, FC } from 'react';
 import { expr, box, sel, flow, transaction, untrack } from 'reactive-box';
 
 export {
+  _value,
+
   value,
   selector,
   prop,
@@ -94,12 +96,6 @@ const def_prop = Object.defineProperty;
 
 /*
   TODOs:
-  [] think about trigger implementation
-    [] add "key_trigger_touched" flag to "[key_handler]"
-        necessary for disallow setting for trigger (until reset),
-        (explained in todo below)
-
-  [] value.trigger
   [] value.trigger.flag // (false -> true)
   [] value.trigger.flag.invert // (true -> false)
   [] value.from
@@ -108,8 +104,12 @@ const def_prop = Object.defineProperty;
   [] v.as.value(), v.as.signal()
   [] add signal support to "flow"
   [] x.combine([a,b,c]) -> [x,a,b,c]
-  [] x.select.multiple({a:fn, b:fn}).op((ctx)=> {ctx.a.to(m); ctx.b.to(p)})
-  [] x.op
+  [] x.select.multiple({a:fn, b:fn}).group((ctx)=> {ctx.a.to(m); ctx.b.to(p)}).group()
+  [] x.group -- x.op -- x.block
+      x.block((ctx) => ({  // if returns non undefined
+        a: ctx.a,
+        b: ctx.a.select()
+      })).b.val
   [] ...
   [] combine as root level exportable factory function
   [] flow as root level exportable factory function
@@ -138,15 +138,23 @@ const obj_def_prop = Object.defineProperty;
 const obj_create = Object.create;
 const new_symbol = Symbol;
 
-
 //
-//  Reactive box flow section. An additional abstraction in front of basic api.
+//  Reactive box specific definitions.
 //
 
 const flow_stop = flow.stop;
 
 //
-//  Entity builder for value, signal and etc.
+//  Entity builder for value, signal and etc. Typings.
+//
+
+type _Value = {
+  (initial?: any): any;
+  trigger: (initial?: any) => any;
+}
+
+//
+//  Entity builder implementation.
 //
 
 const pure_fn = function () {};
@@ -177,7 +185,11 @@ const key_pre = "pre";
 const key_filter = "filter";
 const key_not = "not";
 const key_flow = "flow";
-const key_is_trigger = new_symbol();
+const key_reset_promise_by_reset = new_symbol();
+const key_touched_internal = new_symbol();
+const key_trigger = "trigger";
+
+
 
 const obj_def_prop_value = (obj, key, value) => (
   obj_def_prop(obj, key, { value }), value
@@ -233,7 +245,7 @@ const obj_def_prop_promise = (obj) => {
         ctx[key_promise_internal] = new Promise((resolve) =>
           // TODO: should be the highest priority.
           expr(ctx[key_get], () => {
-            if (!ctx[key_handler][key_is_trigger]) ctx[key_promise_internal] = 0;
+            if (!ctx[key_handler][key_reset_promise_by_reset]) ctx[key_promise_internal] = 0;
             resolve(ctx[key_get]());
           })[0]()
         );
@@ -244,14 +256,10 @@ const obj_def_prop_promise = (obj) => {
 };
 
 
-const fill_entity = (handler, proto, has_initial?, initial?, _get?, _set?, is_trigger?) => {
-  const set = _set || handler[1];
-  const get = _get || handler[0];
+const fill_entity = (handler, proto, has_initial?, initial?, _get?, _set?) => {
+  let set = _set || handler[1];
+  let get = _get || handler[0];
   has_initial && (handler[key_initial] = initial);
-  is_trigger && (handler[key_is_trigger] = is_trigger);
-
-  // TODO: if is trigger should be create decorated "set" function, who set [key_trigger_touched] to 1
-  //       and will disable "set" if it already setted to 1
 
   let ctx;
   if (set) {
@@ -311,6 +319,7 @@ const trait_ent_sync = (ctx, fn) => {
 const trait_ent_reset = (ctx) => {
   ctx[key_promise_internal] = 0;
   ctx[key_handler][1](ctx[key_handler][key_initial]);
+  ctx[key_handler][key_touched_internal] = 0;
 };
 const trait_ent_reset_by = (ctx, src) => {
   const src_get = src[key_get] ? src[key_get] : src;
@@ -387,6 +396,7 @@ const trait_ent_pre_filter_not = (ctx, fn) => (
 );
 
 const trait_ent_flow = (ctx, fn) => {
+  fn || (fn = pure_arrow_fn_returns_arg);
   let started, prev;
   const f = flow(() => {
     const v = ctx[key_get]();
@@ -543,14 +553,19 @@ obj_def_prop_factory(
 );
 
 
+const value_trigger = (initial) => {
+  const handler = box(initial, () => (handler[key_touched_internal] = 1));
+  handler[key_reset_promise_by_reset] = 1;
+  return fill_entity(handler, proto_entity_writtable_leaf, 1, initial, 0,
+    (v) => { handler[key_touched_internal] || handler[1](v) }
+  );
+}
 
-export const _value = (initial) => (
+const _value = ((initial) => (
   fill_entity(box(initial), proto_entity_writtable_leaf, 1, initial)
-);
+)) as _Value;
 
-export const _value_trigger = (initial) => (
-  fill_entity(box(initial), proto_entity_writtable_leaf, 1, initial, 0, 0, 1)
-)
+_value[key_trigger] = value_trigger;
 
 
 
