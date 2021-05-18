@@ -95,8 +95,9 @@ const def_prop = Object.defineProperty;
 /*
   TODOs:
   [] think about trigger implementation
-    [] add "is_touched" flag to "[key_handler]" necessary for disallow setting for trigger (until reset),
-        and for .touched implementation (same as dirty)
+    [] add "key_trigger_touched" flag to "[key_handler]"
+        necessary for disallow setting for trigger (until reset),
+        (explained in todo below)
 
   [] value.trigger
   [] value.trigger.flag // (false -> true)
@@ -248,6 +249,9 @@ const fill_entity = (handler, proto, has_initial?, initial?, _get?, _set?, is_tr
   const get = _get || handler[0];
   has_initial && (handler[key_initial] = initial);
   is_trigger && (handler[key_is_trigger] = is_trigger);
+
+  // TODO: if is trigger should be create decorated "set" function, who set [key_trigger_touched] to 1
+  //       and will disable "set" if it already setted to 1
 
   let ctx;
   if (set) {
@@ -537,22 +541,6 @@ obj_def_prop_factory(
   key_dirty,
   prop_factory_dirty_required_initial
 );
-
-// // writtable_value <- writtable_leaf
-// //   .promise `for non trigger
-// const proto_entity_writtable_value = obj_create(
-//   proto_entity_writtable_leaf
-// );
-// obj_def_prop_promise(proto_entity_writtable_value);
-
-// // writtable_value_trigger <- writtable_leaf
-// //   .promise `for trigger
-// const proto_entity_writtable_value_trigger = obj_create(
-//   proto_entity_writtable_leaf
-// );
-// obj_def_prop_promise_for_trigger(
-//   proto_entity_writtable_value_trigger
-// );
 
 
 
