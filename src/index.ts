@@ -94,7 +94,6 @@ const def_prop = Object.defineProperty;
 
 /*
   TODOs:
-  [] flow test cases
   [] value.trigger
   [] value.flag
   [] value.flag
@@ -318,7 +317,7 @@ const trait_ent_reset = (ctx) => {
 const trait_ent_reset_by = (ctx, src) => {
   const src_get = src[key_get] ? src[key_get] : src;
   const e = expr(src_get, () => {
-    ctx[key_reset]();
+    trait_ent_reset(ctx);
     e[0]()
   });
   e[0]();
@@ -326,12 +325,12 @@ const trait_ent_reset_by = (ctx, src) => {
 };
 const trait_ent_reinit = (ctx, initial) => {
   ctx[key_handler][key_initial] = initial;
-  ctx[key_reset]();
+  trait_ent_reset(ctx);
 };
 const trait_ent_reinit_by = (ctx, src) => {
   const src_get = src[key_get] ? src[key_get] : src;
   const e = expr(src_get, () => {
-    ctx[key_reinit](src_get());
+    trait_ent_reinit(ctx, src_get());
     e[0]();
   });
   e[0]();
@@ -382,34 +381,33 @@ const trait_ent_pre_filter = (ctx, fn) => (
   )
 );
 const trait_ent_pre_filter_not = (ctx, fn) => (
-  ctx[key_pre][key_filter](fn
+  trait_ent_pre_filter(ctx, fn
     ? (fn[key_get]
       ? (v) => !fn[key_get](v)
       : (v) => !fn(v))
     : pure_arrow_fn_returns_not_arg)
 );
 
-const generic_trait_ent_flow = (ctx, fn) => {
-  let started;
-  const f = flow(fn);
+const trait_ent_flow = (ctx, fn) => {
+  let started, prev;
+  const f = flow(() => {
+    const v = ctx[key_get]();
+    try { return fn(v, prev) }
+    finally { prev = v }
+  });
   const h = [
     () => ((started || (f[0](), (started = true))), f[1]()),
     ctx[key_handler][1]
   ];
-  return fill_entity(h, h[1] ? proto_entity_writtable : proto_entity_readable, 0, 0, 0, ctx[key_set]);
+  return fill_entity(h, h[1] ? proto_entity_writtable : proto_entity_readable, 0, 0, 0, ctx[key_set].bind());
 };
-const trait_ent_flow = (ctx, fn) => (
-  generic_trait_ent_flow(ctx, (r, prev_value) => (
-    fn(ctx[key_get](), prev_value)
-  ))
-);
 const trait_ent_flow_filter = (ctx, fn) => (
-  generic_trait_ent_flow(ctx, fn
+  trait_ent_flow(ctx, fn
     ? (fn[key_get] && (fn = fn[key_get]),
-      (r, prev_value) => (
-        fn(ctx[key_get](), prev_value) ? ctx[key_get]() : flow_stop
+      (v, prev) => (
+        fn(v, prev) ? v : flow_stop
       ))
-    : () => ctx[key_get]() || flow_stop
+    : (v) => v || flow_stop
   )
 );
 const trait_ent_flow_filter_not = (ctx, fn) => (

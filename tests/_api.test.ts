@@ -319,9 +319,66 @@ test('should work _value with pre.filter', () => {
   expect(v.val).toBe(0);
 });
 
+test('should work _value with flow', () => {
+  let t;
+  const v = _value(5);
+  const x = _value(1);
+  const w = ((t = v.flow), t((_v) => _v + _v));
+  const k = w.flow((_v) => _v + 100);
+  const p = k.flow((_v, _v_prev) => _v * 100 + (_v_prev || 0) * 10 + x.val);
+
+  expect(w.val).toBe(10);
+  expect(k.val).toBe(110);
+  expect(p.val).toBe(11001);
+
+  p.val = 6;
+  expect(w.val).toBe(12);
+  expect(k.val).toBe(112);
+  expect(p.val).toBe(112 * 100 + 110 * 10 + 1);
+  x(2);
+  expect(p.val).toBe(112 * 100 + 112 * 10 + 2);
+});
 
 
+test('should work _value with flow.filter', () => {
+  let t;
+  const v = _value(5);
+  const f = _value(0);
 
+  const w = v.flow.filter((_v) => _v !== 10);
+  const k = ((t = w.flow.filter), (t = t.not), t(f));
+  const m = k.flow.filter();
+  const n = ((t = k.flow), (t = t.filter.not), t());
+
+  expect(w.val).toBe(5);
+  expect(k.val).toBe(5);
+  expect(m.val).toBe(5);
+  expect(n.val).toBe(void 0);
+
+  m(0);
+  expect(w.val).toBe(0);
+  expect(k.val).toBe(0);
+  expect(m.val).toBe(5);
+  expect(n.val).toBe(0);
+
+  f(1);
+  w(8);
+  expect(v.val).toBe(8);
+  expect(w.val).toBe(8);
+  expect(k.val).toBe(0);
+  expect(m.val).toBe(5);
+
+  f();
+  expect(k.val).toBe(8);
+  expect(m.val).toBe(8);
+
+  n(10);
+  expect(v.val).toBe(10);
+  expect(w.val).toBe(8);
+
+  v(11);
+  expect(w.val).toBe(11);
+});
 
 
 
