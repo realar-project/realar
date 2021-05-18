@@ -402,6 +402,67 @@ test('should work _value with readable flow', () => {
   expect(f.val).toBe('++');
 });
 
+test('should work _value with promise for value, select, view, pre, flow, readable flow', async () => {
+  const v = _value(0);
+  const s = v.select(t => t + 1);
+  const w = v.view(t => t + 2);
+  const p = v.pre(t => t - 1);
+  const f = v.flow(t => t + 5);
+  const r = s.flow(t => t + 3);
+
+  expect(v.promise).toBe(v.promise);
+  expect(v.promise).not.toBe(s.promise);
+  expect(s.promise).toBe(s.promise);
+  expect(v.promise).not.toBe(w.promise);
+  expect(w.promise).toBe(w.promise);
+  expect(v.promise).not.toBe(p.promise);
+  expect(p.promise).toBe(p.promise);
+  expect(v.promise).not.toBe(f.promise);
+  expect(f.promise).toBe(f.promise);
+  expect(v.promise).not.toBe(r.promise);
+  expect(r.promise).toBe(r.promise);
+
+  const v_p = v.promise;
+
+  setTimeout(() => v.update((k) => k + 10), 3);
+  const a1 = await Promise.all([
+    v.promise,
+    s.promise,
+    w.promise,
+    p.promise,
+    f.promise,
+    r.promise
+  ]);
+  expect(a1).toStrictEqual([
+    10,
+    11,
+    12,
+    10,
+    15,
+    14
+  ]);
+
+  expect(v_p).not.toBe(v.promise);
+  expect(v.promise).toBe(v.promise);
+
+  setTimeout(() => v.update((k) => k + 10), 3);
+  const a2 = await Promise.all([
+    v.promise,
+    s.promise,
+    w.promise,
+    p.promise,
+    f.promise,
+    r.promise
+  ]);
+  expect(a2).toStrictEqual([
+    20,
+    21,
+    22,
+    20,
+    25,
+    24
+  ]);
+});
 
 
 

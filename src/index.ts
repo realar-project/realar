@@ -94,16 +94,18 @@ const def_prop = Object.defineProperty;
 
 /*
   TODOs:
+  [] think about trigger implementation
+    [] add "is_touched" flag to "[key_handler]" necessary for disallow setting for trigger (until reset),
+        and for .touched implementation (same as dirty)
+
   [] value.trigger
-  [] value.flag
-  [] value.flag
-  [] value.flag.truthy
-  [] value.flag.trigger
-  [] value.trigger.flag
+  [] value.trigger.flag // (false -> true)
+  [] value.trigger.flag.invert // (true -> false)
   [] value.from
   [] value.trigger.flag.from
   [] signal
   [] v.as.value(), v.as.signal()
+  [] add signal support to "flow"
   [] x.combine([a,b,c]) -> [x,a,b,c]
   [] x.select.multiple({a:fn, b:fn}).op((ctx)=> {ctx.a.to(m); ctx.b.to(p)})
   [] x.op
@@ -133,6 +135,7 @@ const def_prop = Object.defineProperty;
 const obj_equals = Object.is;
 const obj_def_prop = Object.defineProperty;
 const obj_create = Object.create;
+const new_symbol = Symbol;
 
 
 //
@@ -153,13 +156,13 @@ const key_proto = "__proto__";
 const key_get = "get";
 const key_set = "set";
 const key_promise = "promise";
-const key_promise_internal = Symbol();
+const key_promise_internal = new_symbol();
 const key_reset = "reset";
-const key_initial = Symbol();
-const key_dirty_handler = Symbol();
+const key_initial = new_symbol();
+const key_dirty_handler = new_symbol();
 const key_dirty = "dirty";
 const key_sync = "sync";
-const key_ctx = Symbol();
+const key_ctx = new_symbol();
 const key_by = "by";
 const key_reinit = "reinit";
 const key_update = "update";
@@ -168,11 +171,12 @@ const key_once = "once";
 const key_to = "to";
 const key_select = "select";
 const key_view = "view";
-const key_handler = Symbol();
+const key_handler = new_symbol();
 const key_pre = "pre";
 const key_filter = "filter";
 const key_not = "not";
 const key_flow = "flow";
+const key_is_trigger = new_symbol();
 
 const obj_def_prop_value = (obj, key, value) => (
   obj_def_prop(obj, key, { value }), value
@@ -220,7 +224,7 @@ const obj_def_prop_factory = (obj, key, factory) =>
     }
   });
 
-const obj_def_prop_promise_for_non_trigger = (obj) => {
+const obj_def_prop_promise = (obj) => {
   return obj_def_prop(obj, key_promise, {
     get() {
       const ctx = this;
@@ -228,7 +232,7 @@ const obj_def_prop_promise_for_non_trigger = (obj) => {
         ctx[key_promise_internal] = new Promise((resolve) =>
           // TODO: should be the highest priority.
           expr(ctx[key_get], () => {
-            ctx[key_promise_internal] = 0;
+            if (!ctx[key_handler][key_is_trigger]) ctx[key_promise_internal] = 0;
             resolve(ctx[key_get]());
           })[0]()
         );
@@ -238,24 +242,12 @@ const obj_def_prop_promise_for_non_trigger = (obj) => {
   });
 };
 
-const obj_def_prop_promise_for_trigger = (obj) => {
-  return obj_def_prop(obj, key_promise, {
-    get() {
-      const ctx = this;
-      if (!ctx[key_promise_internal]) {
-        ctx[key_promise_internal] = new Promise((resolve) =>
-          expr(ctx[key_get], () => resolve(ctx[key_get]()))[0]()
-        );
-      }
-      return ctx[key_promise_internal];
-    }
-  });
-};
 
-const fill_entity = (handler, proto, has_initial?, initial?, _get?, _set?) => {
+const fill_entity = (handler, proto, has_initial?, initial?, _get?, _set?, is_trigger?) => {
   const set = _set || handler[1];
   const get = _get || handler[0];
   has_initial && (handler[key_initial] = initial);
+  is_trigger && (handler[key_is_trigger] = is_trigger);
 
   let ctx;
   if (set) {
@@ -451,6 +443,7 @@ obj_def_prop_trait_ns_with_ns(
 //       flow.filter.not
 //   .select
 //   .view
+//   .promise
 const proto_entity_readable = obj_create(pure_fn);
 obj_def_prop_trait(proto_entity_readable, key_sync, trait_ent_sync);
 obj_def_prop_trait_with_ns(
@@ -467,6 +460,7 @@ obj_def_prop_trait_with_ns(
 );
 obj_def_prop_trait(proto_entity_readable, key_select, trait_ent_select);
 obj_def_prop_trait(proto_entity_readable, key_view, trait_ent_view);
+obj_def_prop_promise(proto_entity_readable);
 
 // writtable.update:ns
 //   .update.by
@@ -544,30 +538,30 @@ obj_def_prop_factory(
   prop_factory_dirty_required_initial
 );
 
-// writtable_value <- writtable_leaf
-//   .promise `for non trigger
-const proto_entity_writtable_value = obj_create(
-  proto_entity_writtable_leaf
-);
-obj_def_prop_promise_for_non_trigger(proto_entity_writtable_value);
+// // writtable_value <- writtable_leaf
+// //   .promise `for non trigger
+// const proto_entity_writtable_value = obj_create(
+//   proto_entity_writtable_leaf
+// );
+// obj_def_prop_promise(proto_entity_writtable_value);
 
-// writtable_value_trigger <- writtable_leaf
-//   .promise `for trigger
-const proto_entity_writtable_value_trigger = obj_create(
-  proto_entity_writtable_leaf
-);
-obj_def_prop_promise_for_trigger(
-  proto_entity_writtable_value_trigger
-);
+// // writtable_value_trigger <- writtable_leaf
+// //   .promise `for trigger
+// const proto_entity_writtable_value_trigger = obj_create(
+//   proto_entity_writtable_leaf
+// );
+// obj_def_prop_promise_for_trigger(
+//   proto_entity_writtable_value_trigger
+// );
 
 
 
 export const _value = (initial) => (
-  fill_entity(box(initial), proto_entity_writtable_value, 1, initial)
+  fill_entity(box(initial), proto_entity_writtable_leaf, 1, initial)
 );
 
 export const _value_trigger = (initial) => (
-  fill_entity(box(initial), proto_entity_writtable_value_trigger, 1, initial)
+  fill_entity(box(initial), proto_entity_writtable_leaf, 1, initial, 0, 0, 1)
 )
 
 
