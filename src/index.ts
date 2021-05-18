@@ -94,7 +94,7 @@ const def_prop = Object.defineProperty;
 
 /*
   TODOs:
-  [] .flow    // basic/started impl without resolve and stop signal
+  [] flow test cases
   [] value.trigger
   [] value.flag
   [] value.flag
@@ -105,27 +105,44 @@ const def_prop = Object.defineProperty;
   [] value.trigger.flag.from
   [] signal
   [] v.as.value(), v.as.signal()
-  [] v.as.readonly()
+  [] .chan
   [] .combine // doubtful (use .val resolve instead)
   [] .join    // doubtful (use .val resolve instead)
-  [] .chan
   [] ...
+  [] combine as root level exportable factory function
+  [] flow as root level exportable factory function
 
   Backlog
   [] .view.untrack
   [] .pre.untrack
   [] .pre.filter.untrack
   [] .pre.filter.not.untrack
+  [] v.as.readonly()
+  [] flow.resolve
 */
 
 
 
 
 
+//
+//  Global js sdk specific definitions.
+//
 
 const obj_equals = Object.is;
 const obj_def_prop = Object.defineProperty;
 const obj_create = Object.create;
+
+
+//
+//  Reactive box flow section. An additional abstraction in front of basic api.
+//
+
+const flow_stop = flow.stop;
+
+//
+//  Entity builder for value, signal and etc.
+//
 
 const pure_fn = function () {};
 const pure_arrow_fn_returns_arg = (v) => v;
@@ -154,7 +171,7 @@ const key_handler = Symbol();
 const key_pre = "pre";
 const key_filter = "filter";
 const key_not = "not";
-
+const key_flow = "flow";
 
 const obj_def_prop_value = (obj, key, value) => (
   obj_def_prop(obj, key, { value }), value
@@ -372,15 +389,64 @@ const trait_ent_pre_filter_not = (ctx, fn) => (
     : pure_arrow_fn_returns_not_arg)
 );
 
+const generic_trait_ent_flow = (ctx, fn) => {
+  let started;
+  const f = flow(fn);
+  const h = [
+    () => ((started || (f[0](), (started = true))), f[1]()),
+    ctx[key_handler][1]
+  ];
+  return fill_entity(h, h[1] ? proto_entity_writtable : proto_entity_readable, 0, 0, 0, ctx[key_set]);
+};
+const trait_ent_flow = (ctx, fn) => (
+  generic_trait_ent_flow(ctx, (r, prev_value) => (
+    fn(ctx[key_get](), prev_value)
+  ))
+);
+const trait_ent_flow_filter = (ctx, fn) => (
+  generic_trait_ent_flow(ctx, fn
+    ? (fn[key_get] && (fn = fn[key_get]),
+      (r, prev_value) => (
+        fn(ctx[key_get](), prev_value) ? ctx[key_get]() : flow_stop
+      ))
+    : () => ctx[key_get]() || flow_stop
+  )
+);
+const trait_ent_flow_filter_not = (ctx, fn) => (
+  ctx[key_flow][key_filter](fn
+    ? (fn[key_get] && (fn = fn[key_get]), (v) => !fn(v))
+    : pure_arrow_fn_returns_not_arg)
+);
+
+
+
 // readable.to:ns
 //   .to.once
 const proto_entity_readable_to_ns = obj_create(pure_fn);
 obj_def_prop_trait_ns(proto_entity_readable_to_ns, key_once, trait_ent_to_once);
 
+// readable.flow.filter:ns
+//   .flow.filter.not
+const proto_entity_writtable_flow_filter_ns = obj_create(pure_fn);
+obj_def_prop_trait_ns(proto_entity_writtable_flow_filter_ns, key_not, trait_ent_flow_filter_not);
+
+// readable.flow:ns
+//   .flow.filter:readable.flow.filter:ns
+const proto_entity_readable_flow_ns = obj_create(pure_fn);
+obj_def_prop_trait_ns_with_ns(
+  proto_entity_readable_flow_ns,
+  key_filter,
+  trait_ent_flow_filter,
+  proto_entity_writtable_flow_filter_ns
+);
+
 // readable
 //   .sync
 //   .to:readable.to:ns
 //     .to.once
+//   .flow:readable.flow:ns
+//     .flow.filter:readable.flow.filter:ns
+//       flow.filter.not
 //   .select
 //   .view
 const proto_entity_readable = obj_create(pure_fn);
@@ -391,6 +457,12 @@ obj_def_prop_trait_with_ns(
   trait_ent_to,
   proto_entity_readable_to_ns
 );
+obj_def_prop_trait_with_ns(
+  proto_entity_readable,
+  key_flow,
+  trait_ent_flow,
+  proto_entity_readable_flow_ns
+);
 obj_def_prop_trait(proto_entity_readable, key_select, trait_ent_select);
 obj_def_prop_trait(proto_entity_readable, key_view, trait_ent_view);
 
@@ -399,23 +471,13 @@ obj_def_prop_trait(proto_entity_readable, key_view, trait_ent_view);
 const proto_entity_writtable_update_ns = obj_create(pure_fn);
 obj_def_prop_trait_ns(proto_entity_writtable_update_ns, key_by, trait_ent_update_by);
 
-// writtable.reset:ns
-//   .reset.by
-const proto_entity_writtable_reset_ns = obj_create(pure_fn);
-obj_def_prop_trait_ns(proto_entity_writtable_reset_ns, key_by, trait_ent_reset_by);
-
-// writtable.reinit:ns
-//   .reinit.by
-const proto_entity_writtable_reinit_ns = obj_create(pure_fn);
-obj_def_prop_trait_ns(proto_entity_writtable_reinit_ns, key_by, trait_ent_reinit_by);
-
 // writtable.pre.filter:ns
 //   .pre.filter.not
 const proto_entity_writtable_pre_filter_ns = obj_create(pure_fn);
 obj_def_prop_trait_ns(proto_entity_writtable_pre_filter_ns, key_not, trait_ent_pre_filter_not);
 
 // writtable.pre:ns
-//   .pre.filter
+//   .pre.filter:writtable.pre.filter:ns
 const proto_entity_writtable_pre_ns = obj_create(pure_fn);
 obj_def_prop_trait_ns_with_ns(
   proto_entity_writtable_pre_ns,
@@ -427,15 +489,9 @@ obj_def_prop_trait_ns_with_ns(
 // writtable <- readable
 //   .update:writtable.update:ns
 //     .update.by
-//   .reset:writtable.reset:ns
-//     .reset.by
-//   .reinit:writtable.reinit:ns
-//     .reinit.by
 //   .pre:writtable.pre:ns
 //     .pre.filter:writtable.pre.filter:ns
 //       pre.filter.not
-//   .dirty
-
 const proto_entity_writtable = obj_create(proto_entity_readable);
 obj_def_prop_trait_with_ns(
   proto_entity_writtable,
@@ -445,39 +501,58 @@ obj_def_prop_trait_with_ns(
 );
 obj_def_prop_trait_with_ns(
   proto_entity_writtable,
-  key_reset,
-  trait_ent_reset,
-  proto_entity_writtable_reset_ns
-);
-obj_def_prop_trait_with_ns(
-  proto_entity_writtable,
-  key_reinit,
-  trait_ent_reinit,
-  proto_entity_writtable_reinit_ns
-);
-obj_def_prop_trait_with_ns(
-  proto_entity_writtable,
   key_pre,
   trait_ent_pre,
   proto_entity_writtable_pre_ns
 );
+
+// writtable_leaf.reset:ns
+//   .reset.by
+const proto_entity_writtable_leaf_reset_ns = obj_create(pure_fn);
+obj_def_prop_trait_ns(proto_entity_writtable_leaf_reset_ns, key_by, trait_ent_reset_by);
+
+// writtable_leaf.reinit:ns
+//   .reinit.by
+const proto_entity_writtable_leaf_reinit_ns = obj_create(pure_fn);
+obj_def_prop_trait_ns(proto_entity_writtable_leaf_reinit_ns, key_by, trait_ent_reinit_by);
+
+
+// writtable_leaf <- writtable
+//   .reset:writtable_leaf.reset:ns
+//     .reset.by
+//   .reinit:writtable_leaf.reinit:ns
+//     .reinit.by
+//   .dirty
+const proto_entity_writtable_leaf = obj_create(proto_entity_writtable);
+obj_def_prop_trait_with_ns(
+  proto_entity_writtable_leaf,
+  key_reset,
+  trait_ent_reset,
+  proto_entity_writtable_leaf_reset_ns
+);
+obj_def_prop_trait_with_ns(
+  proto_entity_writtable_leaf,
+  key_reinit,
+  trait_ent_reinit,
+  proto_entity_writtable_leaf_reinit_ns
+);
 obj_def_prop_factory(
-  proto_entity_writtable,
+  proto_entity_writtable_leaf,
   key_dirty,
   prop_factory_dirty_required_initial
 );
 
-// writtable_value <- writtable
+// writtable_value <- writtable_leaf
 //   .promise `for non trigger
 const proto_entity_writtable_value = obj_create(
-  proto_entity_writtable
+  proto_entity_writtable_leaf
 );
 obj_def_prop_promise_for_non_trigger(proto_entity_writtable_value);
 
-// writtable_value_trigger <- writtable
+// writtable_value_trigger <- writtable_leaf
 //   .promise `for trigger
 const proto_entity_writtable_value_trigger = obj_create(
-  proto_entity_writtable
+  proto_entity_writtable_leaf
 );
 obj_def_prop_promise_for_trigger(
   proto_entity_writtable_value_trigger
