@@ -98,6 +98,7 @@ const def_prop = Object.defineProperty;
 /*
   TODOs:
   [] test cases for selector and value.from
+  [] value.from(get, set) <- add the "set" as a second (optional) argument
   [] signal
   [] v.as.value(), v.as.signal(), v.as.trigger.flag()
   [] add signal support to "flow"
