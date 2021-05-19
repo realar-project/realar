@@ -96,9 +96,8 @@ const def_prop = Object.defineProperty;
 
 /*
   TODOs:
-  [] value.trigger.flag // (false -> true)
-  [] value.trigger.flag.invert // (true -> false)
-  [] value.from
+  [] value.from  -- synonym with selector but with different types
+  [] selector
   [] value.trigger.flag.from
   [] signal
   [] v.as.value(), v.as.signal()
@@ -137,6 +136,8 @@ const obj_equals = Object.is;
 const obj_def_prop = Object.defineProperty;
 const obj_create = Object.create;
 const new_symbol = Symbol;
+const const_true = true;
+const const_false = false;
 
 //
 //  Reactive box specific definitions.
@@ -150,7 +151,15 @@ const flow_stop = flow.stop;
 
 type _Value = {
   (initial?: any): any;
-  trigger: (initial?: any) => any;
+  trigger: {
+    (initial?: any): any;
+    flag: {
+      (): any;
+      invert: {
+        (): any;
+      }
+    }
+  }
 }
 
 //
@@ -188,6 +197,8 @@ const key_flow = "flow";
 const key_reset_promise_by_reset = new_symbol();
 const key_touched_internal = new_symbol();
 const key_trigger = "trigger";
+const key_flag = "flag";
+const key_invert = "invert";
 
 
 
@@ -404,7 +415,7 @@ const trait_ent_flow = (ctx, fn) => {
     finally { prev = v }
   });
   const h = [
-    () => ((started || (f[0](), (started = true))), f[1]()),
+    () => ((started || (f[0](), (started = 1))), f[1]()),
     ctx[key_set] && ctx[key_set].bind()
   ];
   return fill_entity(h,
@@ -553,19 +564,29 @@ obj_def_prop_factory(
 );
 
 
-const value_trigger = (initial) => {
+
+const make_trigger = (initial, has_to?, to?) => {
   const handler = box(initial, () => (handler[key_touched_internal] = 1));
+  const set = has_to
+    ? () => { handler[key_touched_internal] || handler[1](to) }
+    : (v) => { handler[key_touched_internal] || handler[1](v) };
   handler[key_reset_promise_by_reset] = 1;
-  return fill_entity(handler, proto_entity_writtable_leaf, 1, initial, 0,
-    (v) => { handler[key_touched_internal] || handler[1](v) }
-  );
+  return fill_entity(handler, proto_entity_writtable_leaf, 1, initial, 0, set);
 }
+
+const value_trigger = (initial) => make_trigger(initial);
+const value_trigger_flag = () => make_trigger(const_false, 1, const_true);
+const value_trigger_flag_invert = () => make_trigger(const_true, 1, const_false);
+
+
 
 const _value = ((initial) => (
   fill_entity(box(initial), proto_entity_writtable_leaf, 1, initial)
 )) as _Value;
 
-_value[key_trigger] = value_trigger;
+value_trigger_flag[key_invert] = value_trigger_flag_invert;
+value_trigger[key_flag] = value_trigger_flag;
+_value[key_trigger] = value_trigger as any;
 
 
 

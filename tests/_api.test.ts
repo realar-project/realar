@@ -524,4 +524,24 @@ test('should work _value.trigger with select, update.by, flow, pre, view', () =>
   expect(f.val).toBe('elox');
 });
 
+test('should work _value.trigger.flag and .trigger.flag.invert', () => {
+  const f = _value.trigger.flag();
+  const i = _value.trigger.flag.invert();
+
+  expect(f.val).toBe(false);
+  expect(i.val).toBe(true);
+  f(); i();
+  expect(f.val).toBe(true);
+  expect(i.val).toBe(false);
+  f(); i();
+  expect(f.val).toBe(true);
+  expect(i.val).toBe(false);
+  f.reset(); i.reset();
+  expect(f.val).toBe(false);
+  expect(i.val).toBe(true);
+  f(); i();
+  expect(f.val).toBe(true);
+  expect(i.val).toBe(false);
+});
+
 
