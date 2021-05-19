@@ -99,17 +99,22 @@ const def_prop = Object.defineProperty;
 /*
   TODOs:
   [] signal <- purpose to implement signal through box compare function
-    [] add barrier support to _value, and _signal
-        s.barrier -> synonym to .flow.filter.untrack for values, **but different for signals**
-        s.barrier.not -> synonym to .flow.filter.not.untrack for values, but different for signals
-      ... hmm.. on thinking
-      ...
-      Is "s.filter" instead of "s.flow.filter" or should be both?
+    [] ==>
+      move .flow.filter to .filter -- .filter returns same object with "set" if it was available before
+      for signal: .filter and .filter.not untracked by default and returns with signal comparer
+      for signal: .filter.track, .filter.not.track
+      for signal: .flow returns with signal comparer, .flow tracks by default same as in value
+
+      .pre.filter tracked by default for both cases, because it can be used in "cycle", and
+        necessary to register dependency for evaluation scope context.
+      ===
+      make ".map" alias for ".view"
 
   [] v.as.value(), v.as.signal(), v.as.trigger.flag()
   [] x.combine([a,b,c]) -> [x,a,b,c]
   [] x.select.multiple({a:fn, b:fn}).group((ctx)=> {ctx.a.to(m); ctx.b.to(p)}).group()
   [] value.touchable(initial) <- The ".from" construction not available for values with "initial" dependency requireds
+  [] signal.touchable(initial)
   [] x.group -- x.op -- x.block
       x.block((ctx) => ({  // if returns non undefined
         a: ctx.a,
