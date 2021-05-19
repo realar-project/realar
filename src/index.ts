@@ -99,6 +99,11 @@ const def_prop = Object.defineProperty;
 /*
   TODOs:
   [] signal <- purpose to implement signal through box compare function
+    [] add barrier support to _value, and _signal
+        s.barrier -> synonym to .flow.filter.untrack for values, **but different for signals**
+        s.barrier.not -> synonym to .flow.filter.not.untrack for values, but different for signals
+      ... hmm.. on thinking
+
   [] v.as.value(), v.as.signal(), v.as.trigger.flag()
   [] x.combine([a,b,c]) -> [x,a,b,c]
   [] x.select.multiple({a:fn, b:fn}).group((ctx)=> {ctx.a.to(m); ctx.b.to(p)}).group()
@@ -122,7 +127,6 @@ const def_prop = Object.defineProperty;
   [] .chan
   [] .combine
   [] value.trigger.flag.from
-  [] add signal support to "flow" -- on thinking
 */
 
 
