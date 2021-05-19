@@ -3,6 +3,7 @@ import { expr, box, sel, flow, transaction, untrack } from 'reactive-box';
 
 export {
   _value,
+  _selector,
 
   value,
   selector,
@@ -96,11 +97,9 @@ const def_prop = Object.defineProperty;
 
 /*
   TODOs:
-  [] value.from  -- synonym with selector but with different types
-  [] selector
-  [] value.trigger.flag.from
+  [] test cases for selector and value.from
   [] signal
-  [] v.as.value(), v.as.signal()
+  [] v.as.value(), v.as.signal(), v.as.trigger.flag()
   [] add signal support to "flow"
   [] x.combine([a,b,c]) -> [x,a,b,c]
   [] x.select.multiple({a:fn, b:fn}).group((ctx)=> {ctx.a.to(m); ctx.b.to(p)}).group()
@@ -122,6 +121,7 @@ const def_prop = Object.defineProperty;
   [] flow.resolve
   [] .chan
   [] .combine
+  [] value.trigger.flag.from
 */
 
 
@@ -136,8 +136,6 @@ const obj_equals = Object.is;
 const obj_def_prop = Object.defineProperty;
 const obj_create = Object.create;
 const new_symbol = Symbol;
-const const_true = true;
-const const_false = false;
 
 //
 //  Reactive box specific definitions.
@@ -149,18 +147,25 @@ const flow_stop = flow.stop;
 //  Entity builder for value, signal and etc. Typings.
 //
 
-type _Value = {
+type ValueFactory = {
   (initial?: any): any;
   trigger: {
     (initial?: any): any;
     flag: {
-      (): any;
+      (initial?: any): any;
       invert: {
-        (): any;
+        (initial?: any): any;
       }
     }
+  };
+  from: {
+    (fn: () => any): any;
   }
 }
+type SelectorFactory = {
+  (fn: () => any): any;
+}
+
 
 //
 //  Entity builder implementation.
@@ -199,6 +204,7 @@ const key_touched_internal = new_symbol();
 const key_trigger = "trigger";
 const key_flag = "flag";
 const key_invert = "invert";
+const key_from = "from";
 
 
 
@@ -565,30 +571,37 @@ obj_def_prop_factory(
 
 
 
-const make_trigger = (initial, has_to?, to?) => {
+const make_trigger = (initial, has_to?) => {
   const handler = box(initial, () => (handler[key_touched_internal] = 1));
   const set = has_to
-    ? () => { handler[key_touched_internal] || handler[1](to) }
+    ? () => { handler[key_touched_internal] || handler[1](!handler[0]()) }
     : (v) => { handler[key_touched_internal] || handler[1](v) };
   handler[key_reset_promise_by_reset] = 1;
   return fill_entity(handler, proto_entity_writtable_leaf, 1, initial, 0, set);
 }
 
+
+
 const value_trigger = (initial) => make_trigger(initial);
-const value_trigger_flag = () => make_trigger(const_false, 1, const_true);
-const value_trigger_flag_invert = () => make_trigger(const_true, 1, const_false);
+const value_trigger_flag = (initial) => make_trigger(!!initial, 1);
+const value_trigger_flag_invert = (initial) => make_trigger(!initial, 1);
 
 
 
-const _value = ((initial) => (
+const _selector: SelectorFactory = (fn) => (
+  fill_entity(sel(fn).slice(0, 1), proto_entity_readable)
+)
+
+const _value: ValueFactory = ((initial) => (
   fill_entity(box(initial), proto_entity_writtable_leaf, 1, initial)
-)) as _Value;
+)) as any;
+
+
 
 value_trigger_flag[key_invert] = value_trigger_flag_invert;
 value_trigger[key_flag] = value_trigger_flag;
 _value[key_trigger] = value_trigger as any;
-
-
+_value[key_from] = _selector;
 
 
 
