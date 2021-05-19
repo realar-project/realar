@@ -103,6 +103,8 @@ const def_prop = Object.defineProperty;
         s.barrier -> synonym to .flow.filter.untrack for values, **but different for signals**
         s.barrier.not -> synonym to .flow.filter.not.untrack for values, but different for signals
       ... hmm.. on thinking
+      ...
+      Is "s.filter" instead of "s.flow.filter" or should be both?
 
   [] v.as.value(), v.as.signal(), v.as.trigger.flag()
   [] x.combine([a,b,c]) -> [x,a,b,c]
@@ -127,6 +129,7 @@ const def_prop = Object.defineProperty;
   [] .chan
   [] .combine
   [] value.trigger.flag.from
+  [] .map <- sysnonym for .view (on thinking)
 */
 
 
