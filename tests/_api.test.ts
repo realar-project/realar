@@ -1,4 +1,4 @@
-import { _value } from '../src';
+import { _value, _selector, _transaction } from '../src';
 
 test('should work _value with call, get, set, update, sync', () => {
   const spy = jest.fn();
@@ -543,5 +543,148 @@ test('should work _value.trigger.flag and .trigger.flag.invert', () => {
   expect(f.val).toBe(true);
   expect(i.val).toBe(false);
 });
+
+test('should work _selector basic support', () => {
+  let t;
+  const spy = jest.fn();
+  const a = _value(0);
+  const b = _value(1);
+  const s = _selector(() => a.val * 100 + b.val);
+
+  expect(typeof s).toBe('object');
+  expect(s.to).not.toBeUndefined();
+  expect(s.to.once).not.toBeUndefined();
+  expect(s.flow).not.toBeUndefined();
+  expect(s.flow.filter).not.toBeUndefined();
+  expect(s.flow.filter.not).not.toBeUndefined();
+  expect(s.view).not.toBeUndefined();
+  expect(s.promise).not.toBeUndefined();
+
+  expect(s.set).toBeUndefined();
+  expect(s.update).toBeUndefined();
+  expect(s.pre).toBeUndefined();
+  expect(s.reset).toBeUndefined();
+  expect(s.reinit).toBeUndefined();
+  expect(s.dirty).toBeUndefined();
+
+  expect(s.get()).toBe(s.val);
+  expect(s.val).toBe(1);
+
+  (t = s.sync), t(spy);
+  expect(spy).toBeCalledWith(1, void 0); spy.mockReset();
+
+  a.val = 1;
+  expect(spy).toBeCalledWith(101, 1); spy.mockReset();
+  b.val = 2;
+  expect(spy).toBeCalledWith(102, 101); spy.mockReset();
+
+  _transaction(() => {
+    a.val = 0;
+    b.val = 102;
+  });
+  expect(spy).toBeCalledTimes(0);
+  expect(a.val).toBe(0);
+  expect(b.val).toBe(102);
+});
+
+test('should work _selector with to, flow, view', () => {
+  let t;
+  const spy = jest.fn();
+  const b = _value(1);
+  const v = _value(0);
+  const s = _selector(() => v.val + 1);
+  const f = s.flow.filter.not(b);
+  const w = s.view((v) => v + 5);
+
+  (t = s.to), t(spy);
+  expect(spy).toBeCalledTimes(0);
+
+  v(1);
+  expect(spy).toBeCalledWith(2, 1); spy.mockReset();
+  expect(s.val).toBe(2);
+  expect(f.val).toBe(void 0);
+  expect(w.val).toBe(7);
+  v(2);
+  expect(spy).toBeCalledWith(3, 2); spy.mockReset();
+  expect(s.val).toBe(3);
+  expect(f.val).toBe(void 0);
+  expect(w.val).toBe(8);
+  b(0);
+  expect(f.val).toBe(3);
+});
+
+test('should work _value.from with one argument', () => {
+  let t;
+  const spy = jest.fn();
+  const a = _value(0);
+  const v = _value.from(() => a.val + 1);
+  expect(v.val).toBe(1);
+  (t = v.to), t(spy);
+
+  a.val = 1;
+  expect(v.val).toBe(2);
+  expect(spy).toBeCalledWith(2, 1);
+
+  expect(typeof v).toBe('object');
+  expect(v.to.once).not.toBeUndefined();
+  expect(v.flow).not.toBeUndefined();
+  expect(v.flow.filter).not.toBeUndefined();
+  expect(v.flow.filter.not).not.toBeUndefined();
+  expect(v.view).not.toBeUndefined();
+  expect(v.promise).not.toBeUndefined();
+
+  expect(v.set).toBeUndefined();
+  expect(v.update).toBeUndefined();
+  expect(v.pre).toBeUndefined();
+  expect(v.reset).toBeUndefined();
+  expect(v.reinit).toBeUndefined();
+  expect(v.dirty).toBeUndefined();
+});
+
+test('should work _value.from with two arguments', () => {
+  let t;
+  const spy = jest.fn();
+  const u = _value(0);
+  const a = _value(0);
+  const v = _value.from(() => a.val + 1, (v) => a(v + v));
+  expect(v.val).toBe(1);
+  (t = v.to), (t = t(spy));
+  (t = t.update), (t = t.by), t(() => u.val);
+
+  a.val = 1;
+  expect(v.val).toBe(2);
+  expect(spy).toBeCalledWith(2, 1); spy.mockReset();
+
+  expect(typeof v).toBe('function');
+  expect(v.sync).not.toBeUndefined();
+  expect(v.to.once).not.toBeUndefined();
+  expect(v.flow).not.toBeUndefined();
+  expect(v.flow.filter).not.toBeUndefined();
+  expect(v.flow.filter.not).not.toBeUndefined();
+  expect(v.view).not.toBeUndefined();
+  expect(v.set).not.toBeUndefined();
+  expect(v.update).not.toBeUndefined();
+  expect(v.update.by).not.toBeUndefined();
+  expect(v.pre).not.toBeUndefined();
+  expect(v.pre.filter).not.toBeUndefined();
+  expect(v.pre.filter.not).not.toBeUndefined();
+  expect(v.promise).not.toBeUndefined();
+
+  expect(v.reset).toBeUndefined();
+  expect(v.reinit).toBeUndefined();
+  expect(v.dirty).toBeUndefined();
+
+  u(1);
+  expect(v.val).toBe(3);
+  expect(spy).toBeCalledWith(3, 2); spy.mockReset();
+});
+
+
+
+
+
+
+
+
 
 

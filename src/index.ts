@@ -4,6 +4,7 @@ import { expr, box, sel, flow, transaction, untrack } from 'reactive-box';
 export {
   _value,
   _selector,
+  _transaction,
 
   value,
   selector,
@@ -97,13 +98,11 @@ const def_prop = Object.defineProperty;
 
 /*
   TODOs:
-  [] test cases for selector and value.from
-  [] value.from(get, set) <- add the "set" as a second (optional) argument
-  [] signal
+  [] signal <- purpose to implement signal through box compare function
   [] v.as.value(), v.as.signal(), v.as.trigger.flag()
-  [] add signal support to "flow"
   [] x.combine([a,b,c]) -> [x,a,b,c]
   [] x.select.multiple({a:fn, b:fn}).group((ctx)=> {ctx.a.to(m); ctx.b.to(p)}).group()
+  [] value.touchable(initial) <- The ".from" construction not available for values with "initial" dependency requireds
   [] x.group -- x.op -- x.block
       x.block((ctx) => ({  // if returns non undefined
         a: ctx.a,
@@ -123,6 +122,7 @@ const def_prop = Object.defineProperty;
   [] .chan
   [] .combine
   [] value.trigger.flag.from
+  [] add signal support to "flow" -- on thinking
 */
 
 
@@ -160,7 +160,7 @@ type ValueFactory = {
     }
   };
   from: {
-    (fn: () => any): any;
+    (get: () => any, set?: (v) => any): any;
   }
 }
 type SelectorFactory = {
@@ -383,7 +383,7 @@ const trait_ent_view = (ctx, fn) => (
   fill_entity(ctx[key_handler], ctx[key_proto],
     0, 0,
     fn ? () => fn(ctx[key_get]()) : ctx[key_get],
-    ctx[key_set].bind()
+    ctx[key_set] && ctx[key_set].bind()
   )
 );
 const trait_ent_pre = (ctx, fn) => (
@@ -586,8 +586,10 @@ const make_trigger = (initial, has_to?) => {
 const value_trigger = (initial) => make_trigger(initial);
 const value_trigger_flag = (initial) => make_trigger(!!initial, 1);
 const value_trigger_flag_invert = (initial) => make_trigger(!initial, 1);
-
-
+const value_from = (get, set?) => (
+  (get = sel(get).slice(0, 1), set && (get = get.concat(set))),
+  fill_entity(get, set ? proto_entity_writtable : proto_entity_readable)
+)
 
 const _selector: SelectorFactory = (fn) => (
   fill_entity(sel(fn).slice(0, 1), proto_entity_readable)
@@ -602,9 +604,18 @@ const _value: ValueFactory = ((initial) => (
 value_trigger_flag[key_invert] = value_trigger_flag_invert;
 value_trigger[key_flag] = value_trigger_flag;
 _value[key_trigger] = value_trigger as any;
-_value[key_from] = _selector;
+_value[key_from] = value_from;
 
 
+//
+//  Reactive box functions with additional abstraction
+//
+
+const _transaction = (fn) => {
+  const finish = transaction();
+  try { return fn() }
+  finally { finish() }
+};
 
 
 
