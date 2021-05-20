@@ -319,6 +319,7 @@ const fill_entity = (handler, proto, has_initial?, initial?, _get?, _set?) => {
   return ctx;
 }
 
+
 const make_trait_ent_untrack = (trait_fn) =>
   (ctx, fn) => trait_fn(ctx, (a,b) => {
     const finish = internal_untrack();
@@ -330,9 +331,9 @@ const op_trait_if_signal = (trait_if_not_signal, trait_if_signal) => (
   (ctx) => ctx[key_handler][key_is_signal] ? trait_if_signal : trait_if_not_signal
 );
 
-const make_proto_for_trackable = (trait_track, trait_untrack) => (
-  obj_def_prop_trait(
-    obj_def_prop_trait(obj_create(pure_fn), key_track, trait_track),
+const make_proto_for_trackable_ns = (trait_track, trait_untrack) => (
+  obj_def_prop_trait_ns(
+    obj_def_prop_trait_ns(obj_create(pure_fn), key_track, trait_track),
     key_untrack, trait_untrack)
 );
 
@@ -512,21 +513,21 @@ obj_def_prop_trait_ns(proto_entity_readable_to_ns, key_once, trait_ent_to_once);
 // readable.filter:ns           (track|untrack)
 //   .filter.not                (track|untrack)
 const proto_entity_readable_filter_ns = obj_create(
-  make_proto_for_trackable(trait_ent_filter, trait_ent_filter_untrack)
+  make_proto_for_trackable_ns(trait_ent_filter, trait_ent_filter_untrack)
 );
 obj_def_prop_trait_ns_with_ns(proto_entity_readable_filter_ns, key_not,
   op_trait_if_signal(trait_ent_filter_not, trait_ent_filter_not_untrack),
-  make_proto_for_trackable(trait_ent_filter_not, trait_ent_filter_not_untrack),
+  make_proto_for_trackable_ns(trait_ent_filter_not, trait_ent_filter_not_untrack),
   1
 );
 
 // readable.select:ns           (track|untrack)
 //   .select.multiple           (track|untrack)
 const proto_entity_readable_select_ns = obj_create(
-  make_proto_for_trackable(trait_ent_select, trait_ent_select_untrack)
+  make_proto_for_trackable_ns(trait_ent_select, trait_ent_select_untrack)
 );
 obj_def_prop_trait_ns_with_ns(proto_entity_readable_select_ns, key_multiple, trait_ent_select_multiple,
-  make_proto_for_trackable(trait_ent_select_multiple, trait_ent_select_multiple_untrack)
+  make_proto_for_trackable_ns(trait_ent_select_multiple, trait_ent_select_multiple_untrack)
 );
 
 
@@ -560,7 +561,7 @@ obj_def_prop_trait_with_ns(
   proto_entity_readable,
   key_flow,
   op_trait_if_signal(trait_ent_flow, trait_ent_flow_untrack),
-  make_proto_for_trackable(trait_ent_flow, trait_ent_flow_untrack),
+  make_proto_for_trackable_ns(trait_ent_flow, trait_ent_flow_untrack),
   1
 );
 obj_def_prop_trait_with_ns(
@@ -573,30 +574,30 @@ obj_def_prop_trait_with_ns(
   proto_entity_readable,
   key_view,
   trait_ent_view,
-  make_proto_for_trackable(trait_ent_select, trait_ent_view_untrack),
+  make_proto_for_trackable_ns(trait_ent_select, trait_ent_view_untrack),
 );
 obj_def_prop_promise(proto_entity_readable);
 
 // writtable.update:ns          (track|untrack)
 //   .update.by
 const proto_entity_writtable_update_ns = obj_create(
-  make_proto_for_trackable(trait_ent_update, trait_ent_update_untrack)
+  make_proto_for_trackable_ns(trait_ent_update, trait_ent_update_untrack)
 );
 obj_def_prop_trait_ns(proto_entity_writtable_update_ns, key_by, trait_ent_update_by);
 
 // writtable.pre.filter:ns      (track|untrack)
 //   .pre.filter.not            (track|untrack)
 const proto_entity_writtable_pre_filter_ns = obj_create(
-  make_proto_for_trackable(trait_ent_pre_filter, trait_ent_pre_filter_untrack)
+  make_proto_for_trackable_ns(trait_ent_pre_filter, trait_ent_pre_filter_untrack)
 );
 obj_def_prop_trait_ns_with_ns(proto_entity_writtable_pre_filter_ns, key_not, trait_ent_pre_filter_not,
-  make_proto_for_trackable(trait_ent_pre_filter_not, trait_ent_pre_filter_not_untrack)
+  make_proto_for_trackable_ns(trait_ent_pre_filter_not, trait_ent_pre_filter_not_untrack)
 );
 
 // writtable.pre:ns                         (track|untrack)
 //   .pre.filter:writtable.pre.filter:ns    (track|untrack)
 const proto_entity_writtable_pre_ns = obj_create(
-  make_proto_for_trackable(trait_ent_pre, trait_ent_pre_untrack)
+  make_proto_for_trackable_ns(trait_ent_pre, trait_ent_pre_untrack)
 );
 obj_def_prop_trait_ns_with_ns(
   proto_entity_writtable_pre_ns,

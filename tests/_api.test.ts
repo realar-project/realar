@@ -719,6 +719,61 @@ test('should work _value.select.multiple', () => {
   });
 });
 
+test('should work track-untrack for _value with select', () => {
+  const a = _value(0);
+
+  const v = _value(0);
+  const p = v.select((_v) => _v + a.val);
+  const t = v.select.track((_v) => _v + a.val);
+  const u = v.select.untrack((_v) => _v + a.val)
+
+  expect(p.val).toBe(0);
+  expect(t.val).toBe(0);
+  expect(u.val).toBe(0);
+  v(1);
+  expect(p.val).toBe(1);
+  expect(t.val).toBe(1);
+  expect(u.val).toBe(1);
+  a(1);
+  expect(p.val).toBe(2);
+  expect(t.val).toBe(2);
+  expect(u.val).toBe(1);
+});
+
+test('should work track-untrack for _value with select.multiple', () => {
+  const a = _value(0);
+
+  const v = _value(0);
+  const p = v.select.multiple({ p: (_v) => _v + a.val }).p;
+  const t = v.select.multiple.track({t: (_v) => _v + a.val }).t;
+  const u = v.select.multiple.untrack({u: (_v) => _v + a.val }).u;
+
+  expect(p.val).toBe(0);
+  expect(t.val).toBe(0);
+  expect(u.val).toBe(0);
+  v(1);
+  expect(p.val).toBe(1);
+  expect(t.val).toBe(1);
+  expect(u.val).toBe(1);
+  a(1);
+  expect(p.val).toBe(2);
+  expect(t.val).toBe(2);
+  expect(u.val).toBe(1);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
