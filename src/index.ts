@@ -98,31 +98,22 @@ const def_prop = Object.defineProperty;
 
 /*
   TODOs:
+  [] .filter returns same object with "set" if it was available before
+
   [] signal <- purpose to implement signal through box compare function
     [] ==>
-      move .flow.filter to .filter -- .filter returns same object with "set" if it was available before
       for signal: .filter and .filter.not untracked by default and returns with signal comparer
-      for signal: .filter.track, .filter.not.track
-      for signal: .flow returns with signal comparer, .flow tracks by default same as in value
-
-      .pre.filter tracked by default for both cases, because it can be used in "cycle", and
-        necessary to register dependency for evaluation scope context.
+      for signal: .filter.track, .filter.not.track opposed to .untrack for value
       ===
-      make ".map" alias for ".view"
 
-  [] v.as.value(), v.as.signal(), v.as.trigger.flag()
+  [] x.select.multiple({a:fn, b:fn})
+  [] .combine
   [] x.combine([a,b,c]) -> [x,a,b,c]
-  [] x.select.multiple({a:fn, b:fn}).group((ctx)=> {ctx.a.to(m); ctx.b.to(p)}).group()
   [] value.touchable(initial) <- The ".from" construction not available for values with "initial" dependency requireds
   [] signal.touchable(initial)
-  [] x.group -- x.op -- x.block
-      x.block((ctx) => ({  // if returns non undefined
-        a: ctx.a,
-        b: ctx.a.select()
-      })).b.val
+  [] v.as.value(), v.as.signal(), v.as.trigger.flag()
   [] ...
   [] combine as root level exportable factory function
-  [] flow as root level exportable factory function
 
   Backlog
   [] .view.untrack
@@ -131,10 +122,16 @@ const def_prop = Object.defineProperty;
   [] .pre.filter.not.untrack
   [] v.as.readonly()
   [] flow.resolve
+  [] flow as root level exportable factory function
+  [] .flow -- (for signal) .flow returns with signal comparer, .flow tracks by default same as in value
   [] .chan
-  [] .combine
   [] value.trigger.flag.from
   [] .map <- sysnonym for .view (on thinking)
+  [] x.group -- x.op -- x.block
+    x.block((ctx) => ({  // if returns non undefined
+      a: ctx.a,
+      b: ctx.a.select()
+    })).b.val
 */
 
 
@@ -441,7 +438,7 @@ const trait_ent_flow = (ctx, fn) => {
     h[1] ? proto_entity_writtable : proto_entity_readable
   );
 };
-const trait_ent_flow_filter = (ctx, fn) => (
+const trait_ent_filter = (ctx, fn) => (
   trait_ent_flow(ctx, fn
     ? (fn[key_get] && (fn = fn[key_get]),
       (v, prev) => (
@@ -450,8 +447,8 @@ const trait_ent_flow_filter = (ctx, fn) => (
     : (v) => v || flow_stop
   )
 );
-const trait_ent_flow_filter_not = (ctx, fn) => (
-  trait_ent_flow_filter(ctx, fn
+const trait_ent_filter_not = (ctx, fn) => (
+  trait_ent_filter(ctx, fn
     ? (fn[key_get] && (fn = fn[key_get]), (v) => !fn(v))
     : pure_arrow_fn_returns_not_arg)
 );
@@ -463,28 +460,18 @@ const trait_ent_flow_filter_not = (ctx, fn) => (
 const proto_entity_readable_to_ns = obj_create(pure_fn);
 obj_def_prop_trait_ns(proto_entity_readable_to_ns, key_once, trait_ent_to_once);
 
-// readable.flow.filter:ns
-//   .flow.filter.not
-const proto_entity_writtable_flow_filter_ns = obj_create(pure_fn);
-obj_def_prop_trait_ns(proto_entity_writtable_flow_filter_ns, key_not, trait_ent_flow_filter_not);
+// readable.filter:ns
+//   .filter.not
+const proto_entity_readable_filter_ns = obj_create(pure_fn);
+obj_def_prop_trait_ns(proto_entity_readable_filter_ns, key_not, trait_ent_filter_not);
 
-// readable.flow:ns
-//   .flow.filter:readable.flow.filter:ns
-const proto_entity_readable_flow_ns = obj_create(pure_fn);
-obj_def_prop_trait_ns_with_ns(
-  proto_entity_readable_flow_ns,
-  key_filter,
-  trait_ent_flow_filter,
-  proto_entity_writtable_flow_filter_ns
-);
 
 // readable
 //   .sync
 //   .to:readable.to:ns
 //     .to.once
-//   .flow:readable.flow:ns
-//     .flow.filter:readable.flow.filter:ns
-//       flow.filter.not
+//   .filter:readable.filter:ns
+//     .filter.not
 //   .select
 //   .view
 //   .promise
@@ -498,10 +485,11 @@ obj_def_prop_trait_with_ns(
 );
 obj_def_prop_trait_with_ns(
   proto_entity_readable,
-  key_flow,
-  trait_ent_flow,
-  proto_entity_readable_flow_ns
+  key_filter,
+  trait_ent_filter,
+  proto_entity_readable_filter_ns
 );
+obj_def_prop_trait(proto_entity_readable, key_flow, trait_ent_flow);
 obj_def_prop_trait(proto_entity_readable, key_select, trait_ent_select);
 obj_def_prop_trait(proto_entity_readable, key_view, trait_ent_view);
 obj_def_prop_promise(proto_entity_readable);

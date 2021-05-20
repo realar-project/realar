@@ -342,15 +342,15 @@ test('should work _value with flow', () => {
 });
 
 
-test('should work _value with flow.filter, flow.filter.not', () => {
+test('should work _value with .filter, .filter.not', () => {
   let t;
   const v = _value(5);
   const f = _value(0);
 
-  const w = v.flow.filter((_v) => _v !== 10);
-  const k = ((t = w.flow.filter), (t = t.not), t(f));
-  const m = k.flow.filter();
-  const n = ((t = k.flow), (t = t.filter.not), t());
+  const w = v.filter((_v) => _v !== 10);
+  const k = ((t = w.filter), (t = t.not), (t = t(f)));
+  const m = k.filter();
+  const n = ((t = t.filter.not), t());
 
   expect(n.dirty).toBeUndefined();
   expect(m.reset).toBeUndefined();
@@ -555,8 +555,8 @@ test('should work _selector basic support', () => {
   expect(s.to).not.toBeUndefined();
   expect(s.to.once).not.toBeUndefined();
   expect(s.flow).not.toBeUndefined();
-  expect(s.flow.filter).not.toBeUndefined();
-  expect(s.flow.filter.not).not.toBeUndefined();
+  expect(s.filter).not.toBeUndefined();
+  expect(s.filter.not).not.toBeUndefined();
   expect(s.view).not.toBeUndefined();
   expect(s.promise).not.toBeUndefined();
 
@@ -587,13 +587,13 @@ test('should work _selector basic support', () => {
   expect(b.val).toBe(102);
 });
 
-test('should work _selector with to, flow, view', () => {
+test('should work _selector with to, filter, view', () => {
   let t;
   const spy = jest.fn();
   const b = _value(1);
   const v = _value(0);
   const s = _selector(() => v.val + 1);
-  const f = s.flow.filter.not(b);
+  const f = s.filter.not(b);
   const w = s.view((v) => v + 5);
 
   (t = s.to), t(spy);
@@ -628,8 +628,8 @@ test('should work _value.from with one argument', () => {
   expect(typeof v).toBe('object');
   expect(v.to.once).not.toBeUndefined();
   expect(v.flow).not.toBeUndefined();
-  expect(v.flow.filter).not.toBeUndefined();
-  expect(v.flow.filter.not).not.toBeUndefined();
+  expect(v.filter).not.toBeUndefined();
+  expect(v.filter.not).not.toBeUndefined();
   expect(v.view).not.toBeUndefined();
   expect(v.promise).not.toBeUndefined();
 
@@ -659,8 +659,8 @@ test('should work _value.from with two arguments', () => {
   expect(v.sync).not.toBeUndefined();
   expect(v.to.once).not.toBeUndefined();
   expect(v.flow).not.toBeUndefined();
-  expect(v.flow.filter).not.toBeUndefined();
-  expect(v.flow.filter.not).not.toBeUndefined();
+  expect(v.filter).not.toBeUndefined();
+  expect(v.filter.not).not.toBeUndefined();
   expect(v.view).not.toBeUndefined();
   expect(v.set).not.toBeUndefined();
   expect(v.update).not.toBeUndefined();
