@@ -866,9 +866,117 @@ test('should work track-untrack for _value with view', () => {
   expect(spy_c).toBeCalledTimes(2);
 });
 
+test('should work track-untrack for _value with pre', () => {
+  let t;
+  const f = _value(0);
+  const v = _value(0);
 
+  const a = v.pre((_v) => _v + f.val);
+  const b = ((t = v.pre.track), t((_v) => _v + f.val));
+  const c = ((t = v.pre.untrack), t((_v) => _v + f.val));
 
+  const spy_a = jest.fn();
+  const spy_b = jest.fn();
+  const spy_c = jest.fn();
 
+  cycle(() => spy_a(a(1)));
+  cycle(() => spy_b(b(1)));
+  cycle(() => spy_c(c(1)));
+
+  expect(spy_a).toBeCalledTimes(1);
+  expect(spy_b).toBeCalledTimes(1);
+  expect(spy_c).toBeCalledTimes(1);
+
+  f.val = 1;
+  expect(spy_a).toBeCalledTimes(2);
+  expect(spy_b).toBeCalledTimes(2);
+  expect(spy_c).toBeCalledTimes(1);
+
+  v(1);
+  expect(spy_a).toBeCalledTimes(2);
+  expect(spy_b).toBeCalledTimes(2);
+  expect(spy_c).toBeCalledTimes(1);
+});
+
+test('should work track-untrack for _value with pre.filter', () => {
+  let t;
+  const f = _value(0);
+  const v = _value(0);
+
+  const a = v.pre.filter(f);
+  const b = ((t = v.pre.filter.track), t(f));
+  const c = ((t = v.pre.filter.untrack), t(f));
+
+  const spy_a = jest.fn();
+  const spy_b = jest.fn();
+  const spy_c = jest.fn();
+
+  cycle(() => spy_a(a(1)));
+  cycle(() => spy_b(b(1)));
+  cycle(() => spy_c(c(1)));
+
+  expect(spy_a).toBeCalledTimes(1);
+  expect(spy_b).toBeCalledTimes(1);
+  expect(spy_c).toBeCalledTimes(1);
+
+  f.val = 1;
+  expect(spy_a).toBeCalledTimes(2);
+  expect(spy_b).toBeCalledTimes(2);
+  expect(spy_c).toBeCalledTimes(1);
+});
+
+test('should work track-untrack for _value with pre.filter.not', () => {
+  let t;
+  const f = _value(0);
+  const v = _value(0);
+
+  const a = v.pre.filter.not(f);
+  const b = ((t = v.pre.filter.not.track), t(f));
+  const c = ((t = v.pre.filter.not.untrack), t(f));
+
+  const spy_a = jest.fn();
+  const spy_b = jest.fn();
+  const spy_c = jest.fn();
+
+  cycle(() => spy_a(a(1)));
+  cycle(() => spy_b(b(1)));
+  cycle(() => spy_c(c(1)));
+
+  expect(spy_a).toBeCalledTimes(1);
+  expect(spy_b).toBeCalledTimes(1);
+  expect(spy_c).toBeCalledTimes(1);
+
+  f.val = 1;
+  expect(spy_a).toBeCalledTimes(2);
+  expect(spy_b).toBeCalledTimes(2);
+  expect(spy_c).toBeCalledTimes(1);
+});
+
+test('should work track-untrack for _value with update', () => {
+  let t;
+  const f = _value(0);
+
+  const a = _value(0);
+  const b = _value(0);
+  const c = _value(0);
+
+  const spy_a = jest.fn();
+  const spy_b = jest.fn();
+  const spy_c = jest.fn();
+
+  cycle(() => spy_a(((t = a.update), t(v => v + f.val))));
+  cycle(() => spy_b(((t = b.update.track), t(v => v + f.val))));
+  cycle(() => spy_c(((t = c.update.untrack), t(v => v + f.val))));
+
+  expect(spy_a).toBeCalledTimes(1);
+  expect(spy_b).toBeCalledTimes(1);
+  expect(spy_c).toBeCalledTimes(1);
+
+  f.val = 1;
+  expect(spy_a).toBeCalledTimes(1);
+  expect(spy_b).toBeCalledTimes(2);
+  expect(spy_c).toBeCalledTimes(1);
+});
 
 
 

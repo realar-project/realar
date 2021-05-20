@@ -101,11 +101,6 @@ const def_prop = Object.defineProperty;
 /*
   TODOs:
   [] Tests for
-      all track/untrack functions
-        [] .pre.untrack
-        [] .pre.filter.untrack
-        [] .pre.filter.not.untrack
-        etc.
       signal
       signal.from
       signal.trigger
@@ -317,11 +312,17 @@ const fill_entity = (handler, proto, has_initial?, initial?, _get?, _set?) => {
   return ctx;
 }
 
+const make_trait_ent_pure_fn_untrack = (trait_fn) =>
+  (ctx, fn) => trait_fn(ctx, (a,b) => {
+    const finish = internal_untrack();
+    try { return fn && fn(a,b) }
+    finally { finish() }
+  });
 
 const make_trait_ent_untrack = (trait_fn) =>
   (ctx, fn) => trait_fn(ctx, (a,b) => {
     const finish = internal_untrack();
-    try { return fn[key_get] ? fn[key_get]() : fn(a,b) }
+    try { return fn && (fn[key_get] ? fn[key_get]() : fn(a,b)) }
     finally { finish() }
   });
 
@@ -351,8 +352,8 @@ const prop_factory_dirty_required_initial = (ctx) => {
 
 
 
-const trait_ent_update = (ctx, fn) => (ctx[key_set](fn && fn(ctx[key_get]())));
-const trait_ent_update_untrack = make_trait_ent_untrack(trait_ent_update);
+const trait_ent_update = (ctx, fn) => (fn && ctx[key_set](fn(_untrack(ctx[key_get]))));
+const trait_ent_update_untrack = make_trait_ent_pure_fn_untrack(trait_ent_update);
 const trait_ent_update_by = (ctx, src, fn) => {
   const src_get = src[key_get] ? src[key_get] : src;
   const e = expr(src_get, fn
@@ -421,7 +422,7 @@ const trait_ent_to_once = (ctx, fn) => {
 const trait_ent_select = (ctx, fn) => (
   fill_entity(sel(fn ? () => fn(ctx[key_get]()) : ctx[key_get]).slice(0, 1), proto_entity_readable)
 );
-const trait_ent_select_untrack = make_trait_ent_untrack(trait_ent_select);
+const trait_ent_select_untrack = make_trait_ent_pure_fn_untrack(trait_ent_select);
 const trait_ent_select_multiple = (ctx, cfg) => obj_keys(cfg).reduce((ret, key) => (
   (ret[key] = trait_ent_select(ctx, cfg[key])), ret
 ), {});
@@ -435,7 +436,7 @@ const trait_ent_view = (ctx, fn) => (
     ctx[key_set] && ctx[key_set].bind()
   )
 );
-const trait_ent_view_untrack = make_trait_ent_untrack(trait_ent_view);
+const trait_ent_view_untrack = make_trait_ent_pure_fn_untrack(trait_ent_view);
 const trait_ent_pre = (ctx, fn) => (
   fn
     ? fill_entity(ctx[key_handler], ctx[key_proto],
@@ -445,7 +446,7 @@ const trait_ent_pre = (ctx, fn) => (
     )
     : ctx
 );
-const trait_ent_pre_untrack = make_trait_ent_untrack(trait_ent_pre);
+const trait_ent_pre_untrack = make_trait_ent_pure_fn_untrack(trait_ent_pre);
 const trait_ent_pre_filter = (ctx, fn) => (
   (fn = fn
     ? (fn[key_get] ? fn[key_get] : fn)
@@ -483,7 +484,7 @@ const trait_ent_flow = (ctx, fn) => {
     h[1] ? proto_entity_writtable : proto_entity_readable
   );
 };
-const trait_ent_flow_untrack = make_trait_ent_untrack(trait_ent_flow);
+const trait_ent_flow_untrack = make_trait_ent_pure_fn_untrack(trait_ent_flow);
 const trait_ent_filter = (ctx, fn) => (
   trait_ent_flow(ctx, fn
     ? (fn[key_get] && (fn = fn[key_get]),
@@ -614,7 +615,7 @@ const proto_entity_writtable = obj_create(proto_entity_readable);
 obj_def_prop_trait_with_ns(
   proto_entity_writtable,
   key_update,
-  trait_ent_update,
+  trait_ent_update_untrack,
   proto_entity_writtable_update_ns
 );
 obj_def_prop_trait_with_ns(
