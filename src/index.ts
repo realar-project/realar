@@ -1,5 +1,5 @@
 import React, { Context, FC } from 'react';
-import rb, { expr, box, sel, flow, transaction, untrack } from 'reactive-box';
+import rb, { transaction, untrack } from 'reactive-box';
 
 export {
   _value,
@@ -151,6 +151,11 @@ const const_undef = void 0;
 //
 //  Reactive box specific definitions.
 //
+
+const expr = rb.expr;
+const box = rb.box;
+const sel = rb.sel;
+const flow = rb.flow;
 
 const internal_flow_stop = flow.stop;
 const internal_untrack = rb.untrack;
