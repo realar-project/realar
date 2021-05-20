@@ -101,17 +101,18 @@ const def_prop = Object.defineProperty;
 /*
   TODOs:
   [] Tests for
-      signal,
-      all track/untrack functions,
+      all track/untrack functions
         [] .view.untrack
         [] .pre.untrack
         [] .pre.filter.untrack
         [] .pre.filter.not.untrack
         etc.
+      signal
       signal.from
-      signal.trigger,
+      signal.trigger
       signal.trigger.flag
-      check .filter and .filter.not untracked by default for signal
+      check .filter, .filter.not and flow untracked by default for signal
+      check signal.filter and signal.flow signals passing through
 
   ===
   [] signal(0).as.value()
