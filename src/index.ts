@@ -114,7 +114,6 @@ const def_prop = Object.defineProperty;
       signal.trigger,
       signal.trigger.flag
       check .filter and .filter.not untracked by default for signal
-      x.select.multiple({a:fn, b:fn})
 
   ===
   [] signal(0).as.value()
@@ -568,7 +567,7 @@ obj_def_prop_trait_with_ns(
   proto_entity_readable,
   key_select,
   trait_ent_select,
-  make_proto_for_trackable(trait_ent_select, trait_ent_select_untrack),
+  proto_entity_readable_select_ns,
 );
 obj_def_prop_trait_with_ns(
   proto_entity_readable,

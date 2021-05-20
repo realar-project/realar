@@ -1,4 +1,4 @@
-import { _value, _selector, _transaction } from '../src';
+import { _value, _selector, _transaction, loop } from '../src';
 
 test('should work _value with call, get, set, update, sync', () => {
   const spy = jest.fn();
@@ -679,6 +679,45 @@ test('should work _value.from with two arguments', () => {
   expect(spy).toBeCalledWith(3, 2); spy.mockReset();
 });
 
+test('should work _value.select.multiple', () => {
+  let t;
+  const k = _value(0);
+  const v = _value(1);
+  (t = v.select.multiple), t = t({
+    a: (_v) => _v + 1,
+    b: (_v) => _v + k.val,
+  });
+
+  const { a, b } = t;
+
+  expect(a.val).toBe(2);
+  expect(b.val).toBe(1);
+  v(2);
+  expect(a.val).toBe(3);
+  expect(b.val).toBe(2);
+  k(2);
+  expect(a.val).toBe(3);
+  expect(b.val).toBe(4);
+
+  [a,b].forEach((v) => {
+    expect(typeof v).toBe('object');
+    expect(v.sync).not.toBeUndefined();
+    expect(v.to).not.toBeUndefined();
+    expect(v.to.once).not.toBeUndefined();
+    expect(v.flow).not.toBeUndefined();
+    expect(v.filter).not.toBeUndefined();
+    expect(v.filter.not).not.toBeUndefined();
+    expect(v.view).not.toBeUndefined();
+    expect(v.promise).not.toBeUndefined();
+
+    expect(v.set).toBeUndefined();
+    expect(v.update).toBeUndefined();
+    expect(v.pre).toBeUndefined();
+    expect(v.reset).toBeUndefined();
+    expect(v.reinit).toBeUndefined();
+    expect(v.dirty).toBeUndefined();
+  });
+});
 
 
 
