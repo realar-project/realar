@@ -102,7 +102,6 @@ const def_prop = Object.defineProperty;
   TODOs:
   [] Tests for
       all track/untrack functions
-        [] .view.untrack
         [] .pre.untrack
         [] .pre.filter.untrack
         [] .pre.filter.not.untrack

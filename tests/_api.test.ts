@@ -1,4 +1,4 @@
-import { _value, _selector, _transaction, loop } from '../src';
+import { _value, _selector, _transaction, cycle } from '../src';
 
 test('should work _value with call, get, set, update, sync', () => {
   const spy = jest.fn();
@@ -834,7 +834,37 @@ test('should work track-untrack for _value with filter.not', () => {
   expect(u.val).toBe(2);
 });
 
+test('should work track-untrack for _value with view', () => {
+  let t;
+  const f = _value(0);
+  const v = _value(0);
 
+  const a = v.view((_v) => _v + f.val);
+  const b = ((t = v.view.track), t((_v) => _v + f.val));
+  const c = ((t = v.view.untrack), t((_v) => _v + f.val));
+
+  const spy_a = jest.fn();
+  const spy_b = jest.fn();
+  const spy_c = jest.fn();
+
+  cycle(() => spy_a(a.val));
+  cycle(() => spy_b(b.val));
+  cycle(() => spy_c(c.val));
+
+  expect(spy_a).toBeCalledTimes(1);
+  expect(spy_b).toBeCalledTimes(1);
+  expect(spy_c).toBeCalledTimes(1);
+
+  f.val = 1;
+  expect(spy_a).toBeCalledTimes(2);
+  expect(spy_b).toBeCalledTimes(2);
+  expect(spy_c).toBeCalledTimes(1);
+
+  v(1);
+  expect(spy_a).toBeCalledTimes(3);
+  expect(spy_b).toBeCalledTimes(3);
+  expect(spy_c).toBeCalledTimes(2);
+});
 
 
 
