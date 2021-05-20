@@ -1,10 +1,12 @@
 import React, { Context, FC } from 'react';
-import { expr, box, sel, flow, transaction, untrack } from 'reactive-box';
+import rb, { expr, box, sel, flow, transaction, untrack } from 'reactive-box';
 
 export {
   _value,
   _selector,
   _transaction,
+  _signal,
+  _untrack,
 
   value,
   selector,
@@ -98,15 +100,23 @@ const def_prop = Object.defineProperty;
 
 /*
   TODOs:
-  [] .filter returns same object with "set" if it was available before
+  [] Tests for
+      signal,
+      all track/untrack functions,
+        [] .view.untrack
+        [] .pre.untrack
+        [] .pre.filter.untrack
+        [] .pre.filter.not.untrack
+        [] .filter.track
+        [] .filter.not.track
+        etc.
+      signal.from
+      signal.trigger,
+      signal.trigger.flag
+      check .filter and .filter.not untracked by default
+      x.select.multiple({a:fn, b:fn})
 
-  [] signal <- purpose to implement signal through box compare function
-    [] ==>
-      for signal: .filter and .filter.not untracked by default and returns with signal comparer
-      for signal: .filter.track, .filter.not.track opposed to .untrack for value
-      ===
-
-  [] x.select.multiple({a:fn, b:fn})
+  ===
   [] .combine
   [] x.combine([a,b,c]) -> [x,a,b,c]
   [] value.touchable(initial) <- The ".from" construction not available for values with "initial" dependency requireds
@@ -116,15 +126,11 @@ const def_prop = Object.defineProperty;
   [] combine as root level exportable factory function
 
   Backlog
-  [] .view.untrack
-  [] .pre.untrack
-  [] .pre.filter.untrack
-  [] .pre.filter.not.untrack
   [] v.as.readonly()
   [] flow.resolve
   [] flow as root level exportable factory function
-  [] .flow -- (for signal) .flow returns with signal comparer, .flow tracks by default same as in value
   [] .chan
+  [] value.trigger.from
   [] value.trigger.flag.from
   [] .map <- sysnonym for .view (on thinking)
   [] x.group -- x.op -- x.block
@@ -145,13 +151,17 @@ const def_prop = Object.defineProperty;
 const obj_equals = Object.is;
 const obj_def_prop = Object.defineProperty;
 const obj_create = Object.create;
+const obj_keys = Object.keys;
 const new_symbol = Symbol;
+const const_undef = undefined;
 
 //
 //  Reactive box specific definitions.
 //
 
-const flow_stop = flow.stop;
+const internal_flow_stop = flow.stop;
+const internal_untrack = rb.untrack;
+const internal_transaction = rb.transaction;
 
 //
 //  Entity builder for value, signal and etc. Typings.
@@ -175,6 +185,7 @@ type ValueFactory = {
 type SelectorFactory = {
   (fn: () => any): any;
 }
+type SignalFactory = ValueFactory;
 
 
 //
@@ -184,6 +195,7 @@ type SelectorFactory = {
 const pure_fn = function () {};
 const pure_arrow_fn_returns_arg = (v) => v;
 const pure_arrow_fn_returns_not_arg = (v) => !v;
+const pure_arrow_fn_returns_true = () => true;
 
 const key_proto = "__proto__";
 const key_get = "get";
@@ -215,7 +227,10 @@ const key_trigger = "trigger";
 const key_flag = "flag";
 const key_invert = "invert";
 const key_from = "from";
-
+const key_is_signal = new_symbol();
+const key_track = "track";
+const key_untrack = "untrack";
+const key_multiple = "multiple";
 
 
 const obj_def_prop_value = (obj, key, value) => (
@@ -225,32 +240,32 @@ const obj_def_prop_value = (obj, key, value) => (
 const obj_def_prop_trait = (obj, key, trait) =>
   obj_def_prop(obj, key, {
     get() {
-      return obj_def_prop_value(this, key, trait.bind(void 0, this));
+      return obj_def_prop_value(this, key, trait.bind(const_undef, this));
     }
   });
 
 const obj_def_prop_trait_ns = (obj, key, trait) =>
   obj_def_prop(obj, key, {
     get() {
-      return obj_def_prop_value(this, key, trait.bind(void 0, this[key_ctx]));
+      return obj_def_prop_value(this, key, trait.bind(const_undef, this[key_ctx]));
     }
   });
 
-const obj_def_prop_trait_ns_with_ns = (obj, key, trait, ns) =>
+const obj_def_prop_trait_ns_with_ns = (obj, key, trait, ns, is_trait_op?) =>
   obj_def_prop(obj, key, {
     get() {
       const ctx = this[key_ctx];
-      const ret = trait.bind(void 0, ctx);
+      const ret = (is_trait_op ? trait(ctx) : trait).bind(const_undef, ctx);
       ret[key_proto] = ns;
       ret[key_ctx] = ctx;
       return obj_def_prop_value(this, key, ret);
     }
   });
 
-const obj_def_prop_trait_with_ns = (obj, key, trait, ns) =>
+const obj_def_prop_trait_with_ns = (obj, key, trait, ns, is_trait_op?) =>
   obj_def_prop(obj, key, {
     get() {
-      const ret = trait.bind(void 0, this);
+      const ret = (is_trait_op ? trait(this) : trait).bind(const_undef, this);
       ret[key_proto] = ns;
       ret[key_ctx] = this;
       return obj_def_prop_value(this, key, ret);
@@ -283,6 +298,7 @@ const obj_def_prop_promise = (obj) => {
 };
 
 
+
 const fill_entity = (handler, proto, has_initial?, initial?, _get?, _set?) => {
   let set = _set || handler[1];
   let get = _get || handler[0];
@@ -303,6 +319,23 @@ const fill_entity = (handler, proto, has_initial?, initial?, _get?, _set?) => {
   return ctx;
 }
 
+const make_trait_ent_untrack = (trait_fn) =>
+  (ctx, fn) => trait_fn(ctx, (a,b) => {
+    const finish = internal_untrack();
+    try { return fn(a,b) }
+    finally { finish() }
+  });
+
+const op_trait_if_signal = (trait_if_not_signal, trait_if_signal) => (
+  (ctx) => ctx[key_handler][key_is_signal] ? trait_if_signal : trait_if_not_signal
+);
+
+const make_proto_for_trackable = (trait_track, trait_untrack) => (
+  obj_def_prop_trait(
+    obj_def_prop_trait(obj_create(pure_fn), key_track, trait_track),
+    key_untrack, trait_untrack)
+);
+
 
 const prop_factory_dirty_required_initial = (ctx) => {
   const h = ctx[key_handler];
@@ -320,6 +353,7 @@ const prop_factory_dirty_required_initial = (ctx) => {
 
 
 const trait_ent_update = (ctx, fn) => (ctx[key_set](fn && fn(ctx[key_get]())));
+const trait_ent_update_untrack = make_trait_ent_untrack(trait_ent_update);
 const trait_ent_update_by = (ctx, src, fn) => {
   const src_get = src[key_get] ? src[key_get] : src;
   const e = expr(src_get, fn
@@ -388,6 +422,13 @@ const trait_ent_to_once = (ctx, fn) => {
 const trait_ent_select = (ctx, fn) => (
   fill_entity(sel(fn ? () => fn(ctx[key_get]()) : ctx[key_get]).slice(0, 1), proto_entity_readable)
 );
+const trait_ent_select_untrack = make_trait_ent_untrack(trait_ent_select);
+const trait_ent_select_multiple = (ctx, cfg) => obj_keys(cfg).reduce((ret, key) => (
+  (ret[key] = trait_ent_select(ctx, cfg[key])), ret
+), {});
+const trait_ent_select_multiple_untrack = (ctx, cfg) => obj_keys(cfg).reduce((ret, key) => (
+  (ret[key] = trait_ent_select_untrack(ctx, cfg[key])), ret
+), {});
 const trait_ent_view = (ctx, fn) => (
   fill_entity(ctx[key_handler], ctx[key_proto],
     0, 0,
@@ -395,6 +436,7 @@ const trait_ent_view = (ctx, fn) => (
     ctx[key_set] && ctx[key_set].bind()
   )
 );
+const trait_ent_view_untrack = make_trait_ent_untrack(trait_ent_view);
 const trait_ent_pre = (ctx, fn) => (
   fn
     ? fill_entity(ctx[key_handler], ctx[key_proto],
@@ -404,6 +446,7 @@ const trait_ent_pre = (ctx, fn) => (
     )
     : ctx
 );
+const trait_ent_pre_untrack = make_trait_ent_untrack(trait_ent_pre);
 const trait_ent_pre_filter = (ctx, fn) => (
   (fn = fn
     ? (fn[key_get] ? fn[key_get] : fn)
@@ -414,6 +457,7 @@ const trait_ent_pre_filter = (ctx, fn) => (
     (v) => fn(v) && ctx[key_set](v)
   )
 );
+const trait_ent_pre_filter_untrack = make_trait_ent_untrack(trait_ent_pre_filter);
 const trait_ent_pre_filter_not = (ctx, fn) => (
   trait_ent_pre_filter(ctx, fn
     ? (fn[key_get]
@@ -421,6 +465,7 @@ const trait_ent_pre_filter_not = (ctx, fn) => (
       : (v) => !fn(v))
     : pure_arrow_fn_returns_not_arg)
 );
+const trait_ent_pre_filter_not_untrack = make_trait_ent_untrack(trait_ent_pre_filter_not);
 
 const trait_ent_flow = (ctx, fn) => {
   fn || (fn = pure_arrow_fn_returns_arg);
@@ -429,29 +474,33 @@ const trait_ent_flow = (ctx, fn) => {
     const v = ctx[key_get]();
     try { return fn(v, prev) }
     finally { prev = v }
-  });
+  }, const_undef, ctx[key_is_signal] && pure_arrow_fn_returns_true);
   const h = [
     () => ((started || (f[0](), (started = 1))), f[1]()),
     ctx[key_set] && ctx[key_set].bind()
   ];
+  h[key_is_signal] = ctx[key_is_signal];
   return fill_entity(h,
     h[1] ? proto_entity_writtable : proto_entity_readable
   );
 };
+const trait_ent_flow_untrack = make_trait_ent_untrack(trait_ent_flow);
 const trait_ent_filter = (ctx, fn) => (
   trait_ent_flow(ctx, fn
     ? (fn[key_get] && (fn = fn[key_get]),
       (v, prev) => (
-        fn(v, prev) ? v : flow_stop
+        fn(v, prev) ? v : internal_flow_stop
       ))
-    : (v) => v || flow_stop
+    : (v) => v || internal_flow_stop
   )
 );
+const trait_ent_filter_untrack = make_trait_ent_untrack(trait_ent_filter)
 const trait_ent_filter_not = (ctx, fn) => (
   trait_ent_filter(ctx, fn
     ? (fn[key_get] && (fn = fn[key_get]), (v) => !fn(v))
     : pure_arrow_fn_returns_not_arg)
 );
+const trait_ent_filter_not_untrack = make_trait_ent_untrack(trait_ent_filter_not)
 
 
 
@@ -460,20 +509,37 @@ const trait_ent_filter_not = (ctx, fn) => (
 const proto_entity_readable_to_ns = obj_create(pure_fn);
 obj_def_prop_trait_ns(proto_entity_readable_to_ns, key_once, trait_ent_to_once);
 
-// readable.filter:ns
-//   .filter.not
-const proto_entity_readable_filter_ns = obj_create(pure_fn);
-obj_def_prop_trait_ns(proto_entity_readable_filter_ns, key_not, trait_ent_filter_not);
+// readable.filter:ns           (track|untrack)
+//   .filter.not                (track|untrack)
+const proto_entity_readable_filter_ns = obj_create(
+  make_proto_for_trackable(trait_ent_filter, trait_ent_filter_untrack)
+);
+obj_def_prop_trait_ns_with_ns(proto_entity_readable_filter_ns, key_not,
+  op_trait_if_signal(trait_ent_filter_not, trait_ent_filter_not_untrack),
+  make_proto_for_trackable(trait_ent_filter_not, trait_ent_filter_not_untrack),
+  1
+);
+
+// readable.select:ns           (track|untrack)
+//   .select.multiple           (track|untrack)
+const proto_entity_readable_select_ns = obj_create(
+  make_proto_for_trackable(trait_ent_select, trait_ent_select_untrack)
+);
+obj_def_prop_trait_ns_with_ns(proto_entity_readable_select_ns, key_multiple, trait_ent_select_multiple,
+  make_proto_for_trackable(trait_ent_select_multiple, trait_ent_select_multiple_untrack)
+);
 
 
 // readable
 //   .sync
 //   .to:readable.to:ns
 //     .to.once
-//   .filter:readable.filter:ns
-//     .filter.not
-//   .select
-//   .view
+//   .filter:readable.filter:ns (track|untrack)
+//     .filter.not              (track|untrack)
+//   .select:readable.select:ns (track|untrack)
+//      .select.multiple        (track|untrack)
+//   .view                      (track|untrack)
+//   .flow                      (track|untrack)
 //   .promise
 const proto_entity_readable = obj_create(pure_fn);
 obj_def_prop_trait(proto_entity_readable, key_sync, trait_ent_sync);
@@ -486,27 +552,52 @@ obj_def_prop_trait_with_ns(
 obj_def_prop_trait_with_ns(
   proto_entity_readable,
   key_filter,
-  trait_ent_filter,
-  proto_entity_readable_filter_ns
+  op_trait_if_signal(trait_ent_filter, trait_ent_filter_untrack),
+  proto_entity_readable_filter_ns,
+  1
 );
-obj_def_prop_trait(proto_entity_readable, key_flow, trait_ent_flow);
-obj_def_prop_trait(proto_entity_readable, key_select, trait_ent_select);
-obj_def_prop_trait(proto_entity_readable, key_view, trait_ent_view);
+obj_def_prop_trait_with_ns(
+  proto_entity_readable,
+  key_flow,
+  op_trait_if_signal(trait_ent_flow, trait_ent_flow_untrack),
+  make_proto_for_trackable(trait_ent_flow, trait_ent_flow_untrack),
+  1
+);
+obj_def_prop_trait_with_ns(
+  proto_entity_readable,
+  key_select,
+  trait_ent_select,
+  make_proto_for_trackable(trait_ent_select, trait_ent_select_untrack),
+);
+obj_def_prop_trait_with_ns(
+  proto_entity_readable,
+  key_view,
+  trait_ent_view,
+  make_proto_for_trackable(trait_ent_select, trait_ent_view_untrack),
+);
 obj_def_prop_promise(proto_entity_readable);
 
-// writtable.update:ns
+// writtable.update:ns          (track|untrack)
 //   .update.by
-const proto_entity_writtable_update_ns = obj_create(pure_fn);
+const proto_entity_writtable_update_ns = obj_create(
+  make_proto_for_trackable(trait_ent_update, trait_ent_update_untrack)
+);
 obj_def_prop_trait_ns(proto_entity_writtable_update_ns, key_by, trait_ent_update_by);
 
-// writtable.pre.filter:ns
-//   .pre.filter.not
-const proto_entity_writtable_pre_filter_ns = obj_create(pure_fn);
-obj_def_prop_trait_ns(proto_entity_writtable_pre_filter_ns, key_not, trait_ent_pre_filter_not);
+// writtable.pre.filter:ns      (track|untrack)
+//   .pre.filter.not            (track|untrack)
+const proto_entity_writtable_pre_filter_ns = obj_create(
+  make_proto_for_trackable(trait_ent_pre_filter, trait_ent_pre_filter_untrack)
+);
+obj_def_prop_trait_ns_with_ns(proto_entity_writtable_pre_filter_ns, key_not, trait_ent_pre_filter_not,
+  make_proto_for_trackable(trait_ent_pre_filter_not, trait_ent_pre_filter_not_untrack)
+);
 
-// writtable.pre:ns
-//   .pre.filter:writtable.pre.filter:ns
-const proto_entity_writtable_pre_ns = obj_create(pure_fn);
+// writtable.pre:ns                         (track|untrack)
+//   .pre.filter:writtable.pre.filter:ns    (track|untrack)
+const proto_entity_writtable_pre_ns = obj_create(
+  make_proto_for_trackable(trait_ent_pre, trait_ent_pre_untrack)
+);
 obj_def_prop_trait_ns_with_ns(
   proto_entity_writtable_pre_ns,
   key_filter,
@@ -515,11 +606,11 @@ obj_def_prop_trait_ns_with_ns(
 );
 
 // writtable <- readable
-//   .update:writtable.update:ns
+//   .update:writtable.update:ns            (track|untrack)
 //     .update.by
-//   .pre:writtable.pre:ns
-//     .pre.filter:writtable.pre.filter:ns
-//       pre.filter.not
+//   .pre:writtable.pre:ns                  (track|untrack)
+//     .pre.filter:writtable.pre.filter:ns  (track|untrack)
+//       pre.filter.not                     (track|untrack)
 const proto_entity_writtable = obj_create(proto_entity_readable);
 obj_def_prop_trait_with_ns(
   proto_entity_writtable,
@@ -572,9 +663,9 @@ obj_def_prop_factory(
 
 
 
-const make_trigger = (initial, has_to?) => {
-  const handler = box(initial, () => (handler[key_touched_internal] = 1));
-  const set = has_to
+const make_trigger = (initial, has_inverted_to?, is_signal?) => {
+  const handler = box(initial, () => (handler[key_touched_internal] = 1), is_signal && pure_arrow_fn_returns_true);
+  const set = has_inverted_to
     ? () => { handler[key_touched_internal] || handler[1](!handler[0]()) }
     : (v) => { handler[key_touched_internal] || handler[1](v) };
   handler[key_reset_promise_by_reset] = 1;
@@ -583,23 +674,17 @@ const make_trigger = (initial, has_to?) => {
 
 
 
-const value_trigger = (initial) => make_trigger(initial);
-const value_trigger_flag = (initial) => make_trigger(!!initial, 1);
-const value_trigger_flag_invert = (initial) => make_trigger(!initial, 1);
-const value_from = (get, set?) => (
-  (get = sel(get).slice(0, 1), set && (get = get.concat(set))),
-  fill_entity(get, set ? proto_entity_writtable : proto_entity_readable)
-)
-
-const _selector: SelectorFactory = (fn) => (
-  fill_entity(sel(fn).slice(0, 1), proto_entity_readable)
-)
-
 const _value: ValueFactory = ((initial) => (
   fill_entity(box(initial), proto_entity_writtable_leaf, 1, initial)
 )) as any;
 
-
+const value_trigger = (initial) => make_trigger(initial);
+const value_trigger_flag = (initial) => make_trigger(!!initial, 1);
+const value_trigger_flag_invert = (initial) => make_trigger(!initial, 1);
+const value_from = (get, set?) => (
+  (get = sel(get).slice(0, 1), set && (get[1] = set)),
+  fill_entity(get, set ? proto_entity_writtable : proto_entity_readable)
+);
 
 value_trigger_flag[key_invert] = value_trigger_flag_invert;
 value_trigger[key_flag] = value_trigger_flag;
@@ -607,12 +692,42 @@ _value[key_trigger] = value_trigger as any;
 _value[key_from] = value_from;
 
 
+const _selector: SelectorFactory = (fn) => (
+  fill_entity(sel(fn).slice(0, 1), proto_entity_readable)
+)
+
+const _signal: SignalFactory = ((initial) => {
+  const h = box(initial, 0 as any, pure_arrow_fn_returns_true);
+  h[key_is_signal] = 1;
+  return fill_entity(h, proto_entity_writtable_leaf, 1, initial)
+}) as any;
+
+const signal_trigger = (initial) => make_trigger(initial, 0, 1);
+const signal_trigger_flag = (initial) => make_trigger(!!initial, 1, 1);
+const signal_trigger_flag_invert = (initial) => make_trigger(!initial, 1, 1);
+const _signal_from = (get, set?) => (
+  (get = [get], (get[key_is_signal] = 1), set && (get[1] = set)),
+  fill_entity(get, set ? proto_entity_writtable : proto_entity_readable)
+);
+
+signal_trigger_flag[key_invert] = signal_trigger_flag_invert;
+signal_trigger[key_flag] = signal_trigger_flag;
+_signal[key_trigger] = signal_trigger as any;
+_signal[key_from] = _signal_from;
+
+
 //
 //  Reactive box functions with additional abstraction
 //
 
 const _transaction = (fn) => {
-  const finish = transaction();
+  const finish = internal_transaction();
+  try { return fn() }
+  finally { finish() }
+};
+
+const _untrack = (fn) => {
+  const finish = internal_untrack();
   try { return fn() }
   finally { finish() }
 };
@@ -981,9 +1096,9 @@ function def_format(
     ctx.set = set;
     if (!readonly_val) val_prop.set = set;
 
-    ctx.sub = (s: any, fn: any) => on(s, (v, v_prev) => set(fn ? fn(get(), v, v_prev) : void 0));
+    ctx.sub = (s: any, fn: any) => on(s, (v, v_prev) => set(fn ? fn(get(), v, v_prev) : const_undef));
     ctx.sub.once = (s: any, fn: any) =>
-      once(s, (v, v_prev) => set(fn ? fn(get(), v, v_prev) : void 0));
+      once(s, (v, v_prev) => set(fn ? fn(get(), v, v_prev) : const_undef));
   }
   def_prop(ctx, key, val_prop);
 
@@ -1399,7 +1514,7 @@ function free() {
     call_array(shared_unsubs);
   } finally {
     shareds.clear();
-    initial_data = void 0;
+    initial_data = const_undef;
   }
 }
 
