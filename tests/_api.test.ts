@@ -761,9 +761,78 @@ test('should work track-untrack for _value with select.multiple', () => {
   expect(u.val).toBe(1);
 });
 
+test('should work track-untrack for _value with flow', () => {
+  const a = _value(0);
 
+  const v = _value(0);
+  const p = v.flow((_v) => _v + a.val);
+  const t = v.flow.track((_v) => _v + a.val);
+  const u = v.flow.untrack((_v) => _v + a.val)
 
+  expect(p.val).toBe(0);
+  expect(t.val).toBe(0);
+  expect(u.val).toBe(0);
+  v(1);
+  expect(p.val).toBe(1);
+  expect(t.val).toBe(1);
+  expect(u.val).toBe(1);
+  a(1);
+  expect(p.val).toBe(2);
+  expect(t.val).toBe(2);
+  expect(u.val).toBe(1);
+});
 
+test('should work track-untrack for _value with filter', () => {
+  const a = _value(1);
+
+  const v = _value(0);
+  const p = v.filter(a);
+  const t = v.filter.track(a);
+  const u = v.filter.untrack(a);
+
+  expect(p.val).toBe(0);
+  expect(t.val).toBe(0);
+  expect(u.val).toBe(0);
+  a(0);
+  v(1);
+  expect(p.val).toBe(0);
+  expect(t.val).toBe(0);
+  expect(u.val).toBe(0);
+  a(1);
+  expect(p.val).toBe(1);
+  expect(t.val).toBe(1);
+  expect(u.val).toBe(0);
+  v(2);
+  expect(p.val).toBe(2);
+  expect(t.val).toBe(2);
+  expect(u.val).toBe(2);
+});
+
+test('should work track-untrack for _value with filter.not', () => {
+  const a = _value(0);
+
+  const v = _value(0);
+  const p = v.filter.not(a);
+  const t = v.filter.not.track(a);
+  const u = v.filter.not.untrack(a);
+
+  expect(p.val).toBe(0);
+  expect(t.val).toBe(0);
+  expect(u.val).toBe(0);
+  a(1);
+  v(1);
+  expect(p.val).toBe(0);
+  expect(t.val).toBe(0);
+  expect(u.val).toBe(0);
+  a(0);
+  expect(p.val).toBe(1);
+  expect(t.val).toBe(1);
+  expect(u.val).toBe(0);
+  v(2);
+  expect(p.val).toBe(2);
+  expect(t.val).toBe(2);
+  expect(u.val).toBe(2);
+});
 
 
 

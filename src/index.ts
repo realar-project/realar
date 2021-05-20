@@ -107,8 +107,6 @@ const def_prop = Object.defineProperty;
         [] .pre.untrack
         [] .pre.filter.untrack
         [] .pre.filter.not.untrack
-        [] .filter.track
-        [] .filter.not.track
         etc.
       signal.from
       signal.trigger,
@@ -323,7 +321,7 @@ const fill_entity = (handler, proto, has_initial?, initial?, _get?, _set?) => {
 const make_trait_ent_untrack = (trait_fn) =>
   (ctx, fn) => trait_fn(ctx, (a,b) => {
     const finish = internal_untrack();
-    try { return fn(a,b) }
+    try { return fn[key_get] ? fn[key_get]() : fn(a,b) }
     finally { finish() }
   });
 
@@ -462,7 +460,7 @@ const trait_ent_pre_filter_untrack = make_trait_ent_untrack(trait_ent_pre_filter
 const trait_ent_pre_filter_not = (ctx, fn) => (
   trait_ent_pre_filter(ctx, fn
     ? (fn[key_get]
-      ? (v) => !fn[key_get](v)
+      ? () => !fn[key_get]()
       : (v) => !fn(v))
     : pure_arrow_fn_returns_not_arg)
 );
