@@ -109,9 +109,10 @@ const def_prop = Object.defineProperty;
       check signal.filter and signal.flow signals passing through
 
   ===
+  [] .select.multiple([a,b,c]) -> .val = [_a,_b,_c];
   [] signal(0).as.value()
-  [] .combine
-  [] x.combine([a,b,c]) -> [x,a,b,c]
+  [] combine({ a, b, c }), combine([a,b,c])
+  [] x.join([a,b,c]) -> [x,a,b,c]
   [] value.touchable(initial) <- The ".from" construction not available for values with "initial" dependency requireds
   [] signal.touchable(initial)
   [] ...
