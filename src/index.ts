@@ -117,11 +117,11 @@ const def_prop = Object.defineProperty;
       x.select.multiple({a:fn, b:fn})
 
   ===
+  [] signal(0).as.value()
   [] .combine
   [] x.combine([a,b,c]) -> [x,a,b,c]
   [] value.touchable(initial) <- The ".from" construction not available for values with "initial" dependency requireds
   [] signal.touchable(initial)
-  [] v.as.value(), v.as.signal(), v.as.trigger.flag()
   [] ...
   [] combine as root level exportable factory function
 
@@ -138,6 +138,7 @@ const def_prop = Object.defineProperty;
       a: ctx.a,
       b: ctx.a.select()
     })).b.val
+  [] v.as.signal(), v.as.trigger.flag()
 */
 
 
