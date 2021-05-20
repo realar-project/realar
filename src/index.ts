@@ -113,7 +113,7 @@ const def_prop = Object.defineProperty;
       signal.from
       signal.trigger,
       signal.trigger.flag
-      check .filter and .filter.not untracked by default
+      check .filter and .filter.not untracked by default for signal
       x.select.multiple({a:fn, b:fn})
 
   ===
@@ -153,7 +153,7 @@ const obj_def_prop = Object.defineProperty;
 const obj_create = Object.create;
 const obj_keys = Object.keys;
 const new_symbol = Symbol;
-const const_undef = undefined;
+const const_undef = void 0;
 
 //
 //  Reactive box specific definitions.
