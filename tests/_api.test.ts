@@ -1022,7 +1022,68 @@ test('should work _signal basic support', () => {
   expect(v.dirty.val).toBe(true);
 });
 
+test('should work track-untrack for _signal with flow', () => {
+  const spy_p = jest.fn();
+  const spy_t = jest.fn();
+  const spy_u = jest.fn();
+  const a = _signal(0);
 
+  const v = _signal(0);
+  v.flow((_v) => _v + a.val).to(spy_p);
+  v.flow.track((_v) => _v + a.val).to(spy_t);
+  v.flow.untrack((_v) => _v + a.val).to(spy_u);
+
+  v(0);
+  expect(spy_p).toBeCalledWith(0, 0); spy_p.mockReset();
+  expect(spy_t).toBeCalledWith(0, 0); spy_t.mockReset();
+  expect(spy_u).toBeCalledWith(0, 0); spy_u.mockReset();
+  a(0);
+  expect(spy_p).toBeCalledTimes(0);
+  expect(spy_t).toBeCalledWith(0, 0); spy_t.mockReset();
+  expect(spy_u).toBeCalledTimes(0);
+});
+
+test('should work track-untrack for _signal with filter', () => {
+  const spy_p = jest.fn();
+  const spy_t = jest.fn();
+  const spy_u = jest.fn();
+  const a = _signal(1);
+
+  const v = _signal(0);
+  v.filter(a).to(spy_p);
+  v.filter.track(a).to(spy_t);
+  v.filter.untrack(a).to(spy_u);
+
+  v(0);
+  expect(spy_p).toBeCalledWith(0, 0); spy_p.mockReset();
+  expect(spy_t).toBeCalledWith(0, 0); spy_t.mockReset();
+  expect(spy_u).toBeCalledWith(0, 0); spy_u.mockReset();
+  a(1);
+  expect(spy_p).toBeCalledTimes(0);
+  expect(spy_t).toBeCalledWith(0, 0); spy_t.mockReset();
+  expect(spy_u).toBeCalledTimes(0);
+});
+
+test('should work track-untrack for _signal with filter.not', () => {
+  const spy_p = jest.fn();
+  const spy_t = jest.fn();
+  const spy_u = jest.fn();
+  const a = _signal(0);
+
+  const v = _signal(0);
+  v.filter.not(a).to(spy_p);
+  v.filter.not.track(a).to(spy_t);
+  v.filter.not.untrack(a).to(spy_u);
+
+  v(0);
+  expect(spy_p).toBeCalledWith(0, 0); spy_p.mockReset();
+  expect(spy_t).toBeCalledWith(0, 0); spy_t.mockReset();
+  expect(spy_u).toBeCalledWith(0, 0); spy_u.mockReset();
+  a(0);
+  expect(spy_p).toBeCalledTimes(0);
+  expect(spy_t).toBeCalledWith(0, 0); spy_t.mockReset();
+  expect(spy_u).toBeCalledTimes(0);
+});
 
 
 

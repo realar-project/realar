@@ -101,8 +101,6 @@ const def_prop = Object.defineProperty;
 /*
   TODOs:
   [] Tests for
-      check .filter, .filter.not and flow untracked by default for signal
-      check signal.filter and signal.flow signals passing through
 
       signal.from
       signal.trigger
