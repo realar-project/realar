@@ -104,7 +104,6 @@ const def_prop = Object.defineProperty;
   [] value.touchable(initial) <- The ".from" construction not available for values with "initial" dependency requireds
   [] signal.touchable(initial)
 
-  [] .select.multiple([a,b,c]) -> .val = [_a,_b,_c];
   [] signal(0).as.value()
   [] combine({ a, b, c }), combine([a,b,c]) <- combine as root level exportable factory function
   [] x.join([a,b,c]) -> [x,a,b,c]
@@ -138,6 +137,7 @@ const obj_equals = Object.is;
 const obj_def_prop = Object.defineProperty;
 const obj_create = Object.create;
 const obj_keys = Object.keys;
+const obj_is_array = Array.isArray;
 const new_symbol = Symbol;
 const const_undef = void 0;
 
@@ -423,10 +423,10 @@ const trait_ent_select = (ctx, fn) => (
 const trait_ent_select_untrack = make_trait_ent_pure_fn_untrack(trait_ent_select);
 const trait_ent_select_multiple = (ctx, cfg) => obj_keys(cfg).reduce((ret, key) => (
   (ret[key] = trait_ent_select(ctx, cfg[key])), ret
-), {});
+), obj_is_array(cfg) ? [] : {});
 const trait_ent_select_multiple_untrack = (ctx, cfg) => obj_keys(cfg).reduce((ret, key) => (
   (ret[key] = trait_ent_select_untrack(ctx, cfg[key])), ret
-), {});
+), obj_is_array(cfg) ? [] : {});
 const trait_ent_view = (ctx, fn) => (
   fill_entity(ctx[key_handler], ctx[key_proto],
     0, 0,

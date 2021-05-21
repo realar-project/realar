@@ -687,19 +687,28 @@ test('should work _value.select.multiple', () => {
     a: (_v) => _v + 1,
     b: (_v) => _v + k.val,
   });
-
   const { a, b } = t;
+  const [ a1, b1 ] = v.select.multiple([
+    (_v) => _v + 1,
+    (_v) => _v + k.val
+  ]);
 
   expect(a.val).toBe(2);
   expect(b.val).toBe(1);
+  expect(a1.val).toBe(2);
+  expect(b1.val).toBe(1);
   v(2);
   expect(a.val).toBe(3);
   expect(b.val).toBe(2);
+  expect(a1.val).toBe(3);
+  expect(b1.val).toBe(2);
   k(2);
   expect(a.val).toBe(3);
   expect(b.val).toBe(4);
+  expect(a1.val).toBe(3);
+  expect(b1.val).toBe(4);
 
-  [a,b].forEach((v) => {
+  [a,b,a1,b1].forEach((v) => {
     expect(typeof v).toBe('object');
     expect(v.sync).not.toBeUndefined();
     expect(v.to).not.toBeUndefined();
