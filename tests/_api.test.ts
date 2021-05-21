@@ -1,4 +1,4 @@
-import { _value, _selector, _transaction, cycle } from '../src';
+import { _value, _selector, _transaction, cycle, _signal } from '../src';
 
 test('should work _value with call, get, set, update, sync', () => {
   const spy = jest.fn();
@@ -978,7 +978,49 @@ test('should work track-untrack for _value with update', () => {
   expect(spy_c).toBeCalledTimes(1);
 });
 
+test('should work _signal basic support', () => {
+  let t, z;
+  const spy = jest.fn();
+  const v = _signal(0);
 
+  (t = v.sync), (t = t(spy));
+  expect(spy).toBeCalledWith(0, void 0); spy.mockReset();
+
+  (z = t.update), z(_v => _v);
+  expect(spy).toBeCalledWith(0, 0); spy.mockReset();
+  (z = t.set), z(0);
+  expect(spy).toBeCalledWith(0, 0); spy.mockReset();
+  expect(t.val).toBe(0);
+  (z = t.get);
+  expect(z()).toBe(0);
+  (z = t.dirty), (z = z.get);
+  expect(z()).toBe(false);
+
+  const u = ((z = _signal().view), (z = z(_u => _u + 1).pre), (z = z(_u => _u * 10).flow), (z = z(_u => _u * 2)));
+  (t = t.update), (t = t.by), (t = t(u));
+  u(1);
+  expect(t.val).toBe(22);
+  expect(t.get()).toBe(22);
+  expect(spy).toBeCalledWith(22, 0); spy.mockReset();
+  u(1);
+  expect(spy).toBeCalledWith(22, 22); spy.mockReset();
+
+  expect(v.dirty.val).toBe(true);
+  (z = t.reset), z();
+  expect(v.val).toBe(0);
+  expect(v.dirty.val).toBe(false);
+  expect(spy).toBeCalledWith(0, 22); spy.mockReset();
+
+  v.reset();
+  expect(spy).toBeCalledWith(0, 0); spy.mockReset();
+  (z = t.reinit), z(5);
+  expect(spy).toBeCalledWith(5, 0); spy.mockReset();
+  expect(v.dirty.val).toBe(false);
+
+  u(0);
+  expect(spy).toBeCalledWith(2, 5); spy.mockReset();
+  expect(v.dirty.val).toBe(true);
+});
 
 
 

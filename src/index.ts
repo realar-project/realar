@@ -101,13 +101,15 @@ const def_prop = Object.defineProperty;
 /*
   TODOs:
   [] Tests for
-      signal
-      signal.from
-      signal.trigger
-      signal.trigger.flag
       check .filter, .filter.not and flow untracked by default for signal
       check signal.filter and signal.flow signals passing through
 
+      signal.from
+      signal.trigger
+      signal.trigger.flag
+
+  ===
+  [] To register realar-node and realar-core package names
   ===
   [] .select.multiple([a,b,c]) -> .val = [_a,_b,_c];
   [] signal(0).as.value()
@@ -117,6 +119,7 @@ const def_prop = Object.defineProperty;
   [] signal.touchable(initial)
   [] ...
   [] combine as root level exportable factory function
+  [] support destruction
 
   Backlog
   [] v.as.readonly()
@@ -194,7 +197,7 @@ type SignalFactory = ValueFactory;
 const pure_fn = function () {};
 const pure_arrow_fn_returns_arg = (v) => v;
 const pure_arrow_fn_returns_not_arg = (v) => !v;
-const pure_arrow_fn_returns_true = () => true;
+const pure_arrow_fn_returns_undef = (() => {}) as any;
 
 const key_proto = "__proto__";
 const key_get = "get";
@@ -476,16 +479,17 @@ const trait_ent_pre_filter_not_untrack = make_trait_ent_untrack(trait_ent_pre_fi
 const trait_ent_flow = (ctx, fn) => {
   fn || (fn = pure_arrow_fn_returns_arg);
   let started, prev;
+  const is_signal = ctx[key_handler][key_is_signal];
   const f = flow(() => {
     const v = ctx[key_get]();
     try { return fn(v, prev) }
     finally { prev = v }
-  }, const_undef, ctx[key_is_signal] && pure_arrow_fn_returns_true);
+  }, const_undef, is_signal && pure_arrow_fn_returns_undef);
   const h = [
     () => ((started || (f[0](), (started = 1))), f[1]()),
     ctx[key_set] && ctx[key_set].bind()
   ];
-  h[key_is_signal] = ctx[key_is_signal];
+  h[key_is_signal] = is_signal;
   return fill_entity(h,
     h[1] ? proto_entity_writtable : proto_entity_readable
   );
@@ -670,7 +674,7 @@ obj_def_prop_factory(
 
 
 const make_trigger = (initial, has_inverted_to?, is_signal?) => {
-  const handler = box(initial, () => (handler[key_touched_internal] = 1), is_signal && pure_arrow_fn_returns_true);
+  const handler = box(initial, () => (handler[key_touched_internal] = 1), is_signal && pure_arrow_fn_returns_undef);
   const set = has_inverted_to
     ? () => { handler[key_touched_internal] || handler[1](!handler[0]()) }
     : (v) => { handler[key_touched_internal] || handler[1](v) };
@@ -703,7 +707,7 @@ const _selector: SelectorFactory = (fn) => (
 )
 
 const _signal: SignalFactory = ((initial) => {
-  const h = box(initial, 0 as any, pure_arrow_fn_returns_true);
+  const h = box(initial, 0 as any, pure_arrow_fn_returns_undef);
   h[key_is_signal] = 1;
   return fill_entity(h, proto_entity_writtable_leaf, 1, initial)
 }) as any;
