@@ -102,12 +102,9 @@ const def_prop = Object.defineProperty;
   TODOs:
   [] Tests for
 
-      signal.from
       signal.trigger
       signal.trigger.flag
 
-  ===
-  [] To register realar-node and realar-core package names
   ===
   [] .select.multiple([a,b,c]) -> .val = [_a,_b,_c];
   [] signal(0).as.value()

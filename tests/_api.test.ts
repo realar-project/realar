@@ -1089,6 +1089,73 @@ test('should work track-untrack for _signal with filter.not', () => {
 
 
 
+test('should work _signal.from with one argument', () => {
+  let t;
+  const spy = jest.fn();
+  const a = _signal(0);
+  const v = _signal.from(() => a.val + 1);
+  expect(v.val).toBe(1);
+  (t = v.to), t(spy);
+
+  a.val = 0;
+  expect(v.val).toBe(1);
+  expect(spy).toBeCalledWith(1, 1);
+
+  expect(typeof v).toBe('object');
+  expect(v.to.once).not.toBeUndefined();
+  expect(v.flow).not.toBeUndefined();
+  expect(v.filter).not.toBeUndefined();
+  expect(v.filter.not).not.toBeUndefined();
+  expect(v.view).not.toBeUndefined();
+  expect(v.promise).not.toBeUndefined();
+
+  expect(v.set).toBeUndefined();
+  expect(v.update).toBeUndefined();
+  expect(v.pre).toBeUndefined();
+  expect(v.reset).toBeUndefined();
+  expect(v.reinit).toBeUndefined();
+  expect(v.dirty).toBeUndefined();
+});
+
+test('should work _signal.from with two arguments', () => {
+  let t;
+  const spy = jest.fn();
+  const u = _signal(0);
+  const a = _signal(0);
+  const v = _signal.from(() => a.val + 1, (v) => a(v + v));
+  expect(v.val).toBe(1);
+  (t = v.to), (t = t(spy));
+  (t = t.update), (t = t.by), t(() => u.val);
+
+  a.val = 0;
+  expect(v.val).toBe(1);
+  expect(spy).toBeCalledWith(1, 1); spy.mockReset();
+
+  expect(typeof v).toBe('function');
+  expect(v.sync).not.toBeUndefined();
+  expect(v.to.once).not.toBeUndefined();
+  expect(v.flow).not.toBeUndefined();
+  expect(v.filter).not.toBeUndefined();
+  expect(v.filter.not).not.toBeUndefined();
+  expect(v.view).not.toBeUndefined();
+  expect(v.set).not.toBeUndefined();
+  expect(v.update).not.toBeUndefined();
+  expect(v.update.by).not.toBeUndefined();
+  expect(v.pre).not.toBeUndefined();
+  expect(v.pre.filter).not.toBeUndefined();
+  expect(v.pre.filter.not).not.toBeUndefined();
+  expect(v.promise).not.toBeUndefined();
+
+  expect(v.reset).toBeUndefined();
+  expect(v.reinit).toBeUndefined();
+  expect(v.dirty).toBeUndefined();
+
+  u(0);
+  expect(v.val).toBe(1);
+  expect(spy).toBeCalledWith(1, 1); spy.mockReset();
+});
+
+
 
 
 
