@@ -100,20 +100,14 @@ const def_prop = Object.defineProperty;
 
 /*
   TODOs:
-  [] Tests for
-
-      signal.trigger
-      signal.trigger.flag
-
-  ===
-  [] .select.multiple([a,b,c]) -> .val = [_a,_b,_c];
-  [] signal(0).as.value()
-  [] combine({ a, b, c }), combine([a,b,c])
-  [] x.join([a,b,c]) -> [x,a,b,c]
+  [] trigger should be touchable
   [] value.touchable(initial) <- The ".from" construction not available for values with "initial" dependency requireds
   [] signal.touchable(initial)
-  [] ...
-  [] combine as root level exportable factory function
+
+  [] .select.multiple([a,b,c]) -> .val = [_a,_b,_c];
+  [] signal(0).as.value()
+  [] combine({ a, b, c }), combine([a,b,c]) <- combine as root level exportable factory function
+  [] x.join([a,b,c]) -> [x,a,b,c]
   [] support destruction
 
   Backlog
@@ -317,18 +311,18 @@ const fill_entity = (handler, proto, has_initial?, initial?, _get?, _set?) => {
 }
 
 const make_trait_ent_pure_fn_untrack = (trait_fn) =>
-  (ctx, fn) => trait_fn(ctx, (a,b) => {
+  (ctx, fn) => trait_fn(ctx, fn && ((a,b) => {
     const finish = internal_untrack();
-    try { return fn && fn(a,b) }
+    try { return fn(a,b); }
     finally { finish() }
-  });
+  }));
 
 const make_trait_ent_untrack = (trait_fn) =>
-  (ctx, fn) => trait_fn(ctx, (a,b) => {
+  (ctx, fn) => trait_fn(ctx, fn && ((a,b) => {
     const finish = internal_untrack();
-    try { return fn && (fn[key_get] ? fn[key_get]() : fn(a,b)) }
+    try { return (fn[key_get] ? fn[key_get]() : fn(a,b)) }
     finally { finish() }
-  });
+  }));
 
 const op_trait_if_signal = (trait_if_not_signal, trait_if_signal) => (
   (ctx) => ctx[key_handler][key_is_signal] ? trait_if_signal : trait_if_not_signal
@@ -671,9 +665,10 @@ obj_def_prop_factory(
 const make_trigger = (initial, has_inverted_to?, is_signal?) => {
   const handler = box(initial, () => (handler[key_touched_internal] = 1), is_signal && pure_arrow_fn_returns_undef);
   const set = has_inverted_to
-    ? () => { handler[key_touched_internal] || handler[1](!handler[0]()) }
+    ? () => { handler[key_touched_internal] || handler[1](!_untrack(handler[0])) }
     : (v) => { handler[key_touched_internal] || handler[1](v) };
   handler[key_reset_promise_by_reset] = 1;
+  handler[key_is_signal] = is_signal;
   return fill_entity(handler, proto_entity_writtable_leaf, 1, initial, 0, set);
 }
 

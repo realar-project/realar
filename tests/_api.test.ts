@@ -1085,10 +1085,6 @@ test('should work track-untrack for _signal with filter.not', () => {
   expect(spy_u).toBeCalledTimes(0);
 });
 
-
-
-
-
 test('should work _signal.from with one argument', () => {
   let t;
   const spy = jest.fn();
@@ -1154,6 +1150,65 @@ test('should work _signal.from with two arguments', () => {
   expect(v.val).toBe(1);
   expect(spy).toBeCalledWith(1, 1); spy.mockReset();
 });
+
+test('should work _signal.trigger', () => {
+  const spy_t = jest.fn();
+  const spy_f = jest.fn();
+  const spy_u = jest.fn();
+
+  const t = _signal.trigger();
+  const f = _signal.trigger.flag();
+  const u = _signal.trigger.flag.invert();
+
+  t.flow().flow().sync(spy_t)();
+  f.flow().flow().sync(spy_f)();
+  u.flow().flow().sync(spy_u)();
+
+  expect(spy_t).toHaveBeenNthCalledWith(1, void 0, void 0);
+  expect(spy_t).toHaveBeenNthCalledWith(2, void 0, void 0);
+  expect(spy_f).toHaveBeenNthCalledWith(1, false, void 0);
+  expect(spy_f).toHaveBeenNthCalledWith(2, true, false);
+  expect(spy_u).toHaveBeenNthCalledWith(1, true, void 0);
+  expect(spy_u).toHaveBeenNthCalledWith(2, false, true);
+
+  t(); f(); u();
+  expect(spy_t).toBeCalledTimes(2); spy_t.mockReset();
+  expect(spy_f).toBeCalledTimes(2); spy_f.mockReset();
+  expect(spy_u).toBeCalledTimes(2); spy_u.mockReset();
+
+  expect(t.dirty.val).toBe(false);
+  expect(f.dirty.val).toBe(true);
+  expect(u.dirty.val).toBe(true);
+
+  t.reset(); t();
+  f.reset(); f();
+  u.reset(); u();
+  expect(spy_t).toHaveBeenNthCalledWith(1, void 0, void 0);
+  expect(spy_t).toHaveBeenNthCalledWith(2, void 0, void 0);
+  expect(spy_f).toHaveBeenNthCalledWith(1, false, true);
+  expect(spy_f).toHaveBeenNthCalledWith(2, true, false);
+  expect(spy_u).toHaveBeenNthCalledWith(1, true, false);
+  expect(spy_u).toHaveBeenNthCalledWith(2, false, true);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
