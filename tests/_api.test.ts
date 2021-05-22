@@ -1348,9 +1348,23 @@ test('should work track-untrack for _signal with join', () => {
   expect(spy_u).toBeCalledTimes(0);
 });
 
+test('should work _signal with as.value', () => {
+  const spy_s = jest.fn();
+  const spy_v = jest.fn();
 
+  const s = _signal(0).sync(spy_s).op(s => {
+    s.as.value().sync(spy_v);
+  });
 
-
+  expect(spy_s).toBeCalledWith(0, void 0); spy_s.mockReset();
+  expect(spy_v).toBeCalledWith(0, void 0); spy_v.mockReset();
+  s(1);
+  expect(spy_s).toBeCalledWith(1, 0); spy_s.mockReset();
+  expect(spy_v).toBeCalledWith(1, 0); spy_v.mockReset();
+  s(1);
+  expect(spy_s).toBeCalledWith(1, 1); spy_s.mockReset();
+  expect(spy_v).toBeCalledTimes(0);
+});
 
 
 

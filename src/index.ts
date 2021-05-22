@@ -100,9 +100,6 @@ const def_prop = Object.defineProperty;
 
 /*
   TODOs:
-  [] test cases for track-untrack join
-  [] signal(0).as.value()
-
   [] trigger should be touchable
   [] value.touchable(initial) <- The ".from" construction not available for values with "initial" dependency requireds
   [] signal.touchable(initial)
@@ -220,7 +217,9 @@ const key_untrack = "untrack";
 const key_multiple = "multiple";
 const key_combine = "combine";
 const key_join = "join";
-
+const key_value = "value";
+const key_as = "as";
+const key_op = "op";
 
 const obj_def_prop_value = (obj, key, value) => (
   obj_def_prop(obj, key, { value }), value
@@ -230,6 +229,16 @@ const obj_def_prop_trait = (obj, key, trait) =>
   obj_def_prop(obj, key, {
     get() {
       return obj_def_prop_value(this, key, trait.bind(const_undef, this));
+    }
+  });
+
+const obj_def_prop_with_ns = (obj, key, ns) =>
+  obj_def_prop(obj, key, {
+    get() {
+      const ret = {};
+      ret[key_proto] = ns;
+      ret[key_ctx] = this;
+      return obj_def_prop_value(this, key, ret);
     }
   });
 
@@ -524,6 +533,13 @@ const trait_ent_join_untrack = (ctx, cfg) => (
   make_join_entity(ctx[key_get], cfg, ctx[key_handler][key_is_signal], ctx[key_set], 1)
 );
 
+const trait_ent_as_value = (ctx) => (
+  value_from(ctx[key_get], ctx[key_set])
+);
+const trait_ent_op = (ctx, f) => (
+  (f = f(ctx)), (f === const_undef ? ctx : f)
+);
+
 
 
 
@@ -552,21 +568,29 @@ obj_def_prop_trait_ns_with_ns(proto_entity_readable_select_ns, key_multiple, tra
   make_proto_for_trackable_ns(trait_ent_select_multiple, trait_ent_select_multiple_untrack)
 );
 
+// readable.as:ns
+//   .as.value
+const proto_entity_readable_as_ns = obj_create(pure_fn);
+obj_def_prop_trait_ns(proto_entity_readable_as_ns, key_value, trait_ent_as_value);
 
 // readable
 //   .sync
+//   .op
 //   .to:readable.to:ns
 //     .to.once
 //   .filter:readable.filter:ns (track|untrack)
 //     .filter.not              (track|untrack)
 //   .select:readable.select:ns (track|untrack)
-//      .select.multiple        (track|untrack)
+//     .select.multiple         (track|untrack)
 //   .flow                      (track|untrack)
 //   .view                      (track|untrack)
 //   .join                      (track|untrack)
+//   .as:readable.as:ns
+//     .as.value
 //   .promise
 const proto_entity_readable = obj_create(pure_fn);
 obj_def_prop_trait(proto_entity_readable, key_sync, trait_ent_sync);
+obj_def_prop_trait(proto_entity_readable, key_op, trait_ent_op);
 obj_def_prop_trait_with_ns(
   proto_entity_readable,
   key_to,
@@ -605,6 +629,11 @@ obj_def_prop_trait_with_ns(
   trait_ent_join,
   make_proto_for_trackable_ns(trait_ent_join, trait_ent_join_untrack),
 );
+obj_def_prop_with_ns(
+  proto_entity_readable,
+  key_as,
+  proto_entity_readable_as_ns
+);
 obj_def_prop_promise(proto_entity_readable);
 
 // writtable.update:ns          (track|untrack)
@@ -640,7 +669,7 @@ obj_def_prop_trait_ns_with_ns(
 //     .update.by
 //   .pre:writtable.pre:ns                  (track|untrack)
 //     .pre.filter:writtable.pre.filter:ns  (track|untrack)
-//       pre.filter.not                     (track|untrack)
+//       .pre.filter.not                    (track|untrack)
 const proto_entity_writtable = obj_create(proto_entity_readable);
 obj_def_prop_trait_with_ns(
   proto_entity_writtable,
