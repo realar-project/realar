@@ -100,9 +100,13 @@ const def_prop = Object.defineProperty;
 
 /*
   TODOs:
-  [] trigger should be touchable
-  [] value.touchable(initial) <- The ".from" construction not available for values with "initial" dependency requireds
-  [] signal.touchable(initial)
+  [] to remove effect
+  [] to remove loop
+
+  [] rename _value to value
+  [] rename _signal to signal
+  [] rename _selector to selector
+
   [] support destruction
 */
 
@@ -382,7 +386,7 @@ const trait_ent_sync = (ctx, fn) => {
     finally { prev_value = e[0](); }
   };
   const e = expr(ctx[key_get], sync);
-  sync();
+  _untrack(sync);
   return ctx;
 };
 const trait_ent_reset = (ctx) => {
@@ -1380,10 +1384,9 @@ function effect(fn: any) {
   return un(fn());
 }
 
-function un(unsub: () => void): () => void {
-  if (unsub && context_unsubs) context_unsubs.push(unsub);
-  return unsub;
-}
+const un = (unsub: () => void): () => void => (
+  (unsub && context_unsubs && context_unsubs.push(unsub)), unsub
+)
 
 function cycle(body: () => void) {
   const iter = () => {
@@ -1584,20 +1587,20 @@ function free() {
   }
 }
 
-function box_property(o: any, p: string | number | symbol, init?: any): any {
+const obj_def_box_prop = (o: any, p: string | number | symbol, init?: any): any => {
   const b = box(init && init());
-  def_prop(o, p, { get: b[0], set: b[1] });
+  obj_def_prop(o, p, { get: b[0], set: b[1] });
 }
 
 function prop(_proto: any, key: any, descriptor?: any): any {
   const initializer = descriptor?.initializer;
   return {
     get() {
-      box_property(this, key, initializer);
+      obj_def_box_prop(this, key, initializer);
       return this[key];
     },
     set(value: any) {
-      box_property(this, key, initializer);
+      obj_def_box_prop(this, key, initializer);
       this[key] = value;
     },
   };
@@ -1607,7 +1610,7 @@ function cache(_proto: any, key: any, descriptor: any): any {
   return {
     get() {
       const [get] = sel(descriptor.get);
-      def_prop(this, key, { get });
+      obj_def_prop(this, key, { get });
       return this[key];
     },
   };
