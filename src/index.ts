@@ -104,21 +104,6 @@ const def_prop = Object.defineProperty;
   [] value.touchable(initial) <- The ".from" construction not available for values with "initial" dependency requireds
   [] signal.touchable(initial)
   [] support destruction
-
-  Backlog
-  [] v.as.readonly()
-  [] flow.resolve
-  [] flow as root level exportable factory function
-  [] .chan
-  [] value.trigger.from
-  [] value.trigger.flag.from
-  [] .map <- sysnonym for .view (on thinking)
-  [] x.group -- x.op -- x.block
-    x.block((ctx) => ({  // if returns non undefined
-      a: ctx.a,
-      b: ctx.a.select()
-    })).b.val
-  [] v.as.signal(), v.as.trigger.flag()
 */
 
 
