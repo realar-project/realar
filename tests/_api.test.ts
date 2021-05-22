@@ -1200,10 +1200,57 @@ test('should work _signal.trigger', () => {
   expect(spy_u).toHaveBeenNthCalledWith(2, false, true);
 });
 
+test('should work value.combine', () => {
+  const spy_v = jest.fn();
+  const spy_w = jest.fn();
+  const a = _signal(0);
 
+  _value.combine({
+    a: a,
+    b: a.flow(_a => _a + 1),
+    c: () => a.val
+  }).sync(spy_v);
+  _value.combine([
+    a,
+    a.flow(_a => _a + 1),
+    () => a.val
+  ]).sync(spy_w);
 
+  expect(spy_v).toBeCalledWith({ a: 0, b: 1, c: 0 }, void 0); spy_v.mockReset();
+  expect(spy_w).toBeCalledWith([ 0, 1, 0 ], void 0); spy_w.mockReset();
+  a(0);
+  expect(spy_v).toBeCalledTimes(0);
+  expect(spy_w).toBeCalledTimes(0);
+  a(1);
+  expect(spy_v).toBeCalledWith({ a: 1, b: 2, c: 1 }, { a: 0, b: 1, c: 0 });
+  expect(spy_w).toBeCalledWith([ 1, 2, 1 ], [ 0, 1, 0 ]);
+});
 
+test('should work _signal.combine', () => {
+  const spy_v = jest.fn();
+  const spy_w = jest.fn();
+  const a = _signal(0);
 
+  _signal.combine({
+    a: a,
+    b: a.flow(_a => _a + 1),
+    c: () => a.val
+  }).sync(spy_v);
+  _signal.combine([
+    a,
+    a.flow(_a => _a + 1),
+    () => a.val
+  ]).sync(spy_w);
+
+  expect(spy_v).toBeCalledWith({ a: 0, b: 1, c: 0 }, void 0); spy_v.mockReset();
+  expect(spy_w).toBeCalledWith([ 0, 1, 0 ], void 0); spy_w.mockReset();
+  a(0);
+  expect(spy_v).toBeCalledWith({ a: 0, b: 1, c: 0 }, { a: 0, b: 1, c: 0 });
+  expect(spy_w).toBeCalledWith([ 0, 1, 0 ], [ 0, 1, 0 ]);
+  a(1);
+  expect(spy_v).toBeCalledWith({ a: 1, b: 2, c: 1 }, { a: 0, b: 1, c: 0 });
+  expect(spy_w).toBeCalledWith([ 1, 2, 1 ], [ 0, 1, 0 ]);
+});
 
 
 
