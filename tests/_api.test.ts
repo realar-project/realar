@@ -1252,7 +1252,49 @@ test('should work _signal.combine', () => {
   expect(spy_w).toBeCalledWith([ 1, 2, 1 ], [ 0, 1, 0 ]);
 });
 
+test('should work value.join', () => {
+  const spy = jest.fn();
+  const a = _signal(0);
+  const z = _value(0);
 
+  z.join([
+    a,
+    a.flow(_a => _a + 1),
+    () => a.val
+  ]).sync(spy);
+
+  expect(spy).toBeCalledWith([ 0, 0, 1, 0 ], void 0); spy.mockReset();
+  a(0);
+  expect(spy).toBeCalledTimes(0);
+  a(1);
+  expect(spy).toBeCalledWith([ 0, 1, 2, 1 ], [ 0, 0, 1, 0 ]); spy.mockReset();
+  z(0);
+  expect(spy).toBeCalledTimes(0);
+  z(1);
+  expect(spy).toBeCalledWith([ 1, 1, 2, 1 ], [ 0, 1, 2, 1 ]);
+});
+
+test('should work signal.join', () => {
+  const spy = jest.fn();
+  const a = _signal(0);
+  const z = _signal(0);
+
+  z.join([
+    a,
+    a.flow(_a => _a + 1),
+    () => a.val
+  ]).sync(spy);
+
+  expect(spy).toBeCalledWith([ 0, 0, 1, 0 ], void 0); spy.mockReset();
+  a(0);
+  expect(spy).toBeCalledWith([ 0, 0, 1, 0 ], [ 0, 0, 1, 0 ]); spy.mockReset();
+  a(1);
+  expect(spy).toBeCalledWith([ 0, 1, 2, 1 ], [ 0, 0, 1, 0 ]); spy.mockReset();
+  z(0);
+  expect(spy).toBeCalledWith([ 0, 1, 2, 1 ], [ 0, 1, 2, 1 ]); spy.mockReset();
+  z(1);
+  expect(spy).toBeCalledWith([ 1, 1, 2, 1 ], [ 0, 1, 2, 1 ]);
+});
 
 
 

@@ -100,7 +100,7 @@ const def_prop = Object.defineProperty;
 
 /*
   TODOs:
-  [] test cases for join
+  [] test cases for track-untrack join
   [] signal(0).as.value()
 
   [] trigger should be touchable
@@ -310,8 +310,8 @@ const fill_entity = (handler, proto, has_initial?, initial?, _get?, _set?) => {
 
 const make_join_entity = (fn_get, join_cfg, is_signal?, set?, is_untrack?) => {
   const fns = join_cfg.map(is_signal
-    ? (key) => join_cfg[key][key_get] || join_cfg[key]
-    : (key) => sel(join_cfg[key][key_get] || join_cfg[key])[0]
+    ? (fn) => fn[key_get] || fn
+    : (fn) => sel(fn[key_get] || fn)[0]
   );
   const h = [
     () => {
