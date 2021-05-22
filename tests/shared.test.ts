@@ -1,4 +1,4 @@
-import { shared, initial, free, effect, mock, unmock } from '../src';
+import { shared, initial, free, un, mock, unmock } from '../src';
 
 test('should work initial data with shared', () => {
   const spy = jest.fn();
@@ -7,7 +7,7 @@ test('should work initial data with shared', () => {
   class A {
     constructor(data: typeof a) {
       spy(data);
-      effect(() => destr);
+      un(destr);
     }
   }
   shared(A);

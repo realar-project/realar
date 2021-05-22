@@ -1365,10 +1365,3 @@ test('should work _signal with as.value', () => {
   expect(spy_s).toBeCalledWith(1, 1); spy_s.mockReset();
   expect(spy_v).toBeCalledTimes(0);
 });
-
-
-
-
-
-
-

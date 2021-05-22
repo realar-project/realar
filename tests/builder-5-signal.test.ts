@@ -1,15 +1,14 @@
-import { signal, cycle, on, value } from '../src';
+import { _signal, cycle, _on, _value } from '../src';
 
 test('should work signal different using', () => {
   const spy = jest.fn();
 
-  const a = signal(10);
-  on(a, spy);
+  const a = _signal(10);
+  _on(a, spy);
 
-  const [get] = a;
+  const {get} = a;
 
   expect(a.val).toBe(10);
-  expect(a[0]()).toBe(10);
   expect(get()).toBe(10);
 
   expect(spy).toBeCalledTimes(0);
@@ -19,7 +18,6 @@ test('should work signal different using', () => {
 
   a(a.val + 5);
   expect(a.val).toBe(15);
-  expect(a[0]()).toBe(15);
   expect(get()).toBe(15);
   expect(a.get()).toBe(15);
 
@@ -30,9 +28,9 @@ test('should work signal different using', () => {
 test('should work signal in cycle', () => {
   const spy = jest.fn();
 
-  const a = signal<number>();
+  const a = _signal<number>();
   cycle(() => {
-    const data = a[0]();
+    const data = a.get();
     spy(data);
   });
 
@@ -48,9 +46,9 @@ test('should work signal in cycle', () => {
 test('should work signal as promise', async () => {
   const spy = jest.fn();
 
-  const a = signal<number>();
+  const a = _signal<number>();
   const fn = async () => {
-    spy(await a);
+    spy(await a.promise);
   };
   fn();
   expect(spy).toBeCalledTimes(0);
@@ -69,8 +67,8 @@ test('should work signal as promise', async () => {
 test('should work signal in on', () => {
   const spy = jest.fn();
 
-  const a = signal<'up' | 'down'>();
-  on(a, v => {
+  const a = _signal<'up' | 'down'>();
+  _on(a, v => {
     spy(v);
   });
 
@@ -86,8 +84,8 @@ test('should work signal in on', () => {
 test('should work signal with transform', () => {
   const spy = jest.fn();
 
-  const a = signal(0).wrap((s: string) => parseInt(s) + 10);
-  on(a, v => {
+  const a = _signal(0).pre((s: string) => parseInt(s) + 10);
+  _on(a, v => {
     spy(v);
   });
 
@@ -101,31 +99,30 @@ test('should work signal with transform', () => {
 });
 
 test('should work signal from', async () => {
-  const v = value(1);
-  const s = signal.from(v.select(v => v + v));
+  const v = _value(1);
+  const s = _signal.from(v.select(v => v + v));
 
   setTimeout(() => (v.val = 2), 100);
   expect(s.val).toBe(2);
-  expect(await s).toBe(4);
+  expect(await s.promise).toBe(4);
 });
 
 test('should work signal combine', async () => {
   const spy = jest.fn();
-  const v = value(1);
-  const s = signal.from(v.select(v => v + v));
+  const v = _value(1);
+  const s = _signal.from(v.select(v => v + v), (k) => v.update(_v => _v + k));
 
-  const c = signal.combine(v, s);
-  c.watch(v => spy(v));
+  const c = _signal.combine([v, s]);
+  c.to(v => spy(v));
 
   expect(c.val).toEqual([1, 2]);
-  s(10);
-  s(10);
+  s(4);
+  s(4);
   v(2);
   v(2);
 
-  expect(spy).toHaveBeenNthCalledWith(1, [1, 10]);
-  expect(spy).toHaveBeenNthCalledWith(2, [1, 10]);
-  expect(spy).toHaveBeenNthCalledWith(3, [2, 10]); // Todo: hmm
-  expect(spy).toHaveBeenNthCalledWith(4, [2, 4]);
-  expect(spy).toBeCalledTimes(4);
+  expect(spy).toHaveBeenNthCalledWith(1, [5, 10]);
+  expect(spy).toHaveBeenNthCalledWith(2, [9, 18]);
+  expect(spy).toHaveBeenNthCalledWith(3, [2, 4]);
+  expect(spy).toBeCalledTimes(3);
 });

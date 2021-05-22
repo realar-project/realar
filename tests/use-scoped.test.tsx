@@ -1,16 +1,14 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { useScoped, Scope, effect } from '../src';
+import { useScoped, Scope, un } from '../src';
 
 test('should work useScoped function', async () => {
   let up = jest.fn();
   let down = jest.fn();
 
   const unit = () => {
-    effect(() => {
-      up();
-      return () => down();
-    });
+    up();
+    un(down);
   };
 
   function A() {

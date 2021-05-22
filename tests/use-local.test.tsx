@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { mount } from 'enzyme';
-import { useLocal, effect, prop } from '../src';
+import { useLocal, un, prop } from '../src';
 
 test('should work useLocal function', () => {
   let constr = jest.fn();
@@ -10,7 +10,7 @@ test('should work useLocal function', () => {
   class Unit {
     constructor(...args: any[]) {
       constr(...args);
-      effect(() => spy);
+      un(spy);
     }
   }
 

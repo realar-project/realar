@@ -7,6 +7,8 @@ export {
   _transaction,
   _signal,
   _untrack,
+  _on,
+  _sync,
 
   value,
   selector,
@@ -15,7 +17,6 @@ export {
   signal,
   ready,
   on,
-  effect,
   un,
   hook,
   sync,
@@ -100,14 +101,19 @@ const def_prop = Object.defineProperty;
 
 /*
   TODOs:
-  [] to remove effect
+  [] test case "should work signal.trigger with configured .pre"
+  [] test cases for "isolate" (remove effect)
+
+  [] signal.trigger.from
+  [] value.trigger.from
+  [] signal.trigger.resolved
+  [] value.trigger.resolved
+
   [] to remove loop
 
   [] rename _value to value
   [] rename _signal to signal
   [] rename _selector to selector
-
-  [] support destruction
 */
 
 
@@ -139,6 +145,10 @@ const internal_flow_stop = flow.stop;
 const internal_untrack = rb.untrack;
 const internal_transaction = rb.transaction;
 
+const un_expr = (a,b) => ((a = expr(a,b)), un(a[1]), a);
+const un_flow = (a,b,c) => ((a = flow(a,b,c)), un(a[2]), a);
+
+
 //
 //  Entity builder for value, signal and etc. Typings.
 //
@@ -158,7 +168,7 @@ type ValueFactory = {
 type SelectorFactory = {
   (fn: () => any): any;
 }
-type SignalFactory = ValueFactory;
+type SignalFactory<T> = ValueFactory;
 
 
 //
@@ -306,6 +316,17 @@ const fill_entity = (handler, proto, has_initial?, initial?, _get?, _set?) => {
   return ctx;
 }
 
+const reactionable_subscribe = (target, fn, is_once?, is_sync?) => {
+  target = target[key_get] || sel(target)[0];
+  let value: any;
+  const e = un_expr(target, () => {
+    const prev = value;
+    fn(is_once ? target() : (value = e[0]()), prev);
+  });
+  value = e[0]();
+  if (is_sync) _untrack(fn.bind(const_undef, value, const_undef));
+}
+
 const make_join_entity = (fn_get, join_cfg, is_signal?, set?, is_untrack?) => {
   const fns = join_cfg.map(is_signal
     ? (fn) => fn[key_get] || fn
@@ -348,7 +369,6 @@ const make_proto_for_trackable_ns = (trait_track, trait_untrack) => (
     key_untrack, trait_untrack)
 );
 
-
 const prop_factory_dirty_required_initial = (ctx) => {
   const h = ctx[key_handler];
   if (!h[key_dirty_handler]) {
@@ -368,7 +388,7 @@ const trait_ent_update = (ctx, fn) => (fn && ctx[key_set](fn(_untrack(ctx[key_ge
 const trait_ent_update_untrack = make_trait_ent_pure_fn_untrack(trait_ent_update);
 const trait_ent_update_by = (ctx, src, fn) => {
   const src_get = src[key_get] || src;
-  const e = expr(src_get, fn
+  const e = un_expr(src_get, fn
     ? () => {
       try {
         ctx[key_set](fn(ctx[key_get](), src_get(), prev_value));
@@ -379,16 +399,7 @@ const trait_ent_update_by = (ctx, src, fn) => {
   let prev_value = e[0]();
   return ctx;
 };
-const trait_ent_sync = (ctx, fn) => {
-  let prev_value;
-  const sync = () => {
-    try { fn(ctx[key_get](), prev_value); }
-    finally { prev_value = e[0](); }
-  };
-  const e = expr(ctx[key_get], sync);
-  _untrack(sync);
-  return ctx;
-};
+const trait_ent_sync = (ctx, fn) => (reactionable_subscribe(ctx, fn, 0, 1), ctx);
 const trait_ent_reset = (ctx) => {
   ctx[key_promise_internal] = 0;
   ctx[key_handler][1](ctx[key_handler][key_initial]);
@@ -396,7 +407,7 @@ const trait_ent_reset = (ctx) => {
 };
 const trait_ent_reset_by = (ctx, src) => {
   const src_get = src[key_get] || src;
-  const e = expr(src_get, () => {
+  const e = un_expr(src_get, () => {
     trait_ent_reset(ctx);
     e[0]()
   });
@@ -409,28 +420,15 @@ const trait_ent_reinit = (ctx, initial) => {
 };
 const trait_ent_reinit_by = (ctx, src) => {
   const src_get = src[key_get] || src;
-  const e = expr(src_get, () => {
+  const e = un_expr(src_get, () => {
     trait_ent_reinit(ctx, src_get());
     e[0]();
   });
   e[0]();
   return ctx;
 };
-const trait_ent_to = (ctx, fn) => {
-  let prev_value;
-  const e = expr(ctx[key_get], () => {
-    try { fn(ctx[key_get](), prev_value); }
-    finally { prev_value = e[0](); }
-  });
-  prev_value = e[0]();
-  return ctx;
-};
-const trait_ent_to_once = (ctx, fn) => {
-  let prev_value;
-  const e = expr(ctx[key_get], () => fn(ctx[key_get](), prev_value));
-  prev_value = e[0]();
-  return ctx;
-};
+const trait_ent_to = (ctx, fn) => (reactionable_subscribe(ctx, fn), ctx);
+const trait_ent_to_once = (ctx, fn) => (reactionable_subscribe(ctx, fn, 1), ctx);
 const trait_ent_select = (ctx, fn) => (
   fill_entity(sel(fn ? () => fn(ctx[key_get]()) : ctx[key_get]).slice(0, 1), proto_entity_readable)
 );
@@ -483,7 +481,7 @@ const trait_ent_flow = (ctx, fn) => {
   fn || (fn = pure_arrow_fn_returns_arg);
   let started, prev;
   const is_signal = ctx[key_handler][key_is_signal];
-  const f = flow(() => {
+  const f = un_flow(() => {
     const v = ctx[key_get]();
     try { return fn(v, prev) }
     finally { prev = v }
@@ -752,7 +750,8 @@ const value_trigger = (initial) => make_trigger(initial);
 const value_trigger_flag = (initial) => make_trigger(!!initial, 1);
 const value_trigger_flag_invert = (initial) => make_trigger(!initial, 1);
 const value_from = (get, set?) => (
-  (get = sel(get).slice(0, 1), set && (get[1] = set.bind())),
+  (get = sel(get[key_get] || get).slice(0, 1),
+  set && ((set = set[key_set] || set), (get[1] = set.bind()))),
   fill_entity(get, set ? proto_entity_writtable : proto_entity_readable)
 );
 const value_combine = (cfg) => make_combine(cfg);
@@ -774,7 +773,9 @@ const signal_trigger = (initial) => make_trigger(initial, 0, 1);
 const signal_trigger_flag = (initial) => make_trigger(!!initial, 1, 1);
 const signal_trigger_flag_invert = (initial) => make_trigger(!initial, 1, 1);
 const _signal_from = (get, set?) => (
-  (get = [get], (get[key_is_signal] = 1), set && (get[1] = set.bind())),
+  (get = [get[key_get] || get],
+  (get[key_is_signal] = 1),
+  set && ((set = set[key_set] || set), (get[1] = set.bind()))),
   fill_entity(get, set ? proto_entity_writtable : proto_entity_readable)
 );
 const _signal_combine = (cfg) => make_combine(cfg, 1);
@@ -804,7 +805,20 @@ const _untrack = (fn) => {
 
 
 
+//
+// Realar exportable api
+//
 
+const un = (unsub: () => void) => {
+  unsub && context_unsubs && context_unsubs.push(unsub)
+}
+
+const _on_once = (target, fn) => reactionable_subscribe(target, fn, 1);
+const _on = (target, fn) => reactionable_subscribe(target, fn);
+
+_on[key_once] = _on_once;
+
+const _sync = (target, fn) => reactionable_subscribe(target, fn, 0, 1);
 
 
 
@@ -1378,15 +1392,6 @@ function sync<T>(target: Reactionable<T>, listener: (value: T, prev: T) => void)
   return on(target, listener);
 }
 
-function effect(fn: () => void): () => void;
-function effect(fn: () => () => any): () => any;
-function effect(fn: any) {
-  return un(fn());
-}
-
-const un = (unsub: () => void): () => void => (
-  (unsub && context_unsubs && context_unsubs.push(unsub)), unsub
-)
 
 function cycle(body: () => void) {
   const iter = () => {
@@ -1422,6 +1427,13 @@ function isolate(fn?: any) {
     };
   };
 }
+
+
+
+
+
+
+
 
 function initial(data: any): void {
   initial_data = data;
