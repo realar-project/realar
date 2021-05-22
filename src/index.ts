@@ -100,7 +100,7 @@ const def_prop = Object.defineProperty;
 
 /*
   TODOs:
-  [] x.join([a,b,c]) -> [x,a,b,c]
+  [] test cases for join
   [] signal(0).as.value()
 
   [] trigger should be touchable
@@ -219,6 +219,7 @@ const key_track = "track";
 const key_untrack = "untrack";
 const key_multiple = "multiple";
 const key_combine = "combine";
+const key_join = "join";
 
 
 const obj_def_prop_value = (obj, key, value) => (
@@ -305,6 +306,24 @@ const fill_entity = (handler, proto, has_initial?, initial?, _get?, _set?) => {
   ctx[key_proto] = proto;
   ctx[key_get] = get;
   return ctx;
+}
+
+const make_join_entity = (fn_get, join_cfg, is_signal?, set?, is_untrack?) => {
+  const fns = join_cfg.map(is_signal
+    ? (key) => join_cfg[key][key_get] || join_cfg[key]
+    : (key) => sel(join_cfg[key][key_get] || join_cfg[key])[0]
+  );
+  const h = [
+    () => {
+      const ret = [fn_get()];
+      const finish = is_untrack && internal_untrack();
+      try { return ret.concat(fns.map(f => f())) }
+      finally { finish && finish() }
+    },
+    set && set.bind()
+  ];
+  h[key_is_signal] = is_signal;
+  return fill_entity(h, set ? proto_entity_writtable : proto_entity_readable)
 }
 
 const make_trait_ent_pure_fn_untrack = (trait_fn) =>
@@ -498,6 +517,14 @@ const trait_ent_filter_not = (ctx, fn) => (
 );
 const trait_ent_filter_not_untrack = make_trait_ent_untrack(trait_ent_filter_not)
 
+const trait_ent_join = (ctx, cfg) => (
+  make_join_entity(ctx[key_get], cfg, ctx[key_handler][key_is_signal], ctx[key_set])
+);
+const trait_ent_join_untrack = (ctx, cfg) => (
+  make_join_entity(ctx[key_get], cfg, ctx[key_handler][key_is_signal], ctx[key_set], 1)
+);
+
+
 
 
 // readable.to:ns
@@ -534,8 +561,9 @@ obj_def_prop_trait_ns_with_ns(proto_entity_readable_select_ns, key_multiple, tra
 //     .filter.not              (track|untrack)
 //   .select:readable.select:ns (track|untrack)
 //      .select.multiple        (track|untrack)
-//   .view                      (track|untrack)
 //   .flow                      (track|untrack)
+//   .view                      (track|untrack)
+//   .join                      (track|untrack)
 //   .promise
 const proto_entity_readable = obj_create(pure_fn);
 obj_def_prop_trait(proto_entity_readable, key_sync, trait_ent_sync);
@@ -569,7 +597,13 @@ obj_def_prop_trait_with_ns(
   proto_entity_readable,
   key_view,
   trait_ent_view,
-  make_proto_for_trackable_ns(trait_ent_select, trait_ent_view_untrack),
+  make_proto_for_trackable_ns(trait_ent_view, trait_ent_view_untrack),
+);
+obj_def_prop_trait_with_ns(
+  proto_entity_readable,
+  key_join,
+  trait_ent_join,
+  make_proto_for_trackable_ns(trait_ent_join, trait_ent_join_untrack),
 );
 obj_def_prop_promise(proto_entity_readable);
 
@@ -669,6 +703,22 @@ const make_trigger = (initial, has_inverted_to?, is_signal?) => {
   return fill_entity(handler, proto_entity_writtable_leaf, 1, initial, 0, set);
 }
 
+const make_combine = (cfg, is_signal?) => {
+  const keys = obj_keys(cfg);
+  const fns = keys.map(is_signal
+    ? (key) => cfg[key][key_get] || cfg[key]
+    : (key) => sel(cfg[key][key_get] || cfg[key])[0]
+  );
+  const is_array = obj_is_array(cfg);
+  const h = [
+    () => keys.reduce((ret, key, key_index) => (
+      (ret[key] = fns[key_index]()), ret
+    ), is_array ? [] : {})
+  ];
+  h[key_is_signal] = is_signal;
+  return fill_entity(h, proto_entity_readable);
+}
+
 
 
 const _selector: SelectorFactory = (fn) => (
@@ -687,16 +737,7 @@ const value_from = (get, set?) => (
   (get = sel(get).slice(0, 1), set && (get[1] = set.bind())),
   fill_entity(get, set ? proto_entity_writtable : proto_entity_readable)
 );
-const value_combine = (cfg) => {
-  const keys = obj_keys(cfg);
-  const fns = keys.map((key) => sel(cfg[key][key_get] || cfg[key])[0]);
-  const is_array = obj_is_array(cfg);
-  return fill_entity([
-    () => keys.reduce((ret, key, key_index) => (
-      (ret[key] = fns[key_index]()), ret
-    ), is_array ? [] : {})
-  ], proto_entity_readable)
-};
+const value_combine = (cfg) => make_combine(cfg);
 
 value_trigger_flag[key_invert] = value_trigger_flag_invert;
 value_trigger[key_flag] = value_trigger_flag;
@@ -718,18 +759,7 @@ const _signal_from = (get, set?) => (
   (get = [get], (get[key_is_signal] = 1), set && (get[1] = set.bind())),
   fill_entity(get, set ? proto_entity_writtable : proto_entity_readable)
 );
-const _signal_combine = (cfg) => {
-  const keys = obj_keys(cfg);
-  const fns = keys.map((key) => cfg[key][key_get] || cfg[key]);
-  const is_array = obj_is_array(cfg);
-  const h = [
-    () => keys.reduce((ret, key, key_index) => (
-      (ret[key] = fns[key_index]()), ret
-    ), is_array ? [] : {})
-  ];
-  h[key_is_signal] = 1;
-  return fill_entity(h, proto_entity_readable)
-};
+const _signal_combine = (cfg) => make_combine(cfg, 1);
 
 signal_trigger_flag[key_invert] = signal_trigger_flag_invert;
 signal_trigger[key_flag] = signal_trigger_flag;
