@@ -102,12 +102,16 @@ const def_prop = Object.defineProperty;
 /*
   TODOs:
   [] test case "should work signal.trigger with configured .pre"
-  [] test cases for "isolate" (remove effect)
+  [] test cases for "isolate" (after effect will be removed)
+  [] migrate all old test cases to new api
 
   [] signal.trigger.from
   [] value.trigger.from
   [] signal.trigger.resolved
   [] value.trigger.resolved
+  [] .as.trigger
+  [] .as.value.trigger
+  [] .as.signal.trigger
 
   [] to remove loop
 
