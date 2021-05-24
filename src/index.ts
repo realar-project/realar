@@ -9,6 +9,8 @@ export {
   _untrack,
   _on,
   _sync,
+  _isolate,
+  _local,
 
   value,
   selector,
@@ -157,7 +159,7 @@ const un_flow = (a,b,c) => ((a = flow(a,b,c)), un(a[2]), a);
 
 
 //
-//  Entity builder for value, signal and etc. Typings.
+//  Typings.
 //
 
 type ValueFactory = {
@@ -175,11 +177,24 @@ type ValueFactory = {
 type SelectorFactory = {
   (fn: () => any): any;
 }
-type SignalFactory<T> = ValueFactory;
-
+type SignalFactory = {
+  <T>(initial?: any): any;
+  trigger: {
+    (initial?: any): any;
+    flag: {
+      (initial?: any): any;
+      invert: { (initial?: any): any }
+    }
+  };
+  from: { (get: () => any, set?: (v) => any): any },
+  combine: { (cfg: any): any }
+};
+type Local = {
+  inject(fn: () => void): void;
+}
 
 //
-//  Entity builder implementation.
+//  Entity builder implementation for value, signal and etc.
 //
 
 const pure_fn = function () {};
@@ -810,7 +825,14 @@ const _untrack = (fn) => {
   finally { finish() }
 };
 
+//
+// Realar internal
+//
 
+const call_fns_array = (arr) => arr.forEach(fn => fn());
+const throw_hook_error = () => {
+  throw new Error('Hook section available only at useLocal');
+}
 
 //
 // Realar exportable api
@@ -827,9 +849,24 @@ _on[key_once] = _on_once;
 
 const _sync = (target, fn) => reactionable_subscribe(target, fn, 0, 1);
 
+const local_inject = (fn) => {
+  if (!context_hooks) throw_hook_error();
+  fn && context_hooks.push(fn);
+}
+const _local = {} as Local;
+_local.inject = local_inject;
 
-
-
+const _isolate = (fn?: any) => {
+  let unsubs;
+  const stack = context_unsubs;
+  context_unsubs = [];
+  try { fn() }
+  finally {
+    unsubs = context_unsubs;
+    context_unsubs = stack;
+  }
+  return () => unsubs && call_fns_array(unsubs);
+}
 
 
 
@@ -1430,7 +1467,7 @@ function isolate(fn?: any) {
     const unsubs = context_unsubs;
     context_unsubs = stack;
     return () => {
-      if (unsubs) call_array(unsubs);
+      if (unsubs) call_fns_array(unsubs);
     };
   };
 }
@@ -1494,18 +1531,18 @@ function inst<M, K extends any[]>(
   return [instance, unsub, hooks];
 }
 
-function throw_hook_error() {
-  throw new Error('Hook section available only at useLocal');
-}
+// function throw_hook_error() {
+//   throw new Error('Hook section available only at useLocal');
+// }
 
 function hook(fn: () => void): void {
   if (!context_hooks) throw_hook_error();
   fn && context_hooks.push(fn);
 }
 
-function call_array(arr: (() => void)[]) {
-  arr.forEach(fn => fn());
-}
+// function call_array(arr: (() => void)[]) {
+//   arr.forEach(fn => fn());
+// }
 
 function get_scope_context(): Context<any> {
   return scope_context ? scope_context : (scope_context = (createContext as any)());
@@ -1534,7 +1571,7 @@ function observe<T extends FC>(FunctionComponent: T): T {
 
 const Scope: FC = ({ children }) => {
   const h = useMemo(() => [new Map(), [], []], []) as any;
-  useEffect(() => () => call_array(h[1]), []);
+  useEffect(() => () => call_fns_array(h[1]), []);
   return createElement(get_scope_context().Provider, { value: h }, children);
 };
 
@@ -1562,7 +1599,7 @@ function useLocal<T extends unknown[], M>(
 ): M {
   const h = useMemo(() => {
     const i = inst(target, deps, 1);
-    const call_hooks = () => call_array(i[2]);
+    const call_hooks = () => call_fns_array(i[2]);
     return [i[0], () => i[1], call_hooks] as any;
   }, deps);
   h[2]();
@@ -1599,7 +1636,7 @@ function useValue<T>(target: Reactionable<T>, deps: any[] = []): T {
 
 function free() {
   try {
-    call_array(shared_unsubs);
+    call_fns_array(shared_unsubs);
   } finally {
     shareds.clear();
     initial_data = const_undef;

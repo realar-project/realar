@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { mount } from 'enzyme';
-import { useLocal, hook, useScoped, Scope } from '../src';
+import { useLocal, _local, useScoped, Scope } from '../src';
 
-test('should work hook in useLocal function', () => {
+test('should work local.inject in useLocal function', () => {
   let spy = jest.fn();
 
   const unit = (value: number) => {
-    hook(() => {
+    _local.inject(() => {
       const [a, set_a] = useState(0);
       if (value !== a) set_a(value);
       spy(a);
@@ -36,7 +36,7 @@ test('should work hook in useLocal function', () => {
 
 test('should throw exception if not in context', () => {
   expect(() => {
-    hook(() => {});
+    _local.inject(() => {});
   }).toThrow('Hook section available only at useLocal');
 });
 
@@ -45,7 +45,7 @@ test('should throw exception if not useLocal', () => {
   console.error = () => {};
   expect(() => {
     const unit = () => {
-      hook(() => {});
+      _local.inject(() => {});
     };
     function A() {
       useScoped(unit);
