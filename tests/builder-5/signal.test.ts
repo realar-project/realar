@@ -1,10 +1,10 @@
-import { _signal, cycle, _on, _value } from '../../src';
+import { _signal as signal, _cycle as cycle, _on as on, _value as value } from '../../src';
 
 test('should work signal different using', () => {
   const spy = jest.fn();
 
-  const a = _signal(10);
-  _on(a, spy);
+  const a = signal(10);
+  on(a, spy);
 
   const {get} = a;
 
@@ -28,7 +28,7 @@ test('should work signal different using', () => {
 test('should work signal in cycle', () => {
   const spy = jest.fn();
 
-  const a = _signal<number>();
+  const a = signal<number>();
   cycle(() => {
     const data = a.get();
     spy(data);
@@ -46,7 +46,7 @@ test('should work signal in cycle', () => {
 test('should work signal as promise', async () => {
   const spy = jest.fn();
 
-  const a = _signal<number>();
+  const a = signal<number>();
   const fn = async () => {
     spy(await a.promise);
   };
@@ -67,8 +67,8 @@ test('should work signal as promise', async () => {
 test('should work signal in on', () => {
   const spy = jest.fn();
 
-  const a = _signal<'up' | 'down'>();
-  _on(a, v => {
+  const a = signal<'up' | 'down'>();
+  on(a, v => {
     spy(v);
   });
 
@@ -84,8 +84,8 @@ test('should work signal in on', () => {
 test('should work signal with transform', () => {
   const spy = jest.fn();
 
-  const a = _signal(0).pre((s: string) => parseInt(s) + 10);
-  _on(a, v => {
+  const a = signal(0).pre((s: string) => parseInt(s) + 10);
+  on(a, v => {
     spy(v);
   });
 
@@ -99,8 +99,8 @@ test('should work signal with transform', () => {
 });
 
 test('should work signal from', async () => {
-  const v = _value(1);
-  const s = _signal.from(v.select(v => v + v));
+  const v = value(1);
+  const s = signal.from(v.select(v => v + v));
 
   setTimeout(() => (v.val = 2), 100);
   expect(s.val).toBe(2);
@@ -109,10 +109,10 @@ test('should work signal from', async () => {
 
 test('should work signal combine', async () => {
   const spy = jest.fn();
-  const v = _value(1);
-  const s = _signal.from(v.select(v => v + v), (k) => v.update(_v => _v + k));
+  const v = value(1);
+  const s = signal.from(v.select(v => v + v), (k) => v.update(_v => _v + k));
 
-  const c = _signal.combine([v, s]);
+  const c = signal.combine([v, s]);
   c.to(v => spy(v));
 
   expect(c.val).toEqual([1, 2]);

@@ -1,10 +1,10 @@
-import { _on, _signal, _sync, _value } from '../../src';
+import { _on as on, _signal as signal } from '../../src';
 import { delay } from '../lib';
 
 test('should work signal.trigger with one value', async () => {
   const spy = jest.fn();
-  const a = _signal.trigger(0);
-  _on(a, spy);
+  const a = signal.trigger(0);
+  on(a, spy);
 
   expect(a.val).toBe(0);
 
@@ -41,8 +41,8 @@ test('should work signal.trigger with configured .pre', async () => {
 
 test('should work signal.trigger reset', async () => {
   const spy = jest.fn();
-  const a = _signal.trigger(0).pre(() => 1);
-  _on(a, spy);
+  const a = signal.trigger(0).pre(() => 1);
+  on(a, spy);
 
   expect(a.val).toBe(0);
   a();
@@ -69,10 +69,10 @@ test('should work signal.trigger reset', async () => {
 
 test('should work _signal.trigger wrapped', async () => {
   const spy = jest.fn();
-  const a = _signal.trigger(0)
+  const a = signal.trigger(0)
     .pre((v: number) => v * 2)
     .pre(() => 10);
-  _on(a, spy);
+  on(a, spy);
 
   expect(a.val).toBe(0);
   a();

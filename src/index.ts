@@ -11,6 +11,8 @@ export {
   _sync,
   _isolate,
   _local,
+  _cycle,
+  _contextual,
 
   value,
   selector,
@@ -191,6 +193,9 @@ type SignalFactory = {
 type Local = {
   inject(fn: () => void): void;
 }
+type Contextual = {
+  stop: () => void;
+}
 
 //
 //  Entity builder implementation for value, signal and etc.
@@ -240,6 +245,8 @@ const key_join = "join";
 const key_value = "value";
 const key_as = "as";
 const key_op = "op";
+const key_inject = "inject";
+const key_stop = "stop";
 
 const obj_def_prop_value = (obj, key, value) => (
   obj_def_prop(obj, key, { value }), value
@@ -858,24 +865,6 @@ const throw_hook_error = () => {
 // Realar exportable api
 //
 
-const un = (unsub: () => void) => {
-  unsub && context_unsubs && context_unsubs.push(unsub)
-}
-
-const _on_once = (target, fn) => reactionable_subscribe(target, fn, 1);
-const _on = (target, fn) => reactionable_subscribe(target, fn);
-
-_on[key_once] = _on_once;
-
-const _sync = (target, fn) => reactionable_subscribe(target, fn, 0, 1);
-
-const local_inject = (fn) => {
-  if (!context_hooks) throw_hook_error();
-  fn && context_hooks.push(fn);
-}
-const _local = {} as Local;
-_local.inject = local_inject;
-
 const _isolate = (fn?: any) => {
   let unsubs;
   const stack = context_unsubs;
@@ -888,7 +877,42 @@ const _isolate = (fn?: any) => {
   return () => unsubs && call_fns_array(unsubs);
 }
 
+const un = (unsub: () => void) => {
+  unsub && context_unsubs && context_unsubs.push(unsub)
+}
 
+
+const local_inject = (fn) => {
+  if (!context_hooks) throw_hook_error();
+  fn && context_hooks.push(fn);
+}
+const _local = {} as Local;
+_local[key_inject] = local_inject;
+
+
+const _on_once = (target, fn) => reactionable_subscribe(target, fn, 1);
+const _on = (target, fn) => reactionable_subscribe(target, fn);
+
+_on[key_once] = _on_once;
+
+const _sync = (target, fn) => reactionable_subscribe(target, fn, 0, 1);
+
+const _cycle = (body) => {
+  const iter = () => {
+    const stack = stoppable_context;
+    stoppable_context = e[1];
+    try {
+      e[0]();
+    } finally {
+      stoppable_context = stack;
+    }
+  };
+  const e = un_expr(body, iter);
+  iter();
+}
+
+const _contextual = {} as Contextual;
+obj_def_prop(_contextual, key_stop, { get: () => stoppable_context });
 
 
 

@@ -1,14 +1,14 @@
-import { _signal, _on } from '../../src';
+import { _signal as signal, _on as on } from '../../src';
 
 test('should work basic operations with pre.filter method', async () => {
   const spy = jest.fn();
 
-  const a = _signal(0);
-  const b = _signal(0);
+  const a = signal(0);
+  const b = signal(0);
 
   const c = a.pre.filter(() => b.val);
 
-  _on(c, spy);
+  on(c, spy);
 
   c(1);
   b(1);
@@ -25,12 +25,12 @@ test('should work basic operations with pre.filter method', async () => {
 test('should work basic operations with filter method', async () => {
   const spy = jest.fn();
 
-  const a = _signal(0);
-  const b = _signal(0);
+  const a = signal(0);
+  const b = signal(0);
 
   const c = a.filter(() => b.val);
 
-  _on(c, spy);
+  on(c, spy);
 
   a(1);
   b(1);
