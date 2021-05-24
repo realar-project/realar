@@ -1,4 +1,4 @@
-import { _value, _selector, _transaction, cycle, _signal } from '../src';
+import { _value, _selector, _transaction, _cycle as cycle, _signal } from '../src';
 
 test('should work _value with call, get, set, update, sync', () => {
   const spy = jest.fn();

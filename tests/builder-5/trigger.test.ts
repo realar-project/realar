@@ -134,11 +134,11 @@ test('should work _signal.trigger wrapped', async () => {
 // test('should work ready resolved', async () => {
 //   const r = ready.resolved(1);
 //   expect(r.val).toBe(1);
-//   expect(await r).toBe(1);
+//   expect(await r.promise).toBe(1);
 // });
 
 // test('should work ready with undefined resolved', async () => {
 //   const r = ready.resolved();
 //   expect(r.val).toBe(void 0);
-//   expect(await r).toBe(void 0);
+//   expect(await r.promise).toBe(void 0);
 // });

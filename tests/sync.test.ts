@@ -1,4 +1,4 @@
-import { prop, cache, sync, value } from '../src';
+import { prop, cache, _sync as sync, _value as value } from '../src';
 
 test('should work basic operations with prop, cache and sync', () => {
   const spy = jest.fn();
@@ -11,7 +11,7 @@ test('should work basic operations with prop, cache and sync', () => {
   const a = new A();
   sync(() => a.b, spy);
   expect(spy).toBeCalledTimes(1);
-  expect(spy).toHaveBeenNthCalledWith(1, 11);
+  expect(spy).toHaveBeenNthCalledWith(1, 11, void 0);
 
   a.a += 10;
   expect(spy).toHaveBeenNthCalledWith(2, 21, 11);
@@ -22,12 +22,12 @@ test('should cache return value in sync', () => {
   const spy = jest.fn();
   const a = value(0);
 
-  sync(() => Math.floor(a[0]() / 2), spy);
+  sync(() => Math.floor(a.val / 2), spy);
   expect(spy).toBeCalledTimes(1);
-  expect(spy).toHaveBeenNthCalledWith(1, 0);
+  expect(spy).toHaveBeenNthCalledWith(1, 0, void 0);
 
-  a[1](1);
-  a[1](2);
+  a.set(1);
+  a.set(2);
   expect(spy).toHaveBeenNthCalledWith(2, 1, 0);
   expect(spy).toBeCalledTimes(2);
 });

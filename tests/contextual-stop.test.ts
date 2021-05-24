@@ -1,13 +1,10 @@
-import { cycle, on, stoppable, value } from '../src';
+import { _cycle as cycle, _value as value, _contextual as contextual } from '../src';
 
 test('should work stoppable stop method', () => {
   const spy = jest.fn();
 
-  const a = value(0).wrap((v: number) => {
-    if (v % 2) stoppable().stop();
-    return v;
-  });
-  a.watch(spy);
+  const a = value(0).pre.filter((v: number) => !(v % 2));
+  a.to(spy);
 
   a(1);
   a(2);
@@ -22,10 +19,10 @@ test('should work stoppable in cycle not first iteration', () => {
   const spy = jest.fn();
 
   const a = value(1);
-  a.watch(spy);
+  a.to(spy);
   cycle(() => {
     a.val += a.val;
-    if (a.val > 10) stoppable().stop();
+    if (a.val > 10) contextual.stop();
   });
 
   expect(spy).toHaveBeenNthCalledWith(4, 16, 8);
@@ -36,10 +33,10 @@ test('should work stoppable in cycle first iteration', () => {
   const spy = jest.fn();
 
   const a = value(1);
-  a.watch(spy);
+  a.to(spy);
 
   cycle(() => {
-    stoppable().stop();
+    contextual.stop();
     a.update(v => v + v);
   });
 
@@ -49,6 +46,6 @@ test('should work stoppable in cycle first iteration', () => {
 
 test('should throw exception if run stoppable outside of stoppable context', () => {
   expect(() => {
-    stoppable();
+    contextual.stop;
   }).toThrow('Parent context not found');
 });

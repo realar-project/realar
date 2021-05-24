@@ -1,4 +1,4 @@
-import { prop, on } from '../src';
+import { prop, _on as on } from '../src';
 
 test('should work prop decorator with first set', () => {
   const spy = jest.fn();
