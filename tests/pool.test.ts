@@ -1,4 +1,4 @@
-import { pool, _contextual as contextual } from '../src';
+import { pool, contextual } from '../src';
 import { delay } from './lib';
 
 test('should work basic operations with pool', async () => {

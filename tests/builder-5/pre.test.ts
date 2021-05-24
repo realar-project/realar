@@ -1,4 +1,4 @@
-import { _signal as signal, _on as on } from '../../src';
+import { signal, on } from '../../src';
 
 test('should work basic operations with wrap and signal', async () => {
   const spy = jest.fn();

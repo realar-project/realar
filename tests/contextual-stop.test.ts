@@ -1,4 +1,4 @@
-import { _cycle as cycle, _value as value, _contextual as contextual } from '../src';
+import { cycle, value, contextual } from '../src';
 
 test('should work stoppable stop method', () => {
   const spy = jest.fn();

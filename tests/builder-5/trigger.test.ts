@@ -1,4 +1,4 @@
-import { _on as on, _signal as signal } from '../../src';
+import { on, signal } from '../../src';
 import { delay } from '../lib';
 
 test('should work signal.trigger with one value', async () => {

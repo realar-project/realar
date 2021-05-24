@@ -1,4 +1,4 @@
-import { _sync as sync, _value as value, _signal as signal } from '../../src';
+import { sync, value, signal } from '../../src';
 
 test('should work basic operations with value', () => {
   const spy = jest.fn();

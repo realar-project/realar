@@ -1,4 +1,4 @@
-import { _isolate as isolate, shared, free, un } from '../src';
+import { isolate, shared, free, un } from '../src';
 
 test('should work basic operations with isolate', async () => {
   // const destr_1 = jest.fn();

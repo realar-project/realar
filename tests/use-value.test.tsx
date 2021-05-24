@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { _value as value, observe, useValue } from '../src';
+import { value, observe, useValue } from '../src';
 
 test('should work useValue function', () => {
   const spy = jest.fn();

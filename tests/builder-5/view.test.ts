@@ -1,4 +1,4 @@
-import { _signal as signal, _on as on, _value as value, _transaction as transaction } from '../../src';
+import { signal, on, value, transaction } from '../../src';
 
 test('should work basic operations with view methods for value', () => {
   const spy = jest.fn();

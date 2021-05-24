@@ -1,4 +1,4 @@
-import { prop, cache, _sync as sync, _value as value } from '../src';
+import { prop, cache, sync, value } from '../src';
 
 test('should work basic operations with prop, cache and sync', () => {
   const spy = jest.fn();

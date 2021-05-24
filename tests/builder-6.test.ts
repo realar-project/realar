@@ -1,9 +1,9 @@
-import { _value, _selector, _transaction, _cycle as cycle, _signal } from '../src';
+import { value, selector, transaction, cycle, signal } from '../src';
 
-test('should work _value with call, get, set, update, sync', () => {
+test('should work value with call, get, set, update, sync', () => {
   const spy = jest.fn();
   let t, r, k;
-  const v = _value(0);
+  const v = value(0);
   const get = v.get;
 
   expect(get()).toBe(0);
@@ -36,72 +36,72 @@ test('should work _value with call, get, set, update, sync', () => {
   spy.mockReset();
 });
 
-test('should work _value with reset', () => {
-  const spy_value = jest.fn();
-  const v = _value(0);
-  const k = _value(0);
-  const m = _value(0);
+test('should work value with reset', () => {
+  const spyvalue = jest.fn();
+  const v = value(0);
+  const k = value(0);
+  const m = value(0);
   let t;
 
-  v.sync(spy_value);
-  expect(spy_value).toHaveBeenCalledWith(0, void 0); spy_value.mockReset();
+  v.sync(spyvalue);
+  expect(spyvalue).toHaveBeenCalledWith(0, void 0); spyvalue.mockReset();
 
   (t = v.reset); t();
-  expect(spy_value).toBeCalledTimes(0);
+  expect(spyvalue).toBeCalledTimes(0);
 
   v(5);
-  expect(spy_value).toHaveBeenCalledWith(5, 0); spy_value.mockReset();
+  expect(spyvalue).toHaveBeenCalledWith(5, 0); spyvalue.mockReset();
   expect(v.dirty.val).toBe(true);
 
   t();
   expect(v.dirty.val).toBe(false);
-  expect(spy_value).toHaveBeenCalledWith(0, 5);
+  expect(spyvalue).toHaveBeenCalledWith(0, 5);
   v(10);
-  spy_value.mockReset();
+  spyvalue.mockReset();
 
   (t = v.reset); (t = t.by); t(k).reset.by(() => m.val);
   k(1);
-  expect(spy_value).toHaveBeenCalledWith(0, 10); v(10); spy_value.mockReset();
+  expect(spyvalue).toHaveBeenCalledWith(0, 10); v(10); spyvalue.mockReset();
   m(1);
-  expect(spy_value).toHaveBeenCalledWith(0, 10); v(10); spy_value.mockReset();
+  expect(spyvalue).toHaveBeenCalledWith(0, 10); v(10); spyvalue.mockReset();
 });
 
-test('should work _value with reinit', () => {
-  const spy_value = jest.fn();
-  const v = _value(0);
-  const k = _value(0);
-  const m = _value(0);
+test('should work value with reinit', () => {
+  const spyvalue = jest.fn();
+  const v = value(0);
+  const k = value(0);
+  const m = value(0);
   let t;
 
-  v.sync(spy_value);
-  expect(spy_value).toHaveBeenCalledWith(0, void 0); spy_value.mockReset();
+  v.sync(spyvalue);
+  expect(spyvalue).toHaveBeenCalledWith(0, void 0); spyvalue.mockReset();
 
   (t = v.reinit); t(10);
-  expect(spy_value).toHaveBeenCalledWith(10, 0); spy_value.mockReset();
+  expect(spyvalue).toHaveBeenCalledWith(10, 0); spyvalue.mockReset();
   expect(v.dirty.val).toBe(false);
   expect(v.val).toBe(10);
 
   v(0);
-  expect(spy_value).toHaveBeenCalledWith(0, 10); spy_value.mockReset();
+  expect(spyvalue).toHaveBeenCalledWith(0, 10); spyvalue.mockReset();
   expect(v.dirty.val).toBe(true);
 
   (t = v.reset); t();
   expect(v.dirty.val).toBe(false);
-  expect(spy_value).toHaveBeenCalledWith(10, 0); spy_value.mockReset();
+  expect(spyvalue).toHaveBeenCalledWith(10, 0); spyvalue.mockReset();
 
   (t = v.reinit); (t = t.by); t(k).reinit.by(() => m.val);
   k(1);
-  expect(spy_value).toHaveBeenCalledWith(1, 10); spy_value.mockReset();
+  expect(spyvalue).toHaveBeenCalledWith(1, 10); spyvalue.mockReset();
   expect(v.dirty.val).toBe(false);
 
   m(5);
-  expect(spy_value).toHaveBeenCalledWith(5, 1); spy_value.mockReset();
+  expect(spyvalue).toHaveBeenCalledWith(5, 1); spyvalue.mockReset();
   expect(v.dirty.val).toBe(false);
 });
 
-test('should work _value with dirty', () => {
+test('should work value with dirty', () => {
   const spy = jest.fn();
-  const v = _value(0);
+  const v = value(0);
   const dirty = v.dirty;
 
   expect(typeof dirty).toBe('object');
@@ -135,11 +135,11 @@ test('should work _value with dirty', () => {
   expect(dirty.val).toBe(false);
 });
 
-test('should work _value with update.by', () => {
-  const v = _value(1);
-  const k = _value(0);
-  const m = _value(0);
-  const p = _value(0);
+test('should work value with update.by', () => {
+  const v = value(1);
+  const k = value(0);
+  const m = value(0);
+  const p = value(0);
 
   v
     .update.by(k, (_v, _k, _k_prev) => _v * 100 + _k * 10 + _k_prev)
@@ -156,8 +156,8 @@ test('should work _value with update.by', () => {
   expect(v.get()).toBe(10);
 });
 
-test('should work _value with val', () => {
-  const v = _value(1);
+test('should work value with val', () => {
+  const v = value(1);
   expect(v.val).toBe(1);
   v.val += 1;
   expect(v.val).toBe(2);
@@ -172,10 +172,10 @@ test('should work _value with val', () => {
   expect(v.dirty.val).toBe(false);
 });
 
-test('should work _value with to, to.once', () => {
+test('should work value with to, to.once', () => {
   const spy_to = jest.fn();
   const spy_to_once = jest.fn();
-  const v = _value(0);
+  const v = value(0);
   let t;
   (t = v.to); t(spy_to);
   (t = t.once); t(spy_to_once);
@@ -196,11 +196,11 @@ test('should work _value with to, to.once', () => {
   expect(spy_to_once).toHaveBeenCalledTimes(0);
 });
 
-test('should work _value with select', () => {
+test('should work value with select', () => {
   const spy = jest.fn();
   let t, s;
-  const v = _value(5);
-  const k = _value(0);
+  const v = value(5);
+  const k = value(0);
 
   (t = v.select); s = t((_v) => Math.abs(_v - k.val)).sync(spy);
 
@@ -220,10 +220,10 @@ test('should work _value with select', () => {
   expect(s.get()).toBe(6);
 });
 
-test('should work _value with view', () => {
+test('should work value with view', () => {
   const spy = jest.fn();
   let t;
-  const v = _value(5);
+  const v = value(5);
   const w = ((t = v.view), t((_v) => _v + _v));
   expect(w.val).toBe(10);
   w.val = 16;
@@ -250,9 +250,9 @@ test('should work _value with view', () => {
   expect(v.dirty.val).toBe(false);
 });
 
-test('should work _value with nested view', () => {
+test('should work value with nested view', () => {
   let t;
-  const v = _value(5);
+  const v = value(5);
   const w = ((t = v.view), t((_v) => _v + _v));
   const k = w.view((_v) => _v + _v);
 
@@ -263,9 +263,9 @@ test('should work _value with nested view', () => {
   expect(v.val).toBe(1);
 });
 
-test('should work _value with pre', () => {
+test('should work value with pre', () => {
   let t;
-  const v = _value(5);
+  const v = value(5);
   const w = ((t = v.pre), t((_v) => _v + _v));
   const k = w.pre((_v) => _v + 100);
 
@@ -279,10 +279,10 @@ test('should work _value with pre', () => {
   expect(k.val).toBe(202);
 });
 
-test('should work _value with pre.filter, pre.filter.not', () => {
+test('should work value with pre.filter, pre.filter.not', () => {
   let t;
-  const v = _value(5);
-  const f = _value(0);
+  const v = value(5);
+  const f = value(0);
 
   const w = v.pre.filter((_v) => _v !== 10);
   const k = ((t = w.pre.filter), (t = t.not), t(f));
@@ -321,10 +321,10 @@ test('should work _value with pre.filter, pre.filter.not', () => {
   expect(v.val).toBe(0);
 });
 
-test('should work _value with flow', () => {
+test('should work value with flow', () => {
   let t;
-  const v = _value(5);
-  const x = _value(1);
+  const v = value(5);
+  const x = value(1);
   const w = ((t = v.flow), t((_v) => _v + _v));
   const k = w.flow((_v) => _v + 100);
   const p = k.flow((_v, _v_prev) => _v * 100 + (_v_prev || 0) * 10 + x.val);
@@ -342,10 +342,10 @@ test('should work _value with flow', () => {
 });
 
 
-test('should work _value with .filter, .filter.not', () => {
+test('should work value with .filter, .filter.not', () => {
   let t;
-  const v = _value(5);
-  const f = _value(0);
+  const v = value(5);
+  const f = value(0);
 
   const w = v.filter((_v) => _v !== 10);
   const k = ((t = w.filter), (t = t.not), (t = t(f)));
@@ -386,8 +386,8 @@ test('should work _value with .filter, .filter.not', () => {
   expect(w.val).toBe(11);
 });
 
-test('should work _value with readable flow', () => {
-  const v = _value("Hi");
+test('should work value with readable flow', () => {
+  const v = value("Hi");
   const f = v.select((_v) => _v[1]).flow((v) => v + v);
 
   expect(typeof f).toBe("object");
@@ -402,8 +402,8 @@ test('should work _value with readable flow', () => {
   expect(f.val).toBe('++');
 });
 
-test('should work _value with promise for value, select, view, pre, flow, readable flow', async () => {
-  const v = _value(0);
+test('should work value with promise for value, select, view, pre, flow, readable flow', async () => {
+  const v = value(0);
   const s = v.select(t => t + 1);
   const w = v.view(t => t + 2);
   const p = v.pre(t => t - 1);
@@ -464,9 +464,9 @@ test('should work _value with promise for value, select, view, pre, flow, readab
   ]);
 });
 
-test('should work _value.trigger common support and promise', async () => {
+test('should work value.trigger common support and promise', async () => {
   let t;
-  const v = _value.trigger(0);
+  const v = value.trigger(0);
 
   let promise = v.promise;
   expect(v.promise).toBe(promise);
@@ -501,9 +501,9 @@ test('should work _value.trigger common support and promise', async () => {
   expect(v.promise).toBe(promise);
 });
 
-test('should work _value.trigger with select, update.by, flow, pre, view', () => {
-  const p = _value('');
-  const v = _value.trigger('e');
+test('should work value.trigger with select, update.by, flow, pre, view', () => {
+  const p = value('');
+  const v = value.trigger('e');
   const t = v.pre((k) => 'h' + k).view((k) => k + 'lo').update.by(p);
   const s = t.select((v) => v.slice(0, 3));
   const f = t.flow((v) => v.slice(-3) + p.val);
@@ -524,9 +524,9 @@ test('should work _value.trigger with select, update.by, flow, pre, view', () =>
   expect(f.val).toBe('elox');
 });
 
-test('should work _value.trigger.flag and .trigger.flag.invert', () => {
-  const f = _value.trigger.flag();
-  const i = _value.trigger.flag.invert();
+test('should work value.trigger.flag and .trigger.flag.invert', () => {
+  const f = value.trigger.flag();
+  const i = value.trigger.flag.invert();
 
   expect(f.val).toBe(false);
   expect(i.val).toBe(true);
@@ -544,12 +544,12 @@ test('should work _value.trigger.flag and .trigger.flag.invert', () => {
   expect(i.val).toBe(false);
 });
 
-test('should work _selector basic support', () => {
+test('should work selector basic support', () => {
   let t;
   const spy = jest.fn();
-  const a = _value(0);
-  const b = _value(1);
-  const s = _selector(() => a.val * 100 + b.val);
+  const a = value(0);
+  const b = value(1);
+  const s = selector(() => a.val * 100 + b.val);
 
   expect(typeof s).toBe('object');
   expect(s.to).not.toBeUndefined();
@@ -578,7 +578,7 @@ test('should work _selector basic support', () => {
   b.val = 2;
   expect(spy).toBeCalledWith(102, 101); spy.mockReset();
 
-  _transaction(() => {
+  transaction(() => {
     a.val = 0;
     b.val = 102;
   });
@@ -587,12 +587,12 @@ test('should work _selector basic support', () => {
   expect(b.val).toBe(102);
 });
 
-test('should work _selector with to, filter, view', () => {
+test('should work selector with to, filter, view', () => {
   let t;
   const spy = jest.fn();
-  const b = _value(1);
-  const v = _value(0);
-  const s = _selector(() => v.val + 1);
+  const b = value(1);
+  const v = value(0);
+  const s = selector(() => v.val + 1);
   const f = s.filter.not(b);
   const w = s.view((v) => v + 5);
 
@@ -613,11 +613,11 @@ test('should work _selector with to, filter, view', () => {
   expect(f.val).toBe(3);
 });
 
-test('should work _value.from with one argument', () => {
+test('should work value.from with one argument', () => {
   let t;
   const spy = jest.fn();
-  const a = _value(0);
-  const v = _value.from(() => a.val + 1);
+  const a = value(0);
+  const v = value.from(() => a.val + 1);
   expect(v.val).toBe(1);
   (t = v.to), t(spy);
 
@@ -641,12 +641,12 @@ test('should work _value.from with one argument', () => {
   expect(v.dirty).toBeUndefined();
 });
 
-test('should work _value.from with two arguments', () => {
+test('should work value.from with two arguments', () => {
   let t;
   const spy = jest.fn();
-  const u = _value(0);
-  const a = _value(0);
-  const v = _value.from(() => a.val + 1, (v) => a(v + v));
+  const u = value(0);
+  const a = value(0);
+  const v = value.from(() => a.val + 1, (v) => a(v + v));
   expect(v.val).toBe(1);
   (t = v.to), (t = t(spy));
   (t = t.update), (t = t.by), t(() => u.val);
@@ -679,10 +679,10 @@ test('should work _value.from with two arguments', () => {
   expect(spy).toBeCalledWith(3, 2); spy.mockReset();
 });
 
-test('should work _value.select.multiple', () => {
+test('should work value.select.multiple', () => {
   let t;
-  const k = _value(0);
-  const v = _value(1);
+  const k = value(0);
+  const v = value(1);
   (t = v.select.multiple), t = t({
     a: (_v) => _v + 1,
     b: (_v) => _v + k.val,
@@ -728,10 +728,10 @@ test('should work _value.select.multiple', () => {
   });
 });
 
-test('should work track-untrack for _value with select', () => {
-  const a = _value(0);
+test('should work track-untrack for value with select', () => {
+  const a = value(0);
 
-  const v = _value(0);
+  const v = value(0);
   const p = v.select((_v) => _v + a.val);
   const t = v.select.track((_v) => _v + a.val);
   const u = v.select.untrack((_v) => _v + a.val)
@@ -749,10 +749,10 @@ test('should work track-untrack for _value with select', () => {
   expect(u.val).toBe(1);
 });
 
-test('should work track-untrack for _value with select.multiple', () => {
-  const a = _value(0);
+test('should work track-untrack for value with select.multiple', () => {
+  const a = value(0);
 
-  const v = _value(0);
+  const v = value(0);
   const p = v.select.multiple({ p: (_v) => _v + a.val }).p;
   const t = v.select.multiple.track({t: (_v) => _v + a.val }).t;
   const u = v.select.multiple.untrack({u: (_v) => _v + a.val }).u;
@@ -770,10 +770,10 @@ test('should work track-untrack for _value with select.multiple', () => {
   expect(u.val).toBe(1);
 });
 
-test('should work track-untrack for _value with flow', () => {
-  const a = _value(0);
+test('should work track-untrack for value with flow', () => {
+  const a = value(0);
 
-  const v = _value(0);
+  const v = value(0);
   const p = v.flow((_v) => _v + a.val);
   const t = v.flow.track((_v) => _v + a.val);
   const u = v.flow.untrack((_v) => _v + a.val)
@@ -791,10 +791,10 @@ test('should work track-untrack for _value with flow', () => {
   expect(u.val).toBe(1);
 });
 
-test('should work track-untrack for _value with filter', () => {
-  const a = _value(1);
+test('should work track-untrack for value with filter', () => {
+  const a = value(1);
 
-  const v = _value(0);
+  const v = value(0);
   const p = v.filter(a);
   const t = v.filter.track(a);
   const u = v.filter.untrack(a);
@@ -817,10 +817,10 @@ test('should work track-untrack for _value with filter', () => {
   expect(u.val).toBe(2);
 });
 
-test('should work track-untrack for _value with filter.not', () => {
-  const a = _value(0);
+test('should work track-untrack for value with filter.not', () => {
+  const a = value(0);
 
-  const v = _value(0);
+  const v = value(0);
   const p = v.filter.not(a);
   const t = v.filter.not.track(a);
   const u = v.filter.not.untrack(a);
@@ -843,10 +843,10 @@ test('should work track-untrack for _value with filter.not', () => {
   expect(u.val).toBe(2);
 });
 
-test('should work track-untrack for _value with view', () => {
+test('should work track-untrack for value with view', () => {
   let t;
-  const f = _value(0);
-  const v = _value(0);
+  const f = value(0);
+  const v = value(0);
 
   const a = v.view((_v) => _v + f.val);
   const b = ((t = v.view.track), t((_v) => _v + f.val));
@@ -875,10 +875,10 @@ test('should work track-untrack for _value with view', () => {
   expect(spy_c).toBeCalledTimes(2);
 });
 
-test('should work track-untrack for _value with pre', () => {
+test('should work track-untrack for value with pre', () => {
   let t;
-  const f = _value(0);
-  const v = _value(0);
+  const f = value(0);
+  const v = value(0);
 
   const a = v.pre((_v) => _v + f.val);
   const b = ((t = v.pre.track), t((_v) => _v + f.val));
@@ -907,10 +907,10 @@ test('should work track-untrack for _value with pre', () => {
   expect(spy_c).toBeCalledTimes(1);
 });
 
-test('should work track-untrack for _value with pre.filter', () => {
+test('should work track-untrack for value with pre.filter', () => {
   let t;
-  const f = _value(0);
-  const v = _value(0);
+  const f = value(0);
+  const v = value(0);
 
   const a = v.pre.filter(f);
   const b = ((t = v.pre.filter.track), t(f));
@@ -934,10 +934,10 @@ test('should work track-untrack for _value with pre.filter', () => {
   expect(spy_c).toBeCalledTimes(1);
 });
 
-test('should work track-untrack for _value with pre.filter.not', () => {
+test('should work track-untrack for value with pre.filter.not', () => {
   let t;
-  const f = _value(0);
-  const v = _value(0);
+  const f = value(0);
+  const v = value(0);
 
   const a = v.pre.filter.not(f);
   const b = ((t = v.pre.filter.not.track), t(f));
@@ -961,13 +961,13 @@ test('should work track-untrack for _value with pre.filter.not', () => {
   expect(spy_c).toBeCalledTimes(1);
 });
 
-test('should work track-untrack for _value with update', () => {
+test('should work track-untrack for value with update', () => {
   let t;
-  const f = _value(0);
+  const f = value(0);
 
-  const a = _value(0);
-  const b = _value(0);
-  const c = _value(0);
+  const a = value(0);
+  const b = value(0);
+  const c = value(0);
 
   const spy_a = jest.fn();
   const spy_b = jest.fn();
@@ -987,10 +987,10 @@ test('should work track-untrack for _value with update', () => {
   expect(spy_c).toBeCalledTimes(1);
 });
 
-test('should work _signal basic support', () => {
+test('should work signal basic support', () => {
   let t, z;
   const spy = jest.fn();
-  const v = _signal(0);
+  const v = signal(0);
 
   (t = v.sync), (t = t(spy));
   expect(spy).toBeCalledWith(0, void 0); spy.mockReset();
@@ -1005,7 +1005,7 @@ test('should work _signal basic support', () => {
   (z = t.dirty), (z = z.get);
   expect(z()).toBe(false);
 
-  const u = ((z = _signal().view), (z = z(_u => _u + 1).pre), (z = z(_u => _u * 10).flow), (z = z(_u => _u * 2)));
+  const u = ((z = signal().view), (z = z(_u => _u + 1).pre), (z = z(_u => _u * 10).flow), (z = z(_u => _u * 2)));
   (t = t.update), (t = t.by), (t = t(u));
   u(1);
   expect(t.val).toBe(22);
@@ -1031,13 +1031,13 @@ test('should work _signal basic support', () => {
   expect(v.dirty.val).toBe(true);
 });
 
-test('should work track-untrack for _signal with flow', () => {
+test('should work track-untrack for signal with flow', () => {
   const spy_p = jest.fn();
   const spy_t = jest.fn();
   const spy_u = jest.fn();
-  const a = _signal(0);
+  const a = signal(0);
 
-  const v = _signal(0);
+  const v = signal(0);
   v.flow((_v) => _v + a.val).to(spy_p);
   v.flow.track((_v) => _v + a.val).to(spy_t);
   v.flow.untrack((_v) => _v + a.val).to(spy_u);
@@ -1052,13 +1052,13 @@ test('should work track-untrack for _signal with flow', () => {
   expect(spy_u).toBeCalledTimes(0);
 });
 
-test('should work track-untrack for _signal with filter', () => {
+test('should work track-untrack for signal with filter', () => {
   const spy_p = jest.fn();
   const spy_t = jest.fn();
   const spy_u = jest.fn();
-  const a = _signal(1);
+  const a = signal(1);
 
-  const v = _signal(0);
+  const v = signal(0);
   v.filter(a).to(spy_p);
   v.filter.track(a).to(spy_t);
   v.filter.untrack(a).to(spy_u);
@@ -1073,13 +1073,13 @@ test('should work track-untrack for _signal with filter', () => {
   expect(spy_u).toBeCalledTimes(0);
 });
 
-test('should work track-untrack for _signal with filter.not', () => {
+test('should work track-untrack for signal with filter.not', () => {
   const spy_p = jest.fn();
   const spy_t = jest.fn();
   const spy_u = jest.fn();
-  const a = _signal(0);
+  const a = signal(0);
 
-  const v = _signal(0);
+  const v = signal(0);
   v.filter.not(a).to(spy_p);
   v.filter.not.track(a).to(spy_t);
   v.filter.not.untrack(a).to(spy_u);
@@ -1094,11 +1094,11 @@ test('should work track-untrack for _signal with filter.not', () => {
   expect(spy_u).toBeCalledTimes(0);
 });
 
-test('should work _signal.from with one argument', () => {
+test('should work signal.from with one argument', () => {
   let t;
   const spy = jest.fn();
-  const a = _signal(0);
-  const v = _signal.from(() => a.val + 1);
+  const a = signal(0);
+  const v = signal.from(() => a.val + 1);
   expect(v.val).toBe(1);
   (t = v.to), t(spy);
 
@@ -1122,12 +1122,12 @@ test('should work _signal.from with one argument', () => {
   expect(v.dirty).toBeUndefined();
 });
 
-test('should work _signal.from with two arguments', () => {
+test('should work signal.from with two arguments', () => {
   let t;
   const spy = jest.fn();
-  const u = _signal(0);
-  const a = _signal(0);
-  const v = _signal.from(() => a.val + 1, (v) => a(v + v));
+  const u = signal(0);
+  const a = signal(0);
+  const v = signal.from(() => a.val + 1, (v) => a(v + v));
   expect(v.val).toBe(1);
   (t = v.to), (t = t(spy));
   (t = t.update), (t = t.by), t(u);
@@ -1160,14 +1160,14 @@ test('should work _signal.from with two arguments', () => {
   expect(spy).toBeCalledWith(1, 1); spy.mockReset();
 });
 
-test('should work _signal.trigger', () => {
+test('should work signal.trigger', () => {
   const spy_t = jest.fn();
   const spy_f = jest.fn();
   const spy_u = jest.fn();
 
-  const t = _signal.trigger();
-  const f = _signal.trigger.flag();
-  const u = _signal.trigger.flag.invert();
+  const t = signal.trigger();
+  const f = signal.trigger.flag();
+  const u = signal.trigger.flag.invert();
 
   t.flow().flow().sync(spy_t)();
   f.flow().flow().sync(spy_f)();
@@ -1203,14 +1203,14 @@ test('should work _signal.trigger', () => {
 test('should work value.combine', () => {
   const spy_v = jest.fn();
   const spy_w = jest.fn();
-  const a = _signal(0);
+  const a = signal(0);
 
-  _value.combine({
+  value.combine({
     a: a,
     b: a.flow(_a => _a + 1),
     c: () => a.val
   }).sync(spy_v);
-  _value.combine([
+  value.combine([
     a,
     a.flow(_a => _a + 1),
     () => a.val
@@ -1226,17 +1226,17 @@ test('should work value.combine', () => {
   expect(spy_w).toBeCalledWith([ 1, 2, 1 ], [ 0, 1, 0 ]);
 });
 
-test('should work _signal.combine', () => {
+test('should work signal.combine', () => {
   const spy_v = jest.fn();
   const spy_w = jest.fn();
-  const a = _signal(0);
+  const a = signal(0);
 
-  _signal.combine({
+  signal.combine({
     a: a,
     b: a.flow(_a => _a + 1),
     c: () => a.val
   }).sync(spy_v);
-  _signal.combine([
+  signal.combine([
     a,
     a.flow(_a => _a + 1),
     () => a.val
@@ -1254,8 +1254,8 @@ test('should work _signal.combine', () => {
 
 test('should work value.join', () => {
   const spy = jest.fn();
-  const a = _signal(0);
-  const z = _value(0);
+  const a = signal(0);
+  const z = value(0);
 
   z.join([
     a,
@@ -1276,8 +1276,8 @@ test('should work value.join', () => {
 
 test('should work signal.join', () => {
   const spy = jest.fn();
-  const a = _signal(0);
-  const z = _signal(0);
+  const a = signal(0);
+  const z = signal(0);
 
   z.join([
     a,
@@ -1296,13 +1296,13 @@ test('should work signal.join', () => {
   expect(spy).toBeCalledWith([ 1, 1, 2, 1 ], [ 0, 1, 2, 1 ]);
 });
 
-test('should work track-untrack for _value with join', () => {
+test('should work track-untrack for value with join', () => {
   const spy_p = jest.fn();
   const spy_t = jest.fn();
   const spy_u = jest.fn();
-  const a = _signal(0);
+  const a = signal(0);
 
-  const v = _value(0);
+  const v = value(0);
   v.join([a]).sync(spy_p);
   v.join.track([a]).sync(spy_t);
   v.join.untrack([a]).sync(spy_u);
@@ -1324,13 +1324,13 @@ test('should work track-untrack for _value with join', () => {
   expect(spy_u).toBeCalledTimes(0);
 });
 
-test('should work track-untrack for _signal with join', () => {
+test('should work track-untrack for signal with join', () => {
   const spy_p = jest.fn();
   const spy_t = jest.fn();
   const spy_u = jest.fn();
-  const a = _signal(0);
+  const a = signal(0);
 
-  const v = _signal(0);
+  const v = signal(0);
   v.join([a]).sync(spy_p);
   v.join.track([a]).sync(spy_t);
   v.join.untrack([a]).sync(spy_u);
@@ -1348,11 +1348,11 @@ test('should work track-untrack for _signal with join', () => {
   expect(spy_u).toBeCalledTimes(0);
 });
 
-test('should work _signal with as.value', () => {
+test('should work signal with as.value', () => {
   const spy_s = jest.fn();
   const spy_v = jest.fn();
 
-  const s = _signal(0).sync(spy_s).op(s => {
+  const s = signal(0).sync(spy_s).op(s => {
     s.as.value().sync(spy_v);
   });
 

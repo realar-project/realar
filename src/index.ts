@@ -22,27 +22,22 @@ import rb from 'reactive-box';
 //
 
 export {
-  _value,
-  _selector,
-  _transaction,
-  _signal,
-  _untrack,
-  _on,
-  _sync,
-  _isolate,
-  _local,
-  _cycle,
-  _contextual,
+  value,
+  selector,
+  transaction,
+  signal,
+  untrack,
+  on,
+  sync,
+  isolate,
+  local,
+  cycle,
+  contextual,
 
   prop,
   cache,
-  // on,
   un,
-  // sync,
-  // cycle,
   pool,
-  // stoppable,
-  // isolate,
   shared,
   initial,
   observe,
@@ -121,7 +116,7 @@ type Pool<K> = K & {
 
 
 //
-// Global definitions
+// React optional require
 //
 
 let react;
@@ -151,21 +146,21 @@ try {
   }) as any;
 }
 
-// const key = 'val';
+
+//
+// Global Realar definitions
+//
+
+
 const shareds = new Map();
 
 let initial_data: any;
 let context_unsubs: any;
 let context_hooks: any;
 let shared_unsubs = [] as any;
-// let is_sync: any;
-// let is_stop_signal: any;
 let is_observe: any;
 let scope_context: any;
 let stoppable_context: any;
-
-// const def_prop = Object.defineProperty;
-
 
 
 
@@ -355,7 +350,7 @@ const reactionable_subscribe = (target, fn, is_once?, is_sync?) => {
     fn(is_once ? target() : (value = e[0]()), prev);
   });
   value = e[0]();
-  if (is_sync) _untrack(fn.bind(const_undef, value, const_undef));
+  if (is_sync) untrack(fn.bind(const_undef, value, const_undef));
 }
 
 const make_join_entity = (fn_get, join_cfg, is_signal?, set?, is_untrack?) => {
@@ -415,7 +410,7 @@ const prop_factory_dirty_required_initial = (ctx) => {
 
 
 
-const trait_ent_update = (ctx, fn) => (fn && ctx[key_set](fn(_untrack(ctx[key_get]))));
+const trait_ent_update = (ctx, fn) => (fn && ctx[key_set](fn(untrack(ctx[key_get]))));
 const trait_ent_update_untrack = make_trait_ent_pure_fn_untrack(trait_ent_update);
 const trait_ent_update_by = (ctx, src, fn) => (
   reactionable_subscribe(src, fn
@@ -764,7 +759,7 @@ obj_def_prop_factory(
 const make_trigger = (initial, has_inverted_to?, is_signal?) => {
   const handler = box(initial, () => (handler[key_touched_internal] = 1), is_signal && pure_arrow_fn_returns_undef);
   const set = has_inverted_to
-    ? () => { handler[key_touched_internal] || handler[1](!_untrack(handler[0])) }
+    ? () => { handler[key_touched_internal] || handler[1](!untrack(handler[0])) }
     : (v) => { handler[key_touched_internal] || handler[1](v) };
   handler[key_reset_promise_by_reset] = 1;
   handler[key_is_signal] = is_signal;
@@ -789,12 +784,12 @@ const make_combine = (cfg, is_signal?) => {
 
 
 
-const _selector: SelectorFactory = (fn) => (
+const selector: SelectorFactory = (fn) => (
   fill_entity(sel(fn).slice(0, 1), proto_entity_readable)
 )
 
 
-const _value: ValueFactory = ((initial) => (
+const value: ValueFactory = ((initial) => (
   fill_entity(box(initial), proto_entity_writtable_leaf, 1, initial)
 )) as any;
 
@@ -810,12 +805,12 @@ const value_combine = (cfg) => make_combine(cfg);
 
 value_trigger_flag[key_invert] = value_trigger_flag_invert;
 value_trigger[key_flag] = value_trigger_flag;
-_value[key_trigger] = value_trigger as any;
-_value[key_from] = value_from;
-_value[key_combine] = value_combine;
+value[key_trigger] = value_trigger as any;
+value[key_from] = value_from;
+value[key_combine] = value_combine;
 
 
-const _signal: SignalFactory = ((initial) => {
+const signal: SignalFactory = ((initial) => {
   const h = box(initial, 0 as any, pure_arrow_fn_returns_undef);
   h[key_is_signal] = 1;
   return fill_entity(h, proto_entity_writtable_leaf, 1, initial)
@@ -824,19 +819,19 @@ const _signal: SignalFactory = ((initial) => {
 const signal_trigger = (initial) => make_trigger(initial, 0, 1);
 const signal_trigger_flag = (initial) => make_trigger(!!initial, 1, 1);
 const signal_trigger_flag_invert = (initial) => make_trigger(!initial, 1, 1);
-const _signal_from = (get, set?) => (
+const signal_from = (get, set?) => (
   (get = [get[key_get] || get],
   (get[key_is_signal] = 1),
   set && ((set = set[key_set] || set), (get[1] = set.bind()))),
   fill_entity(get, set ? proto_entity_writtable : proto_entity_readable)
 );
-const _signal_combine = (cfg) => make_combine(cfg, 1);
+const signal_combine = (cfg) => make_combine(cfg, 1);
 
 signal_trigger_flag[key_invert] = signal_trigger_flag_invert;
 signal_trigger[key_flag] = signal_trigger_flag;
-_signal[key_trigger] = signal_trigger as any;
-_signal[key_from] = _signal_from;
-_signal[key_combine] = _signal_combine;
+signal[key_trigger] = signal_trigger as any;
+signal[key_from] = signal_from;
+signal[key_combine] = signal_combine;
 
 
 
@@ -862,28 +857,28 @@ const internal_isolate = () => {
 // Realar exportable api
 //
 
-const _transaction = ((fn) => {
+const transaction = ((fn) => {
   const finish = internal_transaction();
   try { return fn() }
   finally { finish() }
 }) as Transaction;
-_transaction[key_unsafe] = internal_transaction;
+transaction[key_unsafe] = internal_transaction;
 
-const _untrack = ((fn) => {
+const untrack = ((fn) => {
   const finish = internal_untrack();
   try { return fn() }
   finally { finish() }
 }) as Untrack;
-_untrack[key_unsafe] = internal_untrack;
+untrack[key_unsafe] = internal_untrack;
 
-const _isolate = ((fn?: any) => {
+const isolate = ((fn?: any) => {
   let unsubs;
   const finish = internal_isolate();
   try { fn() }
   finally { unsubs = finish() }
   return unsubs;
 }) as Isolate;
-_isolate[key_unsafe] = internal_isolate;
+isolate[key_unsafe] = internal_isolate;
 
 
 const un = (unsub: () => void) => {
@@ -895,18 +890,18 @@ const local_inject = (fn) => {
   if (!context_hooks) throw_hook_error();
   fn && context_hooks.push(fn);
 }
-const _local = {} as Local;
-_local[key_inject] = local_inject;
+const local = {} as Local;
+local[key_inject] = local_inject;
 
 
-const _on_once = (target, fn) => reactionable_subscribe(target, fn, 1);
-const _on = (target, fn) => reactionable_subscribe(target, fn);
+const on_once = (target, fn) => reactionable_subscribe(target, fn, 1);
+const on = (target, fn) => reactionable_subscribe(target, fn);
 
-_on[key_once] = _on_once;
+on[key_once] = on_once;
 
-const _sync = (target, fn) => reactionable_subscribe(target, fn, 0, 1);
+const sync = (target, fn) => reactionable_subscribe(target, fn, 0, 1);
 
-const _cycle = (body) => {
+const cycle = (body) => {
   const iter = () => {
     const stack = stoppable_context;
     stoppable_context = e[1];
@@ -920,8 +915,8 @@ const _cycle = (body) => {
   iter();
 }
 
-const _contextual = {} as Contextual;
-obj_def_prop(_contextual, key_stop, {
+const contextual = {} as Contextual;
+obj_def_prop(contextual, key_stop, {
   get() {
     if (!stoppable_context) throw new Error('Parent context not found');
     return stoppable_context;
@@ -1133,7 +1128,7 @@ function useValue<T>(target: Reactionable<T>, deps: any[] = []): T {
 //
 
 function pool<K extends () => Promise<any>>(body: K): Pool<K> {
-  const threads = _value([]);
+  const threads = value([]);
   const count = threads.select(t => t.length);
   const pending = count.select(c => c > 0);
 

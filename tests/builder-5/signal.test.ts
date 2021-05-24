@@ -1,4 +1,4 @@
-import { _signal as signal, _cycle as cycle, _on as on, _value as value } from '../../src';
+import { signal, cycle, on, value } from '../../src';
 
 test('should work signal different using', () => {
   const spy = jest.fn();
