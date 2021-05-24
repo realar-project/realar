@@ -407,47 +407,47 @@ const prop_factory_dirty_required_initial = (ctx) => {
 
 const trait_ent_update = (ctx, fn) => (fn && ctx[key_set](fn(_untrack(ctx[key_get]))));
 const trait_ent_update_untrack = make_trait_ent_pure_fn_untrack(trait_ent_update);
-const trait_ent_update_by = (ctx, src, fn) => {
-  const src_get = src[key_get] || src;
-  const e = un_expr(src_get, fn
-    ? () => {
-      try {
-        ctx[key_set](fn(ctx[key_get](), src_get(), prev_value));
-      } finally { prev_value = e[0](); }
-    }
-    : () => (ctx[key_set](src_get()), (prev_value = e[0]()))
-  );
-  let prev_value = e[0]();
-  return ctx;
-};
+const trait_ent_update_by = (ctx, src, fn) => (
+  reactionable_subscribe(src, fn
+    ? (src_value, src_prev_value) => ctx[key_set](fn(ctx[key_get](), src_value, src_prev_value))
+    : (src_value) => ctx[key_set](src_value)
+  ),
+  ctx
+);
+const trait_ent_update_by_once = (ctx, src, fn) => (
+  reactionable_subscribe(src, fn
+    ? (src_value, src_prev_value) => ctx[key_set](fn(ctx[key_get](), src_value, src_prev_value))
+    : (src_value) => ctx[key_set](src_value),
+    1
+  ),
+  ctx
+);
 const trait_ent_sync = (ctx, fn) => (reactionable_subscribe(ctx, fn, 0, 1), ctx);
 const trait_ent_reset = (ctx) => {
   ctx[key_promise_internal] = 0;
   ctx[key_handler][1](ctx[key_handler][key_initial]);
   ctx[key_handler][key_touched_internal] = 0;
 };
-const trait_ent_reset_by = (ctx, src) => {
-  const src_get = src[key_get] || src;
-  const e = un_expr(src_get, () => {
-    trait_ent_reset(ctx);
-    e[0]()
-  });
-  e[0]();
-  return ctx;
-};
+const trait_ent_reset_by = (ctx, src) => (
+  reactionable_subscribe(src, trait_ent_reset.bind(const_undef, ctx)),
+  ctx
+);
+const trait_ent_reset_by_once = (ctx, src) => (
+  reactionable_subscribe(src, trait_ent_reset.bind(const_undef, ctx), 1),
+  ctx
+);
 const trait_ent_reinit = (ctx, initial) => {
   ctx[key_handler][key_initial] = initial;
   trait_ent_reset(ctx);
 };
-const trait_ent_reinit_by = (ctx, src) => {
-  const src_get = src[key_get] || src;
-  const e = un_expr(src_get, () => {
-    trait_ent_reinit(ctx, src_get());
-    e[0]();
-  });
-  e[0]();
-  return ctx;
-};
+const trait_ent_reinit_by = (ctx, src) => (
+  reactionable_subscribe(src, (src_value) => trait_ent_reinit(ctx, src_value)),
+  ctx
+);
+const trait_ent_reinit_by_once = (ctx, src) => (
+  reactionable_subscribe(src, (src_value) => trait_ent_reinit(ctx, src_value), 1),
+  ctx
+);
 const trait_ent_to = (ctx, fn) => (reactionable_subscribe(ctx, fn), ctx);
 const trait_ent_to_once = (ctx, fn) => (reactionable_subscribe(ctx, fn, 1), ctx);
 const trait_ent_select = (ctx, fn) => (
@@ -644,12 +644,19 @@ obj_def_prop_with_ns(
 );
 obj_def_prop_promise(proto_entity_readable);
 
+// writtable.update.by:ns
+//   .update.by.once
+const proto_entity_writtable_update_by_ns = obj_create(pure_fn);
+obj_def_prop_trait_ns(proto_entity_writtable_update_by_ns, key_once, trait_ent_update_by_once);
+
 // writtable.update:ns          (track|untrack)
-//   .update.by
+//   .update.by:writtable.update.by:ns
 const proto_entity_writtable_update_ns = obj_create(
   make_proto_for_trackable_ns(trait_ent_update, trait_ent_update_untrack)
 );
-obj_def_prop_trait_ns(proto_entity_writtable_update_ns, key_by, trait_ent_update_by);
+obj_def_prop_trait_ns_with_ns(proto_entity_writtable_update_ns, key_by, trait_ent_update_by,
+  proto_entity_writtable_update_by_ns
+);
 
 // writtable.pre.filter:ns      (track|untrack)
 //   .pre.filter.not            (track|untrack)
@@ -692,15 +699,29 @@ obj_def_prop_trait_with_ns(
   proto_entity_writtable_pre_ns
 );
 
+// writtable_leaf.reset.by:ns
+//   .reset.by.once
+const proto_entity_writtable_leaf_reset_by_ns = obj_create(pure_fn);
+obj_def_prop_trait_ns(proto_entity_writtable_leaf_reset_by_ns, key_once, trait_ent_reset_by_once);
+
 // writtable_leaf.reset:ns
-//   .reset.by
+//   .reset.by:writtable_leaf.reset.by:ns
 const proto_entity_writtable_leaf_reset_ns = obj_create(pure_fn);
-obj_def_prop_trait_ns(proto_entity_writtable_leaf_reset_ns, key_by, trait_ent_reset_by);
+obj_def_prop_trait_ns_with_ns(proto_entity_writtable_leaf_reset_ns, key_by, trait_ent_reset_by,
+  proto_entity_writtable_leaf_reset_by_ns
+);
+
+// writtable_leaf.reinit.by:ns
+//   .reinit.by.once
+const proto_entity_writtable_leaf_reinit_by_ns = obj_create(pure_fn);
+obj_def_prop_trait_ns(proto_entity_writtable_leaf_reinit_by_ns, key_once, trait_ent_reinit_by_once);
 
 // writtable_leaf.reinit:ns
-//   .reinit.by
+//   .reinit.by:writtable_leaf.reinit.by:ns
 const proto_entity_writtable_leaf_reinit_ns = obj_create(pure_fn);
-obj_def_prop_trait_ns(proto_entity_writtable_leaf_reinit_ns, key_by, trait_ent_reinit_by);
+obj_def_prop_trait_ns_with_ns(proto_entity_writtable_leaf_reinit_ns, key_by, trait_ent_reinit_by,
+  proto_entity_writtable_leaf_reinit_by_ns
+);
 
 
 // writtable_leaf <- writtable

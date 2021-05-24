@@ -1,4 +1,4 @@
-import { _sync, _value, _selector } from '../src';
+import { _sync, _value, _selector } from '../../src';
 
 test('should work basic operations with selector', () => {
   const spy_1 = jest.fn();

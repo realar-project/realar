@@ -1,5 +1,5 @@
-import { _on, _signal, _sync, _value } from '../src';
-import { delay } from './lib';
+import { _on, _signal, _sync, _value } from '../../src';
+import { delay } from '../lib';
 
 test('should work signal.trigger with one value', async () => {
   const spy = jest.fn();

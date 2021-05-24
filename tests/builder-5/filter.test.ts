@@ -1,4 +1,4 @@
-import { _signal, _on } from '../src';
+import { _signal, _on } from '../../src';
 
 test('should work basic operations with pre.filter method', async () => {
   const spy = jest.fn();

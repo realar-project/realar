@@ -1130,7 +1130,7 @@ test('should work _signal.from with two arguments', () => {
   const v = _signal.from(() => a.val + 1, (v) => a(v + v));
   expect(v.val).toBe(1);
   (t = v.to), (t = t(spy));
-  (t = t.update), (t = t.by), t(() => u.val);
+  (t = t.update), (t = t.by), t(u);
 
   a.val = 0;
   expect(v.val).toBe(1);
