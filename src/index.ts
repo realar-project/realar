@@ -155,13 +155,14 @@ try {
 const shareds = new Map();
 
 let initial_data: any;
-let context_unsubs: any;
-let context_hooks: any;
 let shared_unsubs = [] as any;
-let is_observe: any;
-let scope_context: any;
-let stoppable_context: any;
 
+let context_unsubs: any;
+let context_local_injects: any;
+let context_contextual_stop: any;
+let context_is_observe: any;
+
+let react_scope_context: any;
 
 
 
@@ -840,8 +841,8 @@ signal[key_combine] = signal_combine;
 //
 
 const call_fns_array = (arr) => arr.forEach(fn => fn());
-const throw_hook_error = () => {
-  throw new Error('Hook section available only at useLocal');
+const throw_local_inject_error = () => {
+  throw new Error('The local.inject section available only in useLocal');
 }
 const internal_isolate = () => {
   const stack = context_unsubs;
@@ -887,8 +888,8 @@ const un = (unsub: () => void) => {
 
 
 const local_inject = (fn) => {
-  if (!context_hooks) throw_hook_error();
-  fn && context_hooks.push(fn);
+  if (!context_local_injects) throw_local_inject_error();
+  fn && context_local_injects.push(fn);
 }
 const local = {} as Local;
 local[key_inject] = local_inject;
@@ -903,12 +904,12 @@ const sync = (target, fn) => reactionable_subscribe(target, fn, 0, 1);
 
 const cycle = (body) => {
   const iter = () => {
-    const stack = stoppable_context;
-    stoppable_context = e[1];
+    const stack = context_contextual_stop;
+    context_contextual_stop = e[1];
     try {
       e[0]();
     } finally {
-      stoppable_context = stack;
+      context_contextual_stop = stack;
     }
   };
   const e = un_expr(body, iter);
@@ -918,8 +919,8 @@ const cycle = (body) => {
 const contextual = {} as Contextual;
 obj_def_prop(contextual, key_stop, {
   get() {
-    if (!stoppable_context) throw new Error('Parent context not found');
-    return stoppable_context;
+    if (!context_contextual_stop) throw new Error('Parent context not found');
+    return context_contextual_stop;
   }
 });
 
@@ -936,26 +937,26 @@ const initial = (data: any): void => {
 const inst = <M, K extends any[]>(
   target: (new (...args: K) => M) | ((...args: K) => M),
   args: K,
-  hooks_available?: any
+  local_injects_available?: any
 ): [M, () => void, (() => void)[]] => {
-  let instance, unsub, hooks;
+  let instance, unsub, local_injects;
   const collect = internal_isolate();
   const track = internal_untrack();
-  const stack = context_hooks;
-  context_hooks = [];
+  const stack = context_local_injects;
+  context_local_injects = [];
   try {
     instance =
       target.prototype === const_undef
         ? (target as any)(...args)
         : new (target as any)(...args);
-    if (!hooks_available && context_hooks.length > 0) throw_hook_error();
+    if (!local_injects_available && context_local_injects.length > 0) throw_local_inject_error();
   } finally {
     unsub = collect();
     track();
-    hooks = context_hooks;
-    context_hooks = stack;
+    local_injects = context_local_injects;
+    context_local_injects = stack;
   }
-  return [instance, unsub, hooks];
+  return [instance, unsub, local_injects];
 }
 
 const shared = <M>(target: (new (init?: any) => M) | ((init?: any) => M)): M => {
@@ -1028,7 +1029,7 @@ const cache = (_proto: any, key: any, descriptor: any): any => ({
 //
 
 const get_scope_context = (): Context<any> => (
-  scope_context ? scope_context : (scope_context = (createContext as any)())
+  react_scope_context ? react_scope_context : (react_scope_context = (createContext as any)())
 )
 
 const useForceUpdate = () => (
@@ -1042,12 +1043,12 @@ const observe = <T extends FC>(FunctionComponent: T): T => {
     if (!ref.current) ref.current = expr(FunctionComponent, forceUpdate);
     useEffect(() => ref.current![1], []);
 
-    const stack = is_observe;
-    is_observe = 1;
+    const stack = context_is_observe;
+    context_is_observe = 1;
     try {
       return (ref.current[0] as any).apply(this, arguments);
     } finally {
-      is_observe = stack;
+      context_is_observe = stack;
     }
   } as any;
 }
@@ -1082,8 +1083,8 @@ const useLocal = <T extends unknown[], M>(
 ): M => {
   const h = useMemo(() => {
     const i = inst(target, deps, 1);
-    const call_hooks = () => call_fns_array(i[2]);
-    return [i[0], () => i[1], call_hooks] as any;
+    const call_local_injects = () => call_fns_array(i[2]);
+    return [i[0], () => i[1], call_local_injects] as any;
   }, deps);
   h[2]();
 
@@ -1092,13 +1093,13 @@ const useLocal = <T extends unknown[], M>(
 }
 
 const useValue = <T>(target: Reactionable<T>, deps: any[] = []): T => {
-  const forceUpdate = is_observe || useForceUpdate();
+  const forceUpdate = context_is_observe || useForceUpdate();
   const h = useMemo(() => {
     if (!target) return [target, () => {}];
     if ((target as any)[key_get]) target = (target as any)[key_get];
 
     if (typeof target === 'function') {
-      if (is_observe) {
+      if (context_is_observe) {
         return [target, 0, 1];
       } else {
         const [run, stop] = expr(target as any, () => {
@@ -1113,7 +1114,7 @@ const useValue = <T>(target: Reactionable<T>, deps: any[] = []): T => {
     }
   }, deps);
 
-  is_observe || useEffect(h[1], [h]);
+  context_is_observe || useEffect(h[1], [h]);
   return h[2] ? h[0]() : h[0];
 }
 
@@ -1133,14 +1134,14 @@ const pool = <K extends () => Promise<any>>(body: K): Pool<K> => {
     const stop = () => threads.update(t => t.filter(ctx => ctx !== stop));
     threads.update(t => t.concat(stop as any));
 
-    const stack = stoppable_context;
-    stoppable_context = stop;
+    const stack = context_contextual_stop;
+    context_contextual_stop = stop;
 
     let ret;
     try {
       ret = (body as any).apply(this, arguments);
     } finally {
-      stoppable_context = stack;
+      context_contextual_stop = stack;
 
       if (ret && ret.finally) {
         ret.finally(stop);

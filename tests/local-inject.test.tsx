@@ -37,7 +37,7 @@ test('should work local.inject in useLocal function', () => {
 test('should throw exception if not in context', () => {
   expect(() => {
     local.inject(() => {});
-  }).toThrow('Hook section available only at useLocal');
+  }).toThrow('The local.inject section available only in useLocal');
 });
 
 test('should throw exception if not useLocal', () => {
@@ -56,6 +56,6 @@ test('should throw exception if not useLocal', () => {
         <A />
       </Scope>
     );
-  }).toThrow('Hook section available only at useLocal');
+  }).toThrow('The local.inject section available only in useLocal');
   console.error = _error;
 });
