@@ -23,7 +23,6 @@ export {
   hook,
   sync,
   cycle,
-  loop,
   pool,
   stoppable,
   isolate,
@@ -105,6 +104,8 @@ const def_prop = Object.defineProperty;
   TODOs:
   [] migrate all old test cases to new api
 
+  [] remove old value builder
+
   [] .as.trigger
   [] .as.value.trigger
   [] .as.signal.trigger
@@ -117,8 +118,6 @@ const def_prop = Object.defineProperty;
 
   [] signal.trigger.from (optional - maybe no necessary)
   [] value.trigger.from (optional - maybe no necessary)
-
-  [] to remove loop
 
   [] rename _value to value
   [] rename _signal to signal
@@ -1327,18 +1326,6 @@ function flow_filter<T>(target: Reactionable<T>, fn: (data: T) => boolean) {
   return f;
 }
 
-function loop(body: () => Promise<any>) {
-  let running = 1;
-  const fn = async () => {
-    while (running) await body();
-  };
-  const unsub = () => {
-    if (running) running = 0;
-  };
-  un(unsub);
-  fn();
-  return unsub;
-}
 
 function stoppable(): StopSignal {
   if (!stoppable_context) throw new Error('Parent context not found');
@@ -1633,6 +1620,8 @@ function useValue<T>(target: Reactionable<T>, deps: any[] = []): T {
   is_observe || useEffect(h[1], [h]);
   return h[2] ? h[0]() : h[0];
 }
+
+
 
 function free() {
   try {
