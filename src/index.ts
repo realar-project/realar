@@ -1,6 +1,22 @@
 import React, { Context, FC } from 'react';
 import rb from 'reactive-box';
 
+/*
+  TODOs:
+  [] .as.trigger
+  [] .as.value.trigger
+  [] .as.signal.trigger
+
+  [] signal.trigger.resolved
+  [] value.trigger.resolved
+
+  [] test case "should work signal.trigger with configured .pre"
+  [] test cases for "isolate" (after effect will be removed)
+
+  [] signal.trigger.from
+  [] value.trigger.from
+*/
+
 //
 // Exports
 //
@@ -102,6 +118,8 @@ type Pool<K> = K & {
   pending: any;
 };
 
+
+
 //
 // Global definitions
 //
@@ -147,41 +165,6 @@ let scope_context: any;
 let stoppable_context: any;
 
 // const def_prop = Object.defineProperty;
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-  TODOs:
-  [] migrate all old test cases to new api
-
-  [] remove old value builder
-
-  [] .as.trigger
-  [] .as.value.trigger
-  [] .as.signal.trigger
-
-  [] signal.trigger.resolved
-  [] value.trigger.resolved
-
-  [] test case "should work signal.trigger with configured .pre"
-  [] test cases for "isolate" (after effect will be removed)
-
-  [] signal.trigger.from (optional - maybe no necessary)
-  [] value.trigger.from (optional - maybe no necessary)
-
-  [] rename _value to value
-  [] rename _signal to signal
-  [] rename _selector to selector
-*/
 
 
 
