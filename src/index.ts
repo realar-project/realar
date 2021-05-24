@@ -995,34 +995,31 @@ const unmock = (
 // Decorator functions "prop" and "cache"
 //
 
-const obj_def_box_prop = (o: any, p: string | number | symbol, init?: any): any => {
-  const b = box(init && init());
-  obj_def_prop(o, p, { get: b[0], set: b[1] });
-}
+const obj_def_box_prop = (o: any, p: string | number | symbol, init?: any): any => (
+  (init = box(init && init())),
+  obj_def_prop(o, p, { get: init[0], set: init[1] })
+)
 
-function prop(_proto: any, key: any, descriptor?: any): any {
-  const initializer = descriptor?.initializer;
-  return {
+const prop = (_t: any, key: any, descriptor?: any): any => (
+  (_t = descriptor?.initializer), {
     get() {
-      obj_def_box_prop(this, key, initializer);
+      obj_def_box_prop(this, key, _t);
       return this[key];
     },
     set(value: any) {
-      obj_def_box_prop(this, key, initializer);
+      obj_def_box_prop(this, key, _t);
       this[key] = value;
     },
-  };
-}
+  }
+)
 
-function cache(_proto: any, key: any, descriptor: any): any {
-  return {
-    get() {
-      const [get] = sel(descriptor.get);
-      obj_def_prop(this, key, { get });
-      return this[key];
-    },
-  };
-}
+const cache = (_proto: any, key: any, descriptor: any): any => ({
+  get() {
+    const [get] = sel(descriptor.get);
+    obj_def_prop(this, key, { get });
+    return this[key];
+  }
+})
 
 
 
@@ -1030,15 +1027,15 @@ function cache(_proto: any, key: any, descriptor: any): any {
 // React bindings
 //
 
-function get_scope_context(): Context<any> {
-  return scope_context ? scope_context : (scope_context = (createContext as any)());
-}
+const get_scope_context = (): Context<any> => (
+  scope_context ? scope_context : (scope_context = (createContext as any)())
+)
 
-function useForceUpdate() {
-  return useReducer(() => [], [])[1] as () => void;
-}
+const useForceUpdate = () => (
+  useReducer(() => [], [])[1] as () => void
+)
 
-function observe<T extends FC>(FunctionComponent: T): T {
+const observe = <T extends FC>(FunctionComponent: T): T => {
   return function (this: any) {
     const forceUpdate = useForceUpdate();
     const ref = useRef<[T, () => void]>();
@@ -1061,7 +1058,7 @@ const Scope: FC = ({ children }) => {
   return createElement(get_scope_context().Provider, { value: h }, children);
 };
 
-function useScoped<M>(target: (new (init?: any) => M) | ((init?: any) => M)): M {
+const useScoped = <M>(target: (new (init?: any) => M) | ((init?: any) => M)): M => {
   const context_data = useContext(get_scope_context());
   if (!context_data) {
     throw new Error('"Scope" parent component didn\'t find');
@@ -1079,10 +1076,10 @@ function useScoped<M>(target: (new (init?: any) => M) | ((init?: any) => M)): M 
   return instance;
 }
 
-function useLocal<T extends unknown[], M>(
+const useLocal = <T extends unknown[], M>(
   target: (new (...args: T) => M) | ((...args: T) => M),
   deps = ([] as unknown) as T
-): M {
+): M => {
   const h = useMemo(() => {
     const i = inst(target, deps, 1);
     const call_hooks = () => call_fns_array(i[2]);
@@ -1094,7 +1091,7 @@ function useLocal<T extends unknown[], M>(
   return h[0];
 }
 
-function useValue<T>(target: Reactionable<T>, deps: any[] = []): T {
+const useValue = <T>(target: Reactionable<T>, deps: any[] = []): T => {
   const forceUpdate = is_observe || useForceUpdate();
   const h = useMemo(() => {
     if (!target) return [target, () => {}];
@@ -1127,7 +1124,7 @@ function useValue<T>(target: Reactionable<T>, deps: any[] = []): T {
 // Pool abstraction
 //
 
-function pool<K extends () => Promise<any>>(body: K): Pool<K> {
+const pool = <K extends () => Promise<any>>(body: K): Pool<K> => {
   const threads = value([]);
   const count = threads.select(t => t.length);
   const pending = count.select(c => c > 0);
@@ -1161,767 +1158,7 @@ function pool<K extends () => Promise<any>>(body: K): Pool<K> {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// type Ensurable<T> = T | void;
-
-// type Callable<T> = {
-//   name: never;
-//   (data: T): void;
-// } & (T extends void
-//   ? {
-//       (): void;
-//     }
-//   : {});
-
-// type Reactionable<T> = { 0: () => T } | [() => T] | (() => T);
-
-// type Selector<T> = {
-//   0: () => T;
-//   readonly val: T;
-//   get(): T;
-//   free(): void;
-// } & [() => T] & {
-//     view<P>(get: (data: T) => P): Selector<P>;
-//     select<P>(get: (data: T) => P): Selector<P>;
-//     select(): Selector<T>;
-
-//     watch: {
-//       (listener: (value: T, prev: T) => void): () => void;
-//       once(listener: (value: T, prev: T) => void): () => void;
-//     };
-
-//     flow: {
-//       filter(fn: (data: T) => any): Value<T, Ensurable<T>>;
-//     };
-//   };
-
-// type Value<T, K = T> = Callable<T> & {
-//   0: () => K;
-//   1: (value: T) => void;
-//   val: T & K;
-//   get(): K;
-
-//   update: (fn: (state: K) => T) => void;
-//   sub: {
-//     <S>(reactionable: Reactionable<S>, fn: (data: K, value: S, prev: S) => T): () => void;
-//     once<S>(reactionable: Reactionable<S>, fn: (data: K, value: S, prev: S) => T): () => void;
-//   };
-//   set(value: T): void;
-// } & {
-//   wrap: {
-//     <P>(set: () => T, get: (data: K) => P): Value<void, P>;
-//     <P, M = T>(set: (data: M) => T, get: (data: K) => P): Value<M, P>;
-//     (set: () => T): Value<void, K>;
-//     <M = T>(set: (data: M) => T): Value<M, K>;
-
-//     filter(fn: (data: T) => any): Value<T, K>;
-//   };
-
-//   view<P>(get: (data: K) => P): Value<T, P>;
-//   select<P>(get: (data: K) => P): Selector<P>;
-//   select(): Selector<K>;
-
-//   watch: {
-//     (listener: (value: K extends Ensurable<infer P> ? P : K, prev: K) => void): () => void;
-//     once(listener: (value: K extends Ensurable<infer P> ? P : K, prev: K) => void): () => void;
-//   };
-//   reset(): void;
-
-//   flow: {
-//     filter(fn: (data: K) => any): Value<K, Ensurable<T>>;
-//   };
-// } & {
-//     [P in Exclude<keyof Array<void>, number>]: never;
-//   } &
-//   [() => K, (value: T) => void];
-
-// type Signal<
-//   T,
-//   K = T,
-//   X = {},
-//   E = {
-//     reset(): void;
-//     update: (fn: (state: K) => T) => void;
-//     sub: {
-//       <S>(reactionable: Reactionable<S>, fn: (data: K, value: S, prev: S) => T): () => void;
-//       once<S>(reactionable: Reactionable<S>, fn: (data: K, value: S, prev: S) => T): () => void;
-//     };
-//     set(value: T): void;
-//   }
-// > = Callable<T> &
-//   Pick<Promise<T>, 'then' | 'catch' | 'finally'> & {
-//     0: () => K;
-//     1: (value: T) => void;
-//     readonly val: K;
-//     get(): K;
-//   } & {
-//     wrap: {
-//       <P>(set: () => T, get: (data: K) => P): Signal<void, P, X, E>;
-//       <P, M = T>(set: (data: M) => T, get: (data: K) => P): Signal<M, P, X, E>;
-//       (set: () => T): Signal<void, K, X, E>;
-//       <M = T>(set: (data: M) => T): Signal<M, K, X, E>;
-
-//       filter(fn: (data: T) => any): Signal<T, K, X, E>;
-//     };
-
-//     view<P>(get: (data: K) => P): Signal<T, P, X, E>;
-//     select<P>(get: (data: K) => P): Selector<P>;
-//     select(): Selector<K>;
-
-//     watch: {
-//       (listener: (value: K extends Ensurable<infer P> ? P : K, prev: K) => void): () => void;
-//       once(listener: (value: K extends Ensurable<infer P> ? P : K, prev: K) => void): () => void;
-//     };
-
-//     flow: {
-//       filter(fn: (data: K) => any): Signal<K, Ensurable<T>>;
-//     };
-//   } & E &
-//   X &
-//   {
-//     [P in Exclude<keyof Array<void>, number>]: never;
-//   } &
-//   [() => K, (value: T) => void];
-
-// type StopSignal = Signal<
-//   void,
-//   boolean,
-//   {
-//     stop(): void;
-//     set(): void;
-//     sub: {
-//       (reactionable: Reactionable<any>): () => void;
-//       once(reactionable: Reactionable<any>): () => void;
-//     };
-//   },
-//   {}
-// >;
-// type ReadySignal<T, K = T> = Signal<
-//   T,
-//   K,
-//   {
-//     to(value: T): Signal<void, K>;
-//   }
-// >;
-
-// type Pool<K> = K & {
-//   count: Selector<number>;
-//   threads: Selector<StopSignal[]>;
-//   pending: Selector<boolean>;
-// };
-
-// function value<T = void>(): Value<T>;
-// function value<T = void>(init: T): Value<T>;
-// function value(init?: any): any {
-//   const [get, set] = box(init) as any;
-//   def_format(set, get, set);
-//   set.reset = () => set(init);
-//   return set;
-// }
-
-// function selector<T>(body: () => T): Selector<T> {
-//   const [get, free] = sel(body);
-//   const h = [] as any;
-//   def_format(h, get);
-//   h.free = free;
-//   return h;
-// }
-
-// function signal<T = void>(): Signal<T, Ensurable<T>>;
-// function signal<T = void>(init: T): Signal<T>;
-// function signal(init?: any) {
-//   let resolve: any;
-//   const [get, set] = box([init]);
-
-//   const fn = function (data: any) {
-//     const ready = resolve;
-//     resolve = def_promisify(fn);
-//     set([data]);
-//     ready(data);
-//   };
-
-//   resolve = def_promisify(fn);
-//   def_format(fn, () => get()[0], fn, 0, 1);
-//   fn.reset = () => set([init]);
-//   return fn as any;
-// }
-
-// signal.stop = stop_signal;
-// signal.ready = ready;
-// signal.from = signal_from;
-// signal.combine = signal_combine;
-
-// function ready<T = void>(): ReadySignal<T, Ensurable<T>>;
-// function ready<T = void>(init: T): ReadySignal<T>;
-// function ready(init?: any) {
-//   let resolved = 0;
-//   let resolve: any;
-//   const [get, set] = box([init]);
-
-//   const fn = function (data: any) {
-//     if (!resolved) {
-//       resolved = 1;
-//       set([data]);
-//       resolve(data);
-//     }
-//   };
-
-//   resolve = def_promisify(fn);
-//   def_format(fn, () => get()[0], fn, is_stop_signal, 1, 1);
-
-//   if (!is_stop_signal) {
-//     fn.reset = () => {
-//       resolve = def_promisify(fn);
-//       resolved = 0;
-//       set([init]);
-//     };
-//   }
-
-//   return fn as any;
-// }
-
-// ready.flag = () => ready(false).to(true);
-// ready.from = ready_from;
-// ready.resolved = ready_resolved;
-
-// function ready_from<T>(source: Reactionable<T>): ReadySignal<T> {
-//   const fn = (source as any)[0] || (source as any);
-//   const dest = ready(fn());
-//   on(source, dest);
-//   return dest as any;
-// }
-
-// function ready_resolved(): ReadySignal<void>;
-// function ready_resolved<T>(value: T): ReadySignal<void, T>;
-// function ready_resolved(value?: any): any {
-//   const r = ready(value);
-//   r(value);
-//   return r;
-// }
-
-// function signal_from<T>(source: Reactionable<T>): Signal<T> {
-//   const fn = (source as any)[0] || (source as any);
-//   const dest = signal(fn());
-//   on(source, dest);
-//   return dest as any;
-// }
-
-// function signal_combine(): Signal<[]>;
-// function signal_combine<A>(a: Reactionable<A>): Signal<[A]>;
-// function signal_combine<A, B>(a: Reactionable<A>, b: Reactionable<B>): Signal<[A, B]>;
-// function signal_combine<A, B, C>(
-//   a: Reactionable<A>,
-//   b: Reactionable<B>,
-//   c: Reactionable<C>
-// ): Signal<[A, B, C]>;
-// function signal_combine<A, B, C, D>(
-//   a: Reactionable<A>,
-//   b: Reactionable<B>,
-//   c: Reactionable<C>,
-//   d: Reactionable<D>
-// ): Signal<[A, B, C, D]>;
-// function signal_combine<A, B, C, D, E>(
-//   a: Reactionable<A>,
-//   b: Reactionable<B>,
-//   c: Reactionable<C>,
-//   d: Reactionable<D>,
-//   e: Reactionable<E>
-// ): Signal<[A, B, C, D, E]>;
-// function signal_combine(...sources: any): any {
-//   const get = () => sources.map((src: any) => (src[0] || src)());
-//   const dest = signal(get());
-//   on([get], dest);
-//   return dest as any;
-// }
-
-// function stop_signal(): StopSignal {
-//   is_stop_signal = 1;
-//   try {
-//     const ctx = ready.flag() as any;
-//     return (ctx.stop = ctx);
-//   } finally {
-//     is_stop_signal = 0;
-//   }
-// }
-
-// function def_format(
-//   ctx: any,
-//   get: any,
-//   set?: any,
-//   no_update?: any,
-//   readonly_val?: any,
-//   has_to?: any
-// ) {
-//   if (!Array.isArray(ctx)) {
-//     ctx[Symbol.iterator] = function* () {
-//       yield get;
-//       if (set) yield set;
-//     };
-//   }
-//   ctx[0] = get;
-//   ctx.get = get;
-
-//   const val_prop = { get } as any;
-//   if (set) {
-//     ctx[1] = set;
-//     if (!no_update) {
-//       ctx.update = (fn: any) => set(fn(get()));
-//     }
-//     ctx.set = set;
-//     if (!readonly_val) val_prop.set = set;
-
-//     ctx.sub = (s: any, fn: any) => on(s, (v, v_prev) => set(fn ? fn(get(), v, v_prev) : const_undef));
-//     ctx.sub.once = (s: any, fn: any) =>
-//       once(s, (v, v_prev) => set(fn ? fn(get(), v, v_prev) : const_undef));
-//   }
-//   def_prop(ctx, key, val_prop);
-
-//   if (has_to) {
-//     ctx.to = (value: any) => (wrap as any)(ctx, () => value);
-//   }
-//   if (set) {
-//     ctx.wrap = (set: any, get: any) => wrap(ctx, set, get);
-//     ctx.wrap.filter = (fn: any) => wrap(ctx, (v: any) => (fn(v) ? v : stoppable().stop()));
-//   }
-//   ctx.view = (get: any) => wrap(ctx, 0, get);
-//   ctx.watch = (fn: any) => on(ctx, fn);
-//   ctx.watch.once = (fn: any) => once(ctx, fn);
-
-//   ctx.select = (fn: any) => selector(fn ? () => fn(get()) : get);
-
-//   ctx.flow = {};
-//   ctx.flow.filter = (fn: any) => flow_filter(ctx, fn);
-// }
-
-// function def_promisify(ctx: any) {
-//   let resolve;
-//   const promise = new Promise(r => (resolve = r));
-//   ['then', 'catch', 'finally'].forEach(prop => {
-//     ctx[prop] = (promise as any)[prop].bind(promise);
-//   });
-//   return resolve;
-// }
-
-// function wrap(target: any, set?: any, get?: any) {
-//   const source_get = target[0];
-//   const source_set = target[1];
-
-//   let dest: any;
-//   let dest_set: any;
-
-//   if (set) {
-//     dest = dest_set = function (data?: any) {
-//       const finish = untrack();
-//       const stack = stoppable_context;
-//       stoppable_context = 1;
-
-//       try {
-//         data = set(data);
-//         if (stoppable_context === 1 || !stoppable_context[0]()) source_set(data);
-//       } finally {
-//         stoppable_context = stack;
-//         finish();
-//       }
-//     };
-//   } else if (source_set) {
-//     dest = function (data?: any) {
-//       source_set(data);
-//     };
-//   } else {
-//     dest = [];
-//   }
-
-//   if (target.then) {
-//     const methods = ['catch', 'finally'];
-//     if (get) {
-//       def_prop(dest, 'then', {
-//         get() {
-//           const promise = target.then(get);
-//           return promise.then.bind(promise);
-//         },
-//       });
-//     } else {
-//       methods.push('then');
-//     }
-//     methods.forEach(prop => {
-//       def_prop(dest, prop, {
-//         get: () => target[prop],
-//       });
-//     });
-//   }
-
-//   if (target.reset) dest.reset = target.reset;
-//   if (target.stop) target.stop = target;
-
-//   def_format(
-//     dest,
-//     get ? () => get(source_get()) : source_get,
-//     dest_set || source_set,
-//     !target.update,
-//     target.then,
-//     target.to
-//   );
-
-//   return dest;
-// }
-
-// function flow_filter<T>(target: Reactionable<T>, fn: (data: T) => boolean) {
-//   const f = (target as any).then ? signal<T>() : value<T>();
-//   on(target, v => {
-//     if (fn(v)) f(v);
-//   });
-//   return f;
-// }
-
-
-// function stoppable(): StopSignal {
-//   if (!stoppable_context) throw new Error('Parent context not found');
-//   if (stoppable_context === 1) stoppable_context = stop_signal();
-//   return stoppable_context;
-// }
-
-// function pool<K extends () => Promise<any>>(body: K): Pool<K> {
-//   const threads = value([]);
-//   const count = threads.select(t => t.length);
-//   const pending = count.select(c => c > 0);
-
-//   function run(this: any) {
-//     const stop = stop_signal();
-//     isolate(threads.sub.once(stop, t => t.filter(ctx => ctx !== stop)));
-//     threads.update(t => t.concat(stop as any));
-
-//     const stack = stoppable_context;
-//     stoppable_context = stop;
-
-//     let ret;
-//     try {
-//       ret = (body as any).apply(this, arguments);
-//     } finally {
-//       stoppable_context = stack;
-
-//       if (ret && ret.finally) {
-//         ret.finally(stop);
-//       } else {
-//         stop();
-//       }
-//     }
-//     return ret;
-//   }
-//   run.count = count;
-//   run.threads = threads;
-//   run.pending = pending;
-
-//   return run as any;
-// }
-
-// function on<T>(
-//   target: Reactionable<Ensurable<T>>,
-//   listener: (value: T, prev: Ensurable<T>) => void
-// ): () => void;
-// function on<T>(target: Reactionable<T>, listener: (value: T, prev: T) => void): () => void;
-// function on(target: any, listener: (value: any, prev?: any) => void): () => void {
-//   const sync_mode = is_sync;
-//   let free: (() => void) | undefined;
-
-//   is_sync = 0;
-
-//   if (target[0]) {
-//     target = target[0]; // box or selector or custom reactive
-//   } else {
-//     [target, free] = sel(target);
-//   }
-
-//   let value: any;
-
-//   const [run, stop] = expr(target, () => {
-//     const prev = value;
-//     listener((value = run()), prev);
-//   });
-//   value = run();
-//   const unsub = () => {
-//     if (free) free();
-//     stop();
-//   };
-//   un(unsub);
-//   if (sync_mode) listener(value);
-//   return unsub;
-// }
-
-// on.once = once;
-
-// function once<T>(
-//   target: Reactionable<Ensurable<T>>,
-//   listener: (value: T, prev: Ensurable<T>) => void
-// ): () => void;
-// function once<T>(target: Reactionable<T>, listener: (value: T, prev: T) => void): () => void;
-// function once(target: any, listener: (value: any, prev?: any) => void): () => void {
-//   const unsub = on(target, (value, prev) => {
-//     try {
-//       listener(value, prev);
-//     } finally {
-//       unsub();
-//     }
-//   });
-//   return unsub;
-// }
-
-// function sync<T>(target: Reactionable<T>, listener: (value: T, prev: T) => void): () => void {
-//   is_sync = 1;
-//   return on(target, listener);
-// }
-
-
-// function cycle(body: () => void) {
-//   const iter = () => {
-//     const stack = stoppable_context;
-//     stoppable_context = stop_signal();
-//     isolate(once(stoppable_context, stop));
-//     try {
-//       run();
-//     } finally {
-//       stoppable_context = stack;
-//     }
-//   };
-
-//   const [run, stop] = expr(body, iter);
-//   iter();
-//   return un(stop);
-// }
-
-// function isolate(): () => () => void;
-// function isolate(fn: () => void): () => void;
-// function isolate(fn?: any) {
-//   if (fn) {
-//     if (context_unsubs) context_unsubs = context_unsubs.filter((i: any) => i !== fn);
-//     return fn;
-//   }
-//   const stack = context_unsubs;
-//   context_unsubs = [];
-//   return () => {
-//     const unsubs = context_unsubs;
-//     context_unsubs = stack;
-//     return () => {
-//       if (unsubs) call_fns_array(unsubs);
-//     };
-//   };
-// }
-
-
-
-
-
-
-
-
-// function initial(data: any): void {
-//   initial_data = data;
-// }
-
-// function mock<M>(target: (new (init?: any) => M) | ((init?: any) => M), mocked: M): M {
-//   shareds.set(target, mocked);
-//   return mocked;
-// }
-
-// function unmock(
-//   target: (new (init?: any) => any) | ((init?: any) => any),
-//   ...targets: ((new (init?: any) => any) | ((init?: any) => any))[]
-// ) {
-//   targets.concat(target).forEach(target => shareds.delete(target));
-// }
-
-// function shared<M>(target: (new (init?: any) => M) | ((init?: any) => M)): M {
-//   let instance = shareds.get(target);
-//   if (!instance) {
-//     const h = inst(target, [initial_data]);
-//     instance = h[0];
-//     shared_unsubs.push(h[1]);
-//     shareds.set(target, instance);
-//   }
-//   return instance;
-// }
-
-// function inst<M, K extends any[]>(
-//   target: (new (...args: K) => M) | ((...args: K) => M),
-//   args: K,
-//   hooks_available?: any
-// ): [M, () => void, (() => void)[]] {
-//   let instance, unsub, hooks;
-//   const collect = internal_isolate();
-//   const track = internal_untrack();
-//   const stack = context_hooks;
-//   context_hooks = [];
-//   try {
-//     instance =
-//       typeof target.prototype === 'undefined'
-//         ? (target as any)(...args)
-//         : new (target as any)(...args);
-//     if (!hooks_available && context_hooks.length > 0) throw_hook_error();
-//   } finally {
-//     unsub = collect();
-//     track();
-//     hooks = context_hooks;
-//     context_hooks = stack;
-//   }
-//   return [instance, unsub, hooks];
-// }
-
-// function throw_hook_error() {
-//   throw new Error('Hook section available only at useLocal');
-// }
-
-// function hook(fn: () => void): void {
-//   if (!context_hooks) throw_hook_error();
-//   fn && context_hooks.push(fn);
-// }
-
-// function call_array(arr: (() => void)[]) {
-//   arr.forEach(fn => fn());
-// }
-
-// function get_scope_context(): Context<any> {
-//   return scope_context ? scope_context : (scope_context = (createContext as any)());
-// }
-
-// function useForceUpdate() {
-//   return useReducer(() => [], [])[1] as () => void;
-// }
-
-// function observe<T extends FC>(FunctionComponent: T): T {
-//   return function (this: any) {
-//     const forceUpdate = useForceUpdate();
-//     const ref = useRef<[T, () => void]>();
-//     if (!ref.current) ref.current = expr(FunctionComponent, forceUpdate);
-//     useEffect(() => ref.current![1], []);
-
-//     const stack = is_observe;
-//     is_observe = 1;
-//     try {
-//       return (ref.current[0] as any).apply(this, arguments);
-//     } finally {
-//       is_observe = stack;
-//     }
-//   } as any;
-// }
-
-// const Scope: FC = ({ children }) => {
-//   const h = useMemo(() => [new Map(), [], []], []) as any;
-//   useEffect(() => () => call_fns_array(h[1]), []);
-//   return createElement(get_scope_context().Provider, { value: h }, children);
-// };
-
-// function useScoped<M>(target: (new (init?: any) => M) | ((init?: any) => M)): M {
-//   const context_data = useContext(get_scope_context());
-//   if (!context_data) {
-//     throw new Error('"Scope" parent component didn\'t find');
-//   }
-
-//   let instance;
-//   if (context_data[0].has(target)) {
-//     instance = context_data[0].get(target);
-//   } else {
-//     const h = inst(target, [initial_data]);
-//     context_data[0].set(target, (instance = h[0]));
-//     context_data[1].push(h[1]);
-//   }
-
-//   return instance;
-// }
-
-// function useLocal<T extends unknown[], M>(
-//   target: (new (...args: T) => M) | ((...args: T) => M),
-//   deps = ([] as unknown) as T
-// ): M {
-//   const h = useMemo(() => {
-//     const i = inst(target, deps, 1);
-//     const call_hooks = () => call_fns_array(i[2]);
-//     return [i[0], () => i[1], call_hooks] as any;
-//   }, deps);
-//   h[2]();
-
-//   useEffect(h[1], [h]);
-//   return h[0];
-// }
-
-// function useValue<T>(target: Reactionable<T>, deps: any[] = []): T {
-//   const forceUpdate = is_observe || useForceUpdate();
-//   const h = useMemo(() => {
-//     if (!target) return [target, () => {}];
-//     if ((target as any)[0]) target = (target as any)[0]; // box or selector or custom reactive
-
-//     if (typeof target === 'function') {
-//       if (is_observe) {
-//         return [target, 0, 1];
-//       } else {
-//         const [run, stop] = expr(target as any, () => {
-//           forceUpdate();
-//           run();
-//         });
-//         run();
-//         return [target, () => stop, 1];
-//       }
-//     } else {
-//       return [target as any, () => {}];
-//     }
-//   }, deps);
-
-//   is_observe || useEffect(h[1], [h]);
-//   return h[2] ? h[0]() : h[0];
-// }
-
-
-
-
-
-// const obj_def_box_prop = (o: any, p: string | number | symbol, init?: any): any => {
-//   const b = box(init && init());
-//   obj_def_prop(o, p, { get: b[0], set: b[1] });
-// }
-
-// function prop(_proto: any, key: any, descriptor?: any): any {
-//   const initializer = descriptor?.initializer;
-//   return {
-//     get() {
-//       obj_def_box_prop(this, key, initializer);
-//       return this[key];
-//     },
-//     set(value: any) {
-//       obj_def_box_prop(this, key, initializer);
-//       this[key] = value;
-//     },
-//   };
-// }
-
-// function cache(_proto: any, key: any, descriptor: any): any {
-//   return {
-//     get() {
-//       const [get] = sel(descriptor.get);
-//       obj_def_prop(this, key, { get });
-//       return this[key];
-//     },
-//   };
-// }
+//
+// End of File
+// Enjoy and Happy Coding!
+//
