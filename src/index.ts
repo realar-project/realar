@@ -3,8 +3,6 @@ import rb from 'reactive-box';
 
 /*
   TODOs:
-
-  [] test case for useValues
   [] useJsx(() => {}, [...deps]?);
 
   [] typings for builder
@@ -162,10 +160,10 @@ type UseValue = {
 }
 
 type UseValues_CfgExemplar = {
-  [key: string]: Re<any>
+  [key: string]: Re<any> | any
 }
 type UseValues_ExpandCfgTargets<T> = {
-  [P in keyof T]: T[P] extends Re<infer Re_T> ? Re_T : never
+  [P in keyof T]: T[P] extends Re<infer Re_T> ? Re_T : T[P]
 }
 type UseValues = {
   <T extends UseValues_CfgExemplar>(targets: T, deps?: any[]): UseValues_ExpandCfgTargets<T>
@@ -254,6 +252,7 @@ const obj_keys = Object.keys;
 const obj_is_array = Array.isArray;
 const new_symbol = Symbol;
 const const_undef = void 0;
+const const_string_function = 'function';
 
 //
 //  Reactive box specific definitions.
@@ -844,11 +843,15 @@ const make_trigger = (initial, has_inverted_to?, is_signal?) => {
   return fill_entity(handler, proto_entity_writtable_leaf, 1, initial, 0, set);
 }
 
+const get_getter_to_reactionable_or_custom = (re) => (
+  (re && re[key_get]) || (typeof re === const_string_function ? re : () => re)
+)
+
 const make_combine = (cfg, is_signal?) => {
   const keys = obj_keys(cfg);
   const fns = keys.map(is_signal
-    ? (key) => cfg[key][key_get] || cfg[key]
-    : (key) => sel(cfg[key][key_get] || cfg[key])[0]
+    ? (key) => get_getter_to_reactionable_or_custom(cfg[key])
+    : (key) => sel(get_getter_to_reactionable_or_custom(cfg[key]))[0]
   );
   const is_array = obj_is_array(cfg);
   const h = [
@@ -1174,7 +1177,7 @@ const useValue: UseValue = (target, deps) => {
     if (!target) return [target, () => {}];
     if ((target as any)[key_get]) target = (target as any)[key_get];
 
-    if (typeof target === 'function') {
+    if (typeof target === const_string_function) {
       if (context_is_observe) {
         return [target, 0, 1];
       } else {
