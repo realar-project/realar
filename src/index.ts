@@ -15,6 +15,9 @@ import rb from 'reactive-box';
 
   [] signal.trigger.from
   [] value.trigger.from
+
+  [] useValues([...deps]?)
+  [] useJsx(() => {}, [...deps]?);
 */
 
 //
