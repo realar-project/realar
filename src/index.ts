@@ -3,6 +3,13 @@ import rb from 'reactive-box';
 
 /*
   TODOs:
+
+  [] test case for useValues
+  [] useJsx(() => {}, [...deps]?);
+
+  [] typings for builder
+  [] documentation update
+
   [] .as.trigger
   [] .as.value.trigger
   [] .as.signal.trigger
@@ -11,13 +18,9 @@ import rb from 'reactive-box';
   [] value.trigger.resolved
 
   [] test case "should work signal.trigger with configured .pre"
-  [] test cases for "isolate" (after effect will be removed)
 
   [] signal.trigger.from
   [] value.trigger.from
-
-  [] useValues([...deps]?)
-  [] useJsx(() => {}, [...deps]?);
 */
 
 //
@@ -25,33 +28,48 @@ import rb from 'reactive-box';
 //
 
 export {
+  // Declarative framework
   value,
   selector,
-  transaction,
   signal,
-  untrack,
+
+  // Imperative framework
   on,
   sync,
-  isolate,
-  local,
   cycle,
-  contextual,
 
+  // Class decorators for TRFP
   prop,
   cache,
-  un,
-  pool,
+
+  // Shared technique
   shared,
   initial,
+  free,
+  mock,
+  unmock,
+
+  // Unsubscribe scopes control
+  isolate,
+  un,
+
+  // Additional api
+  local,
+  contextual,
+  pool,
+
+  // Track and transactions
+  transaction,
+  untrack,
+
+  // React bindings
   observe,
   useValue,
+  useValues,
   useLocal,
   useScoped,
   shared as useShared,
   Scope,
-  free,
-  mock,
-  unmock,
 };
 
 
@@ -60,8 +78,17 @@ export {
 //  Typings.
 //
 
-type ValueFactory = {
-  (initial?: any): any;
+type Value<I,O = I> = {
+  set: (value: I) => void;
+  get: () => O;
+
+  select: any;
+  update: any;
+}
+
+
+type ValueEntry = {
+  <T>(initial?: T): Value<T>;
   trigger: {
     (initial?: any): any;
     flag: {
@@ -72,10 +99,10 @@ type ValueFactory = {
   from: { (get: () => any, set?: (v) => any): any },
   combine: { (cfg: any): any }
 }
-type SelectorFactory = {
+type SelectorEntry = {
   (fn: () => any): any;
 }
-type SignalFactory = {
+type SignalEntry = {
   <T>(initial?: any): any;
   trigger: {
     (initial?: any): any;
@@ -109,12 +136,53 @@ type Untrack = {
 
 
 type Reactionable<T> = { get: () => T } | (() => T);
+type Re<T> = Reactionable<T>;
 
 type Pool<K> = K & {
   count: any;
   threads: any;
   pending: any;
 };
+
+
+type Observe = {
+  <T extends FC>(FunctionComponent: T): T;
+}
+type UseScoped = {
+  <M>(target: (new (init?: any) => M) | ((init?: any) => M)): M;
+}
+type UseLocal = {
+  <T extends unknown[], M>(
+    target: (new (...args: T) => M) | ((...args: T) => M),
+    deps?: T
+  ): M;
+}
+type UseValue = {
+  <T>(target: Reactionable<T>, deps?: any[]): T;
+}
+
+type UseValues_CfgExemplar = {
+  [key: string]: Re<any>
+}
+type UseValues_ExpandCfgTargets<T> = {
+  [P in keyof T]: T[P] extends Re<infer Re_T> ? Re_T : never
+}
+type UseValues = {
+  <T extends UseValues_CfgExemplar>(targets: T, deps?: any[]): UseValues_ExpandCfgTargets<T>
+  <A,B>(targets: [Re<A>,Re<B>], deps?: any[]): [A,B];
+  <A,B,C>(targets: [Re<A>,Re<B>,Re<C>], deps?: any[]): [A,B,C];
+  <A,B,C,D>(targets: [Re<A>,Re<B>,Re<C>,Re<D>], deps?: any[]): [A,B,C,D];
+  <A,B,C,D,E>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>], deps?: any[]): [A,B,C,D,E];
+  <A,B,C,D,E,F>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>], deps?: any[]): [A,B,C,D,E,F];
+  <A,B,C,D,E,F,G>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>], deps?: any[]): [A,B,C,D,E,F,G];
+  <A,B,C,D,E,F,G,H>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>], deps?: any[]): [A,B,C,D,E,F,G,H];
+  <A,B,C,D,E,F,G,H,I>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>], deps?: any[]): [A,B,C,D,E,F,G,H,I];
+  <A,B,C,D,E,F,G,H,I,J>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J];
+  <A,B,C,D,E,F,G,H,I,J,K>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K];
+  <A>(targets: [Re<A>], deps?: any[]): [A];
+}
+
+
 
 
 
@@ -788,12 +856,12 @@ const make_combine = (cfg, is_signal?) => {
 
 
 
-const selector: SelectorFactory = (fn) => (
+const selector: SelectorEntry = (fn) => (
   fill_entity(sel(fn).slice(0, 1), proto_entity_readable)
 )
 
 
-const value: ValueFactory = ((initial) => (
+const value: ValueEntry = ((initial) => (
   fill_entity(box(initial), proto_entity_writtable_leaf, 1, initial)
 )) as any;
 
@@ -814,7 +882,7 @@ value[key_from] = value_from;
 value[key_combine] = value_combine;
 
 
-const signal: SignalFactory = ((initial) => {
+const signal: SignalEntry = ((initial) => {
   const h = box(initial, 0 as any, pure_arrow_fn_returns_undef);
   h[key_is_signal] = 1;
   return fill_entity(h, proto_entity_writtable_leaf, 1, initial)
@@ -1039,17 +1107,17 @@ const useForceUpdate = () => (
   useReducer(() => [], [])[1] as () => void
 )
 
-const observe = <T extends FC>(FunctionComponent: T): T => {
+const observe: Observe = (target) => {
   return function (this: any) {
-    const forceUpdate = useForceUpdate();
-    const ref = useRef<[T, () => void]>();
-    if (!ref.current) ref.current = expr(FunctionComponent, forceUpdate);
-    useEffect(() => ref.current![1], []);
+    const force_update = useForceUpdate();
+    const ref = useRef<any>();
+    if (!ref.current) ref.current = expr(target, force_update);
+    useEffect(() => ref.current[1], []);
 
     const stack = context_is_observe;
     context_is_observe = 1;
     try {
-      return (ref.current[0] as any).apply(this, arguments);
+      return ref.current[0].apply(this, arguments);
     } finally {
       context_is_observe = stack;
     }
@@ -1062,7 +1130,7 @@ const Scope: FC = ({ children }) => {
   return createElement(get_scope_context().Provider, { value: h }, children);
 };
 
-const useScoped = <M>(target: (new (init?: any) => M) | ((init?: any) => M)): M => {
+const useScoped: UseScoped = (target) => {
   const context_data = useContext(get_scope_context());
   if (!context_data) {
     throw new Error('"Scope" parent component didn\'t find');
@@ -1080,10 +1148,8 @@ const useScoped = <M>(target: (new (init?: any) => M) | ((init?: any) => M)): M 
   return instance;
 }
 
-const useLocal = <T extends unknown[], M>(
-  target: (new (...args: T) => M) | ((...args: T) => M),
-  deps = ([] as unknown) as T
-): M => {
+const useLocal: UseLocal = (target, deps: any) => {
+  deps || (deps = []);
   const h = useMemo(() => {
     const i = inst(target, deps, 1);
     const call_local_injects = () => call_fns_array(i[2]);
@@ -1095,8 +1161,9 @@ const useLocal = <T extends unknown[], M>(
   return h[0];
 }
 
-const useValue = <T>(target: Reactionable<T>, deps: any[] = []): T => {
-  const forceUpdate = context_is_observe || useForceUpdate();
+const useValue: UseValue = (target, deps) => {
+  deps || (deps = []);
+  const force_update = context_is_observe || useForceUpdate();
   const h = useMemo(() => {
     if (!target) return [target, () => {}];
     if ((target as any)[key_get]) target = (target as any)[key_get];
@@ -1106,7 +1173,7 @@ const useValue = <T>(target: Reactionable<T>, deps: any[] = []): T => {
         return [target, 0, 1];
       } else {
         const [run, stop] = expr(target as any, () => {
-          forceUpdate();
+          force_update();
           run();
         });
         run();
@@ -1120,6 +1187,12 @@ const useValue = <T>(target: Reactionable<T>, deps: any[] = []): T => {
   context_is_observe || useEffect(h[1], [h]);
   return h[2] ? h[0]() : h[0];
 }
+
+const useValues: UseValues = ((targets, deps) => {
+  deps || (deps = []);
+  const h = useMemo(() => value.combine(targets), deps);
+  return useValue(h, [h]);
+}) as any;
 
 
 
