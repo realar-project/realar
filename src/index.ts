@@ -160,7 +160,7 @@ type UseValue = {
 }
 
 type UseValues_CfgExemplar = {
-  [key: string]: Re<any> | any
+  [key: string]: Re<any>
 }
 type UseValues_ExpandCfgTargets<T> = {
   [P in keyof T]: T[P] extends Re<infer Re_T> ? Re_T : T[P]
