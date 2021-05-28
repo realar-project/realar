@@ -3,8 +3,6 @@ import rb from 'reactive-box';
 
 /*
   TODOs:
-  [] test cases for useJsx
-
   [] typings for builder
   [] documentation update
 
