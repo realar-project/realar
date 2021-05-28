@@ -3,7 +3,7 @@ import rb from 'reactive-box';
 
 /*
   TODOs:
-  [] useJsx(() => {}, [...deps]?);
+  [] test cases for useJsx
 
   [] typings for builder
   [] documentation update
@@ -81,6 +81,7 @@ type Value<I,O = I> = {
   set: (value: I) => void;
   get: () => O;
 
+  val: I & O;
   select: any;
   update: any;
 }
@@ -200,7 +201,7 @@ type UseValues = {
 }
 
 type UseJsx = {
-  <T extends FC>(func: T, deps?: any[]): React.MemoExoticComponent<T>;
+  <T = {}>(func: FC<T>, deps?: any[]): React.MemoExoticComponent<FC<T>>;
 }
 
 
@@ -1240,7 +1241,7 @@ const useValues: UseValues = (targets, deps):any => {
 };
 
 const useJsx: UseJsx = (target, deps): any => (
-  useMemo(() => observe(target), deps || [])
+  useMemo(() => observe(target as any), deps || [])
 );
 
 
