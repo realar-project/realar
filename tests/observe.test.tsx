@@ -7,7 +7,7 @@ type ForwardRefButtonProps = {
   onClick?: () => void;
 };
 const ForwardRefButton = React.forwardRef<HTMLButtonElement, ForwardRefButtonProps>(
-  observe((props, ref) => (
+  observe.nomemo((props, ref) => (
     <button ref={ref} onClick={props.onClick}>
       {props.data?.value}
     </button>

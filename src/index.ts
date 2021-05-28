@@ -68,6 +68,7 @@ export {
   useScoped,
   shared as useShared,
   Scope,
+  useJsx,
 };
 
 
@@ -144,7 +145,10 @@ type Pool<K> = K & {
 
 
 type Observe = {
-  <T extends FC>(FunctionComponent: T): T;
+  <T extends FC>(FunctionComponent: T): React.MemoExoticComponent<T>;
+  nomemo: {
+    <T extends FC>(FunctionComponent: T): T;
+  }
 }
 type UseScoped = {
   <M>(target: (new (init?: any) => M) | ((init?: any) => M)): M;
@@ -195,6 +199,9 @@ type UseValues = {
   <A>(targets: [Re<A>], deps?: any[]): [A];
 }
 
+type UseJsx = {
+  <T extends FC>(func: T, deps?: any[]): React.MemoExoticComponent<T>;
+}
 
 
 
@@ -212,6 +219,7 @@ let useMemo: typeof React.useMemo;
 let useContext: typeof React.useContext;
 let createContext: typeof React.createContext;
 let createElement: typeof React.createElement;
+let memo: typeof React.memo;
 
 /* istanbul ignore next */
 try {
@@ -224,8 +232,9 @@ try {
   useContext = react.useContext;
   createContext = react.createContext;
   createElement = react.createElement;
+  memo = react.memo;
 } catch (e) {
-  useRef = useReducer = useEffect = useMemo = useContext = createContext = createElement = (() => {
+  useRef = useReducer = useEffect = useMemo = useContext = createContext = createElement = memo = (() => {
     throw new Error('Missed "react" dependency');
   }) as any;
 }
@@ -244,10 +253,6 @@ let shared_unsubs = [] as any;
 let context_unsubs: any;
 let context_local_injects: any;
 let context_contextual_stop: any;
-let context_is_observe: any;
-
-let react_scope_context: any;
-
 
 
 //
@@ -331,6 +336,8 @@ const key_op = 'op';
 const key_inject = 'inject';
 const key_stop = 'stop';
 const key_unsafe = 'unsafe';
+
+
 
 const obj_def_prop_value = (obj, key, value) => (
   obj_def_prop(obj, key, { value }), value
@@ -1114,6 +1121,16 @@ const cache = (_proto: any, key: any, descriptor: any): any => ({
 
 
 //
+// React bindings global definitions
+//
+
+let context_is_observe: any;
+let react_scope_context: any;
+let observe_no_memo_flag: any;
+
+const key_nomemo = 'nomemo';
+
+//
 // React bindings
 //
 
@@ -1125,8 +1142,8 @@ const useForceUpdate = () => (
   useReducer(() => [], [])[1] as () => void
 )
 
-const observe: Observe = (target) => {
-  return function (this: any) {
+const observe: Observe = ((target) => {
+  function fn (this: any) {
     const force_update = useForceUpdate();
     const ref = useRef<any>();
     if (!ref.current) ref.current = expr(target, force_update);
@@ -1139,8 +1156,18 @@ const observe: Observe = (target) => {
     } finally {
       context_is_observe = stack;
     }
-  } as any;
-}
+  }
+  return observe_no_memo_flag
+    ? ((observe_no_memo_flag = 0), fn)
+    : memo(fn)
+}) as any;
+
+const observe_nomemo: Observe['nomemo'] = (target): any => (
+  (observe_no_memo_flag = 1),
+  observe(target)
+)
+
+observe[key_nomemo] = observe_nomemo;
 
 const Scope: FC = ({ children }) => {
   const h = useMemo(() => [new Map(), [], []], []) as any;
@@ -1206,12 +1233,15 @@ const useValue: UseValue = (target, deps) => {
   return h[2] ? h[0]() : h[0];
 }
 
-const useValues: UseValues = ((targets, deps) => {
+const useValues: UseValues = (targets, deps):any => {
   deps || (deps = []);
   const h = useMemo(() => value.combine(targets), deps);
   return useValue(h, [h]);
-}) as any;
+};
 
+const useJsx: UseJsx = (target, deps): any => (
+  useMemo(() => observe(target), deps || [])
+);
 
 
 
