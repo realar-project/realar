@@ -6,6 +6,8 @@ import rb from 'reactive-box';
   [] typings for builder
   [] documentation update
 
+
+  Backlog:
   [] .as.trigger
   [] .as.value.trigger
   [] .as.signal.trigger
@@ -75,6 +77,77 @@ export {
 //  Typings.
 //
 
+type Re<T> = { get: () => T } | (() => T);
+
+
+//
+// Entity framework typings
+//
+
+
+// .to
+type ENsReadableTo<T, Builder> = {
+  (func: (value: T, prev: T) => void): Builder
+  once(func: (value: T, prev: T) => void): Builder
+}
+// .filter.not
+type ENsReadableFilterNot<T, Builder> = {
+  (func?: (value: T) => any): Builder
+  track(func?: (value: T) => any): Builder
+  untrack(func?: (value: T) => any): Builder
+}
+// .filter
+type ENsReadableFilter<T, Builder> = {
+  (func?: (value: T) => any): Builder
+  not: ENsReadableFilterNot<Builder, T>
+  track(func?: (value: T) => any): Builder
+  untrack(func?: (value: T) => any): Builder
+}
+// .select.multiple
+type ENsReadableSelectMultiple<T> = {
+  // TODO: add typings for select multiple
+  (cfg: any[]): any
+  track(cfg: any[]): any
+  untrack(cfg: any[]): any
+}
+// .select
+type ENsReadableSelect<T> = {
+  <R>(func?: (value: T) => R): Selector<R>
+  multiple: ENsReadableSelectMultiple<T>
+  track<R>(func?: (value: T) => R): Selector<R>
+  untrack<R>(func?: (value: T) => R): Selector<R>
+}
+// .as
+type ENsReadableAs<T> = {
+  value(): Value<T>
+}
+
+type EReadable_ViewRet<R, Builder> =
+  Builder extends Value<any>
+    ? Value<R>
+    : never
+
+type EReadable<T, Builder> = {
+  sync(func: (value: T, prev: T) => void): Builder
+  op<R>(func: () => R): R extends void ? Builder : R
+  to: ENsReadableTo<T, Builder>
+  filter: ENsReadableFilter<T, Builder>
+  select: ENsReadableSelect<T>
+  as: ENsReadableAs<T>
+  view<R>(func: (value: T) => R): EReadable_ViewRet<R, Builder>
+  // TODO: flow
+  // TODO: join
+  promise: Promise<T>
+}
+
+// Exportable
+
+type Selector<O> = {
+  get: () => O;
+  val: O;
+  select: any;
+}
+
 type Value<I,O = I> = {
   set: (value: I) => void;
   get: () => O;
@@ -113,6 +186,12 @@ type SignalEntry = {
   combine: { (cfg: any): any }
 };
 
+
+
+//
+// Realar external api typings
+//
+
 type Local = {
   inject(fn: () => void): void;
 }
@@ -133,9 +212,9 @@ type Untrack = {
 }
 
 
-type Reactionable<T> = { get: () => T } | (() => T);
-type Re<T> = Reactionable<T>;
-
+//
+// Realar external api typings for React
+//
 
 type Observe = {
   <T extends FC>(FunctionComponent: T): React.MemoExoticComponent<T>;
@@ -153,7 +232,7 @@ type UseLocal = {
   ): M;
 }
 type UseValue = {
-  <T>(target: Reactionable<T>, deps?: any[]): T;
+  <T>(target: Re<T>, deps?: any[]): T;
 }
 
 type UseValues_CfgExemplar = {
@@ -198,6 +277,10 @@ type UseJsx = {
   <T = {}>(func: FC<T>, deps?: any[]): React.MemoExoticComponent<FC<T>>;
 }
 
+
+//
+// Realar additions external api typings
+//
 
 type PoolEntry_BodyExemplar = {
   (...args: any[]): Promise<any>;
