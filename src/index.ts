@@ -78,69 +78,94 @@ export {
 //
 
 type Re<T> = { get: () => T } | (() => T);
-
+type Re_Exemplar = Re<any>;
 
 //
 // Entity framework typings
 //
 
 
-// .to
-type ENsReadableTo<T, Builder> = {
-  (func: (value: T, prev: T) => void): Builder
-  once(func: (value: T, prev: T) => void): Builder
-}
-// .filter.not
-type ENsReadableFilterNot<T, Builder> = {
-  (func?: (value: T) => any): Builder
-  track(func?: (value: T) => any): Builder
-  untrack(func?: (value: T) => any): Builder
-}
-// .filter
-type ENsReadableFilter<T, Builder> = {
-  (func?: (value: T) => any): Builder
-  not: ENsReadableFilterNot<Builder, T>
-  track(func?: (value: T) => any): Builder
-  untrack(func?: (value: T) => any): Builder
-}
-// .select.multiple
-type ENsReadableSelectMultiple<T> = {
+type EReadable_SelectMultiple<T> = {
   // TODO: add typings for select multiple
   (cfg: any[]): any
   track(cfg: any[]): any
   untrack(cfg: any[]): any
 }
-// .select
-type ENsReadableSelect<T> = {
-  <R>(func?: (value: T) => R): Selector<R>
-  multiple: ENsReadableSelectMultiple<T>
-  track<R>(func?: (value: T) => R): Selector<R>
-  untrack<R>(func?: (value: T) => R): Selector<R>
-}
-// .as
-type ENsReadableAs<T> = {
-  value(): Value<T>
-}
-
-type EReadable_ViewRet<R, Builder> =
-  Builder extends Value<any>
+type EReadable_ViewRetByCtx<R, Ctx> =
+  Ctx extends Value<any>
     ? Value<R>
     : never
 
-type EReadable<T, Builder> = {
-  sync(func: (value: T, prev: T) => void): Builder
-  op<R>(func: () => R): R extends void ? Builder : R
-  to: ENsReadableTo<T, Builder>
-  filter: ENsReadableFilter<T, Builder>
-  select: ENsReadableSelect<T>
-  as: ENsReadableAs<T>
-  view<R>(func: (value: T) => R): EReadable_ViewRet<R, Builder>
-  // TODO: flow
-  // TODO: join
-  promise: Promise<T>
+interface EReadable<O, Ctx> {
+  get: () => O
+  readonly val: O
+
+  sync(func: (value: O, prev: O) => void): Ctx
+  op<R>(func: () => R): R extends void ? Ctx : R
+  to: {
+    (func: (value: O, prev: O) => void): Ctx
+    once(func: (value: O, prev: O) => void): Ctx
+  }
+  filter: {
+    (func?: (value: O) => any): Ctx
+    track(func?: (value: O) => any): Ctx
+    untrack(func?: (value: O) => any): Ctx
+    not: {
+      (func?: (value: O) => any): Ctx
+      track(func?: (value: O) => any): Ctx
+      untrack(func?: (value: O) => any): Ctx
+    }
+  }
+  select: {
+    <R>(func?: (value: O) => R): Selector<R>
+    track<R>(func?: (value: O) => R): Selector<R>
+    untrack<R>(func?: (value: O) => R): Selector<R>
+    multiple: EReadable_SelectMultiple<O>
+  }
+  as: {
+    value(): Value<O>
+  }
+  view<R>(func: (value: O) => R): EReadable_ViewRetByCtx<R, Ctx>
+  flow: any // TODO: flow typings
+  join: any // TODO: join typings
+  promise: Promise<O>
 }
 
-// Exportable
+interface EWrittable<I, O, Ctx> extends EReadable<O, Ctx> {
+  set(value: I): void
+  val: I & O
+
+  update: {
+    (func: (value: O) => I): void
+    track(func: (value: O) => I): void
+    untrack(func: (value: O) => I): void
+    by: {
+      <T>(re: Re<T>, updater: (state: O, reValue: T, rePrev: T) => I)
+      once: {
+        <T>(re: Re<T>, updater: (state: O, reValue: T, rePrev: T) => I)
+      }
+    }
+  }
+  pre: {
+    <N>(func: (value: N) => I): Ctx // TODO: Ctx type should be input changed
+    track<N>(func: (value: N) => I): Ctx // TODO: Ctx type should be input changed
+    untrack<N>(func: (value: N) => I): Ctx // TODO: Ctx type should be input changed
+    filter: {
+      (func?: (value: O) => any): Ctx
+      not: {
+        (func?: (value: O) => any): Ctx
+        track(func?: (value: O) => any): Ctx
+        untrack(func?: (value: O) => any): Ctx
+      }
+      track(func?: (value: O) => any): Ctx
+      untrack(func?: (value: O) => any): Ctx
+    }
+  }
+}
+
+//
+// Public
+//
 
 type Selector<O> = {
   get: () => O;
@@ -593,7 +618,7 @@ const prop_factory_dirty_required_initial = (ctx) => {
 
 
 
-const trait_ent_update = (ctx, fn) => (fn && ctx[key_set](fn(untrack(ctx[key_get]))));
+const trait_ent_update = (ctx, fn) => ctx[key_set](fn ? fn(untrack(ctx[key_get])) : untrack(ctx[key_get]));
 const trait_ent_update_untrack = make_trait_ent_pure_fn_untrack(trait_ent_update);
 const trait_ent_update_by = (ctx, src, fn) => (
   reactionable_subscribe(src, fn
