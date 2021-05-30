@@ -136,12 +136,6 @@ type Untrack = {
 type Reactionable<T> = { get: () => T } | (() => T);
 type Re<T> = Reactionable<T>;
 
-type Pool<K> = K & {
-  count: any;
-  threads: any;
-  pending: any;
-};
-
 
 type Observe = {
   <T extends FC>(FunctionComponent: T): React.MemoExoticComponent<T>;
@@ -205,6 +199,18 @@ type UseJsx = {
 }
 
 
+type PoolEntry_BodyExemplar = {
+  (...args: any[]): Promise<any>;
+}
+type PoolEntry = {
+  <K extends PoolEntry_BodyExemplar>(body: K): Pool<K>
+}
+
+type Pool<K> = K & {
+  count: any;
+  threads: any;
+  pending: any;
+};
 
 
 //
@@ -1250,7 +1256,7 @@ const useJsx: UseJsx = (target, deps): any => (
 // Pool abstraction
 //
 
-const pool = <K extends () => Promise<any>>(body: K): Pool<K> => {
+const pool: PoolEntry = (body): any => {
   const threads = value([]);
   const count = threads.select(t => t.length);
   const pending = count.select(c => c > 0);
@@ -1280,7 +1286,7 @@ const pool = <K extends () => Promise<any>>(body: K): Pool<K> => {
   run.threads = threads;
   run.pending = pending;
 
-  return run as any;
+  return run;
 }
 
 
