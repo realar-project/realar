@@ -235,18 +235,18 @@ type Value<I,O = I> = {
 
   // writtable section
   update: {
-    (func: (value: O) => I): void                   // untracked by default
-    track(func: (value: O) => I): void
+    (func?: (value: O) => I): void                  // untracked by default
+    track(func?: (value: O) => I): void
     by: {
-      <T>(re: Re<T>, updater: (state: O, reValue: T, rePrev: T) => I)
+      <T>(re: Re<T>, updater?: (state: O, reValue: T, rePrev: T) => I)
       once: {
-        <T>(re: Re<T>, updater: (state: O, reValue: T, rePrev: T) => I)
+        <T>(re: Re<T>, updater?: (state: O, reValue: T, rePrev: T) => I)
       }
     }
   }
   pre: {
-    <N>(func: (value: N) => I): Value<N, O>         // tracked by default
-    untrack<N>(func: (value: N) => I): Value<N, O>
+    <N>(func?: (value: N) => I): Value<N, O>        // tracked by default
+    untrack<N>(func?: (value: N) => I): Value<N, O>
     filter: {
       (func?: (value: O) => any): Value<I, O>       // tracked by default
       untrack(func?: (value: O) => any): Value<I, O>
