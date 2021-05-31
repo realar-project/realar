@@ -3,6 +3,9 @@ import rb from 'reactive-box';
 
 /*
   TODOs:
+  [] maybe make val as readonly property for fix "never" type for prepended values and signals
+    or I can make readonly val only for prepended values and signals (think about).
+
   [] typings for builder
   [] documentation update
 
