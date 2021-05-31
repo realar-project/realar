@@ -99,7 +99,12 @@ export {
 
 
 //
-//  Typings.
+// Typings.
+//
+
+
+//
+// Private
 //
 
 // @see https://github.com/Microsoft/TypeScript/issues/27024
@@ -110,119 +115,23 @@ type Equals<X, Y> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y
 
 type Re<T> = { get: () => T } | (() => T);
 
+
 //
-// Entity framework typings
+// Entity types
 //
 
-
-type EReadable_SelectMultiple<T> = {
-  // TODO: add typings for select multiple
-  (cfg: any[]): any
-  track(cfg: any[]): any
-  untrack(cfg: any[]): any
-}
-
-interface EReadable<O, Ctx> {
-  get: () => O
-  readonly val: O
-
-  sync(func: (value: O, prev: O) => void): Ctx
-  op<R>(func: () => R): R extends void ? Ctx : R
-  to: {
-    (func: (value: O, prev: O) => void): Ctx
-    once(func: (value: O, prev: O) => void): Ctx
-  }
-  filter: {
-    (func?: (value: O) => any): Ctx
-    track(func?: (value: O) => any): Ctx
-    untrack(func?: (value: O) => any): Ctx
-    not: {
-      (func?: (value: O) => any): Ctx
-      track(func?: (value: O) => any): Ctx
-      untrack(func?: (value: O) => any): Ctx
-    }
-  }
-  select: {
-    <R>(func?: (value: O) => R): Selector<R>
-    track<R>(func?: (value: O) => R): Selector<R>
-    untrack<R>(func?: (value: O) => R): Selector<R>
-    multiple: EReadable_SelectMultiple<O>
-  }
-  as: {
-    value(): Value<O>
-  }
-  view: {
-    <R>(func: (value: O) => R): E_ChangeReadableContextType<R, Ctx>
-    track<R>(func: (value: O) => R): E_ChangeReadableContextType<R, Ctx>
-    untrack<R>(func: (value: O) => R): E_ChangeReadableContextType<R, Ctx>
-  }
-  flow: any // TODO: flow typings
-  join: any // TODO: join typings
-  promise: Promise<O>
-}
-
-interface EWrittable<I, O, Ctx> extends EReadable<O, Ctx> {
-  set(value: I): void
-  val: I & O
-
-  update: {
-    (func: (value: O) => I): void
-    track(func: (value: O) => I): void
-    untrack(func: (value: O) => I): void
-    by: {
-      <T>(re: Re<T>, updater: (state: O, reValue: T, rePrev: T) => I)
-      once: {
-        <T>(re: Re<T>, updater: (state: O, reValue: T, rePrev: T) => I)
-      }
-    }
-  }
-  pre: {
-    <N>(func: (value: N) => I): Ctx // TODO: Ctx type should be input changed
-    track<N>(func: (value: N) => I): Ctx // TODO: Ctx type should be input changed
-    untrack<N>(func: (value: N) => I): Ctx // TODO: Ctx type should be input changed
-    filter: {
-      (func?: (value: O) => any): Ctx
-      not: {
-        (func?: (value: O) => any): Ctx
-        track(func?: (value: O) => any): Ctx
-        untrack(func?: (value: O) => any): Ctx
-      }
-      track(func?: (value: O) => any): Ctx
-      untrack(func?: (value: O) => any): Ctx
-    }
+interface E_UpdaterPartial<I, O> {
+  updater: {
+    <U>(func?: (state: O, upValue: U, upPrev: U) => I): Equals<U, unknown> extends true ? Signal<void> : Signal<U>
+    value<U>(func?: (state: O, upValue: U, upPrev: U) => I): Equals<U, unknown> extends true ? Value<void> : Value<U>
   }
 }
 
 
 
+interface Value<I,O = I> extends E_UpdaterPartial<I,O> {
+  (value: I): void;
 
-type E_ChangeReadableContextType<T, Ctx> =
-  Ctx extends Value<infer I>
-    ? Value<I, T>
-    : never
-type E_ChangeWrittableContextType<I, O, Ctx> =
-  Ctx extends Value<any>
-    ? Value<I, O>
-    : never
-
-//
-// Public
-//
-
-type Selector<O> = {
-  get: () => O;
-  val: O;
-  select: any;
-}
-
-
-
-
-
-
-
-
-type Value<I,O = I> = {
   set: (value: I) => void;
   get: () => O;
 
@@ -246,7 +155,10 @@ type Value<I,O = I> = {
   select: {
     <R>(func?: (value: O) => R): Selector<R>        // tracked by default
     untrack<R>(func?: (value: O) => R): Selector<R>
-    multiple: any // TODO: .select.multiple typings
+    multiple: {
+      (cfg: any[]): any // TODO: .select.multiple typings
+      untrack(cfg: any[]): any
+    }
   }
   view: {
     <R>(func: (value: O) => R): Value<I, R>         // tracked by default
@@ -285,6 +197,83 @@ type Value<I,O = I> = {
 
 
 
+interface Signal<I,O = I> extends E_UpdaterPartial<I,O> {
+  (value: I): void;
+
+  set: (value: I) => void;
+  get: () => O;
+
+  val: Equals<I, O> extends true ? O : never;
+
+  // readable section
+  sync(func: (value: O, prev: O) => void): Signal<I, O>
+  op<R>(func: () => R): R extends void ? Signal<I, O> : R
+  to: {
+    (func: (value: O, prev: O) => void): Signal<I, O>
+    once(func: (value: O, prev: O) => void): Signal<I, O>
+  }
+  filter: {
+    (func?: (value: O) => any): Signal<I, O>         // untracked by default
+    track(func?: (value: O) => any): Signal<I, O>
+    not: {
+      (func?: (value: O) => any): Signal<I, O>       // untracked by default
+      track(func?: (value: O) => any): Signal<I, O>
+    }
+  }
+  select: {
+    <R>(func?: (value: O) => R): Selector<R>        // tracked by default
+    untrack<R>(func?: (value: O) => R): Selector<R>
+    multiple: {
+      (cfg: any[]): any // TODO: .select.multiple typings
+      untrack(cfg: any[]): any
+    }
+  }
+  view: {
+    <R>(func: (value: O) => R): Signal<I, R>         // tracked by default
+    untrack<R>(func: (value: O) => R): Signal<I, R>
+  }
+
+  flow: any // TODO: .flow typings
+  join: any // TODO: .join typings
+
+  promise: Promise<O>
+
+  // writtable section
+  update: {
+    (func?: (value: O) => I): void                  // untracked by default
+    track(func?: (value: O) => I): void
+    by: {
+      <T>(re: Re<T>, updater?: (state: O, reValue: T, rePrev: T) => I)
+      once: {
+        <T>(re: Re<T>, updater?: (state: O, reValue: T, rePrev: T) => I)
+      }
+    }
+  }
+  pre: {
+    <N>(func?: (value: N) => I): Signal<N, O>        // tracked by default
+    untrack<N>(func?: (value: N) => I): Signal<N, O>
+    filter: {
+      (func?: (value: O) => any): Signal<I, O>       // tracked by default
+      untrack(func?: (value: O) => any): Signal<I, O>
+      not: {                                        // tracked by default
+        (func?: (value: O) => any): Signal<I, O>
+        untrack(func?: (value: O) => any): Signal<I, O>
+      }
+    }
+  }
+}
+
+
+
+
+
+
+
+type Selector<O> = {
+  get: () => O;
+  val: O;
+  select: any;
+}
 
 
 
@@ -294,6 +283,9 @@ type Value<I,O = I> = {
 
 
 
+//
+// Entry types
+//
 
 type ValueEntry = {
   <T>(initial?: T): Value<T>;
@@ -307,11 +299,13 @@ type ValueEntry = {
   from: { (get: () => any, set?: (v) => any): any },
   combine: { (cfg: any): any }
 }
+
 type SelectorEntry = {
   (fn: () => any): any;
 }
+
 type SignalEntry = {
-  <T>(initial?: any): any;
+  <T>(initial?: T): Signal<T>;
   trigger: {
     (initial?: any): any;
     flag: {

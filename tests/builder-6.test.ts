@@ -1369,7 +1369,7 @@ test('should work signal with as.value', () => {
 test('should work value updater', () => {
   const v = value(0);
   const inc = v.updater(v => v + 1);
-  const inc_add = v.updater.value((v, n) => v + n + 1);
+  const inc_add = v.updater.value((v, n: number) => v + n + 1);
 
   expect(v.val).toBe(0);
   inc();
@@ -1388,7 +1388,7 @@ test('should work value updater', () => {
 test('should work signal updater', () => {
   const v = signal(0);
   const inc = v.updater(v => v + 1);
-  const inc_add = v.updater.value((v, n) => v + n + 1);
+  const inc_add = v.updater.value((v, n: number) => v + n + 1);
 
   expect(v.val).toBe(0);
   inc();
