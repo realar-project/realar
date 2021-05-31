@@ -4,11 +4,14 @@ import rb from 'reactive-box';
 /*
   TODOs:
 
+  [] Make pre.0 version
+  [] Add first example to documentation
+
   ```
     // First example:
     const v = value(0);
-    const inc = v.updater(v => v + 1); // new signal fn: (state, updater_value, updater_prev_value)
-    const dec = v.updater(v => v - 1);
+    const inc = v.updater(v => v + 1);
+    const add = v.updater((v, num: number) => v + num);
 
     // -- only react examples here --
 
@@ -687,7 +690,7 @@ const make_join_entity = (fn_get, join_cfg, is_signal?, set?, is_untrack?) => {
 }
 
 const make_updater = (ctx, fn, is_value?) => (
-  is_value = (is_value ? value : signal)(),
+  is_value = ((is_value ? value : signal) as any)(),
   trait_ent_update_by(ctx, is_value, fn),
   is_value
 )
