@@ -4,16 +4,9 @@ import rb_lib from 'reactive-box';
 /*
   TODOs:
 
-  [] Make pre.0 version
-  [] Add first example to documentation
+  [] Add second example to documentation
 
   ```
-    // First example:
-    const v = value(0);
-    const inc = v.updater(v => v + 1);
-    const add = v.updater((v, num: number) => v + num);
-
-    // -- only react examples here --
 
     // Second example
     const Loader = () => {
@@ -27,7 +20,6 @@ import rb_lib from 'reactive-box';
     }
   ```
 
-
   [] maybe make val as readonly property for fix "never" type for prepended values and signals
     or I can make readonly val only for prepended values and signals (think about).
 
@@ -36,6 +28,7 @@ import rb_lib from 'reactive-box';
 
 
   Backlog:
+  [] Try terser for result code size optimization
   [] .as.trigger
   [] .as.value.trigger
   [] .as.signal.trigger
