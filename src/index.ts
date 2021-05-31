@@ -77,8 +77,13 @@ export {
 //  Typings.
 //
 
+// @see https://github.com/Microsoft/TypeScript/issues/27024
+type Equals<X, Y> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2)
+  ? ([X] extends [Y]
+    ? ([Y] extends [X] ? true : false) : false)
+  : false;
+
 type Re<T> = { get: () => T } | (() => T);
-type Re_Exemplar = Re<any>;
 
 //
 // Entity framework typings
@@ -91,10 +96,6 @@ type EReadable_SelectMultiple<T> = {
   track(cfg: any[]): any
   untrack(cfg: any[]): any
 }
-type EReadable_ViewRetByCtx<R, Ctx> =
-  Ctx extends Value<any>
-    ? Value<R>
-    : never
 
 interface EReadable<O, Ctx> {
   get: () => O
@@ -125,7 +126,11 @@ interface EReadable<O, Ctx> {
   as: {
     value(): Value<O>
   }
-  view<R>(func: (value: O) => R): EReadable_ViewRetByCtx<R, Ctx>
+  view: {
+    <R>(func: (value: O) => R): E_ChangeReadableContextType<R, Ctx>
+    track<R>(func: (value: O) => R): E_ChangeReadableContextType<R, Ctx>
+    untrack<R>(func: (value: O) => R): E_ChangeReadableContextType<R, Ctx>
+  }
   flow: any // TODO: flow typings
   join: any // TODO: join typings
   promise: Promise<O>
@@ -163,6 +168,18 @@ interface EWrittable<I, O, Ctx> extends EReadable<O, Ctx> {
   }
 }
 
+
+
+
+type E_ChangeReadableContextType<T, Ctx> =
+  Ctx extends Value<infer I>
+    ? Value<I, T>
+    : never
+type E_ChangeWrittableContextType<I, O, Ctx> =
+  Ctx extends Value<any>
+    ? Value<I, O>
+    : never
+
 //
 // Public
 //
@@ -173,14 +190,84 @@ type Selector<O> = {
   select: any;
 }
 
+
+
+
+
+
+
+
 type Value<I,O = I> = {
   set: (value: I) => void;
   get: () => O;
 
-  val: I & O;
-  select: any;
-  update: any;
+  val: Equals<I, O> extends true ? O : never;
+
+  // readable section
+  sync(func: (value: O, prev: O) => void): Value<I, O>
+  op<R>(func: () => R): R extends void ? Value<I, O> : R
+  to: {
+    (func: (value: O, prev: O) => void): Value<I, O>
+    once(func: (value: O, prev: O) => void): Value<I, O>
+  }
+  filter: {
+    (func?: (value: O) => any): Value<I, O>         // tracked by default
+    untrack(func?: (value: O) => any): Value<I, O>
+    not: {
+      (func?: (value: O) => any): Value<I, O>       // tracked by default
+      untrack(func?: (value: O) => any): Value<I, O>
+    }
+  }
+  select: {
+    <R>(func?: (value: O) => R): Selector<R>        // tracked by default
+    untrack<R>(func?: (value: O) => R): Selector<R>
+    multiple: any // TODO: .select.multiple typings
+  }
+  view: {
+    <R>(func: (value: O) => R): Value<I, R>         // tracked by default
+    untrack<R>(func: (value: O) => R): Value<I, R>
+  }
+
+  flow: any // TODO: .flow typings
+  join: any // TODO: .join typings
+
+  promise: Promise<O>
+
+  // writtable section
+  update: {
+    (func: (value: O) => I): void                   // untracked by default
+    track(func: (value: O) => I): void
+    by: {
+      <T>(re: Re<T>, updater: (state: O, reValue: T, rePrev: T) => I)
+      once: {
+        <T>(re: Re<T>, updater: (state: O, reValue: T, rePrev: T) => I)
+      }
+    }
+  }
+  pre: {
+    <N>(func: (value: N) => I): Value<N, O>         // tracked by default
+    untrack<N>(func: (value: N) => I): Value<N, O>
+    filter: {
+      (func?: (value: O) => any): Value<I, O>       // tracked by default
+      untrack(func?: (value: O) => any): Value<I, O>
+      not: {                                        // tracked by default
+        (func?: (value: O) => any): Value<I, O>
+        untrack(func?: (value: O) => any): Value<I, O>
+      }
+    }
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 type ValueEntry = {
