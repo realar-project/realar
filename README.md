@@ -2,11 +2,28 @@
 
 [![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar?style=flat-square)](https://bundlephobia.com/result?p=realar) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar) [![typescript supported](https://img.shields.io/npm/types/typescript?style=flat-square)](./src/index.ts)
 
-Object oriented state manager for React based on [reactive mathematic](https://github.com/betula/reactive-box).
+Realar state manager targeted to minimal code and module architecture for the best React possibilities.
 
-[Light](https://bundlephobia.com/result?p=realar), [Fast](https://github.com/betula/reactive-box-performance), and Pretty looked :kissing_heart:
+Realar's adventure will start from "value", is an immutable reactive container such as "store" from Redux terminology (for better understanding).
 
-Realar targeted to clean code, modulable architecture, and time to delivery user experience.
+You can easily make functional update signals (similar to an "action" from Redux) from "value" instance using dot notation with the "updater" method.
+
+```javascript
+import { value } from 'realar';
+
+const store = value(0);
+const inc = store.updater(state => state + 1);
+const add = store.updater((state, num: number) => state + num);
+
+store.to((state) => console.log(state));
+inc()     // console output: 1
+add(10)   // console output: 11
+```
+
+
+
+---
+
 
 Transparent functional reactive programming with classes, decorators and [babel jsx wrapper](https://github.com/betula/babel-plugin-realar)
 
@@ -35,7 +52,7 @@ You can use as many from Realar as you want. For small websites or theme switche
 
 - __Shared stateful logic decomposition__. The pattern for decomposing applications logic to separate independent or one direction dependent modules. Each module can have its own set of reactive values. (ssr, comfort “mock” mechanism for simple unit testing). Shared stateful logic is a single instantiated class with total accessibility from all parts of your application. In another terminology - services.
 
-- __Lightweight and Fast__. Really light ~3kB. And only those components are updated in which it is really necessary to make changes.
+- __Lightweight and Fast__. Less then 5kB. And only those components are updated in which it is really necessary to make changes.
 
 - __React component context level scopes__. Declaration one scope and use as many reactive values as you want without the need to define a new React context for each changeable value.
 
