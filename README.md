@@ -19,7 +19,7 @@ store.to((state) => console.log(state));
 inc()     // console output: 1
 add(10)   // console output: 11
 ```
-
+[Try on RunKit](https://runkit.com/betula/60b4e0cab769ca0021660348)
 
 
 ---
