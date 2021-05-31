@@ -3,6 +3,35 @@ import rb from 'reactive-box';
 
 /*
   TODOs:
+
+  [] Add updater factory signal
+    v.updater
+    v.updater.track
+    v.updater.value
+    v.updater.value.track
+
+
+  ```
+    // First example:
+    const v = value(0);
+    const inc = v.updater(v => v + 1); // new signal fn: (state, updater_value, updater_prev_value)
+    const dec = v.updater(v => v - 1);
+
+    // -- only react examples here --
+
+    // Second example
+    const Loader = () => {
+      const count = value(0);
+
+      return {
+        start: count.updater(v => v + 1),
+        stop: count.updater(v => v - 1),
+        pending: count.select(v => v > 0)
+      }
+    }
+  ```
+
+
   [] maybe make val as readonly property for fix "never" type for prepended values and signals
     or I can make readonly val only for prepended values and signals (think about).
 
