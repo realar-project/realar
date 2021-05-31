@@ -4,13 +4,6 @@ import rb from 'reactive-box';
 /*
   TODOs:
 
-  [] Add updater factory signal
-    v.updater
-    v.updater.track
-    v.updater.value
-    v.updater.value.track
-
-
   ```
     // First example:
     const v = value(0);
@@ -560,7 +553,7 @@ const key_invert = 'invert';
 const key_from = 'from';
 const key_is_signal = new_symbol();
 const key_track = 'track';
-const key_untrack = 'untrack';
+const key_untrack = 'un'+key_track;
 const key_multiple = 'multiple';
 const key_combine = 'combine';
 const key_join = 'join';
@@ -570,6 +563,7 @@ const key_op = 'op';
 const key_inject = 'inject';
 const key_stop = 'stop';
 const key_unsafe = 'unsafe';
+const key_updater = key_update+'r';
 
 
 
@@ -698,6 +692,12 @@ const make_join_entity = (fn_get, join_cfg, is_signal?, set?, is_untrack?) => {
   return fill_entity(h, set ? proto_entity_writtable : proto_entity_readable)
 }
 
+const make_updater = (ctx, fn, is_value?) => (
+  is_value = (is_value ? value : signal)(),
+  trait_ent_update_by(ctx, is_value, fn),
+  is_value
+)
+
 const make_trait_ent_pure_fn_untrack = (trait_fn) =>
   (ctx, fn) => trait_fn(ctx, fn && ((a,b) => {
     const finish = internal_untrack();
@@ -754,6 +754,8 @@ const trait_ent_update_by_once = (ctx, src, fn) => (
   ),
   ctx
 );
+const trait_ent_updater = (ctx, fn) => make_updater(ctx, fn);
+const trait_ent_updater_value = (ctx, fn) => make_updater(ctx, fn, 1);
 const trait_ent_sync = (ctx, fn) => (reactionable_subscribe(ctx, fn, 0, 1), ctx);
 const trait_ent_reset = (ctx) => {
   ctx[key_promise_internal] = 0;
@@ -990,6 +992,11 @@ obj_def_prop_trait_ns_with_ns(proto_entity_writtable_update_ns, key_by, trait_en
   proto_entity_writtable_update_by_ns
 );
 
+// writtable.updater:ns
+//   .updater.value
+const proto_entity_writtable_updater_ns = obj_create(pure_fn);
+obj_def_prop_trait_ns(proto_entity_writtable_updater_ns, key_value, trait_ent_updater_value);
+
 // writtable.pre.filter:ns      (track|untrack)
 //   .pre.filter.not            (track|untrack)
 const proto_entity_writtable_pre_filter_ns = obj_create(
@@ -1014,6 +1021,8 @@ obj_def_prop_trait_ns_with_ns(
 // writtable <- readable
 //   .update:writtable.update:ns            (track|untrack)
 //     .update.by
+//   .updater:writtable.updater:ns
+//     .updater.value
 //   .pre:writtable.pre:ns                  (track|untrack)
 //     .pre.filter:writtable.pre.filter:ns  (track|untrack)
 //       .pre.filter.not                    (track|untrack)
@@ -1023,6 +1032,12 @@ obj_def_prop_trait_with_ns(
   key_update,
   trait_ent_update_untrack,
   proto_entity_writtable_update_ns
+);
+obj_def_prop_trait_with_ns(
+  proto_entity_writtable,
+  key_updater,
+  trait_ent_updater,
+  proto_entity_writtable_updater_ns
 );
 obj_def_prop_trait_with_ns(
   proto_entity_writtable,

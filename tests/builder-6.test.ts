@@ -1365,3 +1365,41 @@ test('should work signal with as.value', () => {
   expect(spy_s).toBeCalledWith(1, 1); spy_s.mockReset();
   expect(spy_v).toBeCalledTimes(0);
 });
+
+test('should work value updater', () => {
+  const v = value(0);
+  const inc = v.updater(v => v + 1);
+  const inc_add = v.updater.value((v, n) => v + n + 1);
+
+  expect(v.val).toBe(0);
+  inc();
+  expect(v.val).toBe(1);
+  inc.update();
+  expect(v.val).toBe(2);
+
+  inc_add(0);
+  expect(v.val).toBe(3);
+  inc_add(1);
+  expect(v.val).toBe(5);
+  inc_add(1);
+  expect(v.val).toBe(5);
+});
+
+test('should work signal updater', () => {
+  const v = signal(0);
+  const inc = v.updater(v => v + 1);
+  const inc_add = v.updater.value((v, n) => v + n + 1);
+
+  expect(v.val).toBe(0);
+  inc();
+  expect(v.val).toBe(1);
+  inc.update();
+  expect(v.val).toBe(2);
+
+  inc_add(0);
+  expect(v.val).toBe(3);
+  inc_add(1);
+  expect(v.val).toBe(5);
+  inc_add(1);
+  expect(v.val).toBe(5);
+});
