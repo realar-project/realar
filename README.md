@@ -25,6 +25,8 @@ Realar targeted to all scale applications up to complex enterprise solutions on 
 Realar's adventure will start from "value", is an immutable reactive container such as "store" from Redux terminology
 
 ```javascript
+import { value } from 'realar'
+
 const store = value(0)
 ```
 
@@ -53,8 +55,10 @@ add(10)   // console output: 11
 The next step is React binding. Realar provides the beautiful api for working with React, and now you can use the first function.
 
 ```javascript
+import { useValue } from 'realar'
+
 const App = () => {
-  const state = useValue(store);
+  const state = useValue(store)
   return (
     <>
       <p>{state}</p>
