@@ -1,0 +1,132 @@
+### API
+
+**value**
+
+The first abstraction of Realar is reactive container - `value`.
+The `value` is a place where your store some data as an immutable struct.
+When you change value (rewrite to a new immutable struct) all who depend on It will be updated synchronously.
+
+For create new value we need `value` function from `realar`, and initial value that will store in reactive container.
+The call of `value` function returns array of two functions.
+- The first is value getter.
+- The second one is necessary for save new value to reactive container.
+
+```javascript
+const { get, set } = value(0);
+
+set(get() + 1);
+
+console.log(get()); // 1
+```
+[Edit on RunKit](https://runkit.com/betula/6013af7649e8720019c9cf2a)
+
+In that example
+- for a first we created `value` container for number with initial zero;
+- After that, we got the value, and set to its value plus one;
+- Let's print the result to the developer console, that will is one.
+
+We learned how to create a value, set, and get it.
+
+**on**
+
+The next basic abstraction is expression.
+Expression is a function that read reactive boxes or selectors. It can return value and write reactive values inside.
+
+We can subscribe to change any reactive expression using `on` function _(which also works with signal)_.
+
+```javascript
+const { get, set } = value(0);
+
+const next = () => get() + 1;
+
+on(next, (val, prev) => console.log(val, prev));
+
+set(5); // We will see 6 and 1 in developer console output, It are new and previous value
+```
+[Edit on RunKit](https://runkit.com/betula/6013ea214e0cf9001ac18e71)
+
+In that example expression is `next` function, because It get value and return that plus one.
+
+**selector**
+
+Necessary for making high-cost calculations and cache them for many times of accessing without changing source dependencies. And for downgrade (selection from) your hierarchical store.
+
+```javascript
+const store = value({
+  address: {
+    city: 'NY'
+  }
+});
+
+const address = selector(() => store.val.address);
+
+on(address, ({ city }) => console.log(city)); // Subscribe to address selector
+
+console.log(address.val.city); // Log current value of address selector
+
+store.update(state => ({
+  ...state,
+  user: {}
+}));
+// Store changed but non reaction from address selector
+
+store.update(state => ({
+  ...state,
+  address: {
+    city: 'LA'
+  }
+}));
+// We can see reaction on deleveloper console output with new address selector value
+```
+[Edit on RunKit](https://runkit.com/betula/60338ff8dbe368001a10be8c)
+
+**cache**
+
+`cache` - is the decorator for define `selector` on class getter.
+
+```javascript
+class Todos {
+  @prop items = [];
+
+  @cache get completed() {
+    return this.items.filter(item => item.completed);
+  }
+}
+```
+
+**cycle**
+
+```javascript
+const { get, set } = value(0);
+
+cycle(() => {
+  console.log(get() + 1);
+});
+
+set(1);
+set(2);
+
+// In output of developer console will be 1, 2 and 3.
+```
+[Edit on RunKit](https://runkit.com/betula/601a733c5bfc4e001a38def8)
+
+- Takes a function as reactive expression.
+- After each run: subscribe to all reactive values accessed while running
+- Re-run on data changes
+
+**sync**
+
+```javascript
+const { getSource, setSource } = value(0);
+const { getTarget, setTarget } = value(0);
+
+sync(getSource, setTarget);
+// same as sync(() => getSource(), val => setTarget(val));
+
+setSource(10);
+
+console.log(getTarget()) // 10
+```
+[Edit on RunKit](https://runkit.com/betula/601a73b26adfe70020a0e229)
+
+_Documentation not ready yet for `pool`, `contextual`, `initial`, `mock`, `unmock`, `free`, `transaction`, `untrack`, `isolate`, `un` functions. It's coming soon._
