@@ -17,7 +17,10 @@ Realar targeted to all scale applications up to complex enterprise solutions on 
   - Declaration one scope and use as many reactive values as you want without the need to define a new React context for each changeable value with context level accessibility.
   - And enjoy clean React components with local logic decomposition.
 
-- __Decorators for clasess lovers__. Support OOP as one of the primary syntax. The implementation of transparent functional reactive programming (TFRP) with React (looks similar to Mobx). And babel plugin for automatic wrap all arrow functions defined in the global scope with JSX inside to observe wrapper.
+- __Decorators for clasess lovers__. Support OOP as one of the primary syntax. The implementation of transparent functional reactive programming (TFRP) with React (looks similar to Mobx). And the babel plugin for automatic wrap all arrow functions defined in the global scope with JSX inside to observe wrapper.
+
+
+### Usage
 
 The start piece of code with basic operations of reactive value and signals
 
