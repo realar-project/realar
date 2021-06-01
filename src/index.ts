@@ -4,6 +4,11 @@ import rb_lib from 'reactive-box';
 /*
   TODOs:
 
+
+  [] Add store.updater.multiple
+  [] Complete the draft explanation of the introductory section
+
+
   [] Add second example to documentation
 
   ```

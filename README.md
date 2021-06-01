@@ -2,20 +2,48 @@
 
 [![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar?style=flat-square)](https://bundlephobia.com/result?p=realar) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar) [![typescript supported](https://img.shields.io/npm/types/typescript?style=flat-square)](./src/index.ts)
 
-Realar state manager targeted to minimal code and module architecture for the best React possibilities.
+State manager to reduce coding time and increase the lifetime of your codebase.
 
-Realar's adventure will start from "value", is an immutable reactive container such as "store" from Redux terminology (for better understanding).
+Realar **targeted to** all scale applications up to complex enterprise solutions on modular architecture.
 
-You can easily make functional update signals (similar to an "action" from Redux) from "value" instance using dot notation with the "updater" method.
+- __Logic free React components__. Perfect instruments for moving all component logic outside. Your React component will be pure from any unnecessary code, only view, only JSX, no more.
+
+- __Lightweight and Fast__. Less then 5kB. Aims at the smallest size of the resulting bundle. And only parts are updated in which is really necessary to make changes.
+
+- __Value and Signal__ is the big elephants remind Store and Action from Redux. Allows you to perform familiar coding techniques, and also add many modern features.
+
+
+
+
+- __Shared stateful logic decomposition__. The pattern for decomposing applications logic to separate independent or one direction dependent modules. Each module can have its own set of reactive values. (ssr, comfort “mock” mechanism for simple unit testing). Shared stateful logic is a single instantiated class with total accessibility from all parts of your application. In another terminology - services.
+
+- __React component context level scopes__. Declaration one scope and use as many reactive values as you want without the need to define a new React context for each changeable value.
+
+
+
+
+
+- __Decorators for clasess lovers__. (Support OOP as one of primary syntax)And babel plugin for automatic wrap all arrow functions defined in the global scope with JSX inside to observe wrapper for the total implementation of transparent functional reactive programming (TFRP) in javascript with React.
+
+
 
 ```javascript
-import { value } from 'realar';
+import { value } from 'realar'
 
-const store = value(0);
-const inc = store.updater(state => state + 1);
-const add = store.updater((state, num: number) => state + num);
+// Realar's adventure will start from "value",
+// is an immutable reactive container such as
+// "store" from Redux terminology
+const store = value(0)
 
-store.to((state) => console.log(state));
+// You can easily make functional update
+// signals similar to an "action" from Redux
+const inc = store.updater(state => state + 1)
+const add = store.updater((state, num: number) => state + num)
+
+// Watch updating
+store.to((state) => console.log(state))
+
+// And run signals as usual functions
 inc()     // console output: 1
 add(10)   // console output: 11
 ```
