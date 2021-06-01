@@ -1,4 +1,4 @@
-import { signal, stoppable, selector, on, value, transaction } from '../src';
+import { signal, on, value, transaction } from '../../src';
 
 test('should work basic operations with view methods for value', () => {
   const spy = jest.fn();
@@ -6,7 +6,7 @@ test('should work basic operations with view methods for value', () => {
   const v_1 = v.view(v => v + v);
 
   on(v_1, spy);
-  const commit = transaction();
+  const commit = transaction.unsafe();
   v(1);
   v_1.update(v => v + v);
   commit();

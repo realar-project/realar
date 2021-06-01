@@ -9,7 +9,7 @@ test('should work useValue function', () => {
   function A() {
     const val = useValue(h);
     spy(val);
-    return <button onClick={() => h[1](20)} />;
+    return <button onClick={() => h.set(20)} />;
   }
 
   const el = mount(<A />);
@@ -30,7 +30,7 @@ test('should work with observe together', () => {
   const A = observe(() => {
     const val = useValue(h);
     spy(val);
-    return <button onClick={() => h[1](20)} />;
+    return <button onClick={() => h.set(20)} />;
   });
 
   const el = mount(<A />);

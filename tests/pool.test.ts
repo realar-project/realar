@@ -1,4 +1,4 @@
-import { pool, stoppable } from '../src';
+import { pool, contextual } from '../src';
 import { delay } from './lib';
 
 test('should work basic operations with pool', async () => {
@@ -7,10 +7,9 @@ test('should work basic operations with pool', async () => {
 
   const p = pool(async () => {
     const id = i++;
-    const stop = stoppable();
-    spy(stop.val, id);
+    spy(id);
     await delay(10);
-    spy(stop.val, id);
+    spy(id);
   });
 
   expect(p.pending.val).toBe(false);
@@ -21,8 +20,8 @@ test('should work basic operations with pool', async () => {
   expect(p.count.val).toBe(2);
 
   expect(spy).toBeCalledTimes(2);
-  expect(spy).toHaveBeenNthCalledWith(1, false, 0);
-  expect(spy).toHaveBeenNthCalledWith(2, false, 1);
+  expect(spy).toHaveBeenNthCalledWith(1, 0);
+  expect(spy).toHaveBeenNthCalledWith(2, 1);
 
   p.threads.val[0]();
 
@@ -33,8 +32,8 @@ test('should work basic operations with pool', async () => {
   await delay(20);
 
   expect(spy).toBeCalledTimes(4);
-  expect(spy).toHaveBeenNthCalledWith(3, true, 0);
-  expect(spy).toHaveBeenNthCalledWith(4, false, 1);
+  expect(spy).toHaveBeenNthCalledWith(3, 0);
+  expect(spy).toHaveBeenNthCalledWith(4, 1);
 
   expect(p.pending.val).toBe(false);
   expect(p.count.val).toBe(0);
@@ -49,7 +48,7 @@ test('should work correct pool with not async function', async () => {
   });
 
   expect(p.pending.val).toBe(false);
-  p.pending.watch(spy);
+  p.pending.to(spy);
 
   expect(p()).toBe(10);
   expect(p.threads.val).toEqual([]);

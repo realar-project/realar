@@ -1,4 +1,4 @@
-import { prop, cache, on, value } from '../src';
+import { prop, cache, on, value, isolate } from '../src';
 
 test('should work basic operations with prop, cache and on', () => {
   const spy = jest.fn();
@@ -21,12 +21,12 @@ test('should cache return value in on', () => {
   const spy = jest.fn();
   const a = value(0);
 
-  on(() => Math.floor(a[0]() / 2), spy);
+  on(() => Math.floor(a.val / 2), spy);
 
-  a[1](1);
+  a.set(1);
   expect(spy).toBeCalledTimes(0);
 
-  a[1](2);
+  a.set(2);
   expect(spy).toHaveBeenNthCalledWith(1, 1, 0);
 });
 
@@ -38,7 +38,7 @@ test('should work stop on subscription', () => {
     () => a.val,
     () => stop()
   );
-  const stop = on(() => a.val, spy);
+  const stop = isolate(() => on(() => a.val, spy));
   on(
     () => a.val,
     () => stop()

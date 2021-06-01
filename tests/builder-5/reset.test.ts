@@ -1,4 +1,4 @@
-import { signal, value } from '../src';
+import { signal, value } from '../../src';
 
 test('should work basic operations with reset for differents', async () => {
   const s = signal(0);

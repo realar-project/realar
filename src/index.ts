@@ -1,43 +1,436 @@
 import React, { Context, FC } from 'react';
-import { expr, box, sel, transaction, untrack } from 'reactive-box';
+import rb_lib from 'reactive-box';
+
+/*
+  TODOs:
+
+
+  [] Add store.updater.multiple
+  [] Complete the draft explanation of the introductory section
+
+
+  [] Add second example to documentation
+
+  ```
+
+    // Second example
+    const Loader = () => {
+      const count = value(0);
+
+      return {
+        start: count.updater(v => v + 1),
+        stop: count.updater(v => v - 1),
+        pending: count.select(v => v > 0)
+      }
+    }
+  ```
+
+  [] maybe make val as readonly property for fix "never" type for prepended values and signals
+    or I can make readonly val only for prepended values and signals (think about).
+
+  [] typings for builder
+  [] documentation update
+
+
+  Backlog:
+  [] Try terser for result code size optimization
+  [] .as.trigger
+  [] .as.value.trigger
+  [] .as.signal.trigger
+
+  [] signal.trigger.resolved
+  [] value.trigger.resolved
+
+  [] test case "should work signal.trigger with configured .pre"
+
+  [] signal.trigger.from
+  [] value.trigger.from
+*/
+
+//
+// Exports
+//
 
 export {
+  // Declarative framework
   value,
   selector,
-  prop,
-  cache,
   signal,
-  ready,
+
+  // Imperative framework
   on,
-  effect,
-  un,
-  hook,
   sync,
   cycle,
-  loop,
-  pool,
-  stoppable,
-  isolate,
+
+  // Class decorators for TRFP
+  prop,
+  cache,
+
+  // Shared technique
   shared,
   initial,
+  free,
+  mock,
+  unmock,
+
+  // Unsubscribe scopes control
+  isolate,
+  un,
+
+  // Additional api
+  local,
+  contextual,
+  pool,
+
+  // Track and transactions
+  transaction,
+  untrack,
+
+  // React bindings
   observe,
   useValue,
+  useValues,
   useLocal,
   useScoped,
   shared as useShared,
   Scope,
-  free,
-  mock,
-  unmock,
-  transaction,
-  untrack,
-  Ensurable,
-  Selector,
-  Value,
-  Signal,
-  StopSignal,
-  ReadySignal,
+  useJsx,
 };
+
+
+
+//
+// Typings.
+//
+
+
+//
+// Private
+//
+
+// @see https://github.com/Microsoft/TypeScript/issues/27024
+type Equals<X, Y> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2)
+  ? ([X] extends [Y]
+    ? ([Y] extends [X] ? true : false) : false)
+  : false;
+
+type Re<T> = { get: () => T } | (() => T);
+
+
+//
+// Entity types
+//
+
+interface E_UpdaterPartial<I, O> {
+  updater: {
+    <U>(func?: (state: O, upValue: U, upPrev: U) => I): Equals<U, unknown> extends true ? Signal<void> : Signal<U>
+    value<U>(func?: (state: O, upValue: U, upPrev: U) => I): Equals<U, unknown> extends true ? Value<void> : Value<U>
+  }
+}
+
+
+
+interface Value<I,O = I> extends E_UpdaterPartial<I,O> {
+  (value: I): void;
+
+  set: (value: I) => void;
+  get: () => O;
+
+  val: Equals<I, O> extends true ? O : never;
+
+  // readable section
+  sync(func: (value: O, prev: O) => void): Value<I, O>
+  op<R>(func: () => R): R extends void ? Value<I, O> : R
+  to: {
+    (func: (value: O, prev: O) => void): Value<I, O>
+    once(func: (value: O, prev: O) => void): Value<I, O>
+  }
+  filter: {
+    (func?: (value: O) => any): Value<I, O>         // tracked by default
+    untrack(func?: (value: O) => any): Value<I, O>
+    not: {
+      (func?: (value: O) => any): Value<I, O>       // tracked by default
+      untrack(func?: (value: O) => any): Value<I, O>
+    }
+  }
+  select: {
+    <R>(func?: (value: O) => R): Selector<R>        // tracked by default
+    untrack<R>(func?: (value: O) => R): Selector<R>
+    multiple: {
+      (cfg: any[]): any // TODO: .select.multiple typings
+      untrack(cfg: any[]): any
+    }
+  }
+  view: {
+    <R>(func: (value: O) => R): Value<I, R>         // tracked by default
+    untrack<R>(func: (value: O) => R): Value<I, R>
+  }
+
+  flow: any // TODO: .flow typings
+  join: any // TODO: .join typings
+
+  promise: Promise<O>
+
+  // writtable section
+  update: {
+    (func?: (value: O) => I): void                  // untracked by default
+    track(func?: (value: O) => I): void
+    by: {
+      <T>(re: Re<T>, updater?: (state: O, reValue: T, rePrev: T) => I)
+      once: {
+        <T>(re: Re<T>, updater?: (state: O, reValue: T, rePrev: T) => I)
+      }
+    }
+  }
+  pre: {
+    <N>(func?: (value: N) => I): Value<N, O>        // tracked by default
+    untrack<N>(func?: (value: N) => I): Value<N, O>
+    filter: {
+      (func?: (value: O) => any): Value<I, O>       // tracked by default
+      untrack(func?: (value: O) => any): Value<I, O>
+      not: {                                        // tracked by default
+        (func?: (value: O) => any): Value<I, O>
+        untrack(func?: (value: O) => any): Value<I, O>
+      }
+    }
+  }
+}
+
+
+
+interface Signal<I,O = I> extends E_UpdaterPartial<I,O> {
+  (value: I): void;
+
+  set: (value: I) => void;
+  get: () => O;
+
+  val: Equals<I, O> extends true ? O : never;
+
+  // readable section
+  sync(func: (value: O, prev: O) => void): Signal<I, O>
+  op<R>(func: () => R): R extends void ? Signal<I, O> : R
+  to: {
+    (func: (value: O, prev: O) => void): Signal<I, O>
+    once(func: (value: O, prev: O) => void): Signal<I, O>
+  }
+  filter: {
+    (func?: (value: O) => any): Signal<I, O>         // untracked by default
+    track(func?: (value: O) => any): Signal<I, O>
+    not: {
+      (func?: (value: O) => any): Signal<I, O>       // untracked by default
+      track(func?: (value: O) => any): Signal<I, O>
+    }
+  }
+  select: {
+    <R>(func?: (value: O) => R): Selector<R>        // tracked by default
+    untrack<R>(func?: (value: O) => R): Selector<R>
+    multiple: {
+      (cfg: any[]): any // TODO: .select.multiple typings
+      untrack(cfg: any[]): any
+    }
+  }
+  view: {
+    <R>(func: (value: O) => R): Signal<I, R>         // tracked by default
+    untrack<R>(func: (value: O) => R): Signal<I, R>
+  }
+
+  flow: any // TODO: .flow typings
+  join: any // TODO: .join typings
+
+  promise: Promise<O>
+
+  // writtable section
+  update: {
+    (func?: (value: O) => I): void                  // untracked by default
+    track(func?: (value: O) => I): void
+    by: {
+      <T>(re: Re<T>, updater?: (state: O, reValue: T, rePrev: T) => I)
+      once: {
+        <T>(re: Re<T>, updater?: (state: O, reValue: T, rePrev: T) => I)
+      }
+    }
+  }
+  pre: {
+    <N>(func?: (value: N) => I): Signal<N, O>        // tracked by default
+    untrack<N>(func?: (value: N) => I): Signal<N, O>
+    filter: {
+      (func?: (value: O) => any): Signal<I, O>       // tracked by default
+      untrack(func?: (value: O) => any): Signal<I, O>
+      not: {                                        // tracked by default
+        (func?: (value: O) => any): Signal<I, O>
+        untrack(func?: (value: O) => any): Signal<I, O>
+      }
+    }
+  }
+}
+
+
+
+
+
+
+
+type Selector<O> = {
+  get: () => O;
+  val: O;
+  select: any;
+}
+
+
+
+
+
+
+
+
+
+//
+// Entry types
+//
+
+type ValueEntry = {
+  <T>(initial?: T): Value<T>;
+  trigger: {
+    (initial?: any): any;
+    flag: {
+      (initial?: any): any;
+      invert: { (initial?: any): any }
+    }
+  };
+  from: { (get: () => any, set?: (v) => any): any },
+  combine: { (cfg: any): any }
+}
+
+type SelectorEntry = {
+  (fn: () => any): any;
+}
+
+type SignalEntry = {
+  <T>(initial?: T): Signal<T>;
+  trigger: {
+    (initial?: any): any;
+    flag: {
+      (initial?: any): any;
+      invert: { (initial?: any): any }
+    }
+  };
+  from: { (get: () => any, set?: (v) => any): any },
+  combine: { (cfg: any): any }
+};
+
+
+
+//
+// Realar external api typings
+//
+
+type Local = {
+  inject(fn: () => void): void;
+}
+type Contextual = {
+  stop: () => void;
+}
+type Isolate = {
+  (fn): () => void;
+  unsafe: () => () => () => void;
+}
+type Transaction = {
+  <T>(fn: () => T): T;
+  unsafe: () => () => void;
+}
+type Untrack = {
+  <T>(fn: () => T): T;
+  unsafe: () => () => void;
+}
+
+
+//
+// Realar external api typings for React
+//
+
+type Observe = {
+  <T extends FC>(FunctionComponent: T): React.MemoExoticComponent<T>;
+  nomemo: {
+    <T extends FC>(FunctionComponent: T): T;
+  }
+}
+type UseScoped = {
+  <M>(target: (new (init?: any) => M) | ((init?: any) => M)): M;
+}
+type UseLocal = {
+  <T extends unknown[], M>(
+    target: (new (...args: T) => M) | ((...args: T) => M),
+    deps?: T
+  ): M;
+}
+type UseValue = {
+  <T>(target: Re<T>, deps?: any[]): T;
+}
+
+type UseValues_CfgExemplar = {
+  [key: string]: Re<any>
+}
+type UseValues_ExpandCfgTargets<T> = {
+  [P in keyof T]: T[P] extends Re<infer Re_T> ? Re_T : T[P]
+}
+type UseValues = {
+  <T extends UseValues_CfgExemplar>(targets: T, deps?: any[]): UseValues_ExpandCfgTargets<T>
+  <A,B>(targets: [Re<A>,Re<B>], deps?: any[]): [A,B];
+  <A,B,C>(targets: [Re<A>,Re<B>,Re<C>], deps?: any[]): [A,B,C];
+  <A,B,C,D>(targets: [Re<A>,Re<B>,Re<C>,Re<D>], deps?: any[]): [A,B,C,D];
+  <A,B,C,D,E>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>], deps?: any[]): [A,B,C,D,E];
+  <A,B,C,D,E,F>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>], deps?: any[]): [A,B,C,D,E,F];
+  <A,B,C,D,E,F,G>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>], deps?: any[]): [A,B,C,D,E,F,G];
+  <A,B,C,D,E,F,G,H>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>], deps?: any[]): [A,B,C,D,E,F,G,H];
+  <A,B,C,D,E,F,G,H,I>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>], deps?: any[]): [A,B,C,D,E,F,G,H,I];
+  <A,B,C,D,E,F,G,H,I,J>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J];
+  <A,B,C,D,E,F,G,H,I,J,K>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K];
+  <A,B,C,D,E,F,G,H,I,J,K,L>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K,L];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K,L,M];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K,L,M,N];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>,Re<_>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_];
+  <A>(targets: [Re<A>], deps?: any[]): [A];
+}
+
+type UseJsx = {
+  <T = {}>(func: FC<T>, deps?: any[]): React.MemoExoticComponent<FC<T>>;
+}
+
+
+//
+// Realar additions external api typings
+//
+
+type PoolEntry_BodyExemplar = {
+  (...args: any[]): Promise<any>;
+}
+type PoolEntry = {
+  <K extends PoolEntry_BodyExemplar>(body: K): Pool<K>
+}
+
+type Pool<K> = K & {
+  count: any;
+  threads: any;
+  pending: any;
+};
+
+
+//
+// React optional require
+//
 
 let react;
 
@@ -48,6 +441,7 @@ let useMemo: typeof React.useMemo;
 let useContext: typeof React.useContext;
 let createContext: typeof React.createContext;
 let createElement: typeof React.createElement;
+let memo: typeof React.memo;
 
 /* istanbul ignore next */
 try {
@@ -60,610 +454,853 @@ try {
   useContext = react.useContext;
   createContext = react.createContext;
   createElement = react.createElement;
+  memo = react.memo;
 } catch (e) {
-  useRef = useReducer = useEffect = useMemo = useContext = createContext = createElement = (() => {
+  useRef = useReducer = useEffect = useMemo = useContext = createContext = createElement = memo = (() => {
     throw new Error('Missed "react" dependency');
   }) as any;
 }
 
-const key = 'val';
+
+//
+// Global Realar definitions
+//
+
+
 const shareds = new Map();
 
 let initial_data: any;
-let context_unsubs: any;
-let context_hooks: any;
 let shared_unsubs = [] as any;
-let is_sync: any;
-let is_stop_signal: any;
-let is_observe: any;
-let scope_context: any;
-let stoppable_context: any;
 
-const def_prop = Object.defineProperty;
+let context_unsubs: any;
+let context_local_injects: any;
+let context_contextual_stop: any;
 
-type Ensurable<T> = T | void;
 
-type Callable<T> = {
-  name: never;
-  (data: T): void;
-} & (T extends void
-  ? {
-      (): void;
+//
+//  Global js sdk specific definitions.
+//
+
+const obj_equals = Object.is;
+const obj_def_prop = Object.defineProperty;
+const obj_create = Object.create;
+const obj_keys = Object.keys;
+const obj_is_array = Array.isArray;
+const new_symbol = Symbol;
+const const_undef = void 0;
+const const_string_function = 'function';
+
+//
+//  Reactive box specific definitions.
+//
+
+const rb = rb_lib;
+const expr = rb.expr;
+const box = rb.box;
+const sel = rb.sel;
+const flow = rb.flow;
+
+const internal_flow_stop = flow.stop;
+const internal_untrack = rb.untrack;
+const internal_transaction = rb.transaction;
+
+const un_expr = (a,b) => ((a = expr(a,b)), un(a[1]), a);
+const un_flow = (a,b,c) => ((a = flow(a,b,c)), un(a[2]), a);
+
+
+//
+//  Entity builder implementation for value, signal and etc.
+//
+
+const pure_fn = function () {};
+const pure_arrow_fn_returns_arg = (v) => v;
+const pure_arrow_fn_returns_not_arg = (v) => !v;
+const pure_arrow_fn_returns_undef = (() => {}) as any;
+
+const key_proto = '__proto__';
+const key_get = 'get';
+const key_set = 'set';
+const key_promise = 'promise';
+const key_promise_internal = new_symbol();
+const key_reset = 'reset';
+const key_initial = new_symbol();
+const key_dirty_handler = new_symbol();
+const key_dirty = 'dirty';
+const key_sync = 'sync';
+const key_ctx = new_symbol();
+const key_by = 'by';
+const key_reinit = 'reinit';
+const key_update = 'update';
+const key_val = 'val';
+const key_once = 'once';
+const key_to = 'to';
+const key_select = 'select';
+const key_view = 'view';
+const key_handler = new_symbol();
+const key_pre = 'pre';
+const key_filter = 'filter';
+const key_not = 'not';
+const key_flow = 'flow';
+const key_reset_promise_by_reset = new_symbol();
+const key_touched_internal = new_symbol();
+const key_trigger = 'trigger';
+const key_flag = 'flag';
+const key_invert = 'invert';
+const key_from = 'from';
+const key_is_signal = new_symbol();
+const key_track = 'track';
+const key_untrack = 'un'+key_track;
+const key_multiple = 'multiple';
+const key_combine = 'combine';
+const key_join = 'join';
+const key_value = 'value';
+const key_as = 'as';
+const key_op = 'op';
+const key_inject = 'inject';
+const key_stop = 'stop';
+const key_unsafe = 'unsafe';
+const key_updater = key_update+'r';
+
+
+
+const obj_def_prop_value = (obj, key, value) => (
+  obj_def_prop(obj, key, { value }), value
+);
+
+const obj_def_prop_trait = (obj, key, trait) =>
+  obj_def_prop(obj, key, {
+    get() {
+      return obj_def_prop_value(this, key, trait.bind(const_undef, this));
     }
-  : {});
+  });
 
-type Reactionable<T> = { 0: () => T } | [() => T] | (() => T);
+const obj_def_prop_with_ns = (obj, key, ns) =>
+  obj_def_prop(obj, key, {
+    get() {
+      const ret = {};
+      ret[key_proto] = ns;
+      ret[key_ctx] = this;
+      return obj_def_prop_value(this, key, ret);
+    }
+  });
 
-type Selector<T> = {
-  0: () => T;
-  readonly val: T;
-  get(): T;
-  free(): void;
-} & [() => T] & {
-    view<P>(get: (data: T) => P): Selector<P>;
-    select<P>(get: (data: T) => P): Selector<P>;
-    select(): Selector<T>;
+const obj_def_prop_trait_ns = (obj, key, trait) =>
+  obj_def_prop(obj, key, {
+    get() {
+      return obj_def_prop_value(this, key, trait.bind(const_undef, this[key_ctx]));
+    }
+  });
 
-    watch: {
-      (listener: (value: T, prev: T) => void): () => void;
-      once(listener: (value: T, prev: T) => void): () => void;
-    };
+const obj_def_prop_trait_ns_with_ns = (obj, key, trait, ns, is_trait_op?) =>
+  obj_def_prop(obj, key, {
+    get() {
+      const ctx = this[key_ctx];
+      const ret = (is_trait_op ? trait(ctx) : trait).bind(const_undef, ctx);
+      ret[key_proto] = ns;
+      ret[key_ctx] = ctx;
+      return obj_def_prop_value(this, key, ret);
+    }
+  });
 
-    flow: {
-      filter(fn: (data: T) => any): Value<T, Ensurable<T>>;
-    };
-  };
+const obj_def_prop_trait_with_ns = (obj, key, trait, ns, is_trait_op?) =>
+  obj_def_prop(obj, key, {
+    get() {
+      const ret = (is_trait_op ? trait(this) : trait).bind(const_undef, this);
+      ret[key_proto] = ns;
+      ret[key_ctx] = this;
+      return obj_def_prop_value(this, key, ret);
+    }
+  });
 
-type Value<T, K = T> = Callable<T> & {
-  0: () => K;
-  1: (value: T) => void;
-  val: T & K;
-  get(): K;
+const obj_def_prop_factory = (obj, key, factory) =>
+  obj_def_prop(obj, key, {
+    get() {
+      return obj_def_prop_value(this, key, factory(this));
+    }
+  });
 
-  update: (fn: (state: K) => T) => void;
-  sub: {
-    <S>(reactionable: Reactionable<S>, fn: (data: K, value: S, prev: S) => T): () => void;
-    once<S>(reactionable: Reactionable<S>, fn: (data: K, value: S, prev: S) => T): () => void;
-  };
-  set(value: T): void;
-} & {
-  wrap: {
-    <P>(set: () => T, get: (data: K) => P): Value<void, P>;
-    <P, M = T>(set: (data: M) => T, get: (data: K) => P): Value<M, P>;
-    (set: () => T): Value<void, K>;
-    <M = T>(set: (data: M) => T): Value<M, K>;
-
-    filter(fn: (data: T) => any): Value<T, K>;
-  };
-
-  view<P>(get: (data: K) => P): Value<T, P>;
-  select<P>(get: (data: K) => P): Selector<P>;
-  select(): Selector<K>;
-
-  watch: {
-    (listener: (value: K extends Ensurable<infer P> ? P : K, prev: K) => void): () => void;
-    once(listener: (value: K extends Ensurable<infer P> ? P : K, prev: K) => void): () => void;
-  };
-  reset(): void;
-
-  flow: {
-    filter(fn: (data: K) => any): Value<K, Ensurable<T>>;
-  };
-} & {
-    [P in Exclude<keyof Array<void>, number>]: never;
-  } &
-  [() => K, (value: T) => void];
-
-type Signal<
-  T,
-  K = T,
-  X = {},
-  E = {
-    reset(): void;
-    update: (fn: (state: K) => T) => void;
-    sub: {
-      <S>(reactionable: Reactionable<S>, fn: (data: K, value: S, prev: S) => T): () => void;
-      once<S>(reactionable: Reactionable<S>, fn: (data: K, value: S, prev: S) => T): () => void;
-    };
-    set(value: T): void;
-  }
-> = Callable<T> &
-  Pick<Promise<T>, 'then' | 'catch' | 'finally'> & {
-    0: () => K;
-    1: (value: T) => void;
-    readonly val: K;
-    get(): K;
-  } & {
-    wrap: {
-      <P>(set: () => T, get: (data: K) => P): Signal<void, P, X, E>;
-      <P, M = T>(set: (data: M) => T, get: (data: K) => P): Signal<M, P, X, E>;
-      (set: () => T): Signal<void, K, X, E>;
-      <M = T>(set: (data: M) => T): Signal<M, K, X, E>;
-
-      filter(fn: (data: T) => any): Signal<T, K, X, E>;
-    };
-
-    view<P>(get: (data: K) => P): Signal<T, P, X, E>;
-    select<P>(get: (data: K) => P): Selector<P>;
-    select(): Selector<K>;
-
-    watch: {
-      (listener: (value: K extends Ensurable<infer P> ? P : K, prev: K) => void): () => void;
-      once(listener: (value: K extends Ensurable<infer P> ? P : K, prev: K) => void): () => void;
-    };
-
-    flow: {
-      filter(fn: (data: K) => any): Signal<K, Ensurable<T>>;
-    };
-  } & E &
-  X &
-  {
-    [P in Exclude<keyof Array<void>, number>]: never;
-  } &
-  [() => K, (value: T) => void];
-
-type StopSignal = Signal<
-  void,
-  boolean,
-  {
-    stop(): void;
-    set(): void;
-    sub: {
-      (reactionable: Reactionable<any>): () => void;
-      once(reactionable: Reactionable<any>): () => void;
-    };
-  },
-  {}
->;
-type ReadySignal<T, K = T> = Signal<
-  T,
-  K,
-  {
-    to(value: T): Signal<void, K>;
-  }
->;
-
-type Pool<K> = K & {
-  count: Selector<number>;
-  threads: Selector<StopSignal[]>;
-  pending: Selector<boolean>;
+const obj_def_prop_promise = (obj) => {
+  return obj_def_prop(obj, key_promise, {
+    get() {
+      const ctx = this;
+      if (!ctx[key_promise_internal]) {
+        ctx[key_promise_internal] = new Promise((resolve) =>
+          // TODO: should be the highest priority.
+          expr(ctx[key_get], () => {
+            if (!ctx[key_handler][key_reset_promise_by_reset]) ctx[key_promise_internal] = 0;
+            resolve(ctx[key_get]());
+          })[0]()
+        );
+      }
+      return ctx[key_promise_internal];
+    }
+  });
 };
 
-function value<T = void>(): Value<T>;
-function value<T = void>(init: T): Value<T>;
-function value(init?: any): any {
-  const [get, set] = box(init) as any;
-  def_format(set, get, set);
-  set.reset = () => set(init);
-  return set;
-}
 
-function selector<T>(body: () => T): Selector<T> {
-  const [get, free] = sel(body);
-  const h = [] as any;
-  def_format(h, get);
-  h.free = free;
-  return h;
-}
 
-function signal<T = void>(): Signal<T, Ensurable<T>>;
-function signal<T = void>(init: T): Signal<T>;
-function signal(init?: any) {
-  let resolve: any;
-  const [get, set] = box([init]);
+const fill_entity = (handler, proto, has_initial?, initial?, _get?, _set?) => {
+  let set = _set || handler[1];
+  let get = _get || handler[0];
+  has_initial && (handler[key_initial] = initial);
 
-  const fn = function (data: any) {
-    const ready = resolve;
-    resolve = def_promisify(fn);
-    set([data]);
-    ready(data);
-  };
-
-  resolve = def_promisify(fn);
-  def_format(fn, () => get()[0], fn, 0, 1);
-  fn.reset = () => set([init]);
-  return fn as any;
-}
-
-signal.stop = stop_signal;
-signal.ready = ready;
-signal.from = signal_from;
-signal.combine = signal_combine;
-
-function ready<T = void>(): ReadySignal<T, Ensurable<T>>;
-function ready<T = void>(init: T): ReadySignal<T>;
-function ready(init?: any) {
-  let resolved = 0;
-  let resolve: any;
-  const [get, set] = box([init]);
-
-  const fn = function (data: any) {
-    if (!resolved) {
-      resolved = 1;
-      set([data]);
-      resolve(data);
-    }
-  };
-
-  resolve = def_promisify(fn);
-  def_format(fn, () => get()[0], fn, is_stop_signal, 1, 1);
-
-  if (!is_stop_signal) {
-    fn.reset = () => {
-      resolve = def_promisify(fn);
-      resolved = 0;
-      set([init]);
-    };
-  }
-
-  return fn as any;
-}
-
-ready.flag = () => ready(false).to(true);
-ready.from = ready_from;
-ready.resolved = ready_resolved;
-
-function ready_from<T>(source: Reactionable<T>): ReadySignal<T> {
-  const fn = (source as any)[0] || (source as any);
-  const dest = ready(fn());
-  on(source, dest);
-  return dest as any;
-}
-
-function ready_resolved(): ReadySignal<void>;
-function ready_resolved<T>(value: T): ReadySignal<void, T>;
-function ready_resolved(value?: any): any {
-  const r = ready(value);
-  r(value);
-  return r;
-}
-
-function signal_from<T>(source: Reactionable<T>): Signal<T> {
-  const fn = (source as any)[0] || (source as any);
-  const dest = signal(fn());
-  on(source, dest);
-  return dest as any;
-}
-
-function signal_combine(): Signal<[]>;
-function signal_combine<A>(a: Reactionable<A>): Signal<[A]>;
-function signal_combine<A, B>(a: Reactionable<A>, b: Reactionable<B>): Signal<[A, B]>;
-function signal_combine<A, B, C>(
-  a: Reactionable<A>,
-  b: Reactionable<B>,
-  c: Reactionable<C>
-): Signal<[A, B, C]>;
-function signal_combine<A, B, C, D>(
-  a: Reactionable<A>,
-  b: Reactionable<B>,
-  c: Reactionable<C>,
-  d: Reactionable<D>
-): Signal<[A, B, C, D]>;
-function signal_combine<A, B, C, D, E>(
-  a: Reactionable<A>,
-  b: Reactionable<B>,
-  c: Reactionable<C>,
-  d: Reactionable<D>,
-  e: Reactionable<E>
-): Signal<[A, B, C, D, E]>;
-function signal_combine(...sources: any): any {
-  const get = () => sources.map((src: any) => (src[0] || src)());
-  const dest = signal(get());
-  on([get], dest);
-  return dest as any;
-}
-
-function stop_signal(): StopSignal {
-  is_stop_signal = 1;
-  try {
-    const ctx = ready.flag() as any;
-    return (ctx.stop = ctx);
-  } finally {
-    is_stop_signal = 0;
-  }
-}
-
-function def_format(
-  ctx: any,
-  get: any,
-  set?: any,
-  no_update?: any,
-  readonly_val?: any,
-  has_to?: any
-) {
-  if (!Array.isArray(ctx)) {
-    ctx[Symbol.iterator] = function* () {
-      yield get;
-      if (set) yield set;
-    };
-  }
-  ctx[0] = get;
-  ctx.get = get;
-
-  const val_prop = { get } as any;
+  let ctx;
   if (set) {
-    ctx[1] = set;
-    if (!no_update) {
-      ctx.update = (fn: any) => set(fn(get()));
-    }
-    ctx.set = set;
-    if (!readonly_val) val_prop.set = set;
-
-    ctx.sub = (s: any, fn: any) => on(s, (v, v_prev) => set(fn ? fn(get(), v, v_prev) : void 0));
-    ctx.sub.once = (s: any, fn: any) =>
-      once(s, (v, v_prev) => set(fn ? fn(get(), v, v_prev) : void 0));
-  }
-  def_prop(ctx, key, val_prop);
-
-  if (has_to) {
-    ctx.to = (value: any) => (wrap as any)(ctx, () => value);
-  }
-  if (set) {
-    ctx.wrap = (set: any, get: any) => wrap(ctx, set, get);
-    ctx.wrap.filter = (fn: any) => wrap(ctx, (v: any) => (fn(v) ? v : stoppable().stop()));
-  }
-  ctx.view = (get: any) => wrap(ctx, 0, get);
-  ctx.watch = (fn: any) => on(ctx, fn);
-  ctx.watch.once = (fn: any) => once(ctx, fn);
-
-  ctx.select = (fn: any) => selector(fn ? () => fn(get()) : get);
-
-  ctx.flow = {};
-  ctx.flow.filter = (fn: any) => flow_filter(ctx, fn);
-}
-
-function def_promisify(ctx: any) {
-  let resolve;
-  const promise = new Promise(r => (resolve = r));
-  ['then', 'catch', 'finally'].forEach(prop => {
-    ctx[prop] = (promise as any)[prop].bind(promise);
-  });
-  return resolve;
-}
-
-function wrap(target: any, set?: any, get?: any) {
-  const source_get = target[0];
-  const source_set = target[1];
-
-  let dest: any;
-  let dest_set: any;
-
-  if (set) {
-    dest = dest_set = function (data?: any) {
-      const finish = untrack();
-      const stack = stoppable_context;
-      stoppable_context = 1;
-
-      try {
-        data = set(data);
-        if (stoppable_context === 1 || !stoppable_context[0]()) source_set(data);
-      } finally {
-        stoppable_context = stack;
-        finish();
-      }
-    };
-  } else if (source_set) {
-    dest = function (data?: any) {
-      source_set(data);
-    };
+    ctx = set;
+    ctx[key_set] = set;
+    obj_def_prop(ctx, key_val, { get, set });
   } else {
-    dest = [];
+    ctx = {};
+    obj_def_prop(ctx, key_val, { get })
   }
-
-  if (target.then) {
-    const methods = ['catch', 'finally'];
-    if (get) {
-      def_prop(dest, 'then', {
-        get() {
-          const promise = target.then(get);
-          return promise.then.bind(promise);
-        },
-      });
-    } else {
-      methods.push('then');
-    }
-    methods.forEach(prop => {
-      def_prop(dest, prop, {
-        get: () => target[prop],
-      });
-    });
-  }
-
-  if (target.reset) dest.reset = target.reset;
-  if (target.stop) target.stop = target;
-
-  def_format(
-    dest,
-    get ? () => get(source_get()) : source_get,
-    dest_set || source_set,
-    !target.update,
-    target.then,
-    target.to
-  );
-
-  return dest;
+  ctx[key_handler] = handler;
+  ctx[key_proto] = proto;
+  ctx[key_get] = get;
+  return ctx;
 }
 
-function flow_filter<T>(target: Reactionable<T>, fn: (data: T) => boolean) {
-  const f = (target as any).then ? signal<T>() : value<T>();
-  on(target, v => {
-    if (fn(v)) f(v);
-  });
-  return f;
-}
-
-function loop(body: () => Promise<any>) {
-  let running = 1;
-  const fn = async () => {
-    while (running) await body();
-  };
-  const unsub = () => {
-    if (running) running = 0;
-  };
-  un(unsub);
-  fn();
-  return unsub;
-}
-
-function stoppable(): StopSignal {
-  if (!stoppable_context) throw new Error('Parent context not found');
-  if (stoppable_context === 1) stoppable_context = stop_signal();
-  return stoppable_context;
-}
-
-function pool<K extends () => Promise<any>>(body: K): Pool<K> {
-  const threads = value([]);
-  const count = threads.select(t => t.length);
-  const pending = count.select(c => c > 0);
-
-  function run(this: any) {
-    const stop = stop_signal();
-    isolate(threads.sub.once(stop, t => t.filter(ctx => ctx !== stop)));
-    threads.update(t => t.concat(stop as any));
-
-    const stack = stoppable_context;
-    stoppable_context = stop;
-
-    let ret;
-    try {
-      ret = (body as any).apply(this, arguments);
-    } finally {
-      stoppable_context = stack;
-
-      if (ret && ret.finally) {
-        ret.finally(stop);
-      } else {
-        stop();
-      }
-    }
-    return ret;
-  }
-  run.count = count;
-  run.threads = threads;
-  run.pending = pending;
-
-  return run as any;
-}
-
-function on<T>(
-  target: Reactionable<Ensurable<T>>,
-  listener: (value: T, prev: Ensurable<T>) => void
-): () => void;
-function on<T>(target: Reactionable<T>, listener: (value: T, prev: T) => void): () => void;
-function on(target: any, listener: (value: any, prev?: any) => void): () => void {
-  const sync_mode = is_sync;
-  let free: (() => void) | undefined;
-
-  is_sync = 0;
-
-  if (target[0]) {
-    target = target[0]; // box or selector or custom reactive
-  } else {
-    [target, free] = sel(target);
-  }
-
+const reactionable_subscribe = (target, fn, is_once?, is_sync?) => {
+  target = target[key_get] || sel(target)[0];
   let value: any;
-
-  const [run, stop] = expr(target, () => {
+  const e = un_expr(target, () => {
     const prev = value;
-    listener((value = run()), prev);
+    fn(is_once ? target() : (value = e[0]()), prev);
   });
-  value = run();
-  const unsub = () => {
-    if (free) free();
-    stop();
-  };
-  un(unsub);
-  if (sync_mode) listener(value);
-  return unsub;
+  value = e[0]();
+  if (is_sync) untrack(fn.bind(const_undef, value, const_undef));
 }
 
-on.once = once;
-
-function once<T>(
-  target: Reactionable<Ensurable<T>>,
-  listener: (value: T, prev: Ensurable<T>) => void
-): () => void;
-function once<T>(target: Reactionable<T>, listener: (value: T, prev: T) => void): () => void;
-function once(target: any, listener: (value: any, prev?: any) => void): () => void {
-  const unsub = on(target, (value, prev) => {
-    try {
-      listener(value, prev);
-    } finally {
-      unsub();
-    }
-  });
-  return unsub;
+const make_join_entity = (fn_get, join_cfg, is_signal?, set?, is_untrack?) => {
+  const fns = join_cfg.map(is_signal
+    ? (fn) => fn[key_get] || fn
+    : (fn) => sel(fn[key_get] || fn)[0]
+  );
+  const h = [
+    () => {
+      const ret = [fn_get()];
+      const finish = is_untrack && internal_untrack();
+      try { return ret.concat(fns.map(f => f())) }
+      finally { finish && finish() }
+    },
+    set && set.bind()
+  ];
+  h[key_is_signal] = is_signal;
+  return fill_entity(h, set ? proto_entity_writtable : proto_entity_readable)
 }
 
-function sync<T>(target: Reactionable<T>, listener: (value: T, prev: T) => void): () => void {
-  is_sync = 1;
-  return on(target, listener);
-}
+const make_updater = (ctx, fn, is_value?) => (
+  is_value = ((is_value ? value : signal) as any)(),
+  trait_ent_update_by(ctx, is_value, fn),
+  is_value
+)
 
-function effect(fn: () => void): () => void;
-function effect(fn: () => () => any): () => any;
-function effect(fn: any) {
-  return un(fn());
-}
+const make_trait_ent_pure_fn_untrack = (trait_fn) =>
+  (ctx, fn) => trait_fn(ctx, fn && ((a,b) => {
+    const finish = internal_untrack();
+    try { return fn(a,b); }
+    finally { finish() }
+  }));
 
-function un(unsub: () => void): () => void {
-  if (unsub && context_unsubs) context_unsubs.push(unsub);
-  return unsub;
-}
+const make_trait_ent_untrack = (trait_fn) =>
+  (ctx, fn) => trait_fn(ctx, fn && ((a,b) => {
+    const finish = internal_untrack();
+    try { return (fn[key_get] ? fn[key_get]() : fn(a,b)) }
+    finally { finish() }
+  }));
 
-function cycle(body: () => void) {
-  const iter = () => {
-    const stack = stoppable_context;
-    stoppable_context = stop_signal();
-    isolate(once(stoppable_context, stop));
-    try {
-      run();
-    } finally {
-      stoppable_context = stack;
-    }
-  };
+const op_trait_if_signal = (trait_if_not_signal, trait_if_signal) => (
+  (ctx) => ctx[key_handler][key_is_signal] ? trait_if_signal : trait_if_not_signal
+);
 
-  const [run, stop] = expr(body, iter);
-  iter();
-  return un(stop);
-}
+const make_proto_for_trackable_ns = (trait_track, trait_untrack) => (
+  obj_def_prop_trait_ns(
+    obj_def_prop_trait_ns(obj_create(pure_fn), key_track, trait_track),
+    key_untrack, trait_untrack)
+);
 
-function isolate(): () => () => void;
-function isolate(fn: () => void): () => void;
-function isolate(fn?: any) {
-  if (fn) {
-    if (context_unsubs) context_unsubs = context_unsubs.filter((i: any) => i !== fn);
-    return fn;
+const prop_factory_dirty_required_initial = (ctx) => {
+  const h = ctx[key_handler];
+  if (!h[key_dirty_handler]) {
+    const b = box(h[key_initial]);
+    obj_def_prop(h, key_initial, { get: b[0], set: b[1] });
+
+    h[key_dirty_handler] = sel(
+      () => !obj_equals(h[0](), h[key_initial])
+    ).slice(0, 1);
   }
+  return fill_entity(h[key_dirty_handler], proto_entity_readable);
+};
+
+
+
+const trait_ent_update = (ctx, fn) => ctx[key_set](fn ? fn(untrack(ctx[key_get])) : untrack(ctx[key_get]));
+const trait_ent_update_untrack = make_trait_ent_pure_fn_untrack(trait_ent_update);
+const trait_ent_update_by = (ctx, src, fn) => (
+  reactionable_subscribe(src, fn
+    ? (src_value, src_prev_value) => ctx[key_set](fn(ctx[key_get](), src_value, src_prev_value))
+    : (src_value) => ctx[key_set](src_value)
+  ),
+  ctx
+);
+const trait_ent_update_by_once = (ctx, src, fn) => (
+  reactionable_subscribe(src, fn
+    ? (src_value, src_prev_value) => ctx[key_set](fn(ctx[key_get](), src_value, src_prev_value))
+    : (src_value) => ctx[key_set](src_value),
+    1
+  ),
+  ctx
+);
+const trait_ent_updater = (ctx, fn) => make_updater(ctx, fn);
+const trait_ent_updater_value = (ctx, fn) => make_updater(ctx, fn, 1);
+const trait_ent_sync = (ctx, fn) => (reactionable_subscribe(ctx, fn, 0, 1), ctx);
+const trait_ent_reset = (ctx) => {
+  ctx[key_promise_internal] = 0;
+  ctx[key_handler][1](ctx[key_handler][key_initial]);
+  ctx[key_handler][key_touched_internal] = 0;
+};
+const trait_ent_reset_by = (ctx, src) => (
+  reactionable_subscribe(src, trait_ent_reset.bind(const_undef, ctx)),
+  ctx
+);
+const trait_ent_reset_by_once = (ctx, src) => (
+  reactionable_subscribe(src, trait_ent_reset.bind(const_undef, ctx), 1),
+  ctx
+);
+const trait_ent_reinit = (ctx, initial) => {
+  ctx[key_handler][key_initial] = initial;
+  trait_ent_reset(ctx);
+};
+const trait_ent_reinit_by = (ctx, src) => (
+  reactionable_subscribe(src, (src_value) => trait_ent_reinit(ctx, src_value)),
+  ctx
+);
+const trait_ent_reinit_by_once = (ctx, src) => (
+  reactionable_subscribe(src, (src_value) => trait_ent_reinit(ctx, src_value), 1),
+  ctx
+);
+const trait_ent_to = (ctx, fn) => (reactionable_subscribe(ctx, fn), ctx);
+const trait_ent_to_once = (ctx, fn) => (reactionable_subscribe(ctx, fn, 1), ctx);
+const trait_ent_select = (ctx, fn) => (
+  fill_entity(sel(fn ? () => fn(ctx[key_get]()) : ctx[key_get]).slice(0, 1), proto_entity_readable)
+);
+const trait_ent_select_untrack = make_trait_ent_pure_fn_untrack(trait_ent_select);
+const trait_ent_select_multiple = (ctx, cfg) => obj_keys(cfg).reduce((ret, key) => (
+  (ret[key] = trait_ent_select(ctx, cfg[key])), ret
+), obj_is_array(cfg) ? [] : {});
+const trait_ent_select_multiple_untrack = (ctx, cfg) => obj_keys(cfg).reduce((ret, key) => (
+  (ret[key] = trait_ent_select_untrack(ctx, cfg[key])), ret
+), obj_is_array(cfg) ? [] : {});
+const trait_ent_view = (ctx, fn) => (
+  fill_entity(ctx[key_handler], ctx[key_proto],
+    0, 0,
+    fn ? () => fn(ctx[key_get]()) : ctx[key_get],
+    ctx[key_set] && ctx[key_set].bind()
+  )
+);
+const trait_ent_view_untrack = make_trait_ent_pure_fn_untrack(trait_ent_view);
+const trait_ent_pre = (ctx, fn) => (
+  fn
+    ? fill_entity(ctx[key_handler], ctx[key_proto],
+      0, 0,
+      ctx[key_get],
+      (v) => ctx[key_set](fn(v))
+    )
+    : ctx
+);
+const trait_ent_pre_untrack = make_trait_ent_pure_fn_untrack(trait_ent_pre);
+const trait_ent_pre_filter = (ctx, fn) => (
+  (fn = fn
+    ? (fn[key_get] || fn)
+    : pure_arrow_fn_returns_arg
+  ), fill_entity(ctx[key_handler], ctx[key_proto],
+    0, 0,
+    ctx[key_get],
+    (v) => fn(v) && ctx[key_set](v)
+  )
+);
+const trait_ent_pre_filter_untrack = make_trait_ent_untrack(trait_ent_pre_filter);
+const trait_ent_pre_filter_not = (ctx, fn) => (
+  trait_ent_pre_filter(ctx, fn
+    ? (fn[key_get]
+      ? () => !fn[key_get]()
+      : (v) => !fn(v))
+    : pure_arrow_fn_returns_not_arg)
+);
+const trait_ent_pre_filter_not_untrack = make_trait_ent_untrack(trait_ent_pre_filter_not);
+
+const trait_ent_flow = (ctx, fn) => {
+  fn || (fn = pure_arrow_fn_returns_arg);
+  let started, prev;
+  const is_signal = ctx[key_handler][key_is_signal];
+  const f = un_flow(() => {
+    const v = ctx[key_get]();
+    try { return fn(v, prev) }
+    finally { prev = v }
+  }, const_undef, is_signal && pure_arrow_fn_returns_undef);
+  const h = [
+    () => ((started || (f[0](), (started = 1))), f[1]()),
+    ctx[key_set] && ctx[key_set].bind()
+  ];
+  h[key_is_signal] = is_signal;
+  return fill_entity(h,
+    h[1] ? proto_entity_writtable : proto_entity_readable
+  );
+};
+const trait_ent_flow_untrack = make_trait_ent_pure_fn_untrack(trait_ent_flow);
+const trait_ent_filter = (ctx, fn) => (
+  trait_ent_flow(ctx, fn
+    ? (fn[key_get] && (fn = fn[key_get]),
+      (v, prev) => (
+        fn(v, prev) ? v : internal_flow_stop
+      ))
+    : (v) => v || internal_flow_stop
+  )
+);
+const trait_ent_filter_untrack = make_trait_ent_untrack(trait_ent_filter)
+const trait_ent_filter_not = (ctx, fn) => (
+  trait_ent_filter(ctx, fn
+    ? (fn[key_get] && (fn = fn[key_get]), (v) => !fn(v))
+    : pure_arrow_fn_returns_not_arg)
+);
+const trait_ent_filter_not_untrack = make_trait_ent_untrack(trait_ent_filter_not)
+
+const trait_ent_join = (ctx, cfg) => (
+  make_join_entity(ctx[key_get], cfg, ctx[key_handler][key_is_signal], ctx[key_set])
+);
+const trait_ent_join_untrack = (ctx, cfg) => (
+  make_join_entity(ctx[key_get], cfg, ctx[key_handler][key_is_signal], ctx[key_set], 1)
+);
+
+const trait_ent_as_value = (ctx) => (
+  value_from(ctx[key_get], ctx[key_set])
+);
+const trait_ent_op = (ctx, f) => (
+  (f = f(ctx)), (f === const_undef ? ctx : f)
+);
+
+
+
+
+// readable.to:ns
+//   .to.once
+const proto_entity_readable_to_ns = obj_create(pure_fn);
+obj_def_prop_trait_ns(proto_entity_readable_to_ns, key_once, trait_ent_to_once);
+
+// readable.filter:ns           (track|untrack)
+//   .filter.not                (track|untrack)
+const proto_entity_readable_filter_ns = obj_create(
+  make_proto_for_trackable_ns(trait_ent_filter, trait_ent_filter_untrack)
+);
+obj_def_prop_trait_ns_with_ns(proto_entity_readable_filter_ns, key_not,
+  op_trait_if_signal(trait_ent_filter_not, trait_ent_filter_not_untrack),
+  make_proto_for_trackable_ns(trait_ent_filter_not, trait_ent_filter_not_untrack),
+  1
+);
+
+// readable.select:ns           (track|untrack)
+//   .select.multiple           (track|untrack)
+const proto_entity_readable_select_ns = obj_create(
+  make_proto_for_trackable_ns(trait_ent_select, trait_ent_select_untrack)
+);
+obj_def_prop_trait_ns_with_ns(proto_entity_readable_select_ns, key_multiple, trait_ent_select_multiple,
+  make_proto_for_trackable_ns(trait_ent_select_multiple, trait_ent_select_multiple_untrack)
+);
+
+// readable.as:ns
+//   .as.value
+const proto_entity_readable_as_ns = obj_create(pure_fn);
+obj_def_prop_trait_ns(proto_entity_readable_as_ns, key_value, trait_ent_as_value);
+
+// readable
+//   .sync
+//   .op
+//   .to:readable.to:ns
+//     .to.once
+//   .filter:readable.filter:ns (track|untrack)
+//     .filter.not              (track|untrack)
+//   .select:readable.select:ns (track|untrack)
+//     .select.multiple         (track|untrack)
+//   .flow                      (track|untrack)
+//   .view                      (track|untrack)
+//   .join                      (track|untrack)
+//   .as:readable.as:ns
+//     .as.value
+//   .promise
+const proto_entity_readable = obj_create(pure_fn);
+obj_def_prop_trait(proto_entity_readable, key_sync, trait_ent_sync);
+obj_def_prop_trait(proto_entity_readable, key_op, trait_ent_op);
+obj_def_prop_trait_with_ns(
+  proto_entity_readable,
+  key_to,
+  trait_ent_to,
+  proto_entity_readable_to_ns
+);
+obj_def_prop_trait_with_ns(
+  proto_entity_readable,
+  key_filter,
+  op_trait_if_signal(trait_ent_filter, trait_ent_filter_untrack),
+  proto_entity_readable_filter_ns,
+  1
+);
+obj_def_prop_trait_with_ns(
+  proto_entity_readable,
+  key_flow,
+  op_trait_if_signal(trait_ent_flow, trait_ent_flow_untrack),
+  make_proto_for_trackable_ns(trait_ent_flow, trait_ent_flow_untrack),
+  1
+);
+obj_def_prop_trait_with_ns(
+  proto_entity_readable,
+  key_select,
+  trait_ent_select,
+  proto_entity_readable_select_ns,
+);
+obj_def_prop_trait_with_ns(
+  proto_entity_readable,
+  key_view,
+  trait_ent_view,
+  make_proto_for_trackable_ns(trait_ent_view, trait_ent_view_untrack),
+);
+obj_def_prop_trait_with_ns(
+  proto_entity_readable,
+  key_join,
+  trait_ent_join,
+  make_proto_for_trackable_ns(trait_ent_join, trait_ent_join_untrack),
+);
+obj_def_prop_with_ns(
+  proto_entity_readable,
+  key_as,
+  proto_entity_readable_as_ns
+);
+obj_def_prop_promise(proto_entity_readable);
+
+// writtable.update.by:ns
+//   .update.by.once
+const proto_entity_writtable_update_by_ns = obj_create(pure_fn);
+obj_def_prop_trait_ns(proto_entity_writtable_update_by_ns, key_once, trait_ent_update_by_once);
+
+// writtable.update:ns          (track|untrack)
+//   .update.by:writtable.update.by:ns
+const proto_entity_writtable_update_ns = obj_create(
+  make_proto_for_trackable_ns(trait_ent_update, trait_ent_update_untrack)
+);
+obj_def_prop_trait_ns_with_ns(proto_entity_writtable_update_ns, key_by, trait_ent_update_by,
+  proto_entity_writtable_update_by_ns
+);
+
+// writtable.updater:ns
+//   .updater.value
+const proto_entity_writtable_updater_ns = obj_create(pure_fn);
+obj_def_prop_trait_ns(proto_entity_writtable_updater_ns, key_value, trait_ent_updater_value);
+
+// writtable.pre.filter:ns      (track|untrack)
+//   .pre.filter.not            (track|untrack)
+const proto_entity_writtable_pre_filter_ns = obj_create(
+  make_proto_for_trackable_ns(trait_ent_pre_filter, trait_ent_pre_filter_untrack)
+);
+obj_def_prop_trait_ns_with_ns(proto_entity_writtable_pre_filter_ns, key_not, trait_ent_pre_filter_not,
+  make_proto_for_trackable_ns(trait_ent_pre_filter_not, trait_ent_pre_filter_not_untrack)
+);
+
+// writtable.pre:ns                         (track|untrack)
+//   .pre.filter:writtable.pre.filter:ns    (track|untrack)
+const proto_entity_writtable_pre_ns = obj_create(
+  make_proto_for_trackable_ns(trait_ent_pre, trait_ent_pre_untrack)
+);
+obj_def_prop_trait_ns_with_ns(
+  proto_entity_writtable_pre_ns,
+  key_filter,
+  trait_ent_pre_filter,
+  proto_entity_writtable_pre_filter_ns
+);
+
+// writtable <- readable
+//   .update:writtable.update:ns            (track|untrack)
+//     .update.by
+//   .updater:writtable.updater:ns
+//     .updater.value
+//   .pre:writtable.pre:ns                  (track|untrack)
+//     .pre.filter:writtable.pre.filter:ns  (track|untrack)
+//       .pre.filter.not                    (track|untrack)
+const proto_entity_writtable = obj_create(proto_entity_readable);
+obj_def_prop_trait_with_ns(
+  proto_entity_writtable,
+  key_update,
+  trait_ent_update_untrack,
+  proto_entity_writtable_update_ns
+);
+obj_def_prop_trait_with_ns(
+  proto_entity_writtable,
+  key_updater,
+  trait_ent_updater,
+  proto_entity_writtable_updater_ns
+);
+obj_def_prop_trait_with_ns(
+  proto_entity_writtable,
+  key_pre,
+  trait_ent_pre,
+  proto_entity_writtable_pre_ns
+);
+
+// writtable_leaf.reset.by:ns
+//   .reset.by.once
+const proto_entity_writtable_leaf_reset_by_ns = obj_create(pure_fn);
+obj_def_prop_trait_ns(proto_entity_writtable_leaf_reset_by_ns, key_once, trait_ent_reset_by_once);
+
+// writtable_leaf.reset:ns
+//   .reset.by:writtable_leaf.reset.by:ns
+const proto_entity_writtable_leaf_reset_ns = obj_create(pure_fn);
+obj_def_prop_trait_ns_with_ns(proto_entity_writtable_leaf_reset_ns, key_by, trait_ent_reset_by,
+  proto_entity_writtable_leaf_reset_by_ns
+);
+
+// writtable_leaf.reinit.by:ns
+//   .reinit.by.once
+const proto_entity_writtable_leaf_reinit_by_ns = obj_create(pure_fn);
+obj_def_prop_trait_ns(proto_entity_writtable_leaf_reinit_by_ns, key_once, trait_ent_reinit_by_once);
+
+// writtable_leaf.reinit:ns
+//   .reinit.by:writtable_leaf.reinit.by:ns
+const proto_entity_writtable_leaf_reinit_ns = obj_create(pure_fn);
+obj_def_prop_trait_ns_with_ns(proto_entity_writtable_leaf_reinit_ns, key_by, trait_ent_reinit_by,
+  proto_entity_writtable_leaf_reinit_by_ns
+);
+
+
+// writtable_leaf <- writtable
+//   .reset:writtable_leaf.reset:ns
+//     .reset.by
+//   .reinit:writtable_leaf.reinit:ns
+//     .reinit.by
+//   .dirty
+const proto_entity_writtable_leaf = obj_create(proto_entity_writtable);
+obj_def_prop_trait_with_ns(
+  proto_entity_writtable_leaf,
+  key_reset,
+  trait_ent_reset,
+  proto_entity_writtable_leaf_reset_ns
+);
+obj_def_prop_trait_with_ns(
+  proto_entity_writtable_leaf,
+  key_reinit,
+  trait_ent_reinit,
+  proto_entity_writtable_leaf_reinit_ns
+);
+obj_def_prop_factory(
+  proto_entity_writtable_leaf,
+  key_dirty,
+  prop_factory_dirty_required_initial
+);
+
+
+
+const make_trigger = (initial, has_inverted_to?, is_signal?) => {
+  const handler = box(initial, () => (handler[key_touched_internal] = 1), is_signal && pure_arrow_fn_returns_undef);
+  const set = has_inverted_to
+    ? () => { handler[key_touched_internal] || handler[1](!untrack(handler[0])) }
+    : (v) => { handler[key_touched_internal] || handler[1](v) };
+  handler[key_reset_promise_by_reset] = 1;
+  handler[key_is_signal] = is_signal;
+  return fill_entity(handler, proto_entity_writtable_leaf, 1, initial, 0, set);
+}
+
+const get_getter_to_reactionable_or_custom = (re) => (
+  (re && re[key_get]) || (typeof re === const_string_function ? re : () => re)
+)
+
+const make_combine = (cfg, is_signal?) => {
+  const keys = obj_keys(cfg);
+  const fns = keys.map(is_signal
+    ? (key) => get_getter_to_reactionable_or_custom(cfg[key])
+    : (key) => sel(get_getter_to_reactionable_or_custom(cfg[key]))[0]
+  );
+  const is_array = obj_is_array(cfg);
+  const h = [
+    () => keys.reduce((ret, key, key_index) => (
+      (ret[key] = fns[key_index]()), ret
+    ), is_array ? [] : {})
+  ];
+  h[key_is_signal] = is_signal;
+  return fill_entity(h, proto_entity_readable);
+}
+
+
+
+const selector: SelectorEntry = (fn) => (
+  fill_entity(sel(fn).slice(0, 1), proto_entity_readable)
+)
+
+
+const value: ValueEntry = ((initial) => (
+  fill_entity(box(initial), proto_entity_writtable_leaf, 1, initial)
+)) as any;
+
+const value_trigger = (initial) => make_trigger(initial);
+const value_trigger_flag = (initial) => make_trigger(!!initial, 1);
+const value_trigger_flag_invert = (initial) => make_trigger(!initial, 1);
+const value_from = (get, set?) => (
+  (get = sel(get[key_get] || get).slice(0, 1),
+  set && ((set = set[key_set] || set), (get[1] = set.bind()))),
+  fill_entity(get, set ? proto_entity_writtable : proto_entity_readable)
+);
+const value_combine = (cfg) => make_combine(cfg);
+
+value_trigger_flag[key_invert] = value_trigger_flag_invert;
+value_trigger[key_flag] = value_trigger_flag;
+value[key_trigger] = value_trigger as any;
+value[key_from] = value_from;
+value[key_combine] = value_combine;
+
+
+const signal: SignalEntry = ((initial) => {
+  const h = box(initial, 0 as any, pure_arrow_fn_returns_undef);
+  h[key_is_signal] = 1;
+  return fill_entity(h, proto_entity_writtable_leaf, 1, initial)
+}) as any;
+
+const signal_trigger = (initial) => make_trigger(initial, 0, 1);
+const signal_trigger_flag = (initial) => make_trigger(!!initial, 1, 1);
+const signal_trigger_flag_invert = (initial) => make_trigger(!initial, 1, 1);
+const signal_from = (get, set?) => (
+  (get = [get[key_get] || get],
+  (get[key_is_signal] = 1),
+  set && ((set = set[key_set] || set), (get[1] = set.bind()))),
+  fill_entity(get, set ? proto_entity_writtable : proto_entity_readable)
+);
+const signal_combine = (cfg) => make_combine(cfg, 1);
+
+signal_trigger_flag[key_invert] = signal_trigger_flag_invert;
+signal_trigger[key_flag] = signal_trigger_flag;
+signal[key_trigger] = signal_trigger as any;
+signal[key_from] = signal_from;
+signal[key_combine] = signal_combine;
+
+
+
+//
+// Realar internal
+//
+
+const call_fns_array = (arr) => arr.forEach(fn => fn());
+const throw_local_inject_error = () => {
+  throw new Error('The local.inject section available only in useLocal');
+}
+const internal_isolate = () => {
   const stack = context_unsubs;
   context_unsubs = [];
   return () => {
     const unsubs = context_unsubs;
     context_unsubs = stack;
-    return () => {
-      if (unsubs) call_array(unsubs);
-    };
+    return () => unsubs && call_fns_array(unsubs);
   };
 }
 
-function initial(data: any): void {
+//
+// Realar exportable api
+//
+
+const transaction = ((fn) => {
+  const finish = internal_transaction();
+  try { return fn() }
+  finally { finish() }
+}) as Transaction;
+transaction[key_unsafe] = internal_transaction;
+
+const untrack = ((fn) => {
+  const finish = internal_untrack();
+  try { return fn() }
+  finally { finish() }
+}) as Untrack;
+untrack[key_unsafe] = internal_untrack;
+
+const isolate = ((fn?: any) => {
+  let unsubs;
+  const finish = internal_isolate();
+  try { fn() }
+  finally { unsubs = finish() }
+  return unsubs;
+}) as Isolate;
+isolate[key_unsafe] = internal_isolate;
+
+
+const un = (unsub: () => void) => {
+  unsub && context_unsubs && context_unsubs.push(unsub)
+}
+
+
+const local_inject = (fn) => {
+  if (!context_local_injects) throw_local_inject_error();
+  fn && context_local_injects.push(fn);
+}
+const local = {} as Local;
+local[key_inject] = local_inject;
+
+
+const on_once = (target, fn) => reactionable_subscribe(target, fn, 1);
+const on = (target, fn) => reactionable_subscribe(target, fn);
+
+on[key_once] = on_once;
+
+const sync = (target, fn) => reactionable_subscribe(target, fn, 0, 1);
+
+const cycle = (body) => {
+  const iter = () => {
+    const stack = context_contextual_stop;
+    context_contextual_stop = e[1];
+    try {
+      e[0]();
+    } finally {
+      context_contextual_stop = stack;
+    }
+  };
+  const e = un_expr(body, iter);
+  iter();
+}
+
+const contextual = {} as Contextual;
+obj_def_prop(contextual, key_stop, {
+  get() {
+    if (!context_contextual_stop) throw new Error('Parent context not found');
+    return context_contextual_stop;
+  }
+});
+
+
+
+//
+// Shared technique abstraction
+//
+
+const initial = (data: any): void => {
   initial_data = data;
 }
 
-function mock<M>(target: (new (init?: any) => M) | ((init?: any) => M), mocked: M): M {
-  shareds.set(target, mocked);
-  return mocked;
+const inst = <M, K extends any[]>(
+  target: (new (...args: K) => M) | ((...args: K) => M),
+  args: K,
+  local_injects_available?: any
+): [M, () => void, (() => void)[]] => {
+  let instance, unsub, local_injects;
+  const collect = internal_isolate();
+  const track = internal_untrack();
+  const stack = context_local_injects;
+  context_local_injects = [];
+  try {
+    instance =
+      target.prototype === const_undef
+        ? (target as any)(...args)
+        : new (target as any)(...args);
+    if (!local_injects_available && context_local_injects.length > 0) throw_local_inject_error();
+  } finally {
+    unsub = collect();
+    track();
+    local_injects = context_local_injects;
+    context_local_injects = stack;
+  }
+  return [instance, unsub, local_injects];
 }
 
-function unmock(
-  target: (new (init?: any) => any) | ((init?: any) => any),
-  ...targets: ((new (init?: any) => any) | ((init?: any) => any))[]
-) {
-  targets.concat(target).forEach(target => shareds.delete(target));
-}
-
-function shared<M>(target: (new (init?: any) => M) | ((init?: any) => M)): M {
+const shared = <M>(target: (new (init?: any) => M) | ((init?: any) => M)): M => {
   let instance = shareds.get(target);
   if (!instance) {
     const h = inst(target, [initial_data]);
@@ -674,76 +1311,116 @@ function shared<M>(target: (new (init?: any) => M) | ((init?: any) => M)): M {
   return instance;
 }
 
-function inst<M, K extends any[]>(
-  target: (new (...args: K) => M) | ((...args: K) => M),
-  args: K,
-  hooks_available?: any
-): [M, () => void, (() => void)[]] {
-  let instance, unsub, hooks;
-  const collect = isolate();
-  const track = untrack();
-  const stack = context_hooks;
-  context_hooks = [];
+const free = () => {
   try {
-    instance =
-      typeof target.prototype === 'undefined'
-        ? (target as any)(...args)
-        : new (target as any)(...args);
-    if (!hooks_available && context_hooks.length > 0) throw_hook_error();
+    call_fns_array(shared_unsubs);
   } finally {
-    unsub = collect();
-    track();
-    hooks = context_hooks;
-    context_hooks = stack;
+    shareds.clear();
+    initial_data = const_undef;
   }
-  return [instance, unsub, hooks];
 }
 
-function throw_hook_error() {
-  throw new Error('Hook section available only at useLocal');
-}
+const mock = <M>(target: (new (init?: any) => M) | ((init?: any) => M), mocked: M): M => (
+  shareds.set(target, mocked),
+  mocked
+)
 
-function hook(fn: () => void): void {
-  if (!context_hooks) throw_hook_error();
-  fn && context_hooks.push(fn);
-}
+const unmock = (
+  target: (new (init?: any) => any) | ((init?: any) => any),
+  ...targets: ((new (init?: any) => any) | ((init?: any) => any))[]
+) => (
+  targets.concat(target).forEach(target => shareds.delete(target))
+)
 
-function call_array(arr: (() => void)[]) {
-  arr.forEach(fn => fn());
-}
 
-function get_scope_context(): Context<any> {
-  return scope_context ? scope_context : (scope_context = (createContext as any)());
-}
+//
+// Decorator functions "prop" and "cache"
+//
 
-function useForceUpdate() {
-  return useReducer(() => [], [])[1] as () => void;
-}
+const obj_def_box_prop = (o: any, p: string | number | symbol, init?: any): any => (
+  (init = box(init && init())),
+  obj_def_prop(o, p, { get: init[0], set: init[1] })
+)
 
-function observe<T extends FC>(FunctionComponent: T): T {
-  return function (this: any) {
-    const forceUpdate = useForceUpdate();
-    const ref = useRef<[T, () => void]>();
-    if (!ref.current) ref.current = expr(FunctionComponent, forceUpdate);
-    useEffect(() => ref.current![1], []);
+const prop = (_t: any, key: any, descriptor?: any): any => (
+  (_t = descriptor?.initializer), {
+    get() {
+      obj_def_box_prop(this, key, _t);
+      return this[key];
+    },
+    set(value: any) {
+      obj_def_box_prop(this, key, _t);
+      this[key] = value;
+    },
+  }
+)
 
-    const stack = is_observe;
-    is_observe = 1;
+const cache = (_proto: any, key: any, descriptor: any): any => ({
+  get() {
+    const [get] = sel(descriptor.get);
+    obj_def_prop(this, key, { get });
+    return this[key];
+  }
+})
+
+
+
+//
+// React bindings global definitions
+//
+
+let context_is_observe: any;
+let react_scope_context: any;
+let observe_no_memo_flag: any;
+
+const key_nomemo = 'nomemo';
+
+//
+// React bindings
+//
+
+const get_scope_context = (): Context<any> => (
+  react_scope_context ? react_scope_context : (react_scope_context = (createContext as any)())
+)
+
+const useForceUpdate = () => (
+  useReducer(() => [], [])[1] as () => void
+)
+
+const observe: Observe = ((target) => {
+  function fn (this: any) {
+    const force_update = useForceUpdate();
+    const ref = useRef<any>();
+    if (!ref.current) ref.current = expr(target, force_update);
+    useEffect(() => ref.current[1], []);
+
+    const stack = context_is_observe;
+    context_is_observe = 1;
     try {
-      return (ref.current[0] as any).apply(this, arguments);
+      return ref.current[0].apply(this, arguments);
     } finally {
-      is_observe = stack;
+      context_is_observe = stack;
     }
-  } as any;
-}
+  }
+  return observe_no_memo_flag
+    ? ((observe_no_memo_flag = 0), fn)
+    : memo(fn)
+}) as any;
+
+const observe_nomemo: Observe['nomemo'] = (target): any => (
+  (observe_no_memo_flag = 1),
+  observe(target)
+)
+
+observe[key_nomemo] = observe_nomemo;
 
 const Scope: FC = ({ children }) => {
   const h = useMemo(() => [new Map(), [], []], []) as any;
-  useEffect(() => () => call_array(h[1]), []);
+  useEffect(() => () => call_fns_array(h[1]), []);
   return createElement(get_scope_context().Provider, { value: h }, children);
 };
 
-function useScoped<M>(target: (new (init?: any) => M) | ((init?: any) => M)): M {
+const useScoped: UseScoped = (target) => {
   const context_data = useContext(get_scope_context());
   if (!context_data) {
     throw new Error('"Scope" parent component didn\'t find');
@@ -761,14 +1438,12 @@ function useScoped<M>(target: (new (init?: any) => M) | ((init?: any) => M)): M 
   return instance;
 }
 
-function useLocal<T extends unknown[], M>(
-  target: (new (...args: T) => M) | ((...args: T) => M),
-  deps = ([] as unknown) as T
-): M {
+const useLocal: UseLocal = (target, deps: any) => {
+  deps || (deps = []);
   const h = useMemo(() => {
     const i = inst(target, deps, 1);
-    const call_hooks = () => call_array(i[2]);
-    return [i[0], () => i[1], call_hooks] as any;
+    const call_local_injects = () => call_fns_array(i[2]);
+    return [i[0], () => i[1], call_local_injects] as any;
   }, deps);
   h[2]();
 
@@ -776,18 +1451,19 @@ function useLocal<T extends unknown[], M>(
   return h[0];
 }
 
-function useValue<T>(target: Reactionable<T>, deps: any[] = []): T {
-  const forceUpdate = is_observe || useForceUpdate();
+const useValue: UseValue = (target, deps) => {
+  deps || (deps = []);
+  const force_update = context_is_observe || useForceUpdate();
   const h = useMemo(() => {
     if (!target) return [target, () => {}];
-    if ((target as any)[0]) target = (target as any)[0]; // box or selector or custom reactive
+    if ((target as any)[key_get]) target = (target as any)[key_get];
 
-    if (typeof target === 'function') {
-      if (is_observe) {
+    if (typeof target === const_string_function) {
+      if (context_is_observe) {
         return [target, 0, 1];
       } else {
         const [run, stop] = expr(target as any, () => {
-          forceUpdate();
+          force_update();
           run();
         });
         run();
@@ -798,44 +1474,61 @@ function useValue<T>(target: Reactionable<T>, deps: any[] = []): T {
     }
   }, deps);
 
-  is_observe || useEffect(h[1], [h]);
+  context_is_observe || useEffect(h[1], [h]);
   return h[2] ? h[0]() : h[0];
 }
 
-function free() {
-  try {
-    call_array(shared_unsubs);
-  } finally {
-    shareds.clear();
-    initial_data = void 0;
+const useValues: UseValues = (targets, deps):any => {
+  deps || (deps = []);
+  const h = useMemo(() => value.combine(targets), deps);
+  return useValue(h, [h]);
+};
+
+const useJsx: UseJsx = (target, deps): any => (
+  useMemo(() => observe(target as any), deps || [])
+);
+
+
+
+//
+// Pool abstraction
+//
+
+const pool: PoolEntry = (body): any => {
+  const threads = value([]);
+  const count = threads.select(t => t.length);
+  const pending = count.select(c => c > 0);
+
+  function run(this: any) {
+    const stop = () => threads.update(t => t.filter(ctx => ctx !== stop));
+    threads.update(t => t.concat(stop as any));
+
+    const stack = context_contextual_stop;
+    context_contextual_stop = stop;
+
+    let ret;
+    try {
+      ret = (body as any).apply(this, arguments);
+    } finally {
+      context_contextual_stop = stack;
+
+      if (ret && ret.finally) {
+        ret.finally(stop);
+      } else {
+        stop();
+      }
+    }
+    return ret;
   }
+  run.count = count;
+  run.threads = threads;
+  run.pending = pending;
+
+  return run;
 }
 
-function box_property(o: any, p: string | number | symbol, init?: any): any {
-  const b = box(init && init());
-  def_prop(o, p, { get: b[0], set: b[1] });
-}
 
-function prop(_proto: any, key: any, descriptor?: any): any {
-  const initializer = descriptor?.initializer;
-  return {
-    get() {
-      box_property(this, key, initializer);
-      return this[key];
-    },
-    set(value: any) {
-      box_property(this, key, initializer);
-      this[key] = value;
-    },
-  };
-}
-
-function cache(_proto: any, key: any, descriptor: any): any {
-  return {
-    get() {
-      const [get] = sel(descriptor.get);
-      def_prop(this, key, { get });
-      return this[key];
-    },
-  };
-}
+//
+// End of File
+// Enjoy and Happy Coding!
+//

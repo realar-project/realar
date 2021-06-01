@@ -1,12 +1,12 @@
-import { signal, on } from '../src';
+import { signal, on } from '../../src';
 
-test('should work basic operations with wrap filter method', async () => {
+test('should work basic operations with pre.filter method', async () => {
   const spy = jest.fn();
 
   const a = signal(0);
   const b = signal(0);
 
-  const c = a.wrap.filter(() => b.val);
+  const c = a.pre.filter(() => b.val);
 
   on(c, spy);
 
@@ -22,13 +22,13 @@ test('should work basic operations with wrap filter method', async () => {
   expect(spy).toHaveBeenNthCalledWith(2, 3, 2);
 });
 
-test('should work basic operations with flow filter method', async () => {
+test('should work basic operations with filter method', async () => {
   const spy = jest.fn();
 
   const a = signal(0);
   const b = signal(0);
 
-  const c = a.flow.filter(() => b.val);
+  const c = a.filter(() => b.val);
 
   on(c, spy);
 

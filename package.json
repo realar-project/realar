@@ -1,6 +1,6 @@
 {
   "name": "realar",
-  "version": "0.5.38",
+  "version": "0.6.0-alpha.0",
   "description": "React state manager",
   "repository": {
     "url": "https://github.com/betula/realar"
@@ -27,7 +27,7 @@
     "clear": "rimraf build"
   },
   "dependencies": {
-    "reactive-box": "0.6.6"
+    "reactive-box": "0.7.2"
   },
   "devDependencies": {
     "@babel/core": "7.12.10",

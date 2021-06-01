@@ -1,4 +1,4 @@
-import { isolate, effect, shared, free, un } from '../src';
+import { isolate, shared, free, un } from '../src';
 
 test('should work basic operations with isolate', async () => {
   const destr_1 = jest.fn();
@@ -8,10 +8,10 @@ test('should work basic operations with isolate', async () => {
   let unsub: any;
   let unsubs: any;
   const A = () => {
-    effect(() => () => destr_1());
-    const finish = isolate();
-    unsub = effect(() => () => destr_2());
-    effect(() => () => destr_3());
+    un(() => destr_1());
+    const finish = isolate.unsafe();
+    unsub = isolate(() => un(() => destr_2()));
+    un(() => destr_3());
     unsubs = finish();
     un(() => destr_4());
   };
@@ -33,10 +33,10 @@ test('should work isolate with argument', async () => {
   const destr_1 = jest.fn();
   let unsub_1: any, unsub_2: any;
   const A = () => {
-    effect(() => () => destr_1());
-    unsub_1 = isolate(effect(() => () => destr_1()));
-    effect(() => () => destr_1());
-    unsub_2 = isolate(effect(() => () => destr_1()));
+    un(() => destr_1());
+    unsub_1 = isolate(() => un(() => destr_1()));
+    un(() => destr_1());
+    unsub_2 = isolate(() => un(() => destr_1()));
   };
 
   shared(A);
@@ -51,7 +51,7 @@ test('should work isolate with argument', async () => {
 
 test('should work isolate with no context', async () => {
   const destr_1 = jest.fn();
-  const unsub_1 = isolate(effect(() => () => destr_1()));
+  const unsub_1 = isolate(() => un(() => destr_1()));
   unsub_1();
   expect(destr_1).toBeCalledTimes(1);
 });

@@ -1,4 +1,4 @@
-import { sync, value, selector } from '../src';
+import { sync, value, selector } from '../../src';
 
 test('should work basic operations with selector', () => {
   const spy_1 = jest.fn();
@@ -6,8 +6,7 @@ test('should work basic operations with selector', () => {
   const a = value(7);
   const s = selector(() => (spy_1(a.val), a.val));
 
-  const [get] = s;
-  const { free } = s;
+  const {get} = s;
 
   sync(s, v => spy_2(v));
 
@@ -21,9 +20,4 @@ test('should work basic operations with selector', () => {
   a.val++;
   expect(spy_1).toHaveBeenNthCalledWith(2, 8);
   expect(spy_2).toHaveBeenNthCalledWith(2, 8);
-
-  free();
-  a.val++;
-  expect(spy_1).toBeCalledTimes(2);
-  expect(spy_2).toBeCalledTimes(2);
 });
