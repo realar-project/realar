@@ -22,29 +22,50 @@ Realar targeted to all scale applications up to complex enterprise solutions on 
 
 ### Usage
 
-The start piece of code with basic operations of reactive value and signals
+Realar's adventure will start from "value", is an immutable reactive container such as "store" from Redux terminology
 
 ```javascript
-import { value } from 'realar'
-
-// Realar's adventure will start from "value",
-// is an immutable reactive container such as
-// "store" from Redux terminology
 const store = value(0)
+```
 
-// You can easily make functional update
-// signals similar to an "action" from Redux
+You can easily make functional update signals similar to an "action" from Redux
+
+```javascript
 const inc = store.updater(state => state + 1)
 const add = store.updater((state, num: number) => state + num)
+```
 
-// Watch updating
+Watch state updating
+
+```javascript
 store.to((state) => console.log(state))
+```
 
-// And run signals as usual functions
+And run signals as usual functions
+
+```javascript
 inc()     // console output: 1
 add(10)   // console output: 11
 ```
-[Try on RunKit](https://runkit.com/betula/60b4e0cab769ca0021660348)
+
+[Try full example on RunKit](https://runkit.com/betula/60b4e0cab769ca0021660348)
+
+The next step is React binding. Realar provides the beautiful api for working with React, and now you can use the first function.
+
+```javascript
+const App = () => {
+  const state = useValue(store);
+  return (
+    <>
+      <p>{state}</p>
+      <button onClick={inc}>+</button>
+    </>
+  )
+}
+```
+
+
+
 
 
 
