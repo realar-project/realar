@@ -1,5 +1,5 @@
 import React, { Context, FC } from 'react';
-import rb_lib from 'reactive-box';
+import rb from 'reactive-box';
 
 /*
   TODOs:
@@ -494,7 +494,6 @@ const const_string_function = 'function';
 //  Reactive box specific definitions.
 //
 
-const rb = rb_lib;
 const expr = rb.expr;
 const box = rb.box;
 const sel = rb.sel;
