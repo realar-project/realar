@@ -5,11 +5,6 @@ import rb from 'reactive-box';
   TODOs:
 
 
-  [] Add store.updater.multiple
-  [] Remove store.updater.value
-
-  [] Complete the draft explanation of the introductory section
-
 
   [] Add second example to documentation
 
@@ -639,6 +634,8 @@ const obj_def_prop_promise = (obj) => {
 };
 
 
+const obj_empty_from = (cfg) => obj_is_array(cfg) ? [] : {};
+
 
 const fill_entity = (handler, proto, has_initial?, initial?, _get?, _set?) => {
   let set = _set || handler[1];
@@ -689,11 +686,7 @@ const make_join_entity = (fn_get, join_cfg, is_signal?, set?, is_untrack?) => {
   return fill_entity(h, set ? proto_entity_writtable : proto_entity_readable)
 }
 
-const make_updater = (ctx, fn, is_value?) => (
-  is_value = ((is_value ? value : signal) as any)(),
-  trait_ent_update_by(ctx, is_value, fn),
-  is_value
-)
+
 
 const make_trait_ent_pure_fn_untrack = (trait_fn) =>
   (ctx, fn) => trait_fn(ctx, fn && ((a,b) => {
@@ -751,8 +744,14 @@ const trait_ent_update_by_once = (ctx, src, fn) => (
   ),
   ctx
 );
-const trait_ent_updater = (ctx, fn) => make_updater(ctx, fn);
-const trait_ent_updater_value = (ctx, fn) => make_updater(ctx, fn, 1);
+const trait_ent_updater = (ctx, fn) => {
+  const sig = signal();
+  trait_ent_update_by(ctx, sig, fn);
+  return sig;
+}
+const trait_ent_updater_multiple = (ctx, cfg) => obj_keys(cfg).reduce((ret, key) => (
+  (ret[key] = trait_ent_updater(ctx, cfg[key])), ret
+), obj_empty_from(cfg));
 const trait_ent_sync = (ctx, fn) => (reactionable_subscribe(ctx, fn, 0, 1), ctx);
 const trait_ent_reset = (ctx) => {
   ctx[key_promise_internal] = 0;
@@ -787,10 +786,10 @@ const trait_ent_select = (ctx, fn) => (
 const trait_ent_select_untrack = make_trait_ent_pure_fn_untrack(trait_ent_select);
 const trait_ent_select_multiple = (ctx, cfg) => obj_keys(cfg).reduce((ret, key) => (
   (ret[key] = trait_ent_select(ctx, cfg[key])), ret
-), obj_is_array(cfg) ? [] : {});
+), obj_empty_from(cfg));
 const trait_ent_select_multiple_untrack = (ctx, cfg) => obj_keys(cfg).reduce((ret, key) => (
   (ret[key] = trait_ent_select_untrack(ctx, cfg[key])), ret
-), obj_is_array(cfg) ? [] : {});
+), obj_empty_from(cfg));
 const trait_ent_view = (ctx, fn) => (
   fill_entity(ctx[key_handler], ctx[key_proto],
     0, 0,
@@ -990,9 +989,9 @@ obj_def_prop_trait_ns_with_ns(proto_entity_writtable_update_ns, key_by, trait_en
 );
 
 // writtable.updater:ns
-//   .updater.value
+//   .updater.multiple
 const proto_entity_writtable_updater_ns = obj_create(pure_fn);
-obj_def_prop_trait_ns(proto_entity_writtable_updater_ns, key_value, trait_ent_updater_value);
+obj_def_prop_trait_ns(proto_entity_writtable_updater_ns, key_multiple, trait_ent_updater_multiple);
 
 // writtable.pre.filter:ns      (track|untrack)
 //   .pre.filter.not            (track|untrack)
@@ -1019,7 +1018,7 @@ obj_def_prop_trait_ns_with_ns(
 //   .update:writtable.update:ns            (track|untrack)
 //     .update.by
 //   .updater:writtable.updater:ns
-//     .updater.value
+//     .updater.miltiple
 //   .pre:writtable.pre:ns                  (track|untrack)
 //     .pre.filter:writtable.pre.filter:ns  (track|untrack)
 //       .pre.filter.not                    (track|untrack)
@@ -1115,11 +1114,10 @@ const make_combine = (cfg, is_signal?) => {
     ? (key) => get_getter_to_reactionable_or_custom(cfg[key])
     : (key) => sel(get_getter_to_reactionable_or_custom(cfg[key]))[0]
   );
-  const is_array = obj_is_array(cfg);
   const h = [
     () => keys.reduce((ret, key, key_index) => (
       (ret[key] = fns[key_index]()), ret
-    ), is_array ? [] : {})
+    ), obj_empty_from(cfg))
   ];
   h[key_is_signal] = is_signal;
   return fill_entity(h, proto_entity_readable);
