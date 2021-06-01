@@ -2,9 +2,9 @@
 
 [![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar?style=flat-square)](https://bundlephobia.com/result?p=realar) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar) [![typescript supported](https://img.shields.io/npm/types/typescript?style=flat-square)](./src/index.ts)
 
-State manager to reduce coding time and increase the lifetime of your codebase.
+State manager to reduce developers' coding time and increase the lifetime of your codebase.
 
-Realar **targeted to** all scale applications up to complex enterprise solutions on modular architecture.
+Realar targeted to all scale applications up to complex enterprise solutions on modular architecture.
 
 - __Logic free React components__. Perfect instruments for moving all component logic outside. Your React component will be pure from any unnecessary code, only view, only JSX, no more.
 
@@ -12,20 +12,14 @@ Realar **targeted to** all scale applications up to complex enterprise solutions
 
 - __Value and Signal__ is the big elephants remind Store and Action from Redux. Allows you to perform familiar coding techniques, and also add many modern features.
 
+- __Modular Architecture__. Possibilities for the implementation of three levels of logic availability.
+  - Shared stateful logic pattern (known as "service") for decomposing applications logic to separate independent or one direction dependent modules with global accessibility.
+  - Declaration one scope and use as many reactive values as you want without the need to define a new React context for each changeable value with context level availability.
+  - And enjoy pure React components with local logic decomposition.
 
+- __Decorators for clasess lovers__. Support OOP as one of the primary syntax. The implementation of transparent functional reactive programming (TFRP) with React (looks similar to Mobx). And babel plugin for automatic wrap all arrow functions defined in the global scope with JSX inside to observe wrapper.
 
-
-- __Shared stateful logic decomposition__. The pattern for decomposing applications logic to separate independent or one direction dependent modules. Each module can have its own set of reactive values. (ssr, comfort “mock” mechanism for simple unit testing). Shared stateful logic is a single instantiated class with total accessibility from all parts of your application. In another terminology - services.
-
-- __React component context level scopes__. Declaration one scope and use as many reactive values as you want without the need to define a new React context for each changeable value.
-
-
-
-
-
-- __Decorators for clasess lovers__. (Support OOP as one of primary syntax)And babel plugin for automatic wrap all arrow functions defined in the global scope with JSX inside to observe wrapper for the total implementation of transparent functional reactive programming (TFRP) in javascript with React.
-
-
+The start piece of code with basic operations of reactive value and signals
 
 ```javascript
 import { value } from 'realar'
