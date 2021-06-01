@@ -14,8 +14,8 @@ Realar targeted to all scale applications up to complex enterprise solutions on 
 
 - __Modular Architecture__. Possibilities for the implementation of three levels of logic availability.
   - Shared stateful logic pattern (known as "service") for decomposing applications logic to separate independent or one direction dependent modules with global accessibility.
-  - Declaration one scope and use as many reactive values as you want without the need to define a new React context for each changeable value with context level availability.
-  - And enjoy pure React components with local logic decomposition.
+  - Declaration one scope and use as many reactive values as you want without the need to define a new React context for each changeable value with context level accessibility.
+  - And enjoy clean React components with local logic decomposition.
 
 - __Decorators for clasess lovers__. Support OOP as one of the primary syntax. The implementation of transparent functional reactive programming (TFRP) with React (looks similar to Mobx). And babel plugin for automatic wrap all arrow functions defined in the global scope with JSX inside to observe wrapper.
 
@@ -466,7 +466,7 @@ console.log(getTarget()) // 10
 ```
 [Edit on RunKit](https://runkit.com/betula/601a73b26adfe70020a0e229)
 
-_Documentation not ready yet for `effect`, `loop`, `pool`, `stoppable`, `initial`, `mock`, `unmock`, `free`, `transaction`, `untrack`, `isolate`, `ready`, `un` functions. It's coming soon._
+_Documentation not ready yet for `pool`, `contextual`, `initial`, `mock`, `unmock`, `free`, `transaction`, `untrack`, `isolate`, `un` functions. It's coming soon._
 
 ### Demos
 
