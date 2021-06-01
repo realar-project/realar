@@ -30,7 +30,6 @@ import rb from 'reactive-box';
 
 
   Backlog:
-  [] Try terser for result code size optimization
   [] .as.trigger
   [] .as.value.trigger
   [] .as.signal.trigger
