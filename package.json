@@ -1,7 +1,7 @@
 {
   "name": "realar",
   "version": "0.6.0-alpha.0",
-  "description": "React state manager",
+  "description": "The advanced state manager less than 5kB for React",
   "repository": {
     "url": "https://github.com/betula/realar"
   },
