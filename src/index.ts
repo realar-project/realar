@@ -6,6 +6,8 @@ import rb from 'reactive-box';
 
 
   [] Add store.updater.multiple
+  [] Remove store.updater.value
+
   [] Complete the draft explanation of the introductory section
 
 
