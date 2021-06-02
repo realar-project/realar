@@ -12,6 +12,8 @@ Realar targeted to all scale applications up to complex enterprise solutions on 
 
 - __Value and Signal__ is the big elephants remind Store and Action from Redux. Allows you to perform familiar coding techniques, and also add many modern features.
 
+- __Declarative and Imperative__ both supported.
+
 - __Modular Architecture__. Possibilities for the implementation of three levels of logic availability.
   - Shared stateful logic pattern (known as "service") for decomposing applications logic to separate independent or one direction dependent modules with global accessibility.
   - Declaration one scope and use as many reactive values as you want without the need to define a new React context for each changeable value with context level accessibility.
@@ -91,14 +93,11 @@ class Positive {
   @cache get state() {
     return store.val > 0 ? 'positive' : 'non'
   }
-}
-```
-```javascript
-const App = observe(() => {
-  const { state } = useLocal(Positive)
 
-  return <p>{state} <button onClick={inc}>+</button></p>
-})
+  constructor() {
+    sync(() => this.state, console.log)
+  }
+}
 ```
 
 
