@@ -8,6 +8,7 @@ import rb from 'reactive-box';
 /*
   TODOs:
 
+  [] Add map.to operator
   [] Fix typings for using a void typed signal as React event listener
     <button onClick={inc as any}>inc</button>
 
