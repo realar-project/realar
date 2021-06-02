@@ -28,7 +28,7 @@ You can make stores and "actions"
 const store = value(0)
 
 const add = store.updater((state, num) => state + num)
-const inc = add.map.to(1)
+const inc = store.updater(state => state + 1)
 ```
 
 And bind to React easily
@@ -92,7 +92,8 @@ class Positive {
     return store.val > 0 ? 'positive' : 'non'
   }
 }
-
+```
+```javascript
 const App = observe(() => {
   const { state } = useLocal(Positive)
 
