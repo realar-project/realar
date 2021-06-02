@@ -1,6 +1,10 @@
 import React, { Context, FC } from 'react';
 import rb from 'reactive-box';
 
+
+
+
+
 /*
   TODOs:
 
@@ -157,7 +161,7 @@ interface Value<I,O = I> extends E_UpdaterPartial<I,O> {
       untrack(cfg: any[]): any
     }
   }
-  view: {
+  map: {
     <R>(func: (value: O) => R): Value<I, R>         // tracked by default
     untrack<R>(func: (value: O) => R): Value<I, R>
   }
@@ -225,9 +229,9 @@ interface Signal<I,O = I> extends E_UpdaterPartial<I,O> {
       untrack(cfg: any[]): any
     }
   }
-  view: {
-    <R>(func: (value: O) => R): Signal<I, R>         // tracked by default
-    untrack<R>(func: (value: O) => R): Signal<I, R>
+  map: {
+    <R>(func: (value: O) => R): Signal<I, R>        // untracked by default
+    track<R>(func: (value: O) => R): Signal<I, R>
   }
 
   flow: any // TODO: .flow typings
@@ -247,14 +251,14 @@ interface Signal<I,O = I> extends E_UpdaterPartial<I,O> {
     }
   }
   pre: {
-    <N>(func?: (value: N) => I): Signal<N, O>        // tracked by default
-    untrack<N>(func?: (value: N) => I): Signal<N, O>
+    <N>(func?: (value: N) => I): Signal<N, O>       // untracked by default
+    track<N>(func?: (value: N) => I): Signal<N, O>
     filter: {
-      (func?: (value: O) => any): Signal<I, O>       // tracked by default
-      untrack(func?: (value: O) => any): Signal<I, O>
-      not: {                                        // tracked by default
+      (func?: (value: O) => any): Signal<I, O>      // untracked by default
+      track(func?: (value: O) => any): Signal<I, O>
+      not: {                                        // untracked by default
         (func?: (value: O) => any): Signal<I, O>
-        untrack(func?: (value: O) => any): Signal<I, O>
+        track(func?: (value: O) => any): Signal<I, O>
       }
     }
   }
@@ -530,7 +534,7 @@ const key_val = 'val';
 const key_once = 'once';
 const key_to = 'to';
 const key_select = 'select';
-const key_view = 'view';
+const key_map = 'map';
 const key_handler = new_symbol();
 const key_pre = 'pre';
 const key_filter = 'filter';
@@ -701,7 +705,7 @@ const make_trait_ent_untrack = (trait_fn) =>
     finally { finish() }
   }));
 
-const op_trait_if_signal = (trait_if_not_signal, trait_if_signal) => (
+const op_trait_if_not_signal = (trait_if_not_signal, trait_if_signal) => (
   (ctx) => ctx[key_handler][key_is_signal] ? trait_if_signal : trait_if_not_signal
 );
 
@@ -789,14 +793,14 @@ const trait_ent_select_multiple = (ctx, cfg) => obj_keys(cfg).reduce((ret, key) 
 const trait_ent_select_multiple_untrack = (ctx, cfg) => obj_keys(cfg).reduce((ret, key) => (
   (ret[key] = trait_ent_select_untrack(ctx, cfg[key])), ret
 ), obj_empty_from(cfg));
-const trait_ent_view = (ctx, fn) => (
+const trait_ent_map = (ctx, fn) => (
   fill_entity(ctx[key_handler], ctx[key_proto],
     0, 0,
     fn ? () => fn(ctx[key_get]()) : ctx[key_get],
     ctx[key_set] && ctx[key_set].bind()
   )
 );
-const trait_ent_view_untrack = make_trait_ent_pure_fn_untrack(trait_ent_view);
+const trait_ent_map_untrack = make_trait_ent_pure_fn_untrack(trait_ent_map);
 const trait_ent_pre = (ctx, fn) => (
   fn
     ? fill_entity(ctx[key_handler], ctx[key_proto],
@@ -891,7 +895,7 @@ const proto_entity_readable_filter_ns = obj_create(
   make_proto_for_trackable_ns(trait_ent_filter, trait_ent_filter_untrack)
 );
 obj_def_prop_trait_ns_with_ns(proto_entity_readable_filter_ns, key_not,
-  op_trait_if_signal(trait_ent_filter_not, trait_ent_filter_not_untrack),
+  op_trait_if_not_signal(trait_ent_filter_not, trait_ent_filter_not_untrack),
   make_proto_for_trackable_ns(trait_ent_filter_not, trait_ent_filter_not_untrack),
   1
 );
@@ -920,7 +924,7 @@ obj_def_prop_trait_ns(proto_entity_readable_as_ns, key_value, trait_ent_as_value
 //   .select:readable.select:ns (track|untrack)
 //     .select.multiple         (track|untrack)
 //   .flow                      (track|untrack)
-//   .view                      (track|untrack)
+//   .map                      (track|untrack)
 //   .join                      (track|untrack)
 //   .as:readable.as:ns
 //     .as.value
@@ -937,14 +941,14 @@ obj_def_prop_trait_with_ns(
 obj_def_prop_trait_with_ns(
   proto_entity_readable,
   key_filter,
-  op_trait_if_signal(trait_ent_filter, trait_ent_filter_untrack),
+  op_trait_if_not_signal(trait_ent_filter, trait_ent_filter_untrack),
   proto_entity_readable_filter_ns,
   1
 );
 obj_def_prop_trait_with_ns(
   proto_entity_readable,
   key_flow,
-  op_trait_if_signal(trait_ent_flow, trait_ent_flow_untrack),
+  op_trait_if_not_signal(trait_ent_flow, trait_ent_flow_untrack),
   make_proto_for_trackable_ns(trait_ent_flow, trait_ent_flow_untrack),
   1
 );
@@ -956,9 +960,10 @@ obj_def_prop_trait_with_ns(
 );
 obj_def_prop_trait_with_ns(
   proto_entity_readable,
-  key_view,
-  trait_ent_view,
-  make_proto_for_trackable_ns(trait_ent_view, trait_ent_view_untrack),
+  key_map,
+  op_trait_if_not_signal(trait_ent_map, trait_ent_map_untrack),
+  make_proto_for_trackable_ns(trait_ent_map, trait_ent_map_untrack),
+  1
 );
 obj_def_prop_trait_with_ns(
   proto_entity_readable,
@@ -997,8 +1002,10 @@ obj_def_prop_trait_ns(proto_entity_writtable_updater_ns, key_multiple, trait_ent
 const proto_entity_writtable_pre_filter_ns = obj_create(
   make_proto_for_trackable_ns(trait_ent_pre_filter, trait_ent_pre_filter_untrack)
 );
-obj_def_prop_trait_ns_with_ns(proto_entity_writtable_pre_filter_ns, key_not, trait_ent_pre_filter_not,
-  make_proto_for_trackable_ns(trait_ent_pre_filter_not, trait_ent_pre_filter_not_untrack)
+obj_def_prop_trait_ns_with_ns(proto_entity_writtable_pre_filter_ns, key_not,
+  op_trait_if_not_signal(trait_ent_pre_filter_not, trait_ent_pre_filter_not_untrack),
+  make_proto_for_trackable_ns(trait_ent_pre_filter_not, trait_ent_pre_filter_not_untrack),
+  1
 );
 
 // writtable.pre:ns                         (track|untrack)
@@ -1009,8 +1016,9 @@ const proto_entity_writtable_pre_ns = obj_create(
 obj_def_prop_trait_ns_with_ns(
   proto_entity_writtable_pre_ns,
   key_filter,
-  trait_ent_pre_filter,
-  proto_entity_writtable_pre_filter_ns
+  op_trait_if_not_signal(trait_ent_pre_filter, trait_ent_pre_filter_untrack),
+  proto_entity_writtable_pre_filter_ns,
+  1
 );
 
 // writtable <- readable
@@ -1037,8 +1045,9 @@ obj_def_prop_trait_with_ns(
 obj_def_prop_trait_with_ns(
   proto_entity_writtable,
   key_pre,
-  trait_ent_pre,
-  proto_entity_writtable_pre_ns
+  op_trait_if_not_signal(trait_ent_pre, trait_ent_pre_untrack),
+  proto_entity_writtable_pre_ns,
+  1
 );
 
 // writtable_leaf.reset.by:ns

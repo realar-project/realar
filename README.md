@@ -22,150 +22,63 @@ Realar targeted to all scale applications up to complex enterprise solutions on 
 
 ### Usage
 
-Realar's adventure will start from "value", is an immutable reactive container such as "store" from Redux terminology
-
 ```javascript
-import { value } from 'realar'
+import React from 'react';
+import { value, signal, useValue, useLocal, useShared, shared } from 'realar';
 
-const store = value(0)
-```
+const counterLogic = () => {
+  const count = value(0)
+  const inc = count.updater(state => state + 1)
+  const add = count.updater((state, num) => state + num)
 
-You can easily make functional update signals similar to an "action" from Redux
+  return { count, inc, add }
+}
 
-```javascript
-const inc = store.updater(state => state + 1)
-const add = store.updater((state, num: number) => state + num)
-```
+const formLogic = () => {
+  const { add } = shared(counterLogic)
 
-Watch state updating
+  const addendum = value('0').pre(ev => ev.target.value)
+  const sum = signal()
+    .map(() => +addendum.val)
+    .filter()
+    .to(add);
 
-```javascript
-store.to((state) => console.log(state))
-```
+  return { addendum, sum }
+}
 
-And run signals as usual functions
-
-```javascript
-inc()     // console output: 1
-add(10)   // console output: 11
-```
-
-[Try full example on RunKit](https://runkit.com/betula/60b4e0cab769ca0021660348)
-
-The next step is React binding. Realar provides the beautiful api for working with React, and now you can use the first function.
-
-```javascript
-import { useValue } from 'realar'
-
-const App = () => {
-  const state = useValue(store)
+const Form = () => {
+  const { addendum, sum } = useLocal(formLogic)
+  const addendumState = useValue(addendum)
   return (
-    <>
-      <p>{state}</p>
-      <button onClick={inc}>+</button>
-    </>
+    <p>
+      <input value={addendumState} onChange={addendum} />
+      <button onClick={sum}>sum</button>
+    </p>
   )
 }
-```
 
-
-
-
-
-
-### Signals
-
-The `signal` allows you to trigger an event or action and delivers the functionality to subscribe to it anywhere in your application code.
-
-Usually, signal subscription (_by `on` function_) very comfortable coding in class constructors.
-
-```javascript
-const startAnimation = signal();
-
-class Animation {
-  constructor() {
-    on(startAnimation, this.start);
-  }
-  start = async () => {
-    console.log('animation starting...');
-  }
-}
-
-shared(Animation);
-startAnimation();
-```
-[Edit on RunKit](https://runkit.com/betula/602f62db23b6cd001adc5dfa)
-
-If you making an instance of a class with a subscription in the constructor, though `shared`, `useLocal`, `useScoped` Realar functions, It will be unsubscribed automatically.
-
-Below other examples
-
-```javascript
-const add = signal<number>();
-
-const store = value(1);
-on(add, num => store.val += num);
-
-add(15);
-console.log(store.val); // console output: 16
-```
-[Edit on RunKit](https://runkit.com/betula/6013af7649e8720019c9cf2a)
-
-An signal is convenient to use as a promise.
-
-```javascript
-const fire = signal();
-
-(async () => {
-  for (;;) {
-    await fire.promise; // await as a usual promise
-    console.log('Fire');
-  }
-})();
-
-setInterval(fire, 500);
-```
-[Edit on RunKit](https://runkit.com/betula/601e3b0056b62d001bfa391b)
-
-
-
-### Core
-
-The abstraction of the core is an implementation of functional reactive programming on javascript and binding that with React.
-
-It uses usual mathematic to describe dependencies and commutation between reactive values.
-
-In contradistinction to _stream pattern_, operator functions not needed. The reactive “sum” operator used a simple “+” operator (for example).
-
-```javascript
-const a = value(0)
-const b = value(0)
-
-const sum = () => a.val + b.val
-
-on(sum, console.log)
-```
-
-That code has a graph of dependencies inside. “sum” - reactive expression depends from “A” and “B”, and will react if “A” or “B” changed. It is perfectly demonstrated with “on” function (that subscribes to reactive expression) and “console.log” (developer console output).
-
-On each change of “A” or “B” a new value of that sum will appear in the developer console output.
-
-And for tasty easy binding reactive expressions and values with React components.
-
-```javascript
-const App = () => {
-  const val = useValue(sum);
+const Counter = () => {
+  const { count, inc } = useShared(counterLogic)
+  const countState = useValue(count)
   return (
-    <p>{val}</p>
-  );
+    <p>
+      {countState}
+      <button onClick={inc}>inc</button>
+    </p>
+  )
 }
+
+const App = () => (
+  <>
+    <Counter />
+    <Form />
+    <Counter />
+    <Form />
+  </>
+)
+
 ```
-
-That component will be updated every time when new sum value is coming.
-
-The difference from exists an implementation of functional reactive programming (mobx) in Realar dependency collector provides the possibility to write in selectors and nested writable reactions.
-
-Realar provides big possibility abstractions for reactive flow. We already know about reactive value container, reactive expressions, and subscribe mechanism. But also have synchronization between data, cycled reactions, cached selectors, transactions and etc.
+[Try on CodeSandbox](https://codesandbox.io/s/realar-basic-example-41vvd?file=/src/App.tsx)
 
 
 
@@ -297,16 +210,57 @@ export const App = () => (
 
 
 
+### Core
+
+The abstraction of the core is an implementation of functional reactive programming on javascript and binding that with React.
+
+It uses usual mathematic to describe dependencies and commutation between reactive values.
+
+In contradistinction to _stream pattern_, operator functions not needed. The reactive “sum” operator used a simple “+” operator (for example).
+
+```javascript
+const a = value(0)
+const b = value(0)
+
+const sum = () => a.val + b.val
+
+on(sum, console.log)
+```
+
+That code has a graph of dependencies inside. “sum” - reactive expression depends from “A” and “B”, and will react if “A” or “B” changed. It is perfectly demonstrated with “on” function (that subscribes to reactive expression) and “console.log” (developer console output).
+
+On each change of “A” or “B” a new value of that sum will appear in the developer console output.
+
+And for tasty easy binding reactive expressions and values with React components.
+
+```javascript
+const App = () => {
+  const val = useValue(sum);
+  return (
+    <p>{val}</p>
+  );
+}
+```
+
+That component will be updated every time when new sum value is coming.
+
+The difference from exists an implementation of functional reactive programming (mobx) in Realar dependency collector provides the possibility to write in selectors and nested writable reactions.
+
+Realar provides big possibility abstractions for reactive flow. We already know about reactive value container, reactive expressions, and subscribe mechanism. But also have synchronization between data, cycled reactions, cached selectors, transactions and etc.
 
 
-### API
 
-- [value](./docs/api.md)
-- [selector](./docs/api.md)
-- [on](./docs/api.md)
-- [cache](./docs/api.md)
-- [cycle](./docs/api.md)
-- [sync](./docs/api.md)
+### Documentation
+
+- [Get started](./docs/get-started.md)
+- API
+  - [value](./docs/api.md)
+  - [signal](./docs/api.md)
+  - [selector](./docs/api.md)
+  - [on](./docs/api.md)
+  - [cache](./docs/api.md)
+  - [cycle](./docs/api.md)
+  - [sync](./docs/api.md)
 
 
 ### Demos

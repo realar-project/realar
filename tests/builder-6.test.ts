@@ -220,11 +220,11 @@ test('should work value with select', () => {
   expect(s.get()).toBe(6);
 });
 
-test('should work value with view', () => {
+test('should work value with map', () => {
   const spy = jest.fn();
   let t;
   const v = value(5);
-  const w = ((t = v.view), t((_v) => _v + _v));
+  const w = ((t = v.map), t((_v) => _v + _v));
   expect(w.val).toBe(10);
   w.val = 16;
   expect(w.val).toBe(32);
@@ -250,11 +250,11 @@ test('should work value with view', () => {
   expect(v.dirty.val).toBe(false);
 });
 
-test('should work value with nested view', () => {
+test('should work value with nested map', () => {
   let t;
   const v = value(5);
-  const w = ((t = v.view), t((_v) => _v + _v));
-  const k = w.view((_v) => _v + _v);
+  const w = ((t = v.map), t((_v) => _v + _v));
+  const k = w.map((_v) => _v + _v);
 
   expect(k.val).toBe(20);
   k(1);
@@ -402,10 +402,10 @@ test('should work value with readable flow', () => {
   expect(f.val).toBe('++');
 });
 
-test('should work value with promise for value, select, view, pre, flow, readable flow', async () => {
+test('should work value with promise for value, select, map, pre, flow, readable flow', async () => {
   const v = value(0);
   const s = v.select(t => t + 1);
-  const w = v.view(t => t + 2);
+  const w = v.map(t => t + 2);
   const p = v.pre(t => t - 1);
   const f = v.flow(t => t + 5);
   const r = s.flow(t => t + 3);
@@ -501,10 +501,10 @@ test('should work value.trigger common support and promise', async () => {
   expect(v.promise).toBe(promise);
 });
 
-test('should work value.trigger with select, update.by, flow, pre, view', () => {
+test('should work value.trigger with select, update.by, flow, pre, map', () => {
   const p = value('');
   const v = value.trigger('e');
-  const t = v.pre((k) => 'h' + k).view((k) => k + 'lo').update.by(p);
+  const t = v.pre((k) => 'h' + k).map((k) => k + 'lo').update.by(p);
   const s = t.select((v) => v.slice(0, 3));
   const f = t.flow((v) => v.slice(-3) + p.val);
 
@@ -557,7 +557,7 @@ test('should work selector basic support', () => {
   expect(s.flow).not.toBeUndefined();
   expect(s.filter).not.toBeUndefined();
   expect(s.filter.not).not.toBeUndefined();
-  expect(s.view).not.toBeUndefined();
+  expect(s.map).not.toBeUndefined();
   expect(s.promise).not.toBeUndefined();
 
   expect(s.set).toBeUndefined();
@@ -587,14 +587,14 @@ test('should work selector basic support', () => {
   expect(b.val).toBe(102);
 });
 
-test('should work selector with to, filter, view', () => {
+test('should work selector with to, filter, map', () => {
   let t;
   const spy = jest.fn();
   const b = value(1);
   const v = value(0);
   const s = selector(() => v.val + 1);
   const f = s.filter.not(b);
-  const w = s.view((v) => v + 5);
+  const w = s.map((v) => v + 5);
 
   (t = s.to), t(spy);
   expect(spy).toBeCalledTimes(0);
@@ -630,7 +630,7 @@ test('should work value.from with one argument', () => {
   expect(v.flow).not.toBeUndefined();
   expect(v.filter).not.toBeUndefined();
   expect(v.filter.not).not.toBeUndefined();
-  expect(v.view).not.toBeUndefined();
+  expect(v.map).not.toBeUndefined();
   expect(v.promise).not.toBeUndefined();
 
   expect(v.set).toBeUndefined();
@@ -661,7 +661,7 @@ test('should work value.from with two arguments', () => {
   expect(v.flow).not.toBeUndefined();
   expect(v.filter).not.toBeUndefined();
   expect(v.filter.not).not.toBeUndefined();
-  expect(v.view).not.toBeUndefined();
+  expect(v.map).not.toBeUndefined();
   expect(v.set).not.toBeUndefined();
   expect(v.update).not.toBeUndefined();
   expect(v.update.by).not.toBeUndefined();
@@ -716,7 +716,7 @@ test('should work value.select.multiple', () => {
     expect(v.flow).not.toBeUndefined();
     expect(v.filter).not.toBeUndefined();
     expect(v.filter.not).not.toBeUndefined();
-    expect(v.view).not.toBeUndefined();
+    expect(v.map).not.toBeUndefined();
     expect(v.promise).not.toBeUndefined();
 
     expect(v.set).toBeUndefined();
@@ -843,14 +843,14 @@ test('should work track-untrack for value with filter.not', () => {
   expect(u.val).toBe(2);
 });
 
-test('should work track-untrack for value with view', () => {
+test('should work track-untrack for value with map', () => {
   let t;
   const f = value(0);
   const v = value(0);
 
-  const a = v.view((_v) => _v + f.val);
-  const b = ((t = v.view.track), t((_v) => _v + f.val));
-  const c = ((t = v.view.untrack), t((_v) => _v + f.val));
+  const a = v.map((_v) => _v + f.val);
+  const b = ((t = v.map.track), t((_v) => _v + f.val));
+  const c = ((t = v.map.untrack), t((_v) => _v + f.val));
 
   const spy_a = jest.fn();
   const spy_b = jest.fn();
@@ -1005,7 +1005,7 @@ test('should work signal basic support', () => {
   (z = t.dirty), (z = z.get);
   expect(z()).toBe(false);
 
-  const u = ((z = signal().view), (z = z(_u => _u + 1).pre), (z = z(_u => _u * 10).flow), (z = z(_u => _u * 2)));
+  const u = ((z = signal().map), (z = z(_u => _u + 1).pre), (z = z(_u => _u * 10).flow), (z = z(_u => _u * 2)));
   (t = t.update), (t = t.by), (t = t(u));
   u(1);
   expect(t.val).toBe(22);
@@ -1111,7 +1111,7 @@ test('should work signal.from with one argument', () => {
   expect(v.flow).not.toBeUndefined();
   expect(v.filter).not.toBeUndefined();
   expect(v.filter.not).not.toBeUndefined();
-  expect(v.view).not.toBeUndefined();
+  expect(v.map).not.toBeUndefined();
   expect(v.promise).not.toBeUndefined();
 
   expect(v.set).toBeUndefined();
@@ -1142,7 +1142,7 @@ test('should work signal.from with two arguments', () => {
   expect(v.flow).not.toBeUndefined();
   expect(v.filter).not.toBeUndefined();
   expect(v.filter.not).not.toBeUndefined();
-  expect(v.view).not.toBeUndefined();
+  expect(v.map).not.toBeUndefined();
   expect(v.set).not.toBeUndefined();
   expect(v.update).not.toBeUndefined();
   expect(v.update.by).not.toBeUndefined();

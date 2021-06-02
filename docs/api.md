@@ -27,6 +27,64 @@ In that example
 
 We learned how to create a value, set, and get it.
 
+
+
+**signal**
+
+The `signal` allows you to trigger an event or action and delivers the functionality to subscribe to it anywhere in your application code.
+
+Usually, signal subscription (_by `on` function_) very comfortable coding in class constructors.
+
+```javascript
+const startAnimation = signal();
+
+class Animation {
+  constructor() {
+    on(startAnimation, this.start);
+  }
+  start = async () => {
+    console.log('animation starting...');
+  }
+}
+
+shared(Animation);
+startAnimation();
+```
+[Edit on RunKit](https://runkit.com/betula/602f62db23b6cd001adc5dfa)
+
+If you making an instance of a class with a subscription in the constructor, though `shared`, `useLocal`, `useScoped` Realar functions, It will be unsubscribed automatically.
+
+Below other examples
+
+```javascript
+const add = signal<number>();
+
+const store = value(1);
+on(add, num => store.val += num);
+
+add(15);
+console.log(store.val); // console output: 16
+```
+[Edit on RunKit](https://runkit.com/betula/6013af7649e8720019c9cf2a)
+
+An signal is convenient to use as a promise.
+
+```javascript
+const fire = signal();
+
+(async () => {
+  for (;;) {
+    await fire.promise; // await as a usual promise
+    console.log('Fire');
+  }
+})();
+
+setInterval(fire, 500);
+```
+[Edit on RunKit](https://runkit.com/betula/601e3b0056b62d001bfa391b)
+
+
+
 **on**
 
 The next basic abstraction is expression.
@@ -46,6 +104,8 @@ set(5); // We will see 6 and 1 in developer console output, It are new and previ
 [Edit on RunKit](https://runkit.com/betula/6013ea214e0cf9001ac18e71)
 
 In that example expression is `next` function, because It get value and return that plus one.
+
+
 
 **selector**
 
@@ -80,6 +140,8 @@ store.update(state => ({
 ```
 [Edit on RunKit](https://runkit.com/betula/60338ff8dbe368001a10be8c)
 
+
+
 **cache**
 
 `cache` - is the decorator for define `selector` on class getter.
@@ -93,6 +155,8 @@ class Todos {
   }
 }
 ```
+
+
 
 **cycle**
 
@@ -114,18 +178,20 @@ set(2);
 - After each run: subscribe to all reactive values accessed while running
 - Re-run on data changes
 
+
+
 **sync**
 
 ```javascript
-const { getSource, setSource } = value(0);
-const { getTarget, setTarget } = value(0);
+const source = value(0);
+const target = value(0);
 
-sync(getSource, setTarget);
-// same as sync(() => getSource(), val => setTarget(val));
+sync(source, target);
+// same as sync(() => source.get(), val => target(val));
 
-setSource(10);
+source.set(10);
 
-console.log(getTarget()) // 10
+console.log(target.val) // 10
 ```
 [Edit on RunKit](https://runkit.com/betula/601a73b26adfe70020a0e229)
 

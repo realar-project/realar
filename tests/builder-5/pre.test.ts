@@ -4,7 +4,7 @@ test('should work basic operations with wrap and signal', async () => {
   const spy = jest.fn();
 
   const s = signal(0);
-  const s_1 = s.pre((v: string) => parseInt(v + v)).view((g: number) => g + 77);
+  const s_1 = s.pre((v: string) => parseInt(v + v)).map((g: number) => g + 77);
   const s_2 = s_1.pre((v: number) => '' + (v + 1));
 
   expect(s_1.val).toBe(77);
