@@ -3,14 +3,10 @@ import rb from 'reactive-box';
 
 
 
-
-
 /*
   TODOs:
 
   [] Add map.to operator
-  [] Fix typings for using a void typed signal as React event listener
-    <button onClick={inc as any}>inc</button>
 
 
   [] Add second example to documentation
@@ -107,10 +103,6 @@ export {
 //
 
 
-//
-// Private
-//
-
 // @see https://github.com/Microsoft/TypeScript/issues/27024
 type Equals<X, Y> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2)
   ? ([X] extends [Y]
@@ -126,28 +118,30 @@ type Re<T> = { get: () => T } | (() => T);
 
 interface E_UpdaterPartial<I, O> {
   updater: {
-    <U>(func?: (state: O, upValue: U, upPrev: U) => I): Equals<U, unknown> extends true ? Signal<void> : Signal<U>
-    value<U>(func?: (state: O, upValue: U, upPrev: U) => I): Equals<U, unknown> extends true ? Value<void> : Value<U>
+    <U>(func?: (state: O, upValue: U, upPrev: U) => I): Equals<U, unknown> extends true ? Signal : Signal<U>
+    value<U>(func?: (state: O, upValue: U, upPrev: U) => I): Equals<U, unknown> extends true ? Value : Value<U>
+  }
+}
+interface E_GetPartial<T> {
+  get: () => T;
+}
+interface E_SyncToPartial<T, Ret> {
+  sync(func: (value: T, prev: T) => void): Ret
+  to: {
+    (func: (value: T, prev: T) => void): Ret
+    once(func: (value: T, prev: T) => void): Ret
   }
 }
 
 
 
-interface Value<I,O = I> extends E_UpdaterPartial<I,O> {
-  (value: I): void;
+interface E_Value<I, O> extends
+  E_GetPartial<O>,
+  E_SyncToPartial<O, Value<I, O>>,
+  E_UpdaterPartial<I, O> {
 
-  set: (value: I) => void;
-  get: () => O;
-
-  val: Equals<I, O> extends true ? O : never;
-
-  // readable section
-  sync(func: (value: O, prev: O) => void): Value<I, O>
   op<R>(func: () => R): R extends void ? Value<I, O> : R
-  to: {
-    (func: (value: O, prev: O) => void): Value<I, O>
-    once(func: (value: O, prev: O) => void): Value<I, O>
-  }
+
   filter: {
     (func?: (value: O) => any): Value<I, O>         // tracked by default
     untrack(func?: (value: O) => any): Value<I, O>
@@ -200,22 +194,15 @@ interface Value<I,O = I> extends E_UpdaterPartial<I,O> {
 }
 
 
-
-interface Signal<I,O = I> extends E_UpdaterPartial<I,O> {
-  (value: I): void;
-
-  set: (value: I) => void;
-  get: () => O;
-
-  val: Equals<I, O> extends true ? O : never;
+interface E_Signal<I, O> extends
+  E_GetPartial<O>,
+  E_SyncToPartial<O, Signal<I, O>>,
+  E_UpdaterPartial<I, O> {
 
   // readable section
-  sync(func: (value: O, prev: O) => void): Signal<I, O>
+
   op<R>(func: () => R): R extends void ? Signal<I, O> : R
-  to: {
-    (func: (value: O, prev: O) => void): Signal<I, O>
-    once(func: (value: O, prev: O) => void): Signal<I, O>
-  }
+
   filter: {
     (func?: (value: O) => any): Signal<I, O>         // untracked by default
     track(func?: (value: O) => any): Signal<I, O>
@@ -268,9 +255,16 @@ interface Signal<I,O = I> extends E_UpdaterPartial<I,O> {
 }
 
 
+type E_SetPartial<T> = Equals<T, void> extends true
+  ? { (): void; set(): void }
+  : { (value: T): void; set(value: T): void }
+
+type E_ValPartial<I, O> = Equals<I, O> extends true ? { val: O } : { readonly val: O }
 
 
 
+type Value<I = void, O = I> = E_SetPartial<I> & E_ValPartial<I, O> & E_Value<I, O>
+type Signal<I = void, O = I> = E_SetPartial<I> & E_ValPartial<I, O> & E_Signal<I, O>
 
 
 type Selector<O> = {
@@ -278,11 +272,6 @@ type Selector<O> = {
   val: O;
   select: any;
 }
-
-
-
-
-
 
 
 
