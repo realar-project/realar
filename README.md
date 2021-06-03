@@ -6,8 +6,12 @@ The state manager to reduce developers' coding time and increase the lifetime of
 
 Realar targeted to all scale applications up to complex enterprise solutions on modular architecture.
 
-__Logic free React components__. Perfect instruments for moving all component logic outside. Your React component will be pure from any unnecessary code, only view, only JSX, no more.
+<div>
+<b>Logic free React components</b>. Perfect instruments for moving all component logic outside. Your React component will be pure from any unnecessary code, only view, only JSX, no more.
+</div>
+<div>
 __Lightweight and Fast__. Less then 5kB. Aims at the smallest size of the resulting bundle. And only parts are updated in which is really necessary to make changes.
+</div>
 __Value and Signal__ is the big elephants remind Store and Action from Redux. Allows you to perform familiar coding techniques, and also add many modern features.
 __Declarative and Imperative__ both supported.
 __Stream__ event and value programming.
