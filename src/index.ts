@@ -436,7 +436,7 @@ const trait_ent_pre = (ctx, fn) => (
     ? fill_entity(ctx[key_handler], ctx[key_proto],
       0, 0,
       ctx[key_get],
-      (v) => ctx[key_set](fn(v))
+      (v) => ctx[key_set](fn(v, untrack(ctx[key_get])))
     )
     : ctx
 );

@@ -57,3 +57,17 @@ test('should work basic with nested map methods for value', () => {
 
   expect(spy).toBeCalledWith(8, 0);
 });
+
+test('should work basic with nested map methods for signal', () => {
+  const spy = jest.fn();
+  const v = signal(0);
+  const v_1 = v.map(v => v + v).map(v => v + v).map(v => v + v);
+
+  on(v_1, spy);
+  v_1(1);
+  expect(v_1.val).toBe(8);
+  expect(spy).toBeCalledWith(8, 0); spy.mockReset();
+
+  v_1(1);
+  expect(spy).toBeCalledWith(8, 8);
+});

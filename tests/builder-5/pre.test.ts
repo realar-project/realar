@@ -1,6 +1,6 @@
-import { signal, on } from '../../src';
+import { signal, on, value } from '../../src';
 
-test('should work basic operations with wrap and signal', async () => {
+test('should work basic operations with pre and signal', async () => {
   const spy = jest.fn();
 
   const s = signal(0);
@@ -20,7 +20,7 @@ test('should work basic operations with wrap and signal', async () => {
   expect(get()).toBe(1188);
 });
 
-test('should work basic operations with wrap and pre.filter', async () => {
+test('should work basic operations with pre and pre.filter', async () => {
   const spy = jest.fn();
 
   const s = signal(0);
@@ -35,4 +35,13 @@ test('should work basic operations with wrap and pre.filter', async () => {
   expect(spy).toHaveBeenCalledTimes(1);
   s_1(16);
   expect(spy).toHaveBeenCalledTimes(2);
+});
+
+test('should work two arguments pre', async () => {
+  const v = value(0).pre((k, state) => k + state);
+  expect(v.val).toBe(0);
+  v(1);
+  expect(v.val).toBe(1);
+  v(1);
+  expect(v.val).toBe(2);
 });
