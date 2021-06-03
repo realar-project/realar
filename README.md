@@ -6,27 +6,27 @@ The state manager to reduce developers' coding time and increase the lifetime of
 
 Realar targeted to all scale applications up to complex enterprise solutions on modular architecture.
 
-<div>
-<b>Logic free React components</b>. Perfect instruments for moving all component logic outside. Your React component will be pure from any unnecessary code, only view, only JSX, no more.
-</div>
-<div>
+<p>
+<b>Logic free React components</b>. Perfect instruments for moving all component logic outside. Your React component will be clean from any unnecessary code, only view, only JSX, no more.
+</p>
+<p>
 <b>Lightweight and Fast</b>. Less then 5kB. Aims at the smallest size of the resulting bundle. And only parts are updated in which is really necessary to make changes.
-</div>
-<div>
+</p>
+<p>
 <b>Value and Signal</b> is the big elephants remind Store and Action from Redux. Allows you to perform familiar coding techniques, and also add many modern features.
-</div>
-<div>
+</p>
+<p>
 <b>Declarative and Imperative</b> both supported.
-</div>
-<div>
+</p>
+<p>
 <b>Stream</b> event and value programming.
-</div>
-<div>
+</p>
+<p>
 <b>Modular Architecture</b>. Possibilities for the implementation of three levels of logic availability. Shared stateful is available for any part of your app. Scoped logic decomposition for React component context visibility. And React component local logic.
-</div>
-<div>
+</p>
+<p>
 <b>Decorators for classes lovers</b>. Support OOP as one of the primary syntaxes. The implementation of transparent functional reactive programming (TFRP) with React (looks similar to Mobx). And the babel plugin for automatic wrap all arrow JSX functions for the best clean code.
-</div>
+</p>
 
 
 ### Usage
