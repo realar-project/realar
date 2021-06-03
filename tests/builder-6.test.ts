@@ -1403,3 +1403,31 @@ test('should work signal updater', () => {
   inc_add(1);
   expect(v.val).toBe(7);
 });
+
+test('should work signal map.to', () => {
+  const spy = jest.fn();
+  const v = signal().map.to(10).to(spy);
+
+  expect(v.val).toBe(10);
+  v();
+  expect(v.val).toBe(10);
+  expect(spy).toBeCalledWith(10, 10); spy.mockReset();
+
+  v();
+  expect(v.val).toBe(10);
+  expect(spy).toBeCalledWith(10, 10);
+});
+
+test('should work value map.to', () => {
+  const spy = jest.fn();
+  const v = value().map.to(10).to(spy);
+
+  expect(v.val).toBe(10);
+  v(5);
+  expect(v.val).toBe(10);
+  expect(spy).toBeCalledTimes(0);
+
+  v(10);
+  expect(v.val).toBe(10);
+  expect(spy).toBeCalledTimes(0);
+});

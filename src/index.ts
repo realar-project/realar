@@ -6,8 +6,6 @@ import rb from 'reactive-box';
 /*
   TODOs:
 
-  [] Add map.to operator
-
   [] typings for builder
   [] documentation update
 
@@ -783,11 +781,16 @@ const trait_ent_select_multiple_untrack = (ctx, cfg) => obj_keys(cfg).reduce((re
 const trait_ent_map = (ctx, fn) => (
   fill_entity(ctx[key_handler], ctx[key_proto],
     0, 0,
-    fn ? () => fn(ctx[key_get]()) : ctx[key_get],
+    fn
+      ? ctx[key_handler][key_is_signal]
+        ? () => fn(ctx[key_get]())
+        : sel(() => fn(ctx[key_get]()))[0]
+      : ctx[key_get],
     ctx[key_set] && ctx[key_set].bind()
   )
 );
 const trait_ent_map_untrack = make_trait_ent_pure_fn_untrack(trait_ent_map);
+const trait_ent_map_to = (ctx, val) => trait_ent_map(ctx, () => val);
 const trait_ent_pre = (ctx, fn) => (
   fn
     ? fill_entity(ctx[key_handler], ctx[key_proto],
@@ -896,6 +899,13 @@ obj_def_prop_trait_ns_with_ns(proto_entity_readable_select_ns, key_multiple, tra
   make_proto_for_trackable_ns(trait_ent_select_multiple, trait_ent_select_multiple_untrack)
 );
 
+// readable.map:ns              (track|untrack)
+//   .to
+const proto_entity_readable_map_ns = obj_create(
+  make_proto_for_trackable_ns(trait_ent_map, trait_ent_map_untrack)
+);
+obj_def_prop_trait_ns(proto_entity_readable_map_ns, key_to, trait_ent_map_to);
+
 // readable.as:ns
 //   .as.value
 const proto_entity_readable_as_ns = obj_create(pure_fn);
@@ -911,7 +921,8 @@ obj_def_prop_trait_ns(proto_entity_readable_as_ns, key_value, trait_ent_as_value
 //   .select:readable.select:ns (track|untrack)
 //     .select.multiple         (track|untrack)
 //   .flow                      (track|untrack)
-//   .map                      (track|untrack)
+//   .map:readable.map:ns       (track|untrack)
+//     .to
 //   .join                      (track|untrack)
 //   .as:readable.as:ns
 //     .as.value
@@ -949,7 +960,7 @@ obj_def_prop_trait_with_ns(
   proto_entity_readable,
   key_map,
   op_trait_if_not_signal(trait_ent_map, trait_ent_map_untrack),
-  make_proto_for_trackable_ns(trait_ent_map, trait_ent_map_untrack),
+  proto_entity_readable_map_ns,
   1
 );
 obj_def_prop_trait_with_ns(
