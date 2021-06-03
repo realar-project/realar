@@ -1,4 +1,4 @@
-### OOP Usage
+### OOP usage
 
 Transparent functional reactive programming with classes, decorators and [babel jsx wrapper](https://github.com/betula/babel-plugin-realar)
 
