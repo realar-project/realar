@@ -1,7 +1,7 @@
 {
   "name": "realar",
   "version": "0.6.0-alpha.3",
-  "description": "The advanced state manager less than 5kB for React",
+  "description": "Advanced state manager for React",
   "repository": {
     "url": "https://github.com/betula/realar"
   },
@@ -68,7 +68,10 @@
     "typescript",
     "javascript",
     "jsx",
-    "decorator"
+    "decorator",
+    "stream",
+    "event stream",
+    "stream programming"
   ],
   "browserslist": [
     "last 2 Chrome versions"
