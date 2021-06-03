@@ -102,13 +102,13 @@ class Positive {
 - [Core](./docs/core.md)
 - [OOP usage](./docs/oop.md)
 - API
-  - [value](./docs/api.md)
-  - [signal](./docs/api.md)
-  - [selector](./docs/api.md)
-  - [on](./docs/api.md)
-  - [cache](./docs/api.md)
-  - [cycle](./docs/api.md)
-  - [sync](./docs/api.md)
+  - [value](./docs/api.md#value)
+  - [signal](./docs/api.md#signal)
+  - [selector](./docs/api.md#selector)
+  - [on](./docs/api.md#on)
+  - [cache](./docs/api.md#cache)
+  - [cycle](./docs/api.md#cycle)
+  - [sync](./docs/api.md#sync)
 
 
 ### Demos

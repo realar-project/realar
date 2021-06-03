@@ -1,6 +1,6 @@
 ### API
 
-**value**
+#### value
 
 The first abstraction of Realar is reactive container - `value`.
 The `value` is a place where your store some data as an immutable struct.
@@ -29,7 +29,7 @@ We learned how to create a value, set, and get it.
 
 
 
-**signal**
+#### signal
 
 The `signal` allows you to trigger an event or action and delivers the functionality to subscribe to it anywhere in your application code.
 
@@ -85,7 +85,7 @@ setInterval(fire, 500);
 
 
 
-**on**
+#### on
 
 The next basic abstraction is expression.
 Expression is a function that read reactive boxes or selectors. It can return value and write reactive values inside.
@@ -107,7 +107,7 @@ In that example expression is `next` function, because It get value and return t
 
 
 
-**selector**
+#### selector
 
 Necessary for making high-cost calculations and cache them for many times of accessing without changing source dependencies. And for downgrade (selection from) your hierarchical store.
 
@@ -142,7 +142,7 @@ store.update(state => ({
 
 
 
-**cache**
+#### cache
 
 `cache` - is the decorator for define `selector` on class getter.
 
@@ -158,7 +158,7 @@ class Todos {
 
 
 
-**cycle**
+#### cycle
 
 ```javascript
 const { get, set } = value(0);
@@ -180,7 +180,7 @@ set(2);
 
 
 
-**sync**
+#### sync
 
 ```javascript
 const source = value(0);
