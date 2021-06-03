@@ -8,27 +8,9 @@ import rb from 'reactive-box';
 
   [] Add map.to operator
 
-
-
-
   [] typings for builder
   [] documentation update
 
-    [] Add Loader example to documentation
-
-  ```
-
-    // Second example
-    const Loader = () => {
-      const count = value(0);
-
-      return {
-        start: count.updater(v => v + 1),
-        stop: count.updater(v => v - 1),
-        pending: count.select(v => v > 0)
-      }
-    }
-  ```
 
   Backlog:
   [] .as.trigger
@@ -42,6 +24,21 @@ import rb from 'reactive-box';
 
   [] signal.trigger.from
   [] value.trigger.from
+
+  [] Add Loader example to documentation
+  ```
+
+    // Second example
+    const Loader = () => {
+      const count = value(0);
+
+      return {
+        start: count.updater(v => v + 1),
+        stop: count.updater(v => v - 1),
+        pending: count.select(v => v > 0)
+      }
+    }
+  ```
 */
 
 //
