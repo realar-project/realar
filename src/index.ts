@@ -9,7 +9,12 @@ import rb from 'reactive-box';
   [] Add map.to operator
 
 
-  [] Add second example to documentation
+
+
+  [] typings for builder
+  [] documentation update
+
+    [] Add Loader example to documentation
 
   ```
 
@@ -24,13 +29,6 @@ import rb from 'reactive-box';
       }
     }
   ```
-
-  [] maybe make val as readonly property for fix "never" type for prepended values and signals
-    or I can make readonly val only for prepended values and signals (think about).
-
-  [] typings for builder
-  [] documentation update
-
 
   Backlog:
   [] .as.trigger
