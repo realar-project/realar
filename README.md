@@ -120,7 +120,7 @@ class Positive {
 
 ### In Production
 
-+ [Card of the Day](https://apps.apple.com/en/app/card-of-the-day/id1547423880) - React Native mobile app.
++ [Card of the Day](https://apps.apple.com/app/card-of-the-day/id1547423880) - React Native mobile app.
 
 ### Articles
 
