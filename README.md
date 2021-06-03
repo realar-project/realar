@@ -113,7 +113,7 @@ class Positive {
 
 ### Demos
 
-+ [Besic usage on codesandbox](https://codesandbox.io/s/realar-basic-example-41vvd?file=/src/App.tsx).
++ [Basic usage on codesandbox](https://codesandbox.io/s/realar-basic-example-41vvd?file=/src/App.tsx).
 + [Hello](https://github.com/realar-project/hello) - shared state demonstration.
 + [Todos](https://github.com/realar-project/todos) - todomvc implementation.
 + [Jest](https://github.com/realar-project/jest) - unit test example.
