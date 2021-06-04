@@ -2,6 +2,13 @@ import React, { Context, FC } from 'react';
 import rb from 'reactive-box';
 import { Contextual, Isolate, Local, Observe, PoolEntry, SelectorEntry, SignalEntry, Transaction, Untrack, UseJsx, UseLocal, UseScoped, UseValue, UseValues, ValueEntry } from './types';
 
+/*
+  TODOs
+
+  [] Add callback to join, and combine. After It possible to use object config for join with callback
+*/
+
+
 //
 // Exports
 //
