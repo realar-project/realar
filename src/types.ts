@@ -1,5 +1,24 @@
 import { FC } from 'react';
 
+/*
+  [] map.to
+  [] updater.multiple
+  [] select.multiple
+  [] join
+  [] selector
+  [] signal.from
+  [] value.from
+  [] signal.trigger
+  [] value.trigger
+  [] signal.combine
+  [] value.combine
+
+  [] Later type -(Ensurable)
+  [] Typings for op, sync and etc.
+
+
+*/
+
 export {
   ValueEntry,
   SignalEntry,
@@ -40,11 +59,14 @@ type Re<T> = { get: () => T } | (() => T);
 // Entity types
 //
 
-interface E_UpdaterPartial<I, O> {
-  updater: {
-    <U>(func?: (state: O, upValue: U, upPrev: U) => I): Equals<U, unknown> extends true ? Signal : Signal<U>
-    value<U>(func?: (state: O, upValue: U, upPrev: U) => I): Equals<U, unknown> extends true ? Value : Value<U>
-  }
+type E_SetPartial<T> = Equals<T, void> extends true
+  ? { (): void; set(): void }
+  : { (value: T): void; set(value: T): void }
+type E_ValReadonlyPartial<O> = { readonly val: O }
+type E_ValPartial<I, O> = Equals<I, O> extends true ? { val: O } : E_ValReadonlyPartial<O>
+
+interface E_PromisePartial<O> {
+  promise: Promise<O>
 }
 interface E_GetPartial<T> {
   get: () => T;
@@ -56,15 +78,48 @@ interface E_SyncToPartial<T, Ret> {
     once(func: (value: T, prev: T) => void): Ret
   }
 }
+interface E_OpPartial<Ret> {
+  op<R>(func: () => R): R extends void ? Ret : R
+}
+interface E_SelectPartial<O> {
+  select: {
+    <R>(func?: (value: O) => R): Selector<R>        // tracked by default
+    untrack<R>(func?: (value: O) => R): Selector<R>
+    multiple: {
+      (cfg: any[]): any // TODO: .select.multiple typings
+      untrack(cfg: any[]): any
+    }
+  }
+}
+interface E_UpdaterPartial<I, O> {
+  updater: {
+    <U>(func?: (state: O, upValue: U, upPrev: U) => I): Equals<U, unknown> extends true ? Signal : Signal<U>
+  }
+}
+interface E_UpdatePartial<I, O> {
+  update: {
+    (func?: (value: O) => I): void                  // untracked by default
+    track(func?: (value: O) => I): void
+    by: {
+      <T>(re: Re<T>, updater?: (state: O, reValue: T, rePrev: T) => I)
+      once: {
+        <T>(re: Re<T>, updater?: (state: O, reValue: T, rePrev: T) => I)
+      }
+    }
+  }
+}
 
 
 
 interface E_Value<I, O> extends
   E_GetPartial<O>,
+  E_PromisePartial<O>,
   E_SyncToPartial<O, Value<I, O>>,
-  E_UpdaterPartial<I, O> {
+  E_UpdaterPartial<I, O>,
+  E_OpPartial<Value<I, O>>,
+  E_SelectPartial<O>,
+  E_UpdatePartial<I, O> {
 
-  op<R>(func: () => R): R extends void ? Value<I, O> : R
 
   filter: {
     (func?: (value: O) => any): Value<I, O>         // tracked by default
@@ -74,38 +129,13 @@ interface E_Value<I, O> extends
       untrack(func?: (value: O) => any): Value<I, O>
     }
   }
-  select: {
-    <R>(func?: (value: O) => R): Selector<R>        // tracked by default
-    untrack<R>(func?: (value: O) => R): Selector<R>
-    multiple: {
-      (cfg: any[]): any // TODO: .select.multiple typings
-      untrack(cfg: any[]): any
-    }
-  }
   map: {
     <R>(func: (value: O) => R): Value<I, R>         // tracked by default
     untrack<R>(func: (value: O) => R): Value<I, R>
   }
-
-  flow: any // TODO: .flow typings
-  join: any // TODO: .join typings
-
-  promise: Promise<O>
-
-  // writtable section
-  update: {
-    (func?: (value: O) => I): void                  // untracked by default
-    track(func?: (value: O) => I): void
-    by: {
-      <T>(re: Re<T>, updater?: (state: O, reValue: T, rePrev: T) => I)
-      once: {
-        <T>(re: Re<T>, updater?: (state: O, reValue: T, rePrev: T) => I)
-      }
-    }
-  }
   pre: {
-    <N>(func?: (value: N) => I): Value<N, O>        // tracked by default
-    untrack<N>(func?: (value: N) => I): Value<N, O>
+    <N>(func?: (value: N, state: O) => I): Value<N, O>  // tracked by default
+    untrack<N>(func?: (value: N, state: O) => I): Value<N, O>
     filter: {
       (func?: (value: O) => any): Value<I, O>       // tracked by default
       untrack(func?: (value: O) => any): Value<I, O>
@@ -115,17 +145,21 @@ interface E_Value<I, O> extends
       }
     }
   }
+
+  // join: any // TODO: .join typings
+
+  // TODO v0.7: flow: any
 }
 
 
 interface E_Signal<I, O> extends
   E_GetPartial<O>,
+  E_PromisePartial<O>,
   E_SyncToPartial<O, Signal<I, O>>,
-  E_UpdaterPartial<I, O> {
-
-  // readable section
-
-  op<R>(func: () => R): R extends void ? Signal<I, O> : R
+  E_UpdaterPartial<I, O>,
+  E_OpPartial<Signal<I, O>>,
+  E_SelectPartial<O>,
+  E_UpdatePartial<I, O> {
 
   filter: {
     (func?: (value: O) => any): Signal<I, O>         // untracked by default
@@ -135,38 +169,13 @@ interface E_Signal<I, O> extends
       track(func?: (value: O) => any): Signal<I, O>
     }
   }
-  select: {
-    <R>(func?: (value: O) => R): Selector<R>        // tracked by default
-    untrack<R>(func?: (value: O) => R): Selector<R>
-    multiple: {
-      (cfg: any[]): any // TODO: .select.multiple typings
-      untrack(cfg: any[]): any
-    }
-  }
   map: {
     <R>(func: (value: O) => R): Signal<I, R>        // untracked by default
     track<R>(func: (value: O) => R): Signal<I, R>
   }
-
-  flow: any // TODO: .flow typings
-  join: any // TODO: .join typings
-
-  promise: Promise<O>
-
-  // writtable section
-  update: {
-    (func?: (value: O) => I): void                  // untracked by default
-    track(func?: (value: O) => I): void
-    by: {
-      <T>(re: Re<T>, updater?: (state: O, reValue: T, rePrev: T) => I)
-      once: {
-        <T>(re: Re<T>, updater?: (state: O, reValue: T, rePrev: T) => I)
-      }
-    }
-  }
   pre: {
-    <N>(func?: (value: N) => I): Signal<N, O>       // untracked by default
-    track<N>(func?: (value: N) => I): Signal<N, O>
+    <N>(func?: (value: N, state: O) => I): Signal<N, O> // untracked by default
+    track<N>(func?: (value: N, state: O) => I): Signal<N, O>
     filter: {
       (func?: (value: O) => any): Signal<I, O>      // untracked by default
       track(func?: (value: O) => any): Signal<I, O>
@@ -176,26 +185,44 @@ interface E_Signal<I, O> extends
       }
     }
   }
+
+
+  // flow: any // TODO: .flow typings
+  // join: any // TODO: .join typings
 }
 
 
-type E_SetPartial<T> = Equals<T, void> extends true
-  ? { (): void; set(): void }
-  : { (value: T): void; set(value: T): void }
+interface E_Selector<O> extends
+  E_GetPartial<O>,
+  E_PromisePartial<O>,
+  E_SyncToPartial<O, Selector<O>>,
+  E_OpPartial<Selector<O>>,
+  E_SelectPartial<O> {
 
-type E_ValPartial<I, O> = Equals<I, O> extends true ? { val: O } : { readonly val: O }
+  filter: {
+    (func?: (value: O) => any): Selector<O>        // tracked by default
+    untrack(func?: (value: O) => any): Selector<O>
+    not: {
+      (func?: (value: O) => any): Selector<O>      // tracked by default
+      untrack(func?: (value: O) => any): Selector<O>
+    }
+  }
+  map: {
+    <R>(func: (value: O) => R): Selector<R>        // tracked by default
+    untrack<R>(func: (value: O) => R): Selector<R>
+  }
 
+
+
+  // flow: any // TODO: .flow typings
+  // join: any // TODO: .join typings
+}
 
 
 type Value<I = void, O = I> = E_SetPartial<I> & E_ValPartial<I, O> & E_Value<I, O>
 type Signal<I = void, O = I> = E_SetPartial<I> & E_ValPartial<I, O> & E_Signal<I, O>
+type Selector<O> = E_ValReadonlyPartial<O> & E_Selector<O>
 
-
-type Selector<O> = {
-  get: () => O;
-  val: O;
-  select: any;
-}
 
 
 
@@ -205,35 +232,54 @@ type Selector<O> = {
 //
 
 type ValueEntry = {
-  <T>(initial?: T): Value<T>;
+  (): Value;
+  <T>(initial: T): Value<T>;
+
   trigger: {
-    (initial?: any): any;
+    (): any;
+    (initial: any): any;
+
     flag: {
+      (): any;
       (initial?: any): any;
-      invert: { (initial?: any): any }
+
+      invert: {
+        (): any
+        (initial?: any): any
+      }
     }
   };
+
   from: { (get: () => any, set?: (v) => any): any },
   combine: { (cfg: any): any }
 }
 
-type SelectorEntry = {
-  (fn: () => any): any;
-}
-
 type SignalEntry = {
-  <T>(initial?: T): Signal<T>;
+  (): Signal;
+  <T>(initial: T): Signal<T>;
+
   trigger: {
-    (initial?: any): any;
+    (): any;
+    (initial: any): any;
+
     flag: {
+      (): any;
       (initial?: any): any;
-      invert: { (initial?: any): any }
+
+      invert: {
+        (): any
+        (initial?: any): any
+      }
     }
   };
+
   from: { (get: () => any, set?: (v) => any): any },
   combine: { (cfg: any): any }
 };
 
+type SelectorEntry = {
+  <O>(fn: () => O): Selector<O>;
+}
 
 
 //
