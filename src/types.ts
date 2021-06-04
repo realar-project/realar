@@ -1,7 +1,6 @@
 import { FC } from 'react';
 
 /*
-  [] map.to
   [] updater.multiple
   [] select.multiple
   [] join
@@ -108,6 +107,26 @@ interface E_UpdatePartial<I, O> {
     }
   }
 }
+interface E_FilterTrackedPartial<O, Ret> {
+  filter: {
+    (func?: (value: O) => any): Ret         // tracked by default
+    untrack(func?: (value: O) => any): Ret
+    not: {
+      (func?: (value: O) => any): Ret       // tracked by default
+      untrack(func?: (value: O) => any): Ret
+    }
+  }
+}
+interface E_FilterUnTrackedPartial<T, Ret> {
+  filter: {
+    (func?: (value: T) => any): Ret         // untracked by default
+    track(func?: (value: T) => any): Ret
+    not: {
+      (func?: (value: T) => any): Ret       // untracked by default
+      track(func?: (value: T) => any): Ret
+    }
+  }
+}
 
 
 
@@ -118,32 +137,18 @@ interface E_Value<I, O> extends
   E_UpdaterPartial<I, O>,
   E_OpPartial<Value<I, O>>,
   E_SelectPartial<O>,
-  E_UpdatePartial<I, O> {
+  E_UpdatePartial<I, O>,
+  E_FilterTrackedPartial<O, Value<I, O>> {
 
-
-  filter: {
-    (func?: (value: O) => any): Value<I, O>         // tracked by default
-    untrack(func?: (value: O) => any): Value<I, O>
-    not: {
-      (func?: (value: O) => any): Value<I, O>       // tracked by default
-      untrack(func?: (value: O) => any): Value<I, O>
-    }
-  }
   map: {
     <R>(func: (value: O) => R): Value<I, R>         // tracked by default
     untrack<R>(func: (value: O) => R): Value<I, R>
+
+    to<R>(value?: R): Value<I, R>
   }
-  pre: {
+  pre: E_FilterTrackedPartial<I, Value<I, O>> & {
     <N>(func?: (value: N, state: O) => I): Value<N, O>  // tracked by default
     untrack<N>(func?: (value: N, state: O) => I): Value<N, O>
-    filter: {
-      (func?: (value: O) => any): Value<I, O>       // tracked by default
-      untrack(func?: (value: O) => any): Value<I, O>
-      not: {                                        // tracked by default
-        (func?: (value: O) => any): Value<I, O>
-        untrack(func?: (value: O) => any): Value<I, O>
-      }
-    }
   }
 
   // join: any // TODO: .join typings
@@ -159,31 +164,19 @@ interface E_Signal<I, O> extends
   E_UpdaterPartial<I, O>,
   E_OpPartial<Signal<I, O>>,
   E_SelectPartial<O>,
-  E_UpdatePartial<I, O> {
+  E_UpdatePartial<I, O>,
+  E_FilterUnTrackedPartial<O, Signal<I, O>> {
 
-  filter: {
-    (func?: (value: O) => any): Signal<I, O>         // untracked by default
-    track(func?: (value: O) => any): Signal<I, O>
-    not: {
-      (func?: (value: O) => any): Signal<I, O>       // untracked by default
-      track(func?: (value: O) => any): Signal<I, O>
-    }
-  }
+
   map: {
     <R>(func: (value: O) => R): Signal<I, R>        // untracked by default
     track<R>(func: (value: O) => R): Signal<I, R>
+
+    to<R>(value?: R): Signal<I, R>
   }
-  pre: {
-    <N>(func?: (value: N, state: O) => I): Signal<N, O> // untracked by default
+  pre: E_FilterUnTrackedPartial<I, Signal<I, O>> & {
+    <N>(func?: (value: N, state: O) => I): Signal<N, O>       // untracked by default
     track<N>(func?: (value: N, state: O) => I): Signal<N, O>
-    filter: {
-      (func?: (value: O) => any): Signal<I, O>      // untracked by default
-      track(func?: (value: O) => any): Signal<I, O>
-      not: {                                        // untracked by default
-        (func?: (value: O) => any): Signal<I, O>
-        track(func?: (value: O) => any): Signal<I, O>
-      }
-    }
   }
 
 
@@ -197,22 +190,15 @@ interface E_Selector<O> extends
   E_PromisePartial<O>,
   E_SyncToPartial<O, Selector<O>>,
   E_OpPartial<Selector<O>>,
-  E_SelectPartial<O> {
+  E_SelectPartial<O>,
+  E_FilterTrackedPartial<O, Selector<O>> {
 
-  filter: {
-    (func?: (value: O) => any): Selector<O>        // tracked by default
-    untrack(func?: (value: O) => any): Selector<O>
-    not: {
-      (func?: (value: O) => any): Selector<O>      // tracked by default
-      untrack(func?: (value: O) => any): Selector<O>
-    }
-  }
   map: {
     <R>(func: (value: O) => R): Selector<R>        // tracked by default
     untrack<R>(func: (value: O) => R): Selector<R>
+
+    to<R>(value?: R): Selector<R>
   }
-
-
 
   // flow: any // TODO: .flow typings
   // join: any // TODO: .join typings
