@@ -1,7 +1,6 @@
 import { FC } from 'react';
 
 /*
-  [] updater.multiple
   [] select.multiple
   [] join
   [] signal.from
@@ -52,6 +51,10 @@ type Equals<X, Y> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y
 
 type Re<T> = { get: () => T } | (() => T);
 
+type Re_CfgExemplar = {
+  [key: string]: Re<any>
+}
+
 
 //
 // Entity types
@@ -89,8 +92,55 @@ interface E_SelectPartial<O> {
     }
   }
 }
+
+type E_U_CfgExemplar<I, O> = {
+  [key: string]: (state: O, upValue: never, upPrev: never) => I
+}
+type E_US<T> = Equals<T, unknown> extends true ? Signal : Signal<T>
+type E_U<I,O,U> = ((state: O, upValue: U, upPrev: U) => I) | (() => I);
+
+interface E_UpdaterMultiplePartial<i, o> {
+  multiple: {
+    <A>(targets: [E_U<i,o,A>]): [E_US<A>];
+    <A,B>(targets: [E_U<i,o,A>,E_U<i,o,B>]): [E_US<A>,E_US<B>];
+    <A,B,C>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>]): [E_US<A>,E_US<B>,E_US<C>];
+    <A,B,C,D>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>];
+    <A,B,C,D,E>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>];
+    <A,B,C,D,E,F>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>];
+    <A,B,C,D,E,F,G>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>];
+    <A,B,C,D,E,F,G,H>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>];
+    <A,B,C,D,E,F,G,H,I>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>];
+    <A,B,C,D,E,F,G,H,I,J>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>];
+    <A,B,C,D,E,F,G,H,I,J,K>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>];
+    <A,B,C,D,E,F,G,H,I,J,K,L>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>,E_U<i,o,S>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>,E_US<S>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>,E_U<i,o,S>,E_U<i,o,T>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>,E_US<S>,E_US<T>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>,E_U<i,o,S>,E_U<i,o,T>,E_U<i,o,U>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>,E_US<S>,E_US<T>,E_US<U>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>,E_U<i,o,S>,E_U<i,o,T>,E_U<i,o,U>,E_U<i,o,V>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>,E_US<S>,E_US<T>,E_US<U>,E_US<V>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>,E_U<i,o,S>,E_U<i,o,T>,E_U<i,o,U>,E_U<i,o,V>,E_U<i,o,W>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>,E_US<S>,E_US<T>,E_US<U>,E_US<V>,E_US<W>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>,E_U<i,o,S>,E_U<i,o,T>,E_U<i,o,U>,E_U<i,o,V>,E_U<i,o,W>,E_U<i,o,X>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>,E_US<S>,E_US<T>,E_US<U>,E_US<V>,E_US<W>,E_US<X>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>,E_U<i,o,S>,E_U<i,o,T>,E_U<i,o,U>,E_U<i,o,V>,E_U<i,o,W>,E_U<i,o,X>,E_U<i,o,Y>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>,E_US<S>,E_US<T>,E_US<U>,E_US<V>,E_US<W>,E_US<X>,E_US<Y>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>,E_U<i,o,S>,E_U<i,o,T>,E_U<i,o,U>,E_U<i,o,V>,E_U<i,o,W>,E_U<i,o,X>,E_U<i,o,Y>,E_U<i,o,Z>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>,E_US<S>,E_US<T>,E_US<U>,E_US<V>,E_US<W>,E_US<X>,E_US<Y>,E_US<Z>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>,E_U<i,o,S>,E_U<i,o,T>,E_U<i,o,U>,E_U<i,o,V>,E_U<i,o,W>,E_U<i,o,X>,E_U<i,o,Y>,E_U<i,o,Z>,E_U<i,o,$>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>,E_US<S>,E_US<T>,E_US<U>,E_US<V>,E_US<W>,E_US<X>,E_US<Y>,E_US<Z>,E_US<$>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>,E_U<i,o,S>,E_U<i,o,T>,E_U<i,o,U>,E_U<i,o,V>,E_U<i,o,W>,E_U<i,o,X>,E_U<i,o,Y>,E_U<i,o,Z>,E_U<i,o,$>,E_U<i,o,_>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>,E_US<S>,E_US<T>,E_US<U>,E_US<V>,E_US<W>,E_US<X>,E_US<Y>,E_US<Z>,E_US<$>,E_US<_>];
+
+    <T extends E_U_CfgExemplar<i,o>>(targets: T): {
+      [P in keyof T]: T[P] extends ((state: o, upValue: infer U) => i) ? E_US<U> : never
+    }
+  }
+}
+
+
+
+
 interface E_UpdaterPartial<I, O> {
-  updater: {
+  updater: E_UpdaterMultiplePartial<I, O> & {
     <U>(func?: (state: O, upValue: U, upPrev: U) => I): Equals<U, unknown> extends true ? Signal : Signal<U>
   }
 }
@@ -314,14 +364,8 @@ type UseValue = {
   <T>(target: Re<T>, deps?: any[]): T;
 }
 
-type UseValues_CfgExemplar = {
-  [key: string]: Re<any>
-}
-type UseValues_ExpandCfgTargets<T> = {
-  [P in keyof T]: T[P] extends Re<infer Re_T> ? Re_T : T[P]
-}
 type UseValues = {
-  <T extends UseValues_CfgExemplar>(targets: T, deps?: any[]): UseValues_ExpandCfgTargets<T>
+  <A>(targets: [Re<A>], deps?: any[]): [A];
   <A,B>(targets: [Re<A>,Re<B>], deps?: any[]): [A,B];
   <A,B,C>(targets: [Re<A>,Re<B>,Re<C>], deps?: any[]): [A,B,C];
   <A,B,C,D>(targets: [Re<A>,Re<B>,Re<C>,Re<D>], deps?: any[]): [A,B,C,D];
@@ -349,7 +393,10 @@ type UseValues = {
   <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z];
   <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$];
   <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>,Re<_>], deps?: any[]): [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_];
-  <A>(targets: [Re<A>], deps?: any[]): [A];
+
+  <T extends Re_CfgExemplar>(targets: T, deps?: any[]): {
+    [P in keyof T]: T[P] extends Re<infer R> ? R : T[P]
+  }
 }
 
 type UseJsx = {

@@ -927,11 +927,7 @@ const initial = (data: any): void => {
   initial_data = data;
 }
 
-const inst = <M, K extends any[]>(
-  target: (new (...args: K) => M) | ((...args: K) => M),
-  args: K,
-  local_injects_available?: any
-): [M, () => void, (() => void)[]] => {
+const inst = (target, args, local_injects_available?) => {
   let instance, unsub, local_injects;
   const collect = internal_isolate();
   const track = internal_untrack();
@@ -940,8 +936,8 @@ const inst = <M, K extends any[]>(
   try {
     instance =
       target.prototype === const_undef
-        ? (target as any)(...args)
-        : new (target as any)(...args);
+        ? target(...args)
+        : new target(...args);
     if (!local_injects_available && context_local_injects.length > 0) throw_local_inject_error();
   } finally {
     unsub = collect();
