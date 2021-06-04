@@ -994,20 +994,20 @@ const obj_def_box_prop = (o: any, p: string | number | symbol, init?: any): any 
   obj_def_prop(o, p, { get: init[0], set: init[1] })
 )
 
-const prop = (_t: any, key: any, descriptor?: any): any => (
-  (_t = descriptor?.initializer), {
+const prop = (_target: any, key: any, descriptor?: any): any => (
+  (_target = descriptor?.initializer), {
     get() {
-      obj_def_box_prop(this, key, _t);
+      obj_def_box_prop(this, key, _target);
       return this[key];
     },
     set(value: any) {
-      obj_def_box_prop(this, key, _t);
+      obj_def_box_prop(this, key, _target);
       this[key] = value;
     },
   }
 )
 
-const cache = (_proto: any, key: any, descriptor: any): any => ({
+const cache = (_target: any, key: any, descriptor: any): any => ({
   get() {
     const [get] = sel(descriptor.get);
     obj_def_prop(this, key, { get });
