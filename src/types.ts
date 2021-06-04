@@ -4,7 +4,6 @@ import { FC } from 'react';
   [] updater.multiple
   [] select.multiple
   [] join
-  [] selector
   [] signal.from
   [] value.from
   [] signal.trigger
@@ -303,7 +302,7 @@ type Observe = {
   }
 }
 type UseScoped = {
-  <M>(target: (new (init?: any) => M) | ((init?: any) => M)): M;
+  <M>(target: (new () => M) | (() => M)): M;
 }
 type UseLocal = {
   <T extends unknown[], M>(
