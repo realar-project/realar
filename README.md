@@ -102,13 +102,42 @@ class Positive {
 - [Core](./docs/core.md)
 - [OOP usage](./docs/oop.md)
 - API
-  - [value](./docs/api.md#value)
-  - [signal](./docs/api.md#signal)
-  - [selector](./docs/api.md#selector)
-  - [on](./docs/api.md#on)
-  - [cache](./docs/api.md#cache)
-  - [cycle](./docs/api.md#cycle)
-  - [sync](./docs/api.md#sync)
+  - Declarative framework
+    - [value](./docs/api.md#value)
+    - [selector](./docs/api.md#selector)
+    - [signal](./docs/api.md#signal)
+  - Imperative framework
+    - [on](./docs/api.md#on)
+    - [sync](./docs/api.md#sync)
+    - [cycle](./docs/api.md#cycle)
+  - Class decorators for TRFP
+    - [prop]()
+    - [cache](./docs/api.md#cache)
+  - Shared technique
+    - [shared]()
+    - [initial]()
+    - [free]()
+    - [mock]()
+    - [unmock]()
+  - Unsubscribe scopes control
+    - [isolate]()
+    - [un]()
+  - Additional api
+    - [local.inject]()
+    - [contextual]()
+    - [pool]()
+  - Track and transactions
+    - [transaction]()
+    - [untrack]()
+  - React bindings
+    - [observe]()
+    - [useValue]()
+    - [useValues]()
+    - [useLocal]()
+    - [useScoped]()
+    - [useShared]()
+    - [Scope]()
+    - [useJsx]()
 
 
 ### Demos
