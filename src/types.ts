@@ -2,9 +2,9 @@ import { FC } from 'react';
 
 /*
 
-  [] join -- with callback support
   [] signal.combine -- with callback support
   [] value.combine -- with callback support
+  [] join -- with callback support
 
   [] Typings for op, sync and etc.
   [] Later type -(Ensurable)
