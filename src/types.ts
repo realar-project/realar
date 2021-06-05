@@ -4,8 +4,6 @@ import { FC } from 'react';
   [] join
   [] signal.from
   [] value.from
-  [] signal.trigger
-  [] value.trigger
   [] signal.combine
   [] value.combine
 
@@ -236,9 +234,8 @@ interface E_Value<I, O> extends
     untrack<N>(func?: (value: N, state: O) => I): Value<N, O>
   }
 
-  // join: any // TODO: .join typings
 
-  // TODO v0.7: flow: any
+  // TODO 0.7: .flow typings
 }
 
 
@@ -265,8 +262,7 @@ interface E_Signal<I, O> extends
   }
 
 
-  // flow: any // TODO: .flow typings
-  // join: any // TODO: .join typings
+  // TODO 0.7: .flow typings
 }
 
 
@@ -285,8 +281,7 @@ interface E_Selector<O> extends
     to<R>(value?: R): Selector<R>
   }
 
-  // flow: any // TODO: .flow typings
-  // join: any // TODO: .join typings
+  // TODO 0.7: .flow typings
 }
 
 
@@ -307,16 +302,16 @@ type ValueEntry = {
   <T>(initial: T): Value<T>;
 
   trigger: {
-    (): any;
-    (initial: any): any;
+    (): Value;
+    <T>(initial: T): Value<T>;
 
     flag: {
-      (): any;
-      (initial?: any): any;
+      (): Value<boolean>;
+      (initial: boolean): Value<boolean>;
 
       invert: {
-        (): any
-        (initial?: any): any
+        (): Value<boolean>;
+        (initial: boolean): Value<boolean>;
       }
     }
   };
@@ -330,16 +325,16 @@ type SignalEntry = {
   <T>(initial: T): Signal<T>;
 
   trigger: {
-    (): any;
-    (initial: any): any;
+    (): Signal;
+    <T>(initial: T): Signal<T>;
 
     flag: {
-      (): any;
-      (initial?: any): any;
+      (): Signal<boolean>;
+      (initial: boolean): Signal<boolean>;
 
       invert: {
-        (): any
-        (initial?: any): any
+        (): Signal<boolean>;
+        (initial: boolean): Signal<boolean>;
       }
     }
   };
