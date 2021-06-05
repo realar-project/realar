@@ -1,14 +1,8 @@
 import { FC } from 'react';
 
 /*
-
-  [] signal.combine -- with callback support
-  [] value.combine -- with callback support
-  [] join -- with callback support
-
   [] Typings for op, sync and etc.
-  [] Later type -(Ensurable)
-
+  [] Later type -(Ensurable) -- EnsureLater
 */
 
 export {
@@ -223,6 +217,71 @@ interface E_Writtable<I, O, Ret> extends
   E_UpdaterPartial<I, O> {}
 
 
+interface E_ValueJoin_Func<i, o> {
+  <A,r>(targets: [Re<A>], fn: (state: o, values: [A]) => r): Value<i,r>;
+  <A,B,r>(targets: [Re<A>,Re<B>], fn: (state: o, values: [A,B]) => r): Value<i,r>;
+  <A,B,C,r>(targets: [Re<A>,Re<B>,Re<C>], fn: (state: o, values: [A,B,C]) => r): Value<i,r>;
+  <A,B,C,D,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>], fn: (state: o, values: [A,B,C,D]) => r): Value<i,r>;
+  <A,B,C,D,E,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>], fn: (state: o, values: [A,B,C,D,E]) => r): Value<i,r>;
+  <A,B,C,D,E,F,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>], fn: (state: o, values: [A,B,C,D,E,F]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>], fn: (state: o, values: [A,B,C,D,E,F,G]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>], fn: (state: o, values: [A,B,C,D,E,F,G,H]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,I,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$]) => r): Value<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>,Re<_>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_]) => r): Value<i,r>;
+
+  <T extends Re_CfgExemplar, r>(targets: T, fn: (state: o, values: {
+    [P in keyof T]: T[P] extends { get: () => infer R } ? R : T[P] extends (() => infer R) ? R : T[P]
+  }) => r): Value<i,r>
+
+
+  <A>(targets: [Re<A>]): Value<i,[o,A]>;
+  <A,B>(targets: [Re<A>,Re<B>]): Value<i,[o,A,B]>;
+  <A,B,C>(targets: [Re<A>,Re<B>,Re<C>]): Value<i,[o,A,B,C]>;
+  <A,B,C,D>(targets: [Re<A>,Re<B>,Re<C>,Re<D>]): Value<i,[o,A,B,C,D]>;
+  <A,B,C,D,E>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>]): Value<i,[o,A,B,C,D,E]>;
+  <A,B,C,D,E,F>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>]): Value<i,[o,A,B,C,D,E,F]>;
+  <A,B,C,D,E,F,G>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>]): Value<i,[o,A,B,C,D,E,F,G]>;
+  <A,B,C,D,E,F,G,H>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>]): Value<i,[o,A,B,C,D,E,F,G,H]>;
+  <A,B,C,D,E,F,G,H,I>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>]): Value<i,[o,A,B,C,D,E,F,G,H,I]>;
+  <A,B,C,D,E,F,G,H,I,J>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>]): Value<i,[o,A,B,C,D,E,F,G,H,I,J]>;
+  <A,B,C,D,E,F,G,H,I,J,K>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>]): Value<i,[o,A,B,C,D,E,F,G,H,I,J,K]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>]): Value<i,[o,A,B,C,D,E,F,G,H,I,J,K,L]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>]): Value<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>]): Value<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>]): Value<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>]): Value<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>]): Value<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>]): Value<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>]): Value<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>]): Value<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>]): Value<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>]): Value<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>]): Value<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>]): Value<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>]): Value<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>]): Value<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>]): Value<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>,Re<_>]): Value<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_]>;
+}
+
 interface E_Value<I, O> extends
   E_Writtable<I, O, Value<I, O>>,
   E_FilterTrackedPartial<O, Value<I, O>> {
@@ -241,9 +300,74 @@ interface E_Value<I, O> extends
     <N, R>(pre: (value: N, state: O) => I, map: (value: O) => R): Value<N, R> // tracked by default
     untrack<N, R>(pre: (value: N, state: O) => I, map: (value: O) => R): Value<N, R>
   }
-
-  // TODO 0.7: .flow typings
+  join: E_ValueJoin_Func<I, O>
 }
+
+interface E_ValueReadonlyJoin_Func<o> {
+  <A,r>(targets: [Re<A>], fn: (state: o, values: [A]) => r): ValueReadonly<r>;
+  <A,B,r>(targets: [Re<A>,Re<B>], fn: (state: o, values: [A,B]) => r): ValueReadonly<r>;
+  <A,B,C,r>(targets: [Re<A>,Re<B>,Re<C>], fn: (state: o, values: [A,B,C]) => r): ValueReadonly<r>;
+  <A,B,C,D,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>], fn: (state: o, values: [A,B,C,D]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>], fn: (state: o, values: [A,B,C,D,E]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>], fn: (state: o, values: [A,B,C,D,E,F]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>], fn: (state: o, values: [A,B,C,D,E,F,G]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>], fn: (state: o, values: [A,B,C,D,E,F,G,H]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$]) => r): ValueReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>,Re<_>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_]) => r): ValueReadonly<r>;
+
+  <T extends Re_CfgExemplar, r>(targets: T, fn: (state: o, values: {
+    [P in keyof T]: T[P] extends { get: () => infer R } ? R : T[P] extends (() => infer R) ? R : T[P]
+  }) => r): ValueReadonly<r>
+
+
+  <A>(targets: [Re<A>]): ValueReadonly<[o,A]>;
+  <A,B>(targets: [Re<A>,Re<B>]): ValueReadonly<[o,A,B]>;
+  <A,B,C>(targets: [Re<A>,Re<B>,Re<C>]): ValueReadonly<[o,A,B,C]>;
+  <A,B,C,D>(targets: [Re<A>,Re<B>,Re<C>,Re<D>]): ValueReadonly<[o,A,B,C,D]>;
+  <A,B,C,D,E>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>]): ValueReadonly<[o,A,B,C,D,E]>;
+  <A,B,C,D,E,F>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>]): ValueReadonly<[o,A,B,C,D,E,F]>;
+  <A,B,C,D,E,F,G>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>]): ValueReadonly<[o,A,B,C,D,E,F,G]>;
+  <A,B,C,D,E,F,G,H>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>]): ValueReadonly<[o,A,B,C,D,E,F,G,H]>;
+  <A,B,C,D,E,F,G,H,I>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>]): ValueReadonly<[o,A,B,C,D,E,F,G,H,I]>;
+  <A,B,C,D,E,F,G,H,I,J>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>]): ValueReadonly<[o,A,B,C,D,E,F,G,H,I,J]>;
+  <A,B,C,D,E,F,G,H,I,J,K>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>]): ValueReadonly<[o,A,B,C,D,E,F,G,H,I,J,K]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>]): ValueReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>]): ValueReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>]): ValueReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>]): ValueReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>]): ValueReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>]): ValueReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>]): ValueReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>]): ValueReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>]): ValueReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>]): ValueReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>]): ValueReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>]): ValueReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>]): ValueReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>]): ValueReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>]): ValueReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>]): ValueReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>,Re<_>]): ValueReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_]>;
+}
+
 interface E_ValueReadonly<O> extends
   E_Readable<O, ValueReadonly<O>>,
   E_FilterTrackedPartial<O, ValueReadonly<O>> {
@@ -254,8 +378,74 @@ interface E_ValueReadonly<O> extends
 
     to<R>(value?: R): ValueReadonly<R>
   }
+  join: E_ValueReadonlyJoin_Func<O>
 }
 
+
+interface E_SignalJoin_Func<i, o> {
+  <A,r>(targets: [Re<A>], fn: (state: o, values: [A]) => r): Signal<i,r>;
+  <A,B,r>(targets: [Re<A>,Re<B>], fn: (state: o, values: [A,B]) => r): Signal<i,r>;
+  <A,B,C,r>(targets: [Re<A>,Re<B>,Re<C>], fn: (state: o, values: [A,B,C]) => r): Signal<i,r>;
+  <A,B,C,D,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>], fn: (state: o, values: [A,B,C,D]) => r): Signal<i,r>;
+  <A,B,C,D,E,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>], fn: (state: o, values: [A,B,C,D,E]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>], fn: (state: o, values: [A,B,C,D,E,F]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>], fn: (state: o, values: [A,B,C,D,E,F,G]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>], fn: (state: o, values: [A,B,C,D,E,F,G,H]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,I,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$]) => r): Signal<i,r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>,Re<_>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_]) => r): Signal<i,r>;
+
+  <T extends Re_CfgExemplar, r>(targets: T, fn: (state: o, values: {
+    [P in keyof T]: T[P] extends { get: () => infer R } ? R : T[P] extends (() => infer R) ? R : T[P]
+  }) => r): Signal<i,r>
+
+
+  <A>(targets: [Re<A>]): Signal<i,[o,A]>;
+  <A,B>(targets: [Re<A>,Re<B>]): Signal<i,[o,A,B]>;
+  <A,B,C>(targets: [Re<A>,Re<B>,Re<C>]): Signal<i,[o,A,B,C]>;
+  <A,B,C,D>(targets: [Re<A>,Re<B>,Re<C>,Re<D>]): Signal<i,[o,A,B,C,D]>;
+  <A,B,C,D,E>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>]): Signal<i,[o,A,B,C,D,E]>;
+  <A,B,C,D,E,F>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>]): Signal<i,[o,A,B,C,D,E,F]>;
+  <A,B,C,D,E,F,G>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>]): Signal<i,[o,A,B,C,D,E,F,G]>;
+  <A,B,C,D,E,F,G,H>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>]): Signal<i,[o,A,B,C,D,E,F,G,H]>;
+  <A,B,C,D,E,F,G,H,I>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>]): Signal<i,[o,A,B,C,D,E,F,G,H,I]>;
+  <A,B,C,D,E,F,G,H,I,J>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>]): Signal<i,[o,A,B,C,D,E,F,G,H,I,J]>;
+  <A,B,C,D,E,F,G,H,I,J,K>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>]): Signal<i,[o,A,B,C,D,E,F,G,H,I,J,K]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>]): Signal<i,[o,A,B,C,D,E,F,G,H,I,J,K,L]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>]): Signal<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>]): Signal<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>]): Signal<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>]): Signal<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>]): Signal<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>]): Signal<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>]): Signal<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>]): Signal<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>]): Signal<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>]): Signal<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>]): Signal<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>]): Signal<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>]): Signal<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>]): Signal<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>]): Signal<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>,Re<_>]): Signal<i,[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_]>;
+}
 
 interface E_Signal<I, O> extends
   E_Writtable<I, O, Signal<I, O>>,
@@ -275,12 +465,77 @@ interface E_Signal<I, O> extends
     <N, R>(pre: (value: N, state: O) => I, map: (value: O) => R): Signal<N, R> // untracked by default
     track<N, R>(pre: (value: N, state: O) => I, map: (value: O) => R): Signal<N, R>
   }
+  join: E_SignalJoin_Func<I, O>
   as: {
     value(): Value<I, O>
   }
-
-  // TODO 0.7: .flow typings
 }
+
+interface E_SignalReadonlyJoin_Func<o> {
+  <A,r>(targets: [Re<A>], fn: (state: o, values: [A]) => r): SignalReadonly<r>;
+  <A,B,r>(targets: [Re<A>,Re<B>], fn: (state: o, values: [A,B]) => r): SignalReadonly<r>;
+  <A,B,C,r>(targets: [Re<A>,Re<B>,Re<C>], fn: (state: o, values: [A,B,C]) => r): SignalReadonly<r>;
+  <A,B,C,D,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>], fn: (state: o, values: [A,B,C,D]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>], fn: (state: o, values: [A,B,C,D,E]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>], fn: (state: o, values: [A,B,C,D,E,F]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>], fn: (state: o, values: [A,B,C,D,E,F,G]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>], fn: (state: o, values: [A,B,C,D,E,F,G,H]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$]) => r): SignalReadonly<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>,Re<_>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_]) => r): SignalReadonly<r>;
+
+  <T extends Re_CfgExemplar, r>(targets: T, fn: (state: o, values: {
+    [P in keyof T]: T[P] extends { get: () => infer R } ? R : T[P] extends (() => infer R) ? R : T[P]
+  }) => r): SignalReadonly<r>
+
+
+  <A>(targets: [Re<A>]): SignalReadonly<[o,A]>;
+  <A,B>(targets: [Re<A>,Re<B>]): SignalReadonly<[o,A,B]>;
+  <A,B,C>(targets: [Re<A>,Re<B>,Re<C>]): SignalReadonly<[o,A,B,C]>;
+  <A,B,C,D>(targets: [Re<A>,Re<B>,Re<C>,Re<D>]): SignalReadonly<[o,A,B,C,D]>;
+  <A,B,C,D,E>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>]): SignalReadonly<[o,A,B,C,D,E]>;
+  <A,B,C,D,E,F>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>]): SignalReadonly<[o,A,B,C,D,E,F]>;
+  <A,B,C,D,E,F,G>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>]): SignalReadonly<[o,A,B,C,D,E,F,G]>;
+  <A,B,C,D,E,F,G,H>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>]): SignalReadonly<[o,A,B,C,D,E,F,G,H]>;
+  <A,B,C,D,E,F,G,H,I>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>]): SignalReadonly<[o,A,B,C,D,E,F,G,H,I]>;
+  <A,B,C,D,E,F,G,H,I,J>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>]): SignalReadonly<[o,A,B,C,D,E,F,G,H,I,J]>;
+  <A,B,C,D,E,F,G,H,I,J,K>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>]): SignalReadonly<[o,A,B,C,D,E,F,G,H,I,J,K]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>]): SignalReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>]): SignalReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>]): SignalReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>]): SignalReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>]): SignalReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>]): SignalReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>]): SignalReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>]): SignalReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>]): SignalReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>]): SignalReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>]): SignalReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>]): SignalReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>]): SignalReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>]): SignalReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>]): SignalReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>]): SignalReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>,Re<_>]): SignalReadonly<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_]>;
+}
+
 interface E_SignalReadonly<O> extends
   E_Readable<O, SignalReadonly<O>>,
   E_FilterUnTrackedPartial<O, SignalReadonly<O>> {
@@ -291,12 +546,78 @@ interface E_SignalReadonly<O> extends
 
     to<R>(value?: R): SignalReadonly<R>
   }
-
+  join: E_SignalReadonlyJoin_Func<O>
   as: {
     value(): ValueReadonly<O>
   }
 }
 
+
+
+interface E_SelectorJoin_Func<o> {
+  <A,r>(targets: [Re<A>], fn: (state: o, values: [A]) => r): Selector<r>;
+  <A,B,r>(targets: [Re<A>,Re<B>], fn: (state: o, values: [A,B]) => r): Selector<r>;
+  <A,B,C,r>(targets: [Re<A>,Re<B>,Re<C>], fn: (state: o, values: [A,B,C]) => r): Selector<r>;
+  <A,B,C,D,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>], fn: (state: o, values: [A,B,C,D]) => r): Selector<r>;
+  <A,B,C,D,E,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>], fn: (state: o, values: [A,B,C,D,E]) => r): Selector<r>;
+  <A,B,C,D,E,F,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>], fn: (state: o, values: [A,B,C,D,E,F]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>], fn: (state: o, values: [A,B,C,D,E,F,G]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>], fn: (state: o, values: [A,B,C,D,E,F,G,H]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,I,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,I,J,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$]) => r): Selector<r>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_,r>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>,Re<_>], fn: (state: o, values: [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_]) => r): Selector<r>;
+
+  <T extends Re_CfgExemplar, r>(targets: T, fn: (state: o, values: {
+    [P in keyof T]: T[P] extends { get: () => infer R } ? R : T[P] extends (() => infer R) ? R : T[P]
+  }) => r): Selector<r>
+
+
+  <A>(targets: [Re<A>]): Selector<[o,A]>;
+  <A,B>(targets: [Re<A>,Re<B>]): Selector<[o,A,B]>;
+  <A,B,C>(targets: [Re<A>,Re<B>,Re<C>]): Selector<[o,A,B,C]>;
+  <A,B,C,D>(targets: [Re<A>,Re<B>,Re<C>,Re<D>]): Selector<[o,A,B,C,D]>;
+  <A,B,C,D,E>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>]): Selector<[o,A,B,C,D,E]>;
+  <A,B,C,D,E,F>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>]): Selector<[o,A,B,C,D,E,F]>;
+  <A,B,C,D,E,F,G>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>]): Selector<[o,A,B,C,D,E,F,G]>;
+  <A,B,C,D,E,F,G,H>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>]): Selector<[o,A,B,C,D,E,F,G,H]>;
+  <A,B,C,D,E,F,G,H,I>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>]): Selector<[o,A,B,C,D,E,F,G,H,I]>;
+  <A,B,C,D,E,F,G,H,I,J>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>]): Selector<[o,A,B,C,D,E,F,G,H,I,J]>;
+  <A,B,C,D,E,F,G,H,I,J,K>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>]): Selector<[o,A,B,C,D,E,F,G,H,I,J,K]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>]): Selector<[o,A,B,C,D,E,F,G,H,I,J,K,L]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>]): Selector<[o,A,B,C,D,E,F,G,H,I,J,K,L,M]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>]): Selector<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>]): Selector<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>]): Selector<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>]): Selector<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>]): Selector<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>]): Selector<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>]): Selector<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>]): Selector<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>]): Selector<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>]): Selector<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>]): Selector<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>]): Selector<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>]): Selector<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>]): Selector<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$]>;
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_>(targets: [Re<A>,Re<B>,Re<C>,Re<D>,Re<E>,Re<F>,Re<G>,Re<H>,Re<I>,Re<J>,Re<K>,Re<L>,Re<M>,Re<N>,Re<O>,Re<P>,Re<Q>,Re<R>,Re<S>,Re<T>,Re<U>,Re<V>,Re<W>,Re<X>,Re<Y>,Re<Z>,Re<$>,Re<_>]): Selector<[o,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_]>;
+}
 
 interface E_Selector<O> extends
   E_Readable<O, Selector<O>>,
@@ -308,8 +629,7 @@ interface E_Selector<O> extends
 
     to<R>(value?: R): Selector<R>
   }
-
-  // TODO 0.7: .flow typings
+  join: E_SelectorJoin_Func<O>
 }
 
 
