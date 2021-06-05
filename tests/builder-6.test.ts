@@ -1259,6 +1259,58 @@ test('should work signal.combine', () => {
   expect(spy_w).toBeCalledWith([ 1, 2, 1 ], [ 0, 1, 0 ]);
 });
 
+test('should work value.combine with callback', () => {
+  const spy_v = jest.fn();
+  const spy_w = jest.fn();
+  const a = signal(0);
+
+  value.combine({
+    a: a,
+    b: a.flow(_a => _a + 1),
+    c: () => a.val
+  }, (k) => ({...k, u: 5})).sync(spy_v);
+  value.combine([
+    a,
+    a.flow(_a => _a + 1),
+    () => a.val
+  ], (k) => [...k, 5]).sync(spy_w);
+
+  expect(spy_v).toBeCalledWith({ a: 0, b: 1, c: 0, u: 5 }, void 0); spy_v.mockReset();
+  expect(spy_w).toBeCalledWith([ 0, 1, 0, 5 ], void 0); spy_w.mockReset();
+  a(0);
+  expect(spy_v).toBeCalledTimes(0);
+  expect(spy_w).toBeCalledTimes(0);
+  a(1);
+  expect(spy_v).toBeCalledWith({ a: 1, b: 2, c: 1, u: 5 }, { a: 0, b: 1, c: 0, u: 5 });
+  expect(spy_w).toBeCalledWith([ 1, 2, 1, 5 ], [ 0, 1, 0, 5 ]);
+});
+
+test('should work signal.combine with callback', () => {
+  const spy_v = jest.fn();
+  const spy_w = jest.fn();
+  const a = signal(0);
+
+  signal.combine({
+    a: a,
+    b: a.flow(_a => _a + 1),
+    c: () => a.val
+  }, (k) => ({...k, u: 5})).sync(spy_v);
+  signal.combine([
+    a,
+    a.flow(_a => _a + 1),
+    () => a.val
+  ], (k) => [...k, 5]).sync(spy_w);
+
+  expect(spy_v).toBeCalledWith({ a: 0, b: 1, c: 0, u: 5 }, void 0); spy_v.mockReset();
+  expect(spy_w).toBeCalledWith([ 0, 1, 0, 5 ], void 0); spy_w.mockReset();
+  a(0);
+  expect(spy_v).toBeCalledWith({ a: 0, b: 1, c: 0, u: 5 }, { a: 0, b: 1, c: 0, u: 5 });
+  expect(spy_w).toBeCalledWith([ 0, 1, 0, 5 ], [ 0, 1, 0, 5 ]);
+  a(1);
+  expect(spy_v).toBeCalledWith({ a: 1, b: 2, c: 1, u: 5 }, { a: 0, b: 1, c: 0, u: 5 });
+  expect(spy_w).toBeCalledWith([ 1, 2, 1, 5 ], [ 0, 1, 0, 5 ]);
+});
+
 test('should work value.join', () => {
   const spy = jest.fn();
   const a = signal(0);
@@ -1303,6 +1355,46 @@ test('should work signal.join', () => {
   expect(spy).toBeCalledWith([ 1, 1, 2, 1 ], [ 0, 1, 2, 1 ]);
 });
 
+test('should work value.join with callback', () => {
+  const spy = jest.fn();
+  const a = signal(0);
+  const z = value(0);
+
+  z.join([a, () => a.val+1], (state, values) => [state, ...values, 5]).sync(spy);
+
+  expect(spy).toBeCalledWith([ 0, 0, 1, 5 ], void 0); spy.mockReset();
+  a(0);
+  expect(spy).toBeCalledTimes(0);
+  a(1);
+  expect(spy).toBeCalledWith([ 0, 1, 2, 5 ], [ 0, 0, 1, 5 ]); spy.mockReset();
+  z(0);
+  expect(spy).toBeCalledTimes(0);
+  z(1);
+  expect(spy).toBeCalledWith([ 1, 1, 2, 5 ], [ 0, 1, 2, 5 ]);
+});
+
+test('should work signal.join with callback', () => {
+  const spy = jest.fn();
+  const a = signal(0);
+  const z = signal(0);
+
+  z.join({
+    a,
+    b: a.flow(_a => _a + 1),
+    c: () => a.val
+  }, (s, values) => ({s, ...values})).sync(spy);
+
+  expect(spy).toBeCalledWith({ s:0, a:0, b:1, c:0 }, void 0); spy.mockReset();
+  a(0);
+  expect(spy).toBeCalledWith({ s:0, a:0, b:1, c:0 }, { s:0, a:0, b:1, c:0 }); spy.mockReset();
+  a(1);
+  expect(spy).toBeCalledWith({ s:0, a:1, b:2, c:1 }, { s:0, a:0, b:1, c:0 }); spy.mockReset();
+  z(0);
+  expect(spy).toBeCalledWith({ s:0, a:1, b:2, c:1 }, { s:0, a:1, b:2, c:1 }); spy.mockReset();
+  z(1);
+  expect(spy).toBeCalledWith({ s:1, a:1, b:2, c:1 }, { s:0, a:1, b:2, c:1 });
+});
+
 test('should work track-untrack for value with join', () => {
   const spy_p = jest.fn();
   const spy_t = jest.fn();
@@ -1341,6 +1433,58 @@ test('should work track-untrack for signal with join', () => {
   v.join([a]).sync(spy_p);
   v.join.track([a]).sync(spy_t);
   v.join.untrack([a]).sync(spy_u);
+
+  expect(spy_p).toBeCalledWith([0,0], void 0); spy_p.mockReset();
+  expect(spy_t).toBeCalledWith([0,0], void 0); spy_t.mockReset();
+  expect(spy_u).toBeCalledWith([0,0], void 0); spy_u.mockReset();
+  v(0);
+  expect(spy_p).toBeCalledWith([0,0], [0,0]); spy_p.mockReset();
+  expect(spy_t).toBeCalledWith([0,0], [0,0]); spy_t.mockReset();
+  expect(spy_u).toBeCalledWith([0,0], [0,0]); spy_u.mockReset();
+  a(0);
+  expect(spy_p).toBeCalledWith([0,0], [0,0]); spy_p.mockReset();
+  expect(spy_t).toBeCalledWith([0,0], [0,0]); spy_t.mockReset();
+  expect(spy_u).toBeCalledTimes(0);
+});
+
+test('should work track-untrack for value with join with callback', () => {
+  const spy_p = jest.fn();
+  const spy_t = jest.fn();
+  const spy_u = jest.fn();
+  const a = signal(0);
+
+  const v = value(0);
+  v.join({a}, (s,{a}) => ({s, a})).sync(spy_p);
+  v.join.track({a}, (s,{a}) => ({s, a})).sync(spy_t);
+  v.join.untrack({a}, (s,{a}) => ({s, a})).sync(spy_u);
+
+  expect(spy_p).toBeCalledWith({s:0,a:0}, void 0); spy_p.mockReset();
+  expect(spy_t).toBeCalledWith({s:0,a:0}, void 0); spy_t.mockReset();
+  expect(spy_u).toBeCalledWith({s:0,a:0}, void 0); spy_u.mockReset();
+  v(1);
+  expect(spy_p).toBeCalledWith({s:1,a:0}, {s:0,a:0}); spy_p.mockReset();
+  expect(spy_t).toBeCalledWith({s:1,a:0}, {s:0,a:0}); spy_t.mockReset();
+  expect(spy_u).toBeCalledWith({s:1,a:0}, {s:0,a:0}); spy_u.mockReset();
+  a(0);
+  expect(spy_p).toBeCalledTimes(0);
+  expect(spy_t).toBeCalledTimes(0);
+  expect(spy_u).toBeCalledTimes(0);
+  a(1);
+  expect(spy_p).toBeCalledWith({s:1,a:1}, {s:1,a:0}); spy_p.mockReset();
+  expect(spy_t).toBeCalledWith({s:1,a:1}, {s:1,a:0}); spy_t.mockReset();
+  expect(spy_u).toBeCalledTimes(0);
+});
+
+test('should work track-untrack for signal with join', () => {
+  const spy_p = jest.fn();
+  const spy_t = jest.fn();
+  const spy_u = jest.fn();
+  const a = signal(0);
+
+  const v = signal(0);
+  v.join([a], (s,k)=>[s,...k]).sync(spy_p);
+  v.join.track([a], (s,k)=>[s,...k]).sync(spy_t);
+  v.join.untrack([a], (s,k)=>[s,...k]).sync(spy_u);
 
   expect(spy_p).toBeCalledWith([0,0], void 0); spy_p.mockReset();
   expect(spy_t).toBeCalledWith([0,0], void 0); spy_t.mockReset();
