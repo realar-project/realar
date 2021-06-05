@@ -1,6 +1,9 @@
 import { FC } from 'react';
 
 /*
+  [] Maybe I should remove selector, because value.from(() => another_store.val) equals selector
+    And about oop imperative usage, in that case should be use special decorator "cache" for selection
+
   [] Add track|untrack for join with callback
   [] Typings for op, sync and etc.
   [] Later type -(Ensurable) -- EnsureLater
