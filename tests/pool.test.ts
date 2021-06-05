@@ -75,3 +75,30 @@ test('should work pool threads', async () => {
   p();
   expect(spy).toHaveBeenNthCalledWith(3, 1);
 });
+
+test('should work pool with arguments', async () => {
+  const spy = jest.fn();
+
+  const p = pool(async (a: number, b: number) => {
+    await delay(10);
+    spy(a, b);
+    return 1;
+  });
+
+  p(1, 2);
+  expect(p.count.val).toBe(1);
+  await delay(5);
+  p(2, 3);
+  expect(p.count.val).toBe(2);
+  await delay(6);
+
+  expect(spy).toBeCalledWith(1, 2); spy.mockReset();
+  expect(p.count.val).toBe(1);
+  expect(p.pending.val).toBe(true);
+
+  await delay(6);
+  expect(p.count.val).toBe(0);
+  expect(p.pending.val).toBe(false);
+
+  expect(spy).toBeCalledWith(2, 3);
+});

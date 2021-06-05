@@ -851,14 +851,14 @@ type UseJsx = {
 //
 
 type PoolEntry_BodyExemplar = {
-  (...args: any[]): Promise<any>;
+  (...args: never[]): Promise<unknown>;
 }
 type PoolEntry = {
   <K extends PoolEntry_BodyExemplar>(body: K): Pool<K>
 }
 
 type Pool<K> = K & {
-  count: any;
-  threads: any;
-  pending: any;
+  count: ValueReadonly<number>;
+  threads: ValueReadonly<(() => void)[]>;
+  pending: ValueReadonly<boolean>;
 };
