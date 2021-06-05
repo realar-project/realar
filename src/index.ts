@@ -191,6 +191,7 @@ const key_inject = 'inject';
 const key_stop = 'stop';
 const key_unsafe = 'unsafe';
 const key_updater = key_update+'r';
+const key_wrap = 'wrap';
 
 
 
@@ -467,6 +468,12 @@ const trait_ent_pre_filter_not = (ctx, fn) => (
     : pure_arrow_fn_returns_not_arg)
 );
 const trait_ent_pre_filter_not_untrack = make_trait_ent_untrack(trait_ent_pre_filter_not);
+const trait_ent_wrap = (ctx, fn_pre, fn_map) => (
+  trait_ent_map(trait_ent_pre(ctx, fn_pre), fn_map)
+)
+const trait_ent_wrap_untrack = (ctx, fn_pre, fn_map) => (
+  trait_ent_map_untrack(trait_ent_pre_untrack(ctx, fn_pre), fn_map)
+)
 
 const trait_ent_flow = (ctx, fn) => {
   fn || (fn = pure_arrow_fn_returns_arg);
@@ -692,6 +699,13 @@ obj_def_prop_trait_with_ns(
   key_pre,
   op_trait_if_not_signal(trait_ent_pre, trait_ent_pre_untrack),
   proto_entity_writtable_pre_ns,
+  1
+);
+obj_def_prop_trait_with_ns(
+  proto_entity_writtable,
+  key_wrap,
+  op_trait_if_not_signal(trait_ent_wrap, trait_ent_wrap_untrack),
+  make_proto_for_trackable_ns(trait_ent_wrap, trait_ent_wrap_untrack),
   1
 );
 

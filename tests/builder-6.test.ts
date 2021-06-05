@@ -1425,11 +1425,39 @@ test('should work value map.to', () => {
   const v = value().map.to(10).to(spy);
 
   expect(v.val).toBe(10);
-  v(5);
+  (v as any)(5);
   expect(v.val).toBe(10);
   expect(spy).toBeCalledTimes(0);
 
-  v(10);
+  (v as any)(10);
   expect(v.val).toBe(10);
   expect(spy).toBeCalledTimes(0);
+});
+
+test('should work value wrap', () => {
+  const s = value({ m: 10, i: 0  });
+  const v = s.wrap(
+    (i: number, s) => ({...s, i }),
+    (s) => s.i
+  );
+
+  expect(s.val).toStrictEqual({ m: 10, i: 0});
+  expect(v.val).toBe(0);
+  v(25);
+  expect(s.val).toStrictEqual({ m: 10, i: 25});
+  expect(v.val).toBe(25);
+});
+
+test('should work signal wrap', () => {
+  const s = signal({ m: 10, i: 0  });
+  const v = s.wrap(
+    (i: number, s) => ({...s, i }),
+    (s) => s.i
+  );
+
+  expect(s.val).toStrictEqual({ m: 10, i: 0});
+  expect(v.val).toBe(0);
+  v(25);
+  expect(s.val).toStrictEqual({ m: 10, i: 25});
+  expect(v.val).toBe(25);
 });

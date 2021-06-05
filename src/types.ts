@@ -234,6 +234,10 @@ interface E_Value<I, O> extends
     <N>(func?: (value: N, state: O) => I): Value<N, O>  // tracked by default
     untrack<N>(func?: (value: N, state: O) => I): Value<N, O>
   }
+  wrap: {
+    <N, R>(pre: (value: N, state: O) => I, map: (value: O) => R): Value<N, R> // tracked by default
+    untrack<N, R>(pre: (value: N, state: O) => I, map: (value: O) => R): Value<N, R>
+  }
 
 
   // TODO 0.7: .flow typings
@@ -260,6 +264,10 @@ interface E_Signal<I, O> extends
   pre: E_FilterUnTrackedPartial<I, Signal<I, O>> & {
     <N>(func?: (value: N, state: O) => I): Signal<N, O>       // untracked by default
     track<N>(func?: (value: N, state: O) => I): Signal<N, O>
+  }
+  wrap: {
+    <N, R>(pre: (value: N, state: O) => I, map: (value: O) => R): Signal<N, R> // untracked by default
+    track<N, R>(pre: (value: N, state: O) => I, map: (value: O) => R): Signal<N, R>
   }
 
 
