@@ -804,11 +804,12 @@ const value: ValueEntry = ((initial) => (
 const value_trigger = (initial) => make_trigger(initial);
 const value_trigger_flag = (initial) => make_trigger(!!initial, 1);
 const value_trigger_flag_invert = (initial) => make_trigger(!initial, 1);
-const value_from = (get, set?) => (
-  (get = sel(get[key_get] || get).slice(0, 1),
-  set && ((set = set[key_set] || set), (get[1] = set.bind()))),
-  fill_entity(get, set ? proto_entity_writtable : proto_entity_readable)
-);
+const value_from = (get, set?) => {
+  const h = sel(get[key_get] || get).slice(0, 1);
+  if (set) h[1] = set[key_set] ? set[key_set].bind() : (v) => set(v, untrack(ctx[key_get]));
+  const ctx = fill_entity(h, set ? proto_entity_writtable : proto_entity_readable);
+  return ctx;
+}
 const value_combine = (cfg) => make_combine(cfg);
 
 value_trigger_flag[key_invert] = value_trigger_flag_invert;
@@ -827,12 +828,13 @@ const signal: SignalEntry = ((initial) => {
 const signal_trigger = (initial) => make_trigger(initial, 0, 1);
 const signal_trigger_flag = (initial) => make_trigger(!!initial, 1, 1);
 const signal_trigger_flag_invert = (initial) => make_trigger(!initial, 1, 1);
-const signal_from = (get, set?) => (
-  (get = [get[key_get] || get],
-  (get[key_is_signal] = 1),
-  set && ((set = set[key_set] || set), (get[1] = set.bind()))),
-  fill_entity(get, set ? proto_entity_writtable : proto_entity_readable)
-);
+const signal_from = (get, set?) => {
+  const h = [get[key_get] || get];
+  h[key_is_signal] = 1
+  if (set) h[1] = set[key_set] ? set[key_set].bind() : (v) => set(v, untrack(ctx[key_get]));
+  const ctx = fill_entity(h, set ? proto_entity_writtable : proto_entity_readable);
+  return ctx;
+}
 const signal_combine = (cfg) => make_combine(cfg, 1);
 
 signal_trigger_flag[key_invert] = signal_trigger_flag_invert;

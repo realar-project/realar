@@ -646,7 +646,7 @@ test('should work value.from with two arguments', () => {
   const spy = jest.fn();
   const u = value(0);
   const a = value(0);
-  const v = value.from(() => a.val + 1, (v) => a(v + v));
+  const v = value.from(() => a.val + 1, (v: number, state) => a(v + v + state));
   expect(v.val).toBe(1);
   (t = v.to), (t = t(spy));
   (t = t.update), (t = t.by), t(() => u.val);
@@ -675,9 +675,10 @@ test('should work value.from with two arguments', () => {
   expect(v.dirty).toBeUndefined();
 
   u(1);
-  expect(v.val).toBe(3);
-  expect(spy).toBeCalledWith(3, 2); spy.mockReset();
+  expect(v.val).toBe(5);
+  expect(spy).toBeCalledWith(5, 2); spy.mockReset();
 });
+
 
 test('should work value.select.multiple', () => {
   let t;
@@ -1127,7 +1128,9 @@ test('should work signal.from with two arguments', () => {
   const spy = jest.fn();
   const u = signal(0);
   const a = signal(0);
-  const v = signal.from(() => a.val + 1, (v) => a(v + v));
+  const v = signal.from(() => a.val + 1, (v: number) => a(v + v));
+  const k = signal.from(v, (_v: number, state) => v(_v + state));
+
   expect(v.val).toBe(1);
   (t = v.to), (t = t(spy));
   (t = t.update), (t = t.by), t(u);
@@ -1158,6 +1161,10 @@ test('should work signal.from with two arguments', () => {
   u(0);
   expect(v.val).toBe(1);
   expect(spy).toBeCalledWith(1, 1); spy.mockReset();
+
+  expect(k.val).toBe(1);
+  k(1);
+  expect(k.val).toBe(5);
 });
 
 test('should work signal.trigger', () => {

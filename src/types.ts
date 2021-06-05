@@ -1,8 +1,6 @@
 import { FC } from 'react';
 
 /*
-  [] signal.from
-  [] value.from
 
   [] join -- with callback support
   [] signal.combine -- with callback support
@@ -48,6 +46,7 @@ type Equals<X, Y> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y
   : false;
 
 type Re<T> = { get: () => T } | (() => T);
+type ReWrit<T> = { set: (value: T) => void } | ((value: T) => void);
 
 type Re_CfgExemplar = {
   [key: string]: Re<any>
@@ -212,16 +211,21 @@ interface E_FilterUnTrackedPartial<T, Ret> {
   }
 }
 
+interface E_Readable<O, Ret> extends
+  E_GetPartial<O>,
+  E_PromisePartial<O>,
+  E_SyncToPartial<O, Ret>,
+  E_OpPartial<Ret>,
+  E_SelectPartial<O> {}
+
+interface E_Writtable<I, O, Ret> extends
+  E_Readable<O, Ret>,
+  E_UpdatePartial<I, O>,
+  E_UpdaterPartial<I, O> {}
 
 
 interface E_Value<I, O> extends
-  E_GetPartial<O>,
-  E_PromisePartial<O>,
-  E_SyncToPartial<O, Value<I, O>>,
-  E_UpdaterPartial<I, O>,
-  E_OpPartial<Value<I, O>>,
-  E_SelectPartial<O>,
-  E_UpdatePartial<I, O>,
+  E_Writtable<I, O, Value<I, O>>,
   E_FilterTrackedPartial<O, Value<I, O>> {
 
   map: {
@@ -239,21 +243,24 @@ interface E_Value<I, O> extends
     untrack<N, R>(pre: (value: N, state: O) => I, map: (value: O) => R): Value<N, R>
   }
 
-
   // TODO 0.7: .flow typings
+}
+interface E_ValueReadonly<O> extends
+  E_Readable<O, ValueReadonly<O>>,
+  E_FilterTrackedPartial<O, ValueReadonly<O>> {
+
+  map: {
+    <R>(func: (value: O) => R): ValueReadonly<R>         // tracked by default
+    untrack<R>(func: (value: O) => R): ValueReadonly<R>
+
+    to<R>(value?: R): ValueReadonly<R>
+  }
 }
 
 
 interface E_Signal<I, O> extends
-  E_GetPartial<O>,
-  E_PromisePartial<O>,
-  E_SyncToPartial<O, Signal<I, O>>,
-  E_UpdaterPartial<I, O>,
-  E_OpPartial<Signal<I, O>>,
-  E_SelectPartial<O>,
-  E_UpdatePartial<I, O>,
+  E_Writtable<I, O, Signal<I, O>>,
   E_FilterUnTrackedPartial<O, Signal<I, O>> {
-
 
   map: {
     <R>(func: (value: O) => R): Signal<I, R>        // untracked by default
@@ -269,18 +276,31 @@ interface E_Signal<I, O> extends
     <N, R>(pre: (value: N, state: O) => I, map: (value: O) => R): Signal<N, R> // untracked by default
     track<N, R>(pre: (value: N, state: O) => I, map: (value: O) => R): Signal<N, R>
   }
-
+  as: {
+    value(): Value<I, O>
+  }
 
   // TODO 0.7: .flow typings
+}
+interface E_SignalReadonly<O> extends
+  E_Readable<O, SignalReadonly<O>>,
+  E_FilterUnTrackedPartial<O, SignalReadonly<O>> {
+
+  map: {
+    <R>(func: (value: O) => R): SignalReadonly<R>        // untracked by default
+    track<R>(func: (value: O) => R): SignalReadonly<R>
+
+    to<R>(value?: R): SignalReadonly<R>
+  }
+
+  as: {
+    value(): ValueReadonly<O>
+  }
 }
 
 
 interface E_Selector<O> extends
-  E_GetPartial<O>,
-  E_PromisePartial<O>,
-  E_SyncToPartial<O, Selector<O>>,
-  E_OpPartial<Selector<O>>,
-  E_SelectPartial<O>,
+  E_Readable<O, Selector<O>>,
   E_FilterTrackedPartial<O, Selector<O>> {
 
   map: {
@@ -298,6 +318,8 @@ type Value<I = void, O = I> = E_SetPartial<I> & E_ValPartial<I, O> & E_Value<I, 
 type Signal<I = void, O = I> = E_SetPartial<I> & E_ValPartial<I, O> & E_Signal<I, O>
 type Selector<O> = E_ValReadonlyPartial<O> & E_Selector<O>
 
+type ValueReadonly<O> = E_ValReadonlyPartial<O> & E_ValueReadonly<O>
+type SignalReadonly<O> = E_ValReadonlyPartial<O> & E_SignalReadonly<O>
 
 
 
@@ -305,6 +327,7 @@ type Selector<O> = E_ValReadonlyPartial<O> & E_Selector<O>
 //
 // Entry types
 //
+
 
 type ValueEntry = {
   (): Value;
@@ -325,7 +348,11 @@ type ValueEntry = {
     }
   };
 
-  from: { (get: () => any, set?: (v) => any): any },
+  from: {
+    <O>(get: Re<O>): ValueReadonly<O>
+    <O, I>(get: Re<O>, set: ((value: I, state: O) => void) | ReWrit<I>): Value<I, O>
+  }
+
   combine: { (cfg: any): any }
 }
 
@@ -348,7 +375,11 @@ type SignalEntry = {
     }
   };
 
-  from: { (get: () => any, set?: (v) => any): any },
+  from: {
+    <O>(get: Re<O>): SignalReadonly<O>
+    <O, I>(get: Re<O>, set: ((value: I, state: O) => void) | ReWrit<I>): Signal<I, O>
+  }
+
   combine: { (cfg: any): any }
 };
 
