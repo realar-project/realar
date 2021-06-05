@@ -104,7 +104,6 @@ class Positive {
 - API
   - Declarative framework
     - [value](./docs/api.md#value)
-    - [selector](./docs/api.md#selector)
     - [signal](./docs/api.md#signal)
   - Imperative framework
     - [on](./docs/api.md#on)

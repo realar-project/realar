@@ -2,7 +2,6 @@
 
 - Declarative framework
   - [value](#value)
-  - [selector](#selector)
   - [signal](#signal)
 - Imperative framework
   - [on](#on)
@@ -65,6 +64,38 @@ In that example
 
 We learned how to create a value, set, and get it.
 
+### value.select
+
+Necessary for making high-cost calculations and cache them for many times of accessing without changing source dependencies. And for downgrade (selection from) your hierarchical store.
+
+```javascript
+const store = value({
+  address: {
+    city: 'NY'
+  }
+});
+
+const address = selector(() => store.val.address);
+
+on(address, ({ city }) => console.log(city)); // Subscribe to address selector
+
+console.log(address.val.city); // Log current value of address selector
+
+store.update(state => ({
+  ...state,
+  user: {}
+}));
+// Store changed but non reaction from address selector
+
+store.update(state => ({
+  ...state,
+  address: {
+    city: 'LA'
+  }
+}));
+// We can see reaction on deleveloper console output with new address selector value
+```
+[Edit on RunKit](https://runkit.com/betula/60338ff8dbe368001a10be8c)
 
 
 ### signal
@@ -144,39 +175,6 @@ set(5); // We will see 6 and 1 in developer console output, It are new and previ
 In that example expression is `next` function, because It get value and return that plus one.
 
 
-
-### selector
-
-Necessary for making high-cost calculations and cache them for many times of accessing without changing source dependencies. And for downgrade (selection from) your hierarchical store.
-
-```javascript
-const store = value({
-  address: {
-    city: 'NY'
-  }
-});
-
-const address = selector(() => store.val.address);
-
-on(address, ({ city }) => console.log(city)); // Subscribe to address selector
-
-console.log(address.val.city); // Log current value of address selector
-
-store.update(state => ({
-  ...state,
-  user: {}
-}));
-// Store changed but non reaction from address selector
-
-store.update(state => ({
-  ...state,
-  address: {
-    city: 'LA'
-  }
-}));
-// We can see reaction on deleveloper console output with new address selector value
-```
-[Edit on RunKit](https://runkit.com/betula/60338ff8dbe368001a10be8c)
 
 
 

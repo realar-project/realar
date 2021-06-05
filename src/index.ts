@@ -1,7 +1,6 @@
 import React, { Context, FC } from 'react';
 import rb from 'reactive-box';
-import { Contextual, Isolate, Local, Observe, PoolEntry, SelectorEntry, SignalEntry, Transaction, Untrack, UseJsx, UseLocal, UseScoped, UseValue, UseValues, ValueEntry } from './types';
-
+import { Contextual, Isolate, Local, Observe, PoolEntry, SignalEntry, Transaction, Untrack, UseJsx, UseLocal, UseScoped, UseValue, UseValues, ValueEntry } from './types';
 
 
 //
@@ -11,7 +10,6 @@ import { Contextual, Isolate, Local, Observe, PoolEntry, SelectorEntry, SignalEn
 export {
   // Declarative framework
   value,
-  selector,
   signal,
 
   // Imperative framework
@@ -794,11 +792,6 @@ const make_combine = (cfg, fn, is_signal?) => {
   return fill_entity(h, proto_entity_readable);
 }
 
-
-
-const selector: SelectorEntry = (fn) => (
-  fill_entity(sel(fn).slice(0, 1), proto_entity_readable)
-)
 
 
 const value: ValueEntry = ((initial) => (

@@ -1,4 +1,4 @@
-import { value, selector, transaction, cycle, signal } from '../src';
+import { value, transaction, cycle, signal } from '../src';
 
 test('should work value with call, get, set, update, sync', () => {
   const spy = jest.fn();
@@ -544,12 +544,12 @@ test('should work value.trigger.flag and .trigger.flag.invert', () => {
   expect(i.val).toBe(false);
 });
 
-test('should work selector basic support', () => {
+test('should work value.from basic support', () => {
   let t;
   const spy = jest.fn();
   const a = value(0);
   const b = value(1);
-  const s = selector(() => a.val * 100 + b.val);
+  const s = value.from(() => a.val * 100 + b.val);
 
   expect(typeof s).toBe('object');
   expect(s.to).not.toBeUndefined();
@@ -587,12 +587,12 @@ test('should work selector basic support', () => {
   expect(b.val).toBe(102);
 });
 
-test('should work selector with to, filter, map', () => {
+test('should work value.from with to, filter, map', () => {
   let t;
   const spy = jest.fn();
   const b = value(1);
   const v = value(0);
-  const s = selector(() => v.val + 1);
+  const s = value.from(() => v.val + 1);
   const f = s.filter.not(b);
   const w = s.map((v) => v + 5);
 

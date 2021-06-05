@@ -1,10 +1,10 @@
-import { sync, value, selector } from '../../src';
+import { sync, value } from '../../src';
 
-test('should work basic operations with selector', () => {
+test('should work basic operations with value.from', () => {
   const spy_1 = jest.fn();
   const spy_2 = jest.fn();
   const a = value(7);
-  const s = selector(() => (spy_1(a.val), a.val));
+  const s = value.from(() => (spy_1(a.val), a.val));
 
   const {get} = s;
 
