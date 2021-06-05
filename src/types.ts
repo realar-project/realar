@@ -1,7 +1,6 @@
 import { FC } from 'react';
 
 /*
-  [] select.multiple
   [] join
   [] signal.from
   [] value.from
@@ -82,62 +81,99 @@ interface E_SyncToPartial<T, Ret> {
 interface E_OpPartial<Ret> {
   op<R>(func: () => R): R extends void ? Ret : R
 }
+
+type E_SelectMultiple_CfgExemplar<O> = {
+  [key: string]: (state: O) => void
+}
+type _S<O,T> = ((state: O) => T) | (() => T);
+
+interface E_SelectMultiple_Func<o> {
+  <A>(targets: [_S<o,A>]): [Selector<A>];
+  <A,B>(targets: [_S<o,A>,_S<o,B>]): [Selector<A>,Selector<B>];
+  <A,B,C>(targets: [_S<o,A>,_S<o,B>,_S<o,C>]): [Selector<A>,Selector<B>,Selector<C>];
+  <A,B,C,D>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>];
+  <A,B,C,D,E>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>];
+  <A,B,C,D,E,F>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>];
+  <A,B,C,D,E,F,G>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>];
+  <A,B,C,D,E,F,G,H>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>];
+  <A,B,C,D,E,F,G,H,I>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>,_S<o,I>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>,Selector<I>];
+  <A,B,C,D,E,F,G,H,I,J>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>,_S<o,I>,_S<o,J>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>,Selector<I>,Selector<J>];
+  <A,B,C,D,E,F,G,H,I,J,K>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>,_S<o,I>,_S<o,J>,_S<o,K>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>,Selector<I>,Selector<J>,Selector<K>];
+  <A,B,C,D,E,F,G,H,I,J,K,L>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>,_S<o,I>,_S<o,J>,_S<o,K>,_S<o,L>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>,Selector<I>,Selector<J>,Selector<K>,Selector<L>];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>,_S<o,I>,_S<o,J>,_S<o,K>,_S<o,L>,_S<o,M>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>,Selector<I>,Selector<J>,Selector<K>,Selector<L>,Selector<M>];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>,_S<o,I>,_S<o,J>,_S<o,K>,_S<o,L>,_S<o,M>,_S<o,N>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>,Selector<I>,Selector<J>,Selector<K>,Selector<L>,Selector<M>,Selector<N>];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>,_S<o,I>,_S<o,J>,_S<o,K>,_S<o,L>,_S<o,M>,_S<o,N>,_S<o,O>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>,Selector<I>,Selector<J>,Selector<K>,Selector<L>,Selector<M>,Selector<N>,Selector<O>];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>,_S<o,I>,_S<o,J>,_S<o,K>,_S<o,L>,_S<o,M>,_S<o,N>,_S<o,O>,_S<o,P>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>,Selector<I>,Selector<J>,Selector<K>,Selector<L>,Selector<M>,Selector<N>,Selector<O>,Selector<P>];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>,_S<o,I>,_S<o,J>,_S<o,K>,_S<o,L>,_S<o,M>,_S<o,N>,_S<o,O>,_S<o,P>,_S<o,Q>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>,Selector<I>,Selector<J>,Selector<K>,Selector<L>,Selector<M>,Selector<N>,Selector<O>,Selector<P>,Selector<Q>];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>,_S<o,I>,_S<o,J>,_S<o,K>,_S<o,L>,_S<o,M>,_S<o,N>,_S<o,O>,_S<o,P>,_S<o,Q>,_S<o,R>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>,Selector<I>,Selector<J>,Selector<K>,Selector<L>,Selector<M>,Selector<N>,Selector<O>,Selector<P>,Selector<Q>,Selector<R>];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>,_S<o,I>,_S<o,J>,_S<o,K>,_S<o,L>,_S<o,M>,_S<o,N>,_S<o,O>,_S<o,P>,_S<o,Q>,_S<o,R>,_S<o,S>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>,Selector<I>,Selector<J>,Selector<K>,Selector<L>,Selector<M>,Selector<N>,Selector<O>,Selector<P>,Selector<Q>,Selector<R>,Selector<S>];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>,_S<o,I>,_S<o,J>,_S<o,K>,_S<o,L>,_S<o,M>,_S<o,N>,_S<o,O>,_S<o,P>,_S<o,Q>,_S<o,R>,_S<o,S>,_S<o,T>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>,Selector<I>,Selector<J>,Selector<K>,Selector<L>,Selector<M>,Selector<N>,Selector<O>,Selector<P>,Selector<Q>,Selector<R>,Selector<S>,Selector<T>];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>,_S<o,I>,_S<o,J>,_S<o,K>,_S<o,L>,_S<o,M>,_S<o,N>,_S<o,O>,_S<o,P>,_S<o,Q>,_S<o,R>,_S<o,S>,_S<o,T>,_S<o,U>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>,Selector<I>,Selector<J>,Selector<K>,Selector<L>,Selector<M>,Selector<N>,Selector<O>,Selector<P>,Selector<Q>,Selector<R>,Selector<S>,Selector<T>,Selector<U>];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>,_S<o,I>,_S<o,J>,_S<o,K>,_S<o,L>,_S<o,M>,_S<o,N>,_S<o,O>,_S<o,P>,_S<o,Q>,_S<o,R>,_S<o,S>,_S<o,T>,_S<o,U>,_S<o,V>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>,Selector<I>,Selector<J>,Selector<K>,Selector<L>,Selector<M>,Selector<N>,Selector<O>,Selector<P>,Selector<Q>,Selector<R>,Selector<S>,Selector<T>,Selector<U>,Selector<V>];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>,_S<o,I>,_S<o,J>,_S<o,K>,_S<o,L>,_S<o,M>,_S<o,N>,_S<o,O>,_S<o,P>,_S<o,Q>,_S<o,R>,_S<o,S>,_S<o,T>,_S<o,U>,_S<o,V>,_S<o,W>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>,Selector<I>,Selector<J>,Selector<K>,Selector<L>,Selector<M>,Selector<N>,Selector<O>,Selector<P>,Selector<Q>,Selector<R>,Selector<S>,Selector<T>,Selector<U>,Selector<V>,Selector<W>];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>,_S<o,I>,_S<o,J>,_S<o,K>,_S<o,L>,_S<o,M>,_S<o,N>,_S<o,O>,_S<o,P>,_S<o,Q>,_S<o,R>,_S<o,S>,_S<o,T>,_S<o,U>,_S<o,V>,_S<o,W>,_S<o,X>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>,Selector<I>,Selector<J>,Selector<K>,Selector<L>,Selector<M>,Selector<N>,Selector<O>,Selector<P>,Selector<Q>,Selector<R>,Selector<S>,Selector<T>,Selector<U>,Selector<V>,Selector<W>,Selector<X>];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>,_S<o,I>,_S<o,J>,_S<o,K>,_S<o,L>,_S<o,M>,_S<o,N>,_S<o,O>,_S<o,P>,_S<o,Q>,_S<o,R>,_S<o,S>,_S<o,T>,_S<o,U>,_S<o,V>,_S<o,W>,_S<o,X>,_S<o,Y>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>,Selector<I>,Selector<J>,Selector<K>,Selector<L>,Selector<M>,Selector<N>,Selector<O>,Selector<P>,Selector<Q>,Selector<R>,Selector<S>,Selector<T>,Selector<U>,Selector<V>,Selector<W>,Selector<X>,Selector<Y>];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>,_S<o,I>,_S<o,J>,_S<o,K>,_S<o,L>,_S<o,M>,_S<o,N>,_S<o,O>,_S<o,P>,_S<o,Q>,_S<o,R>,_S<o,S>,_S<o,T>,_S<o,U>,_S<o,V>,_S<o,W>,_S<o,X>,_S<o,Y>,_S<o,Z>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>,Selector<I>,Selector<J>,Selector<K>,Selector<L>,Selector<M>,Selector<N>,Selector<O>,Selector<P>,Selector<Q>,Selector<R>,Selector<S>,Selector<T>,Selector<U>,Selector<V>,Selector<W>,Selector<X>,Selector<Y>,Selector<Z>];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>,_S<o,I>,_S<o,J>,_S<o,K>,_S<o,L>,_S<o,M>,_S<o,N>,_S<o,O>,_S<o,P>,_S<o,Q>,_S<o,R>,_S<o,S>,_S<o,T>,_S<o,U>,_S<o,V>,_S<o,W>,_S<o,X>,_S<o,Y>,_S<o,Z>,_S<o,$>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>,Selector<I>,Selector<J>,Selector<K>,Selector<L>,Selector<M>,Selector<N>,Selector<O>,Selector<P>,Selector<Q>,Selector<R>,Selector<S>,Selector<T>,Selector<U>,Selector<V>,Selector<W>,Selector<X>,Selector<Y>,Selector<Z>,Selector<$>];
+  <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_>(targets: [_S<o,A>,_S<o,B>,_S<o,C>,_S<o,D>,_S<o,E>,_S<o,F>,_S<o,G>,_S<o,H>,_S<o,I>,_S<o,J>,_S<o,K>,_S<o,L>,_S<o,M>,_S<o,N>,_S<o,O>,_S<o,P>,_S<o,Q>,_S<o,R>,_S<o,S>,_S<o,T>,_S<o,U>,_S<o,V>,_S<o,W>,_S<o,X>,_S<o,Y>,_S<o,Z>,_S<o,$>,_S<o,_>]): [Selector<A>,Selector<B>,Selector<C>,Selector<D>,Selector<E>,Selector<F>,Selector<G>,Selector<H>,Selector<I>,Selector<J>,Selector<K>,Selector<L>,Selector<M>,Selector<N>,Selector<O>,Selector<P>,Selector<Q>,Selector<R>,Selector<S>,Selector<T>,Selector<U>,Selector<V>,Selector<W>,Selector<X>,Selector<Y>,Selector<Z>,Selector<$>,Selector<_>];
+
+  <T extends E_SelectMultiple_CfgExemplar<o>>(targets: T): {
+    [P in keyof T]: T[P] extends ((state: o) => infer U) ? Selector<U> : never
+  }
+}
+
 interface E_SelectPartial<O> {
   select: {
     <R>(func?: (value: O) => R): Selector<R>        // tracked by default
     untrack<R>(func?: (value: O) => R): Selector<R>
-    multiple: {
-      (cfg: any[]): any // TODO: .select.multiple typings
-      untrack(cfg: any[]): any
+    multiple: E_SelectMultiple_Func<O> & {
+      untrack: E_SelectMultiple_Func<O>
     }
   }
 }
 
-type E_U_CfgExemplar<I, O> = {
+type E_UpdaterMultiple_CfgExemplar<I, O> = {
   [key: string]: (state: O, upValue: never, upPrev: never) => I
 }
-type E_US<T> = Equals<T, unknown> extends true ? Signal : Signal<T>
-type E_U<I,O,U> = ((state: O, upValue: U, upPrev: U) => I) | (() => I);
+type _US<T> = Equals<T, unknown> extends true ? Signal : Signal<T>
+type _U<I,O,U> = ((state: O, upValue: U, upPrev: U) => I) | (() => I);
 
 interface E_UpdaterMultiplePartial<i, o> {
   multiple: {
-    <A>(targets: [E_U<i,o,A>]): [E_US<A>];
-    <A,B>(targets: [E_U<i,o,A>,E_U<i,o,B>]): [E_US<A>,E_US<B>];
-    <A,B,C>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>]): [E_US<A>,E_US<B>,E_US<C>];
-    <A,B,C,D>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>];
-    <A,B,C,D,E>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>];
-    <A,B,C,D,E,F>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>];
-    <A,B,C,D,E,F,G>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>];
-    <A,B,C,D,E,F,G,H>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>];
-    <A,B,C,D,E,F,G,H,I>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>];
-    <A,B,C,D,E,F,G,H,I,J>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>];
-    <A,B,C,D,E,F,G,H,I,J,K>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>];
-    <A,B,C,D,E,F,G,H,I,J,K,L>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>];
-    <A,B,C,D,E,F,G,H,I,J,K,L,M>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>];
-    <A,B,C,D,E,F,G,H,I,J,K,L,M,N>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>];
-    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>];
-    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>];
-    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>];
-    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>];
-    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>,E_U<i,o,S>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>,E_US<S>];
-    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>,E_U<i,o,S>,E_U<i,o,T>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>,E_US<S>,E_US<T>];
-    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>,E_U<i,o,S>,E_U<i,o,T>,E_U<i,o,U>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>,E_US<S>,E_US<T>,E_US<U>];
-    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>,E_U<i,o,S>,E_U<i,o,T>,E_U<i,o,U>,E_U<i,o,V>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>,E_US<S>,E_US<T>,E_US<U>,E_US<V>];
-    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>,E_U<i,o,S>,E_U<i,o,T>,E_U<i,o,U>,E_U<i,o,V>,E_U<i,o,W>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>,E_US<S>,E_US<T>,E_US<U>,E_US<V>,E_US<W>];
-    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>,E_U<i,o,S>,E_U<i,o,T>,E_U<i,o,U>,E_U<i,o,V>,E_U<i,o,W>,E_U<i,o,X>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>,E_US<S>,E_US<T>,E_US<U>,E_US<V>,E_US<W>,E_US<X>];
-    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>,E_U<i,o,S>,E_U<i,o,T>,E_U<i,o,U>,E_U<i,o,V>,E_U<i,o,W>,E_U<i,o,X>,E_U<i,o,Y>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>,E_US<S>,E_US<T>,E_US<U>,E_US<V>,E_US<W>,E_US<X>,E_US<Y>];
-    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>,E_U<i,o,S>,E_U<i,o,T>,E_U<i,o,U>,E_U<i,o,V>,E_U<i,o,W>,E_U<i,o,X>,E_U<i,o,Y>,E_U<i,o,Z>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>,E_US<S>,E_US<T>,E_US<U>,E_US<V>,E_US<W>,E_US<X>,E_US<Y>,E_US<Z>];
-    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>,E_U<i,o,S>,E_U<i,o,T>,E_U<i,o,U>,E_U<i,o,V>,E_U<i,o,W>,E_U<i,o,X>,E_U<i,o,Y>,E_U<i,o,Z>,E_U<i,o,$>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>,E_US<S>,E_US<T>,E_US<U>,E_US<V>,E_US<W>,E_US<X>,E_US<Y>,E_US<Z>,E_US<$>];
-    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_>(targets: [E_U<i,o,A>,E_U<i,o,B>,E_U<i,o,C>,E_U<i,o,D>,E_U<i,o,E>,E_U<i,o,F>,E_U<i,o,G>,E_U<i,o,H>,E_U<i,o,I>,E_U<i,o,J>,E_U<i,o,K>,E_U<i,o,L>,E_U<i,o,M>,E_U<i,o,N>,E_U<i,o,O>,E_U<i,o,P>,E_U<i,o,Q>,E_U<i,o,R>,E_U<i,o,S>,E_U<i,o,T>,E_U<i,o,U>,E_U<i,o,V>,E_U<i,o,W>,E_U<i,o,X>,E_U<i,o,Y>,E_U<i,o,Z>,E_U<i,o,$>,E_U<i,o,_>]): [E_US<A>,E_US<B>,E_US<C>,E_US<D>,E_US<E>,E_US<F>,E_US<G>,E_US<H>,E_US<I>,E_US<J>,E_US<K>,E_US<L>,E_US<M>,E_US<N>,E_US<O>,E_US<P>,E_US<Q>,E_US<R>,E_US<S>,E_US<T>,E_US<U>,E_US<V>,E_US<W>,E_US<X>,E_US<Y>,E_US<Z>,E_US<$>,E_US<_>];
+    <A>(targets: [_U<i,o,A>]): [_US<A>];
+    <A,B>(targets: [_U<i,o,A>,_U<i,o,B>]): [_US<A>,_US<B>];
+    <A,B,C>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>]): [_US<A>,_US<B>,_US<C>];
+    <A,B,C,D>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>]): [_US<A>,_US<B>,_US<C>,_US<D>];
+    <A,B,C,D,E>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>];
+    <A,B,C,D,E,F>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>];
+    <A,B,C,D,E,F,G>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>];
+    <A,B,C,D,E,F,G,H>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>];
+    <A,B,C,D,E,F,G,H,I>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>,_U<i,o,I>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>,_US<I>];
+    <A,B,C,D,E,F,G,H,I,J>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>,_U<i,o,I>,_U<i,o,J>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>,_US<I>,_US<J>];
+    <A,B,C,D,E,F,G,H,I,J,K>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>,_U<i,o,I>,_U<i,o,J>,_U<i,o,K>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>,_US<I>,_US<J>,_US<K>];
+    <A,B,C,D,E,F,G,H,I,J,K,L>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>,_U<i,o,I>,_U<i,o,J>,_U<i,o,K>,_U<i,o,L>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>,_US<I>,_US<J>,_US<K>,_US<L>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>,_U<i,o,I>,_U<i,o,J>,_U<i,o,K>,_U<i,o,L>,_U<i,o,M>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>,_US<I>,_US<J>,_US<K>,_US<L>,_US<M>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>,_U<i,o,I>,_U<i,o,J>,_U<i,o,K>,_U<i,o,L>,_U<i,o,M>,_U<i,o,N>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>,_US<I>,_US<J>,_US<K>,_US<L>,_US<M>,_US<N>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>,_U<i,o,I>,_U<i,o,J>,_U<i,o,K>,_U<i,o,L>,_U<i,o,M>,_U<i,o,N>,_U<i,o,O>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>,_US<I>,_US<J>,_US<K>,_US<L>,_US<M>,_US<N>,_US<O>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>,_U<i,o,I>,_U<i,o,J>,_U<i,o,K>,_U<i,o,L>,_U<i,o,M>,_U<i,o,N>,_U<i,o,O>,_U<i,o,P>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>,_US<I>,_US<J>,_US<K>,_US<L>,_US<M>,_US<N>,_US<O>,_US<P>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>,_U<i,o,I>,_U<i,o,J>,_U<i,o,K>,_U<i,o,L>,_U<i,o,M>,_U<i,o,N>,_U<i,o,O>,_U<i,o,P>,_U<i,o,Q>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>,_US<I>,_US<J>,_US<K>,_US<L>,_US<M>,_US<N>,_US<O>,_US<P>,_US<Q>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>,_U<i,o,I>,_U<i,o,J>,_U<i,o,K>,_U<i,o,L>,_U<i,o,M>,_U<i,o,N>,_U<i,o,O>,_U<i,o,P>,_U<i,o,Q>,_U<i,o,R>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>,_US<I>,_US<J>,_US<K>,_US<L>,_US<M>,_US<N>,_US<O>,_US<P>,_US<Q>,_US<R>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>,_U<i,o,I>,_U<i,o,J>,_U<i,o,K>,_U<i,o,L>,_U<i,o,M>,_U<i,o,N>,_U<i,o,O>,_U<i,o,P>,_U<i,o,Q>,_U<i,o,R>,_U<i,o,S>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>,_US<I>,_US<J>,_US<K>,_US<L>,_US<M>,_US<N>,_US<O>,_US<P>,_US<Q>,_US<R>,_US<S>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>,_U<i,o,I>,_U<i,o,J>,_U<i,o,K>,_U<i,o,L>,_U<i,o,M>,_U<i,o,N>,_U<i,o,O>,_U<i,o,P>,_U<i,o,Q>,_U<i,o,R>,_U<i,o,S>,_U<i,o,T>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>,_US<I>,_US<J>,_US<K>,_US<L>,_US<M>,_US<N>,_US<O>,_US<P>,_US<Q>,_US<R>,_US<S>,_US<T>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>,_U<i,o,I>,_U<i,o,J>,_U<i,o,K>,_U<i,o,L>,_U<i,o,M>,_U<i,o,N>,_U<i,o,O>,_U<i,o,P>,_U<i,o,Q>,_U<i,o,R>,_U<i,o,S>,_U<i,o,T>,_U<i,o,U>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>,_US<I>,_US<J>,_US<K>,_US<L>,_US<M>,_US<N>,_US<O>,_US<P>,_US<Q>,_US<R>,_US<S>,_US<T>,_US<U>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>,_U<i,o,I>,_U<i,o,J>,_U<i,o,K>,_U<i,o,L>,_U<i,o,M>,_U<i,o,N>,_U<i,o,O>,_U<i,o,P>,_U<i,o,Q>,_U<i,o,R>,_U<i,o,S>,_U<i,o,T>,_U<i,o,U>,_U<i,o,V>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>,_US<I>,_US<J>,_US<K>,_US<L>,_US<M>,_US<N>,_US<O>,_US<P>,_US<Q>,_US<R>,_US<S>,_US<T>,_US<U>,_US<V>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>,_U<i,o,I>,_U<i,o,J>,_U<i,o,K>,_U<i,o,L>,_U<i,o,M>,_U<i,o,N>,_U<i,o,O>,_U<i,o,P>,_U<i,o,Q>,_U<i,o,R>,_U<i,o,S>,_U<i,o,T>,_U<i,o,U>,_U<i,o,V>,_U<i,o,W>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>,_US<I>,_US<J>,_US<K>,_US<L>,_US<M>,_US<N>,_US<O>,_US<P>,_US<Q>,_US<R>,_US<S>,_US<T>,_US<U>,_US<V>,_US<W>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>,_U<i,o,I>,_U<i,o,J>,_U<i,o,K>,_U<i,o,L>,_U<i,o,M>,_U<i,o,N>,_U<i,o,O>,_U<i,o,P>,_U<i,o,Q>,_U<i,o,R>,_U<i,o,S>,_U<i,o,T>,_U<i,o,U>,_U<i,o,V>,_U<i,o,W>,_U<i,o,X>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>,_US<I>,_US<J>,_US<K>,_US<L>,_US<M>,_US<N>,_US<O>,_US<P>,_US<Q>,_US<R>,_US<S>,_US<T>,_US<U>,_US<V>,_US<W>,_US<X>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>,_U<i,o,I>,_U<i,o,J>,_U<i,o,K>,_U<i,o,L>,_U<i,o,M>,_U<i,o,N>,_U<i,o,O>,_U<i,o,P>,_U<i,o,Q>,_U<i,o,R>,_U<i,o,S>,_U<i,o,T>,_U<i,o,U>,_U<i,o,V>,_U<i,o,W>,_U<i,o,X>,_U<i,o,Y>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>,_US<I>,_US<J>,_US<K>,_US<L>,_US<M>,_US<N>,_US<O>,_US<P>,_US<Q>,_US<R>,_US<S>,_US<T>,_US<U>,_US<V>,_US<W>,_US<X>,_US<Y>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>,_U<i,o,I>,_U<i,o,J>,_U<i,o,K>,_U<i,o,L>,_U<i,o,M>,_U<i,o,N>,_U<i,o,O>,_U<i,o,P>,_U<i,o,Q>,_U<i,o,R>,_U<i,o,S>,_U<i,o,T>,_U<i,o,U>,_U<i,o,V>,_U<i,o,W>,_U<i,o,X>,_U<i,o,Y>,_U<i,o,Z>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>,_US<I>,_US<J>,_US<K>,_US<L>,_US<M>,_US<N>,_US<O>,_US<P>,_US<Q>,_US<R>,_US<S>,_US<T>,_US<U>,_US<V>,_US<W>,_US<X>,_US<Y>,_US<Z>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>,_U<i,o,I>,_U<i,o,J>,_U<i,o,K>,_U<i,o,L>,_U<i,o,M>,_U<i,o,N>,_U<i,o,O>,_U<i,o,P>,_U<i,o,Q>,_U<i,o,R>,_U<i,o,S>,_U<i,o,T>,_U<i,o,U>,_U<i,o,V>,_U<i,o,W>,_U<i,o,X>,_U<i,o,Y>,_U<i,o,Z>,_U<i,o,$>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>,_US<I>,_US<J>,_US<K>,_US<L>,_US<M>,_US<N>,_US<O>,_US<P>,_US<Q>,_US<R>,_US<S>,_US<T>,_US<U>,_US<V>,_US<W>,_US<X>,_US<Y>,_US<Z>,_US<$>];
+    <A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_>(targets: [_U<i,o,A>,_U<i,o,B>,_U<i,o,C>,_U<i,o,D>,_U<i,o,E>,_U<i,o,F>,_U<i,o,G>,_U<i,o,H>,_U<i,o,I>,_U<i,o,J>,_U<i,o,K>,_U<i,o,L>,_U<i,o,M>,_U<i,o,N>,_U<i,o,O>,_U<i,o,P>,_U<i,o,Q>,_U<i,o,R>,_U<i,o,S>,_U<i,o,T>,_U<i,o,U>,_U<i,o,V>,_U<i,o,W>,_U<i,o,X>,_U<i,o,Y>,_U<i,o,Z>,_U<i,o,$>,_U<i,o,_>]): [_US<A>,_US<B>,_US<C>,_US<D>,_US<E>,_US<F>,_US<G>,_US<H>,_US<I>,_US<J>,_US<K>,_US<L>,_US<M>,_US<N>,_US<O>,_US<P>,_US<Q>,_US<R>,_US<S>,_US<T>,_US<U>,_US<V>,_US<W>,_US<X>,_US<Y>,_US<Z>,_US<$>,_US<_>];
 
-    <T extends E_U_CfgExemplar<i,o>>(targets: T): {
-      [P in keyof T]: T[P] extends ((state: o, upValue: infer U) => i) ? E_US<U> : never
+    <T extends E_UpdaterMultiple_CfgExemplar<i,o>>(targets: T): {
+      [P in keyof T]: T[P] extends ((state: o, upValue: infer U) => i) ? _US<U> : never
     }
   }
 }
-
-
-
 
 interface E_UpdaterPartial<I, O> {
   updater: E_UpdaterMultiplePartial<I, O> & {
