@@ -1,7 +1,8 @@
 import { FC } from 'react';
 
 /*
-  [] Add track|untrack for join with callback
+  [] I should make only value.combine
+  [] remove join
   [] Typings for op, sync and etc.
   [] Later type -(Ensurable) -- EnsureLater
 */

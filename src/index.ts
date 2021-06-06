@@ -2,7 +2,6 @@ import React, { Context, FC } from 'react';
 import rb from 'reactive-box';
 import { Contextual, Isolate, Local, Observe, PoolEntry, SignalEntry, Transaction, Untrack, UseJsx, UseLocal, UseScoped, UseValue, UseValues, ValueEntry } from './types';
 
-
 //
 // Exports
 //
