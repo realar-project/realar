@@ -350,7 +350,8 @@ test('should work value with .filter, .filter.not', () => {
   const w = v.filter((_v) => _v !== 10);
   const k = ((t = w.filter), (t = t.not), (t = t(f)));
   const m = k.filter();
-  const n = ((t = t.filter.not), t());
+  const n = ((t = t.filter.not), t = t());
+  const p = ((t = k.filter.not), t(void 0, 'A'));
 
   expect(n.dirty).toBeUndefined();
   expect(m.reset).toBeUndefined();
@@ -360,12 +361,14 @@ test('should work value with .filter, .filter.not', () => {
   expect(k.val).toBe(5);
   expect(m.val).toBe(5);
   expect(n.val).toBe(void 0);
+  expect(p.val).toBe('A');
 
   m(0);
   expect(w.val).toBe(0);
   expect(k.val).toBe(0);
   expect(m.val).toBe(5);
   expect(n.val).toBe(0);
+  expect(p.val).toBe(0);
 
   f(1);
   w(8);

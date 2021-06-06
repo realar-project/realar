@@ -80,23 +80,23 @@ test('should work pool with arguments', async () => {
   const spy = jest.fn();
 
   const p = pool(async (a: number, b: number) => {
-    await delay(10);
+    await delay(20);
     spy(a, b);
     return 1;
   });
 
   p(1, 2);
   expect(p.count.val).toBe(1);
-  await delay(5);
+  await delay(10);
   p(2, 3);
   expect(p.count.val).toBe(2);
-  await delay(6);
+  await delay(15);
 
   expect(spy).toBeCalledWith(1, 2); spy.mockReset();
   expect(p.count.val).toBe(1);
   expect(p.pending.val).toBe(true);
 
-  await delay(6);
+  await delay(10);
   expect(p.count.val).toBe(0);
   expect(p.pending.val).toBe(false);
 

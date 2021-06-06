@@ -190,21 +190,21 @@ interface E_UpdatePartial<I, O> {
 }
 interface E_FilterTrackedPartial<O, Ret> {
   filter: {
-    (func?: (value: O) => any): Ret         // tracked by default
-    untrack(func?: (value: O) => any): Ret
+    (func?: (value: O) => any, emptyValue?: O): Ret         // tracked by default
+    untrack(func?: (value: O) => any, emptyValue?: O): Ret
     not: {
-      (func?: (value: O) => any): Ret       // tracked by default
-      untrack(func?: (value: O) => any): Ret
+      (func?: (value: O) => any, emptyValue?: O): Ret       // tracked by default
+      untrack(func?: (value: O) => any, emptyValue?: O): Ret
     }
   }
 }
-interface E_FilterUnTrackedPartial<T, Ret> {
+interface E_FilterUnTrackedPartial<O, Ret> {
   filter: {
-    (func?: (value: T) => any): Ret         // untracked by default
-    track(func?: (value: T) => any): Ret
+    (func?: (value: O) => any, emptyValue?: O): Ret         // untracked by default
+    track(func?: (value: O) => any, emptyValue?: O): Ret
     not: {
-      (func?: (value: T) => any): Ret       // untracked by default
-      track(func?: (value: T) => any): Ret
+      (func?: (value: O) => any, emptyValue?: O): Ret       // untracked by default
+      track(func?: (value: O) => any, emptyValue?: O): Ret
     }
   }
 }

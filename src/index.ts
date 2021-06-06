@@ -298,9 +298,9 @@ const reactionable_subscribe = (target, fn, is_once?, is_sync?) => {
 
 
 const make_trait_ent_pure_fn_untrack = (trait_fn) =>
-  (ctx, fn) => trait_fn(ctx, fn && ((a,b) => {
+  (ctx, fn) => trait_fn(ctx, fn && ((a,b,c) => {
     const finish = internal_untrack();
-    try { return fn(a,b); }
+    try { return fn(a,b,c); }
     finally { finish() }
   }));
 
@@ -448,7 +448,7 @@ const trait_ent_wrap_untrack = (ctx, fn_pre, fn_map) => (
   trait_ent_map_untrack(trait_ent_pre_untrack(ctx, fn_pre), fn_map)
 )
 
-const trait_ent_flow = (ctx, fn) => {
+const trait_ent_flow = (ctx, fn, empty_val) => {
   fn || (fn = pure_arrow_fn_returns_arg);
   let started, prev;
   const is_signal = ctx[key_handler][key_is_signal];
@@ -456,7 +456,7 @@ const trait_ent_flow = (ctx, fn) => {
     const v = ctx[key_get]();
     try { return fn(v, prev) }
     finally { prev = v }
-  }, const_undef, is_signal && pure_arrow_fn_returns_undef);
+  }, empty_val, is_signal && pure_arrow_fn_returns_undef);
   const h = [
     () => ((started || (f[0](), (started = 1))), f[1]()),
     ctx[key_set] && ctx[key_set].bind()
@@ -467,20 +467,23 @@ const trait_ent_flow = (ctx, fn) => {
   );
 };
 const trait_ent_flow_untrack = make_trait_ent_pure_fn_untrack(trait_ent_flow);
-const trait_ent_filter = (ctx, fn) => (
+const trait_ent_filter = (ctx, fn, empty_val) => (
   trait_ent_flow(ctx, fn
     ? (fn[key_get] && (fn = fn[key_get]),
       (v, prev) => (
         fn(v, prev) ? v : internal_flow_stop
       ))
-    : (v) => v || internal_flow_stop
+    : (v) => v || internal_flow_stop,
+    empty_val
   )
 );
 const trait_ent_filter_untrack = make_trait_ent_untrack(trait_ent_filter)
-const trait_ent_filter_not = (ctx, fn) => (
+const trait_ent_filter_not = (ctx, fn, empty_val) => (
   trait_ent_filter(ctx, fn
     ? (fn[key_get] && (fn = fn[key_get]), (v) => !fn(v))
-    : pure_arrow_fn_returns_not_arg)
+    : pure_arrow_fn_returns_not_arg,
+    empty_val
+  )
 );
 const trait_ent_filter_not_untrack = make_trait_ent_untrack(trait_ent_filter_not)
 
