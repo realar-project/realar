@@ -296,19 +296,13 @@ const reactionable_subscribe = (target, fn, is_once?, is_sync?) => {
   if (is_sync) untrack(fn.bind(const_undef, value, const_undef));
 }
 
-const make_join_entity = (fn_get, join_cfg, join_fn, is_signal?, set?, is_untrack?) => {
-  const h = [] as any;
+const make_val_combine_entity = (fn_get, join_cfg, join_fn, set?) => {
+  let h = [] as any;
 
   if (join_fn) {
-    const comb_ent = make_combine(join_cfg, 0, is_signal);
-    h[0] = is_untrack
-      ? () => join_fn(fn_get(), untrack(comb_ent[key_get]))
-      : () => join_fn(fn_get(), comb_ent[key_get]())
+    h = make_value_combine_handler(join_cfg, join_fn);
   } else {
-    const fns = join_cfg.map(is_signal
-      ? (fn) => fn[key_get] || fn
-      : (fn) => sel(fn[key_get] || fn)[0]
-    );
+    const fns = join_cfg.map((fn) => sel(fn[key_get] || fn)[0]);
     h[0] = () => {
       const ret = [fn_get()];
       const finish = is_untrack && internal_untrack();
@@ -512,10 +506,10 @@ const trait_ent_filter_not = (ctx, fn) => (
 const trait_ent_filter_not_untrack = make_trait_ent_untrack(trait_ent_filter_not)
 
 const trait_ent_join = (ctx, cfg, fn) => (
-  make_join_entity(ctx[key_get], cfg, fn, ctx[key_handler][key_is_signal], ctx[key_set])
+  make_val_combine_entity(ctx[key_get], cfg, fn, ctx[key_handler][key_is_signal], ctx[key_set])
 );
 const trait_ent_join_untrack = (ctx, cfg, fn) => (
-  make_join_entity(ctx[key_get], cfg, fn, ctx[key_handler][key_is_signal], ctx[key_set], 1)
+  make_val_combine_entity(ctx[key_get], cfg, fn, ctx[key_handler][key_is_signal], ctx[key_set], 1)
 );
 
 const trait_ent_as_value = (ctx) => (
@@ -775,20 +769,13 @@ const get_getter_to_reactionable_or_custom = (re) => (
   (re && re[key_get]) || (typeof re === const_string_function ? re : () => re)
 )
 
-const make_combine = (cfg, fn, is_signal?) => {
+const make_value_combine_handler = (cfg, fn) => {
   const keys = obj_keys(cfg);
-  const fns = keys.map(is_signal
-    ? (key) => get_getter_to_reactionable_or_custom(cfg[key])
-    : (key) => sel(get_getter_to_reactionable_or_custom(cfg[key]))[0]
-  );
+  const fns = keys.map((key) => sel(get_getter_to_reactionable_or_custom(cfg[key]))[0]);
   const re = () => keys.reduce((ret, key, key_index) => (
     (ret[key] = fns[key_index]()), ret
   ), obj_empty_from(cfg))
-  const h = [
-    fn ? is_signal ? () => fn(re()) : sel(() => fn(re()))[0] : re
-  ];
-  h[key_is_signal] = is_signal;
-  return fill_entity(h, proto_entity_readable);
+  return [fn ? sel(() => fn(re()))[0] : re];
 }
 
 
@@ -806,7 +793,7 @@ const value_from = (get, set?) => {
   const ctx = fill_entity(h, set ? proto_entity_writtable : proto_entity_readable);
   return ctx;
 }
-const value_combine = (cfg, fn?) => make_combine(cfg, fn);
+const value_combine = (cfg, fn?) => fill_entity(make_value_combine_handler(cfg, fn), proto_entity_readable);
 
 value_trigger_flag[key_invert] = value_trigger_flag_invert;
 value_trigger[key_flag] = value_trigger_flag;
@@ -831,13 +818,11 @@ const signal_from = (get, set?) => {
   const ctx = fill_entity(h, set ? proto_entity_writtable : proto_entity_readable);
   return ctx;
 }
-const signal_combine = (cfg, fn?) => make_combine(cfg, fn, 1);
 
 signal_trigger_flag[key_invert] = signal_trigger_flag_invert;
 signal_trigger[key_flag] = signal_trigger_flag;
 signal[key_trigger] = signal_trigger as any;
 signal[key_from] = signal_from;
-signal[key_combine] = signal_combine;
 
 
 
