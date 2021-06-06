@@ -2,6 +2,7 @@ import { FC } from 'react';
 
 /*
   [] Later type -(Ensurable) -- EnsureLater
+    [] support typings signal<'up' | 'down'>()
 */
 
 export {
