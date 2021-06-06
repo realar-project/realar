@@ -1,7 +1,6 @@
 import { FC } from 'react';
 
 /*
-  [] support reactionable for untrack
   [] Typings for op, sync and etc.
   [] Later type -(Ensurable) -- EnsureLater
 */
