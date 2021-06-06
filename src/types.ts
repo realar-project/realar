@@ -1,12 +1,8 @@
 import { FC } from 'react';
 
-/*
-  [] Later type -(Ensurable) -- EnsureLater
-    [] support typings signal<'up' | 'down'>()
-
-  "Ensurable" name proposal is "Will"
-  Signal<I, Will<O>>
-*/
+//
+// Exports
+//
 
 export {
   ValueEntry,
@@ -50,6 +46,42 @@ type Re_CfgExemplar = {
   [key: string]: Re<any>
 }
 
+type Will<T> = T | undefined;
+type WillExpand<T> = ((p: T) => 0) extends ((p: Will<T>) => 0) ? [T] extends [Will<infer P>] ? P | undefined : T : T;
+type WillExtract<T> = ((p: T) => 0) extends ((p: Will<T>) => 0) ? [T] extends [Will<infer P>] ? P : T : T;
+type WillEnsure<T> = ((p: T) => 0) extends ((p: Will<T>) => 0) ? [T] extends [Will<infer P>] ?  Will<P> : Will<T> : Will<T>;
+
+//
+// Realar external api typings
+//
+
+type On = {
+  <T>(target: Re<Will<T>>, fn: (value: T, prev: WillExpand<Will<T>>) => void): void
+  <T>(target: Re<T>, fn: (value: T, prev: T) => void): void
+}
+type Sync = {
+  <T>(target: Re<Will<T>>, fn: (value: T, prev: WillExpand<Will<T>>) => void): void
+  <T>(target: Re<T>, fn: (value: T, prev: T) => void): void
+}
+
+type Local = {
+  inject(fn: () => void): void;
+}
+type Contextual = {
+  stop: () => void;
+}
+type Isolate = {
+  (fn): () => void;
+  unsafe: () => () => () => void;
+}
+type Transaction = {
+  <T>(fn: () => T): T;
+  unsafe: () => () => void;
+}
+type Untrack = {
+  <T>(fn: () => T): T;
+  unsafe: () => () => void;
+}
 
 //
 // Entity types
@@ -62,16 +94,16 @@ type E_ValReadonlyPartial<O> = { readonly val: O }
 type E_ValPartial<I, O> = Equals<I, O> extends true ? { val: O } : E_ValReadonlyPartial<O>
 
 interface E_PromisePartial<O> {
-  promise: Promise<O>
+  promise: Promise<WillExtract<O>>
 }
-interface E_GetPartial<T> {
-  get: () => T;
+interface E_GetPartial<O> {
+  get: () => O;
 }
-interface E_SyncToPartial<T, Ret> {
-  sync(func: (value: T, prev: T) => void): Ret
+interface E_SyncToPartial<O, Ret> {
+  sync(func: (value: WillExtract<O>, prev: WillExpand<O>) => void): Ret
   to: {
-    (func: (value: T, prev: T) => void): Ret
-    once(func: (value: T, prev: T) => void): Ret
+    (func: (value: WillExtract<O>, prev: WillExpand<O>) => void): Ret
+    once(func: (value: WillExtract<O>, prev: WillExpand<O>) => void): Ret
   }
 }
 interface E_OpPartial<Ret> {
@@ -131,7 +163,7 @@ interface E_SelectPartial<O> {
 type E_UpdaterMultiple_CfgExemplar<I, O> = {
   [key: string]: (state: O, upValue: never, upPrev: never) => I
 }
-type _US<T> = Equals<T, unknown> extends true ? Signal : Signal<T>
+type _US<T> = Equals<T, unknown> extends true ? Signal : Signal<T, Will<T>>
 type _U<I,O,U> = ((state: O, upValue: U, upPrev: U) => I) | (() => I);
 
 interface E_UpdaterMultiplePartial<i, o> {
@@ -173,7 +205,7 @@ interface E_UpdaterMultiplePartial<i, o> {
 
 interface E_UpdaterPartial<I, O> {
   updater: E_UpdaterMultiplePartial<I, O> & {
-    <U>(func?: (state: O, upValue: U, upPrev: U) => I): Equals<U, unknown> extends true ? Signal : Signal<U>
+    <U>(func?: (state: O, upValue: U, upPrev: U) => I): Equals<U, unknown> extends true ? Signal : Signal<U, Will<U>>
   }
 }
 interface E_UpdatePartial<I, O> {
@@ -181,30 +213,40 @@ interface E_UpdatePartial<I, O> {
     (func?: (value: O) => I): void                  // untracked by default
     track(func?: (value: O) => I): void
     by: {
+      <T>(re: Re<Will<T>>, updater?: (state: O, reValue: T, rePrev: WillExpand<Will<T>>) => I)
       <T>(re: Re<T>, updater?: (state: O, reValue: T, rePrev: T) => I)
       once: {
+        <T>(re: Re<Will<T>>, updater?: (state: O, reValue: T, rePrev: WillExpand<Will<T>>) => I)
         <T>(re: Re<T>, updater?: (state: O, reValue: T, rePrev: T) => I)
       }
     }
   }
 }
-interface E_FilterTrackedPartial<O, Ret> {
+interface E_FilterTrackedPartial<O, Ret, WillRet> {
   filter: {
-    (func?: (value: O) => any, emptyValue?: O): Ret         // tracked by default
-    untrack(func?: (value: O) => any, emptyValue?: O): Ret
+    (func: (value: WillExpand<O>) => any, emptyValue: WillExtract<O>): Ret         // tracked by default
+    (func?: (value: WillExpand<O>) => any): WillRet
+    untrack(func: (value: WillExpand<O>) => any, emptyValue: WillExtract<O>): Ret
+    untrack(func?: (value: WillExpand<O>) => any): WillRet
     not: {
-      (func?: (value: O) => any, emptyValue?: O): Ret       // tracked by default
-      untrack(func?: (value: O) => any, emptyValue?: O): Ret
+      (func: (value: WillExpand<O>) => any, emptyValue: WillExtract<O>): Ret       // tracked by default
+      (func?: (value: WillExpand<O>) => any): WillRet
+      untrack(func: (value: WillExpand<O>) => any, emptyValue: WillExtract<O>): Ret
+      untrack(func?: (value: WillExpand<O>) => any): WillRet
     }
   }
 }
-interface E_FilterUnTrackedPartial<O, Ret> {
+interface E_FilterUnTrackedPartial<O, Ret, WillRet> {
   filter: {
-    (func?: (value: O) => any, emptyValue?: O): Ret         // untracked by default
-    track(func?: (value: O) => any, emptyValue?: O): Ret
+    (func: (value: WillExpand<O>) => any, emptyValue: WillExtract<O>): Ret         // untracked by default
+    (func?: (value: WillExpand<O>) => any): WillRet
+    track(func: (value: WillExpand<O>) => any, emptyValue: WillExtract<O>): Ret
+    track(func?: (value: WillExpand<O>) => any): WillRet
     not: {
-      (func?: (value: O) => any, emptyValue?: O): Ret       // untracked by default
-      track(func?: (value: O) => any, emptyValue?: O): Ret
+      (func: (value: WillExpand<O>) => any, emptyValue: WillExtract<O>): Ret       // untracked by default
+      (func?: (value: WillExpand<O>) => any): WillRet
+      track(func: (value: WillExpand<O>) => any, emptyValue: WillExtract<O>): Ret
+      track(func?: (value: WillExpand<O>) => any): WillRet
     }
   }
 }
@@ -214,66 +256,69 @@ interface E_Readable<O, Ret> extends
   E_PromisePartial<O>,
   E_SyncToPartial<O, Ret>,
   E_OpPartial<Ret>,
-  E_SelectPartial<O> {}
+  E_SelectPartial<WillExpand<O>> {}
 
 interface E_Writtable<I, O, Ret> extends
   E_Readable<O, Ret>,
-  E_UpdatePartial<I, O>,
-  E_UpdaterPartial<I, O> {}
+  E_UpdatePartial<I, WillExpand<O>>,
+  E_UpdaterPartial<I, WillExpand<O>> {}
 
 
 
 interface E_Value<I, O> extends
   E_Writtable<I, O, Value<I, O>>,
-  E_FilterTrackedPartial<O, Value<I, O>> {
+  E_FilterTrackedPartial<O, Value<I, WillExtract<O>>, Value<I, WillEnsure<O>>> {
 
   map: {
-    <R>(func: (value: O) => R): Value<I, R>         // tracked by default
-    untrack<R>(func: (value: O) => R): Value<I, R>
+    <R>(func: (value: WillExpand<O>) => R): Value<I, R>         // tracked by default
+    untrack<R>(func: (value: WillExpand<O>) => R): Value<I, R>
 
-    to<R>(value?: R): Value<I, R>
+    to(): Value<I, void>
+    to<R>(value: R): Value<I, R>
   }
-  pre: E_FilterTrackedPartial<I, Value<I, O>> & {
-    <N>(func?: (value: N, state: O) => I): Value<N, O>  // tracked by default
-    untrack<N>(func?: (value: N, state: O) => I): Value<N, O>
+  pre: E_FilterTrackedPartial<I, Value<I, O>, Value<I, WillEnsure<O>>> & {
+    <N>(func?: (value: N, state: WillExpand<O>) => I): Value<N, O>  // tracked by default
+    untrack<N>(func?: (value: N, state: WillExpand<O>) => I): Value<N, O>
   }
   wrap: {
-    <N, R>(pre: (value: N, state: O) => I, map: (value: O) => R): Value<N, R> // tracked by default
-    untrack<N, R>(pre: (value: N, state: O) => I, map: (value: O) => R): Value<N, R>
+    <N, R>(pre: (value: N, state: WillExpand<O>) => I, map: (value: WillExpand<O>) => R): Value<N, R> // tracked by default
+    untrack<N, R>(pre: (value: N, state: WillExpand<O>) => I, map: (value: WillExpand<O>) => R): Value<N, R>
   }
 }
 
 
 interface E_ValueReadonly<O> extends
   E_Readable<O, ValueReadonly<O>>,
-  E_FilterTrackedPartial<O, ValueReadonly<O>> {
+  E_FilterTrackedPartial<O, ValueReadonly<WillExtract<O>>, ValueReadonly<WillEnsure<O>>> {
 
   map: {
-    <R>(func: (value: O) => R): ValueReadonly<R>         // tracked by default
-    untrack<R>(func: (value: O) => R): ValueReadonly<R>
+    <R>(func: (value: WillExpand<O>) => R): ValueReadonly<R>         // tracked by default
+    untrack<R>(func: (value: WillExpand<O>) => R): ValueReadonly<R>
 
-    to<R>(value?: R): ValueReadonly<R>
+    to(): ValueReadonly<void>
+    to<R>(value: R): ValueReadonly<R>
   }
 }
 
 
 interface E_Signal<I, O> extends
   E_Writtable<I, O, Signal<I, O>>,
-  E_FilterUnTrackedPartial<O, Signal<I, O>> {
+  E_FilterUnTrackedPartial<O, Signal<I, WillExtract<O>>, Signal<I, WillEnsure<O>>> {
 
   map: {
-    <R>(func: (value: O) => R): Signal<I, R>        // untracked by default
-    track<R>(func: (value: O) => R): Signal<I, R>
+    <R>(func: (value: WillExpand<O>) => R): Signal<I, R>        // untracked by default
+    track<R>(func: (value: WillExpand<O>) => R): Signal<I, R>
 
-    to<R>(value?: R): Signal<I, R>
+    to(): Signal<I, void>
+    to<R>(value: R): Signal<I, R>
   }
-  pre: E_FilterUnTrackedPartial<I, Signal<I, O>> & {
-    <N>(func?: (value: N, state: O) => I): Signal<N, O>       // untracked by default
-    track<N>(func?: (value: N, state: O) => I): Signal<N, O>
+  pre: E_FilterUnTrackedPartial<I, Signal<I, O>, Signal<I, WillEnsure<O>>> & {
+    <N>(func?: (value: N, state: WillExpand<O>) => I): Signal<N, O>       // untracked by default
+    track<N>(func?: (value: N, state: WillExpand<O>) => I): Signal<N, O>
   }
   wrap: {
-    <N, R>(pre: (value: N, state: O) => I, map: (value: O) => R): Signal<N, R> // untracked by default
-    track<N, R>(pre: (value: N, state: O) => I, map: (value: O) => R): Signal<N, R>
+    <N, R>(pre: (value: N, state: WillExpand<O>) => I, map: (value: WillExpand<O>) => R): Signal<N, R> // untracked by default
+    track<N, R>(pre: (value: N, state: WillExpand<O>) => I, map: (value: WillExpand<O>) => R): Signal<N, R>
   }
   as: {
     value(): Value<I, O>
@@ -283,13 +328,14 @@ interface E_Signal<I, O> extends
 
 interface E_SignalReadonly<O> extends
   E_Readable<O, SignalReadonly<O>>,
-  E_FilterUnTrackedPartial<O, SignalReadonly<O>> {
+  E_FilterUnTrackedPartial<O, SignalReadonly<WillExtract<O>>, SignalReadonly<WillEnsure<O>>> {
 
   map: {
-    <R>(func: (value: O) => R): SignalReadonly<R>        // untracked by default
-    track<R>(func: (value: O) => R): SignalReadonly<R>
+    <R>(func: (value: WillExpand<O>) => R): SignalReadonly<R>        // untracked by default
+    track<R>(func: (value: WillExpand<O>) => R): SignalReadonly<R>
 
-    to<R>(value?: R): SignalReadonly<R>
+    to(): SignalReadonly<void>
+    to<R>(value: R): SignalReadonly<R>
   }
   as: {
     value(): ValueReadonly<O>
@@ -298,11 +344,11 @@ interface E_SignalReadonly<O> extends
 
 
 
-type Value<I = void, O = I> = E_SetPartial<I> & E_ValPartial<I, O> & E_Value<I, O>
-type Signal<I = void, O = I> = E_SetPartial<I> & E_ValPartial<I, O> & E_Signal<I, O>
+type Value<I = void, O = I> = E_SetPartial<I> & E_ValPartial<I, WillExpand<O>> & E_Value<I, O>
+type Signal<I = void, O = I> = E_SetPartial<I> & E_ValPartial<I, WillExpand<O>> & E_Signal<I, O>
 
-type ValueReadonly<O> = E_ValReadonlyPartial<O> & E_ValueReadonly<O>
-type SignalReadonly<O> = E_ValReadonlyPartial<O> & E_SignalReadonly<O>
+type ValueReadonly<O> = E_ValReadonlyPartial<WillExpand<O>> & E_ValueReadonly<O>
+type SignalReadonly<O> = E_ValReadonlyPartial<WillExpand<O>> & E_SignalReadonly<O>
 
 
 
@@ -314,10 +360,12 @@ type SignalReadonly<O> = E_ValReadonlyPartial<O> & E_SignalReadonly<O>
 
 type ValueEntry = {
   (): Value;
+  <T>(): Value<T, Will<T>>;
   <T>(initial: T): Value<T>;
 
   trigger: {
     (): Value;
+    <T>(): Value<T, Will<T>>;
     <T>(initial: T): Value<T>;
 
     flag: {
@@ -409,10 +457,12 @@ type ValueEntry = {
 
 type SignalEntry = {
   (): Signal;
+  <T>(): Signal<T, Will<T>>;
   <T>(initial: T): Signal<T>;
 
   trigger: {
     (): Signal;
+    <T>(): Signal<T, Will<T>>;
     <T>(initial: T): Signal<T>;
 
     flag: {
@@ -432,36 +482,6 @@ type SignalEntry = {
   }
 };
 
-
-//
-// Realar external api typings
-//
-
-type On = {
-  <T>(target: Re<T>, fn: (value: T, prev: T) => void): void
-}
-type Sync = {
-  <T>(target: Re<T>, fn: (value: T, prev: T) => void): void
-}
-
-type Local = {
-  inject(fn: () => void): void;
-}
-type Contextual = {
-  stop: () => void;
-}
-type Isolate = {
-  (fn): () => void;
-  unsafe: () => () => () => void;
-}
-type Transaction = {
-  <T>(fn: () => T): T;
-  unsafe: () => () => void;
-}
-type Untrack = {
-  <T>(fn: () => T): T;
-  unsafe: () => () => void;
-}
 
 
 //
