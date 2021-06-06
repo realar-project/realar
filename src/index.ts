@@ -175,7 +175,6 @@ const key_track = 'track';
 const key_untrack = 'un'+key_track;
 const key_multiple = 'multiple';
 const key_combine = 'combine';
-const key_join = 'join';
 const key_value = 'value';
 const key_as = 'as';
 const key_op = 'op';
@@ -294,26 +293,6 @@ const reactionable_subscribe = (target, fn, is_once?, is_sync?) => {
   });
   value = e[0]();
   if (is_sync) untrack(fn.bind(const_undef, value, const_undef));
-}
-
-const make_val_combine_entity = (fn_get, join_cfg, join_fn, set?) => {
-  let h = [] as any;
-
-  if (join_fn) {
-    h = make_value_combine_handler(join_cfg, join_fn);
-  } else {
-    const fns = join_cfg.map((fn) => sel(fn[key_get] || fn)[0]);
-    h[0] = () => {
-      const ret = [fn_get()];
-      const finish = is_untrack && internal_untrack();
-      try { return ret.concat(fns.map(f => f())) }
-      finally { finish && finish() }
-    }
-  }
-  h[1] = set && set.bind();
-
-  h[key_is_signal] = is_signal;
-  return fill_entity(h, set ? proto_entity_writtable : proto_entity_readable)
 }
 
 
@@ -505,13 +484,6 @@ const trait_ent_filter_not = (ctx, fn) => (
 );
 const trait_ent_filter_not_untrack = make_trait_ent_untrack(trait_ent_filter_not)
 
-const trait_ent_join = (ctx, cfg, fn) => (
-  make_val_combine_entity(ctx[key_get], cfg, fn, ctx[key_handler][key_is_signal], ctx[key_set])
-);
-const trait_ent_join_untrack = (ctx, cfg, fn) => (
-  make_val_combine_entity(ctx[key_get], cfg, fn, ctx[key_handler][key_is_signal], ctx[key_set], 1)
-);
-
 const trait_ent_as_value = (ctx) => (
   value_from(ctx[key_get], ctx[key_set])
 );
@@ -571,7 +543,6 @@ obj_def_prop_trait_ns(proto_entity_readable_as_ns, key_value, trait_ent_as_value
 //   .flow                      (track|untrack)
 //   .map:readable.map:ns       (track|untrack)
 //     .to
-//   .join                      (track|untrack)
 //   .as:readable.as:ns
 //     .as.value
 //   .promise
@@ -610,12 +581,6 @@ obj_def_prop_trait_with_ns(
   op_trait_if_not_signal(trait_ent_map, trait_ent_map_untrack),
   proto_entity_readable_map_ns,
   1
-);
-obj_def_prop_trait_with_ns(
-  proto_entity_readable,
-  key_join,
-  trait_ent_join,
-  make_proto_for_trackable_ns(trait_ent_join, trait_ent_join_untrack),
 );
 obj_def_prop_with_ns(
   proto_entity_readable,
@@ -1125,7 +1090,7 @@ const useValue: UseValue = (target, deps) => {
 
 const useValues: UseValues = (targets, deps):any => {
   deps || (deps = []);
-  const h = useMemo(() => value.combine(targets), deps);
+  const h = useMemo(() => value_combine(targets), deps);
   return useValue(h, [h]);
 };
 
@@ -1141,12 +1106,12 @@ const useJsx: UseJsx = (target, deps): any => (
 
 const pool: PoolEntry = (body): any => {
   const threads = value([]);
-  const count = threads.select(t => t.length);
-  const pending = count.select(c => c > 0);
+  const count = trait_ent_select(threads, t => t.length);
+  const pending = trait_ent_select(count, c => c > 0);
 
   function run(this: any) {
-    const stop = () => threads.update(t => t.filter(ctx => ctx !== stop));
-    threads.update(t => t.concat(stop as any));
+    const stop = () => trait_ent_update(threads, t => t.filter(ctx => ctx !== stop));
+    trait_ent_update(threads, t => t.concat(stop as any));
 
     const stack = context_contextual_stop;
     context_contextual_stop = stop;
