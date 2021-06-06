@@ -3,6 +3,7 @@ import { FC } from 'react';
 /*
   [] I should make only value.combine
   [] remove join
+  [] support reactionable for untrack
   [] Typings for op, sync and etc.
   [] Later type -(Ensurable) -- EnsureLater
 */

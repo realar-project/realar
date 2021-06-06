@@ -1233,32 +1233,6 @@ test('should work value.combine', () => {
   expect(spy_w).toBeCalledWith([ 1, 2, 1 ], [ 0, 1, 0 ]);
 });
 
-test('should work signal.combine', () => {
-  const spy_v = jest.fn();
-  const spy_w = jest.fn();
-  const a = signal(0);
-
-  signal.combine({
-    a: a,
-    b: a.flow(_a => _a + 1),
-    c: () => a.val
-  }).sync(spy_v);
-  signal.combine([
-    a,
-    a.flow(_a => _a + 1),
-    () => a.val
-  ]).sync(spy_w);
-
-  expect(spy_v).toBeCalledWith({ a: 0, b: 1, c: 0 }, void 0); spy_v.mockReset();
-  expect(spy_w).toBeCalledWith([ 0, 1, 0 ], void 0); spy_w.mockReset();
-  a(0);
-  expect(spy_v).toBeCalledWith({ a: 0, b: 1, c: 0 }, { a: 0, b: 1, c: 0 });
-  expect(spy_w).toBeCalledWith([ 0, 1, 0 ], [ 0, 1, 0 ]);
-  a(1);
-  expect(spy_v).toBeCalledWith({ a: 1, b: 2, c: 1 }, { a: 0, b: 1, c: 0 });
-  expect(spy_w).toBeCalledWith([ 1, 2, 1 ], [ 0, 1, 0 ]);
-});
-
 test('should work value.combine with callback', () => {
   const spy_v = jest.fn();
   const spy_w = jest.fn();
@@ -1285,31 +1259,6 @@ test('should work value.combine with callback', () => {
   expect(spy_w).toBeCalledWith([ 1, 2, 1, 5 ], [ 0, 1, 0, 5 ]);
 });
 
-test('should work signal.combine with callback', () => {
-  const spy_v = jest.fn();
-  const spy_w = jest.fn();
-  const a = signal(0);
-
-  signal.combine({
-    a: a,
-    b: a.flow(_a => _a + 1),
-    c: () => a.val
-  }, (k) => ({...k, u: 5})).sync(spy_v);
-  signal.combine([
-    a,
-    a.flow(_a => _a + 1),
-    () => a.val
-  ], (k) => [...k, 5]).sync(spy_w);
-
-  expect(spy_v).toBeCalledWith({ a: 0, b: 1, c: 0, u: 5 }, void 0); spy_v.mockReset();
-  expect(spy_w).toBeCalledWith([ 0, 1, 0, 5 ], void 0); spy_w.mockReset();
-  a(0);
-  expect(spy_v).toBeCalledWith({ a: 0, b: 1, c: 0, u: 5 }, { a: 0, b: 1, c: 0, u: 5 });
-  expect(spy_w).toBeCalledWith([ 0, 1, 0, 5 ], [ 0, 1, 0, 5 ]);
-  a(1);
-  expect(spy_v).toBeCalledWith({ a: 1, b: 2, c: 1, u: 5 }, { a: 0, b: 1, c: 0, u: 5 });
-  expect(spy_w).toBeCalledWith([ 1, 2, 1, 5 ], [ 0, 1, 0, 5 ]);
-});
 
 test('should work value.join', () => {
   const spy = jest.fn();
