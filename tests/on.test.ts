@@ -1,4 +1,4 @@
-import { prop, cache, on, value, isolate } from '../src';
+import { prop, cache, on, value, isolate, signal } from '../src';
 
 test('should work basic operations with prop, cache and on', () => {
   const spy = jest.fn();
@@ -46,4 +46,15 @@ test('should work stop on subscription', () => {
 
   a.val = 1;
   expect(spy).toBeCalledTimes(0);
+});
+
+test('should work on with reactionable', () => {
+  const spy = jest.fn();
+  const a = signal(0);
+  on(a, spy);
+  expect(spy).toBeCalledTimes(0);
+  a(1);
+  expect(spy).toHaveBeenCalledWith(1, 0); spy.mockReset();
+  a(1);
+  expect(spy).toHaveBeenCalledWith(1, 1); spy.mockReset();
 });

@@ -1,7 +1,6 @@
 import { FC } from 'react';
 
 /*
-  [] Typings for "on" and "sync"
   [] Later type -(Ensurable) -- EnsureLater
 */
 
@@ -435,10 +434,10 @@ type SignalEntry = {
 //
 
 type On = {
-  (target: any, fn: any): void
+  <T>(target: Re<T>, fn: (value: T, prev: T) => void): void
 }
 type Sync = {
-  (target: any, fn: any): void
+  <T>(target: Re<T>, fn: (value: T, prev: T) => void): void
 }
 
 type Local = {

@@ -1,4 +1,4 @@
-import { prop, cache, sync, value } from '../src';
+import { prop, cache, sync, value, signal } from '../src';
 
 test('should work basic operations with prop, cache and sync', () => {
   const spy = jest.fn();
@@ -30,4 +30,15 @@ test('should cache return value in sync', () => {
   a.set(2);
   expect(spy).toHaveBeenNthCalledWith(2, 1, 0);
   expect(spy).toBeCalledTimes(2);
+});
+
+test('should work sync with reactionable', () => {
+  const spy = jest.fn();
+  const a = signal(0);
+  sync(a, spy);
+  expect(spy).toHaveBeenCalledWith(0, void 0); spy.mockReset();
+  a(1);
+  expect(spy).toHaveBeenCalledWith(1, 0); spy.mockReset();
+  a(1);
+  expect(spy).toHaveBeenCalledWith(1, 1); spy.mockReset();
 });

@@ -952,7 +952,7 @@ const obj_def_box_prop = (o: any, p: string | number | symbol, init?: any): any 
   obj_def_prop(o, p, { get: init[0], set: init[1] })
 )
 
-const prop = (_target: any, key: any, descriptor: any): any => (
+const prop = (_target: any, key: any, descriptor?: any): any => (
   (_target = descriptor && descriptor.initializer), {
     get() {
       obj_def_box_prop(this, key, _target);
