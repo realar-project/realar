@@ -1,6 +1,6 @@
 import React, { Context, FC } from 'react';
 import rb from 'reactive-box';
-import { Contextual, Isolate, Local, Observe, PoolEntry, SignalEntry, Transaction, Untrack, UseJsx, UseLocal, UseScoped, UseValue, UseValues, ValueEntry } from './types';
+import { Contextual, Isolate, Local, Observe, On, PoolEntry, SignalEntry, Sync, Transaction, Untrack, UseJsx, UseLocal, UseScoped, UseValue, UseValues, ValueEntry } from './types';
 
 //
 // Exports
@@ -851,13 +851,13 @@ local[key_inject] = local_inject;
 
 
 const on_once = (target, fn) => reactionable_subscribe(target, fn, 1);
-const on = (target, fn) => reactionable_subscribe(target, fn);
+const on: On = ((target, fn) => reactionable_subscribe(target, fn)) as any;
 
 on[key_once] = on_once;
 
-const sync = (target, fn) => reactionable_subscribe(target, fn, 0, 1);
+const sync: Sync = (target, fn) => reactionable_subscribe(target, fn, 0, 1);
 
-const cycle = (body) => {
+const cycle = (body: () => void) => {
   const iter = () => {
     const stack = context_contextual_stop;
     context_contextual_stop = e[1];
@@ -910,7 +910,7 @@ const inst = (target, args, local_injects_available?) => {
   return [instance, unsub, local_injects];
 }
 
-const shared = <M>(target: (new (init?: any) => M) | ((init?: any) => M)): M => {
+const shared = <M>(target: (new (init: any) => M) | ((init: any) => M)): M => {
   let instance = shareds.get(target);
   if (!instance) {
     const h = inst(target, [initial_data]);
@@ -930,14 +930,14 @@ const free = () => {
   }
 }
 
-const mock = <M>(target: (new (init?: any) => M) | ((init?: any) => M), mocked: M): M => (
+const mock = <M>(target: (new (init: any) => M) | ((init: any) => M), mocked: M): M => (
   shareds.set(target, mocked),
   mocked
 )
 
 const unmock = (
-  target: (new (init?: any) => any) | ((init?: any) => any),
-  ...targets: ((new (init?: any) => any) | ((init?: any) => any))[]
+  target: (new (init: any) => any) | ((init: any) => any),
+  ...targets: ((new (init: any) => any) | ((init: any) => any))[]
 ) => (
   targets.concat(target).forEach(target => shareds.delete(target))
 )
@@ -952,8 +952,8 @@ const obj_def_box_prop = (o: any, p: string | number | symbol, init?: any): any 
   obj_def_prop(o, p, { get: init[0], set: init[1] })
 )
 
-const prop = (_target: any, key: any, descriptor?: any): any => (
-  (_target = descriptor?.initializer), {
+const prop = (_target: any, key: any, descriptor: any): any => (
+  (_target = descriptor && descriptor.initializer), {
     get() {
       obj_def_box_prop(this, key, _target);
       return this[key];

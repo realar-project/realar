@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
 /*
-  [] Typings for op, sync and etc.
+  [] Typings for "on" and "sync"
   [] Later type -(Ensurable) -- EnsureLater
 */
 
@@ -18,6 +18,9 @@ export {
   UseValue,
   UseValues,
   UseJsx,
+
+  On,
+  Sync,
 
   Transaction,
   Untrack,
@@ -430,6 +433,13 @@ type SignalEntry = {
 //
 // Realar external api typings
 //
+
+type On = {
+  (target: any, fn: any): void
+}
+type Sync = {
+  (target: any, fn: any): void
+}
 
 type Local = {
   inject(fn: () => void): void;
