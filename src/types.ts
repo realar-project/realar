@@ -225,31 +225,51 @@ interface E_UpdatePartial<I, O> {
     }
   }
 }
-interface E_FilterTrackedPartial<O, Ret, WillRet> {
+interface E_FilterTrackedPartial<O, Arg, Ret, WillRet> {
   filter: {
-    (func: (value: WillExpand<O>) => any, emptyValue: WillExtract<O>): Ret         // tracked by default
-    (func?: (value: WillExpand<O>) => any): WillRet
-    untrack(func: (value: WillExpand<O>) => any, emptyValue: WillExtract<O>): Ret
-    untrack(func?: (value: WillExpand<O>) => any): WillRet
+    (func: (value: Arg) => any, emptyValue: WillExtract<O>): Ret         // tracked by default
+    (func?: (value: Arg) => any): WillRet
+    untrack(func: (value: Arg) => any, emptyValue: WillExtract<O>): Ret
+    untrack(func?: (value: Arg) => any): WillRet
     not: {
-      (func: (value: WillExpand<O>) => any, emptyValue: WillExtract<O>): Ret       // tracked by default
-      (func?: (value: WillExpand<O>) => any): WillRet
-      untrack(func: (value: WillExpand<O>) => any, emptyValue: WillExtract<O>): Ret
-      untrack(func?: (value: WillExpand<O>) => any): WillRet
+      (func: (value: Arg) => any, emptyValue: WillExtract<O>): Ret       // tracked by default
+      (func?: (value: Arg) => any): WillRet
+      untrack(func: (value: Arg) => any, emptyValue: WillExtract<O>): Ret
+      untrack(func?: (value: Arg) => any): WillRet
     }
   }
 }
-interface E_FilterUnTrackedPartial<O, Ret, WillRet> {
+interface E_PreFilterTrackedPartial<I, Ret> {
   filter: {
-    (func: (value: WillExpand<O>) => any, emptyValue: WillExtract<O>): Ret         // untracked by default
-    (func?: (value: WillExpand<O>) => any): WillRet
-    track(func: (value: WillExpand<O>) => any, emptyValue: WillExtract<O>): Ret
-    track(func?: (value: WillExpand<O>) => any): WillRet
+    (func?: (value: I) => any): Ret                                  // tracked by default
+    untrack(func?: (value: I) => any): Ret
     not: {
-      (func: (value: WillExpand<O>) => any, emptyValue: WillExtract<O>): Ret       // untracked by default
-      (func?: (value: WillExpand<O>) => any): WillRet
-      track(func: (value: WillExpand<O>) => any, emptyValue: WillExtract<O>): Ret
-      track(func?: (value: WillExpand<O>) => any): WillRet
+      (func?: (value: I) => any): Ret                               // tracked by default
+      untrack(func?: (value: I) => any): Ret
+    }
+  }
+}
+interface E_FilterUnTrackedPartial<O, Arg, Ret, WillRet> {
+  filter: {
+    (func: (value: Arg) => any, emptyValue: WillExtract<O>): Ret         // untracked by default
+    (func?: (value: Arg) => any): WillRet
+    track(func: (value: Arg) => any, emptyValue: WillExtract<O>): Ret
+    track(func?: (value: Arg) => any): WillRet
+    not: {
+      (func: (value: Arg) => any, emptyValue: WillExtract<O>): Ret       // untracked by default
+      (func?: (value: Arg) => any): WillRet
+      track(func: (value: Arg) => any, emptyValue: WillExtract<O>): Ret
+      track(func?: (value: Arg) => any): WillRet
+    }
+  }
+}
+interface E_PreFilterUnTrackedPartial<I, Ret> {
+  filter: {
+    (func?: (value: I) => any): Ret                                  // untracked by default
+    track(func?: (value: I) => any): Ret
+    not: {
+      (func?: (value: I) => any): Ret                               // untracked by default
+      track(func?: (value: I) => any): Ret
     }
   }
 }
@@ -270,7 +290,7 @@ interface E_Writtable<I, O, Ret> extends
 
 interface E_Value<I, O> extends
   E_Writtable<I, O, Value<I, O>>,
-  E_FilterTrackedPartial<O, Value<I, WillExtract<O>>, Value<I, WillEnsure<O>>> {
+  E_FilterTrackedPartial<O, WillExpand<O>, Value<I, WillExtract<O>>, Value<I, WillEnsure<O>>> {
 
   map: {
     <R>(func: (value: WillExpand<O>) => R): Value<I, R>         // tracked by default
@@ -279,7 +299,7 @@ interface E_Value<I, O> extends
     to(): Value<I, void>
     to<R>(value: R): Value<I, R>
   }
-  pre: E_FilterTrackedPartial<I, Value<I, O>, Value<I, WillEnsure<O>>> & {
+  pre: E_PreFilterTrackedPartial<I, Value<I, O>> & {
     <N>(func?: (value: N, state: WillExpand<O>) => I): Value<N, O>  // tracked by default
     untrack<N>(func?: (value: N, state: WillExpand<O>) => I): Value<N, O>
   }
@@ -292,7 +312,7 @@ interface E_Value<I, O> extends
 
 interface E_ValueReadonly<O> extends
   E_Readable<O, ValueReadonly<O>>,
-  E_FilterTrackedPartial<O, ValueReadonly<WillExtract<O>>, ValueReadonly<WillEnsure<O>>> {
+  E_FilterTrackedPartial<O, WillExpand<O>, ValueReadonly<WillExtract<O>>, ValueReadonly<WillEnsure<O>>> {
 
   map: {
     <R>(func: (value: WillExpand<O>) => R): ValueReadonly<R>         // tracked by default
@@ -306,7 +326,7 @@ interface E_ValueReadonly<O> extends
 
 interface E_Signal<I, O> extends
   E_Writtable<I, O, Signal<I, O>>,
-  E_FilterUnTrackedPartial<O, Signal<I, WillExtract<O>>, Signal<I, WillEnsure<O>>> {
+  E_FilterUnTrackedPartial<O, WillExtract<O>, Signal<I, WillExtract<O>>, Signal<I, WillEnsure<O>>> {
 
   map: {
     <R>(func: (value: WillExtract<O>) => R): Signal<I, R>        // untracked by default
@@ -315,7 +335,7 @@ interface E_Signal<I, O> extends
     to(): Signal<I, void>
     to<R>(value: R): Signal<I, R>
   }
-  pre: E_FilterUnTrackedPartial<I, Signal<I, O>, Signal<I, WillEnsure<O>>> & {
+  pre: E_PreFilterUnTrackedPartial<I, Signal<I, O>> & {
     <N>(func?: (value: N, state: WillExpand<O>) => I): Signal<N, O>       // untracked by default
     track<N>(func?: (value: N, state: WillExpand<O>) => I): Signal<N, O>
   }
@@ -331,7 +351,7 @@ interface E_Signal<I, O> extends
 
 interface E_SignalReadonly<O> extends
   E_Readable<O, SignalReadonly<O>>,
-  E_FilterUnTrackedPartial<O, SignalReadonly<WillExtract<O>>, SignalReadonly<WillEnsure<O>>> {
+  E_FilterUnTrackedPartial<O, WillExtract<O>, SignalReadonly<WillExtract<O>>, SignalReadonly<WillEnsure<O>>> {
 
   map: {
     <R>(func: (value: WillExtract<O>) => R): SignalReadonly<R>        // untracked by default
