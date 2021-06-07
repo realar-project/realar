@@ -279,8 +279,7 @@ interface E_Value<I, O> extends
     track<N>(func?: (value: N, state: WillExpand<O>) => I): Value<N, O>
   }
   wrap: {
-    <N, R>(pre: (value: N, state: WillExpand<O>) => I, map: (value: WillExpand<O>) => R): Value<N, R> // tracked by default
-    untrack<N, R>(pre: (value: N, state: WillExpand<O>) => I, map: (value: WillExpand<O>) => R): Value<N, R>
+    <N, R>(pre: (value: N, state: WillExpand<O>) => I, map: (value: WillExpand<O>) => R): Value<N, R>
   }
 }
 
@@ -314,8 +313,7 @@ interface E_Signal<I, O> extends
     track<N>(func?: (value: N, state: WillExpand<O>) => I): Signal<N, O>
   }
   wrap: {
-    <N, R>(pre: (value: N, state: WillExpand<O>) => I, map: (value: WillExtract<O>) => R): Signal<N, R> // untracked by default
-    track<N, R>(pre: (value: N, state: WillExpand<O>) => I, map: (value: WillExtract<O>) => R): Signal<N, R>
+    <N, R>(pre: (value: N, state: WillExpand<O>) => I, map: (value: WillExtract<O>) => R): Signal<N, R>
   }
   as: {
     value(): Value<I, O>

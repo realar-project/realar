@@ -441,10 +441,7 @@ const trait_ent_pre_filter_not = (ctx, fn) => (
 );
 const trait_ent_pre_filter_not_untrack = make_trait_ent_untrack(trait_ent_pre_filter_not);
 const trait_ent_wrap = (ctx, fn_pre, fn_map) => (
-  trait_ent_map(trait_ent_pre(ctx, fn_pre), fn_map)
-)
-const trait_ent_wrap_untrack = (ctx, fn_pre, fn_map) => (
-  trait_ent_map_untrack(trait_ent_pre_untrack(ctx, fn_pre), fn_map)
+  trait_ent_map(trait_ent_pre_untrack(ctx, fn_pre), fn_map)
 )
 
 const trait_ent_flow_int = (ctx, fn, empty_val?, has_empty?) => {
@@ -673,12 +670,10 @@ obj_def_prop_trait_with_ns(
   trait_ent_pre_untrack,
   proto_entity_writtable_pre_ns
 );
-obj_def_prop_trait_with_ns(
+obj_def_prop_trait(
   proto_entity_writtable,
   key_wrap,
-  op_trait_if_not_signal(trait_ent_wrap, trait_ent_wrap_untrack),
-  make_proto_for_trackable_ns(trait_ent_wrap, trait_ent_wrap_untrack),
-  1
+  trait_ent_wrap
 );
 
 // writtable_leaf.reset.by:ns
