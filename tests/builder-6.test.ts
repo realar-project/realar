@@ -36,6 +36,15 @@ test('should work value with call, get, set, update, sync', () => {
   spy.mockReset();
 });
 
+test('should work value with update and value', () => {
+  const v = value(0);
+  const k = value(10);
+
+  expect(v.val).toBe(0);
+  v.update(k);
+  expect(v.val).toBe(10);
+});
+
 test('should work value with reset', () => {
   const spyvalue = jest.fn();
   const v = value(0);
@@ -1324,10 +1333,10 @@ test('should work signal map.to', () => {
   const spy = jest.fn();
   const v = signal().map.to(10).to(spy);
 
-  expect(v.val).toBe(10);
+  expect(v.val).toBe(void 0);
   v();
   expect(v.val).toBe(10);
-  expect(spy).toBeCalledWith(10, 10); spy.mockReset();
+  expect(spy).toBeCalledWith(10, void 0); spy.mockReset();
 
   v();
   expect(v.val).toBe(10);

@@ -183,6 +183,8 @@ const key_stop = 'stop';
 const key_unsafe = 'unsafe';
 const key_updater = key_update+'r';
 const key_wrap = 'wrap';
+const key_has_default = new_symbol();
+const key_func = 'func';
 
 
 
@@ -298,18 +300,15 @@ const reactionable_subscribe = (target, fn, is_once?, is_sync?) => {
 
 
 const make_trait_ent_pure_fn_untrack = (trait_fn) =>
-  (ctx, fn) => trait_fn(ctx, fn && ((a,b,c) => {
-    const finish = internal_untrack();
-    try { return fn(a,b,c); }
-    finally { finish() }
-  }));
+  (ctx, fn, a?, b?) => trait_fn(ctx, fn && untracked_function(fn), a, b);
 
 const make_trait_ent_untrack = (trait_fn) =>
-  (ctx, fn) => trait_fn(ctx, fn && ((a,b) => {
-    const finish = internal_untrack();
-    try { return (fn[key_get] ? fn[key_get]() : fn(a,b)) }
-    finally { finish() }
-  }));
+  (ctx, fn, a?, b?) => ((fn && fn[key_get] && (fn = fn[key_get])), trait_fn(ctx, fn && untracked_function(fn), a, b));
+
+const make_trait_ent_with_second_arg_empty_value = (trait_fn) =>
+  function(ctx, fn, empty) {
+    return trait_fn(ctx, fn, empty, arguments.length > 3)
+  };
 
 const op_trait_if_not_signal = (trait_if_not_signal, trait_if_signal) => (
   (ctx) => ctx[key_handler][key_is_signal] ? trait_if_signal : trait_if_not_signal
@@ -336,8 +335,10 @@ const prop_factory_dirty_required_initial = (ctx) => {
 
 
 
-const trait_ent_update = (ctx, fn) => ctx[key_set](fn ? fn(untrack(ctx[key_get])) : untrack(ctx[key_get]));
-const trait_ent_update_untrack = make_trait_ent_pure_fn_untrack(trait_ent_update);
+const trait_ent_update = (ctx, fn) => ctx[key_set](fn
+  ? fn[key_get] ? fn[key_get]() : fn(untrack(ctx[key_get]))
+  : untrack(ctx[key_get]));
+const trait_ent_update_untrack = make_trait_ent_untrack(trait_ent_update);
 const trait_ent_update_by = (ctx, src, fn) => (
   reactionable_subscribe(src, fn
     ? (src_value, src_prev_value) => ctx[key_set](fn(ctx[key_get](), src_value, src_prev_value))
@@ -400,15 +401,13 @@ const trait_ent_select_multiple_untrack = (ctx, cfg) => obj_keys(cfg).reduce((re
   (ret[key] = trait_ent_select_untrack(ctx, cfg[key])), ret
 ), obj_empty_from(cfg));
 const trait_ent_map = (ctx, fn) => (
-  fill_entity(ctx[key_handler], ctx[key_proto],
-    0, 0,
-    fn
-      ? ctx[key_handler][key_is_signal]
-        ? () => fn(ctx[key_get]())
-        : sel(() => fn(ctx[key_get]()))[0]
-      : ctx[key_get],
-    ctx[key_set] && ctx[key_set].bind()
-  )
+  ctx[key_handler][key_is_signal]
+    ? trait_ent_flow_int(ctx, fn)
+    : fill_entity(ctx[key_handler], ctx[key_proto],
+      0, 0,
+      fn ? sel(() => fn(ctx[key_get]()))[0] : ctx[key_get],
+      ctx[key_set] && ctx[key_set].bind()
+    )
 );
 const trait_ent_map_untrack = make_trait_ent_pure_fn_untrack(trait_ent_map);
 const trait_ent_map_to = (ctx, val) => trait_ent_map(ctx, () => val);
@@ -448,44 +447,58 @@ const trait_ent_wrap_untrack = (ctx, fn_pre, fn_map) => (
   trait_ent_map_untrack(trait_ent_pre_untrack(ctx, fn_pre), fn_map)
 )
 
-const trait_ent_flow = (ctx, fn, empty_val) => {
+const trait_ent_flow_int = (ctx, fn, empty_val?, has_empty?) => {
   fn || (fn = pure_arrow_fn_returns_arg);
-  let started, prev;
   const is_signal = ctx[key_handler][key_is_signal];
+
+  let is_not_first_run, first_run_result, prev;
   const f = un_flow(() => {
-    const v = ctx[key_get]();
-    try { return fn(v, prev) }
-    finally { prev = v }
+    const real_prev = prev;
+    prev = ctx[key_get]();
+    return is_not_first_run ? fn(prev, real_prev)
+      : (first_run_result =
+        (is_signal && !ctx[key_handler][key_has_default]) ? internal_flow_stop : fn(prev, real_prev)
+      )
   }, empty_val, is_signal && pure_arrow_fn_returns_undef);
-  const h = [
-    () => ((started || (f[0](), (started = 1))), f[1]()),
-    ctx[key_set] && ctx[key_set].bind()
-  ];
+  f[0]();
+
+  const h = [f[1], ctx[key_set] && ctx[key_set].bind()];
   h[key_is_signal] = is_signal;
+
+  if (!is_not_first_run) {
+    is_not_first_run = 1;
+    h[key_has_default] = (first_run_result !== internal_flow_stop) || has_empty
+  }
+
   return fill_entity(h,
     h[1] ? proto_entity_writtable : proto_entity_readable
   );
 };
-const trait_ent_flow_untrack = make_trait_ent_pure_fn_untrack(trait_ent_flow);
-const trait_ent_filter = (ctx, fn, empty_val) => (
-  trait_ent_flow(ctx, fn
+const trait_ent_flow = make_trait_ent_with_second_arg_empty_value(trait_ent_flow_int);
+const trait_ent_flow_untrack = make_trait_ent_with_second_arg_empty_value(make_trait_ent_pure_fn_untrack(trait_ent_flow_int));
+const trait_ent_filter_int = (ctx, fn, empty_val, has_empty) => (
+  trait_ent_flow_int(ctx, fn
     ? (fn[key_get] && (fn = fn[key_get]),
       (v, prev) => (
         fn(v, prev) ? v : internal_flow_stop
       ))
     : (v) => v || internal_flow_stop,
-    empty_val
+    empty_val,
+    has_empty
   )
 );
-const trait_ent_filter_untrack = make_trait_ent_untrack(trait_ent_filter)
-const trait_ent_filter_not = (ctx, fn, empty_val) => (
-  trait_ent_filter(ctx, fn
+const trait_ent_filter = make_trait_ent_with_second_arg_empty_value(trait_ent_filter_int);
+const trait_ent_filter_untrack = make_trait_ent_with_second_arg_empty_value(make_trait_ent_untrack(trait_ent_filter_int))
+const trait_ent_filter_not_int = (ctx, fn, empty_val, has_empty) => (
+  trait_ent_filter_int(ctx, fn
     ? (fn[key_get] && (fn = fn[key_get]), (v) => !fn(v))
     : pure_arrow_fn_returns_not_arg,
-    empty_val
+    empty_val,
+    has_empty
   )
 );
-const trait_ent_filter_not_untrack = make_trait_ent_untrack(trait_ent_filter_not)
+const trait_ent_filter_not = make_trait_ent_with_second_arg_empty_value(trait_ent_filter_not_int);
+const trait_ent_filter_not_untrack = make_trait_ent_with_second_arg_empty_value(make_trait_ent_untrack(trait_ent_filter_not_int))
 
 const trait_ent_as_value = (ctx) => (
   value_from(ctx[key_get], ctx[key_set])
@@ -724,13 +737,14 @@ obj_def_prop_factory(
 
 
 const make_trigger = (initial, has_inverted_to?, is_signal?) => {
-  const handler = box(initial, () => (handler[key_touched_internal] = 1), is_signal && pure_arrow_fn_returns_undef);
+  const h = box(initial, () => (h[key_touched_internal] = 1), is_signal && pure_arrow_fn_returns_undef);
   const set = has_inverted_to
-    ? () => { handler[key_touched_internal] || handler[1](!untrack(handler[0])) }
-    : (v) => { handler[key_touched_internal] || handler[1](v) };
-  handler[key_reset_promise_by_reset] = 1;
-  handler[key_is_signal] = is_signal;
-  return fill_entity(handler, proto_entity_writtable_leaf, 1, initial, 0, set);
+    ? () => { h[key_touched_internal] || h[1](!untrack(h[0])) }
+    : (v) => { h[key_touched_internal] || h[1](v) };
+  h[key_reset_promise_by_reset] = 1;
+  h[key_is_signal] = is_signal;
+  h[key_has_default] = 1;
+  return fill_entity(h, proto_entity_writtable_leaf, 1, initial, 0, set);
 }
 
 const get_getter_to_reactionable_or_custom = (re) => (
@@ -770,9 +784,10 @@ value[key_from] = value_from;
 value[key_combine] = value_combine;
 
 
-const signal: SignalEntry = ((initial) => {
+const signal: SignalEntry = (function (initial) {
   const h = box(initial, 0 as any, pure_arrow_fn_returns_undef);
   h[key_is_signal] = 1;
+  h[key_has_default] = arguments.length > 0;
   return fill_entity(h, proto_entity_writtable_leaf, 1, initial)
 }) as any;
 
@@ -782,6 +797,7 @@ const signal_trigger_flag_invert = (initial) => make_trigger(!initial, 1, 1);
 const signal_from = (get, set?) => {
   const h = [get[key_get] || get];
   h[key_is_signal] = 1
+  h[key_has_default] = 1;
   if (set) h[1] = set[key_set] ? set[key_set].bind() : (v) => set(v, untrack(ctx[key_get]));
   const ctx = fill_entity(h, set ? proto_entity_writtable : proto_entity_readable);
   return ctx;
@@ -812,6 +828,12 @@ const internal_isolate = () => {
   };
 }
 
+const untracked_function = (fn) => function (this: any) {
+  const finish = internal_untrack();
+  try { return fn.apply(this, arguments); }
+  finally { finish() }
+}
+
 //
 // Realar exportable api
 //
@@ -829,6 +851,7 @@ const untrack = ((fn) => {
   finally { finish() }
 }) as Untrack;
 untrack[key_unsafe] = internal_untrack;
+untrack[key_func] = untracked_function;
 
 const isolate = ((fn?: any) => {
   let unsubs;
