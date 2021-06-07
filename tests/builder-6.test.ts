@@ -1384,3 +1384,14 @@ test('should work signal wrap', () => {
   expect(s.val).toStrictEqual({ m: 10, i: 25});
   expect(v.val).toBe(25);
 });
+
+test('should not run map on unfiltered signal', () => {
+  const v = signal(1);
+  const f = value(0);
+
+  const k = v.filter(f).map((n) => n + n);
+  expect(k.val).toBe(void 0);
+  f(1);
+  v(1);
+  expect(k.val).toBe(2);
+});
