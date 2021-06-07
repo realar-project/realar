@@ -630,9 +630,8 @@ const proto_entity_writtable_pre_filter_ns = obj_create(
   make_proto_for_trackable_ns(trait_ent_pre_filter, trait_ent_pre_filter_untrack)
 );
 obj_def_prop_trait_ns_with_ns(proto_entity_writtable_pre_filter_ns, key_not,
-  op_trait_if_not_signal(trait_ent_pre_filter_not, trait_ent_pre_filter_not_untrack),
-  make_proto_for_trackable_ns(trait_ent_pre_filter_not, trait_ent_pre_filter_not_untrack),
-  1
+  trait_ent_pre_filter_not_untrack,
+  make_proto_for_trackable_ns(trait_ent_pre_filter_not, trait_ent_pre_filter_not_untrack)
 );
 
 // writtable.pre:ns                         (track|untrack)
@@ -643,9 +642,8 @@ const proto_entity_writtable_pre_ns = obj_create(
 obj_def_prop_trait_ns_with_ns(
   proto_entity_writtable_pre_ns,
   key_filter,
-  op_trait_if_not_signal(trait_ent_pre_filter, trait_ent_pre_filter_untrack),
-  proto_entity_writtable_pre_filter_ns,
-  1
+  trait_ent_pre_filter_untrack,
+  proto_entity_writtable_pre_filter_ns
 );
 
 // writtable <- readable
@@ -672,9 +670,8 @@ obj_def_prop_trait_with_ns(
 obj_def_prop_trait_with_ns(
   proto_entity_writtable,
   key_pre,
-  op_trait_if_not_signal(trait_ent_pre, trait_ent_pre_untrack),
-  proto_entity_writtable_pre_ns,
-  1
+  trait_ent_pre_untrack,
+  proto_entity_writtable_pre_ns
 );
 obj_def_prop_trait_with_ns(
   proto_entity_writtable,

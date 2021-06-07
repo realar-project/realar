@@ -910,12 +910,12 @@ test('should work track-untrack for value with pre', () => {
   expect(spy_c).toBeCalledTimes(1);
 
   f.val = 1;
-  expect(spy_a).toBeCalledTimes(2);
+  expect(spy_a).toBeCalledTimes(1);
   expect(spy_b).toBeCalledTimes(2);
   expect(spy_c).toBeCalledTimes(1);
 
   v(1);
-  expect(spy_a).toBeCalledTimes(2);
+  expect(spy_a).toBeCalledTimes(1);
   expect(spy_b).toBeCalledTimes(2);
   expect(spy_c).toBeCalledTimes(1);
 });
@@ -942,7 +942,7 @@ test('should work track-untrack for value with pre.filter', () => {
   expect(spy_c).toBeCalledTimes(1);
 
   f.val = 1;
-  expect(spy_a).toBeCalledTimes(2);
+  expect(spy_a).toBeCalledTimes(1);
   expect(spy_b).toBeCalledTimes(2);
   expect(spy_c).toBeCalledTimes(1);
 });
@@ -969,7 +969,7 @@ test('should work track-untrack for value with pre.filter.not', () => {
   expect(spy_c).toBeCalledTimes(1);
 
   f.val = 1;
-  expect(spy_a).toBeCalledTimes(2);
+  expect(spy_a).toBeCalledTimes(1);
   expect(spy_b).toBeCalledTimes(2);
   expect(spy_c).toBeCalledTimes(1);
 });

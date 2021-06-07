@@ -225,16 +225,6 @@ interface E_UpdatePartial<I, O> {
     }
   }
 }
-interface E_PreFilterTrackedPartial<I, Ret> {
-  filter: {
-    (func?: (value: I) => any): Ret                                  // tracked by default
-    untrack(func?: (value: I) => any): Ret
-    not: {
-      (func?: (value: I) => any): Ret                               // tracked by default
-      untrack(func?: (value: I) => any): Ret
-    }
-  }
-}
 interface E_FilterUnTrackedPartial<O, Arg, Ret, WillRet> {
   filter: {
     (func: (value: Arg) => any, emptyValue: WillExtract<O>): Ret         // untracked by default
@@ -284,9 +274,9 @@ interface E_Value<I, O> extends
     to(): Value<I, void>
     to<R>(value: R): Value<I, R>
   }
-  pre: E_PreFilterTrackedPartial<I, Value<I, O>> & {
-    <N>(func?: (value: N, state: WillExpand<O>) => I): Value<N, O>  // tracked by default
-    untrack<N>(func?: (value: N, state: WillExpand<O>) => I): Value<N, O>
+  pre: E_PreFilterUnTrackedPartial<I, Value<I, O>> & {
+    <N>(func?: (value: N, state: WillExpand<O>) => I): Value<N, O>  // untracked by default
+    track<N>(func?: (value: N, state: WillExpand<O>) => I): Value<N, O>
   }
   wrap: {
     <N, R>(pre: (value: N, state: WillExpand<O>) => I, map: (value: WillExpand<O>) => R): Value<N, R> // tracked by default
