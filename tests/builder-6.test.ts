@@ -1395,3 +1395,28 @@ test('should not run map on unfiltered signal', () => {
   v(1);
   expect(k.val).toBe(2);
 });
+
+test('should work as.signal', () => {
+  const spy_k = jest.fn();
+  const spy_p = jest.fn();
+  const f = signal(0);
+  const v = value(0);
+
+  const k = v.as.signal().filter(f).map((v) => v + v).sync(spy_k);
+  const p = v.as.signal().filter(f, 10).map((v) => v + v).sync(spy_p);
+  expect(spy_k).toBeCalledWith(void 0, void 0); spy_k.mockReset();
+  expect(spy_p).toBeCalledWith(20, void 0); spy_p.mockReset();
+
+  expect(k.val).toBe(void 0);
+  expect(p.val).toBe(20);
+
+  f(1);
+  expect(spy_k).toBeCalledTimes(0);
+  expect(spy_p).toBeCalledTimes(0);
+  k(1);
+  expect(spy_k).toBeCalledWith(2, void 0); spy_k.mockReset();
+  expect(spy_p).toBeCalledWith(2, 20); spy_k.mockReset();
+
+  expect(k.val).toBe(2);
+  expect(p.val).toBe(2);
+});

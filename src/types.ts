@@ -81,6 +81,7 @@ type Transaction = {
 type Untrack = {
   <T>(fn: () => T): T;
   unsafe: () => () => void;
+  func: <T extends () => any>(fn: T) => T;
 }
 
 //
@@ -281,6 +282,9 @@ interface E_Value<I, O> extends
   wrap: {
     <N, R>(pre: (value: N, state: WillExpand<O>) => I, map: (value: WillExpand<O>) => R): Value<N, R>
   }
+  as: {
+    signal(): Signal<I, O>
+  }
 }
 
 
@@ -293,6 +297,9 @@ interface E_ValueReadonly<O> extends
 
     to(): ValueReadonly<void>
     to<R>(value: R): ValueReadonly<R>
+  }
+  as: {
+    signal(): SignalReadonly<O>
   }
 }
 

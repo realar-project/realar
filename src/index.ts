@@ -185,6 +185,7 @@ const key_updater = key_update+'r';
 const key_wrap = 'wrap';
 const key_has_default = new_symbol();
 const key_func = 'func';
+const key_signal = 'signal';
 
 
 
@@ -307,7 +308,7 @@ const make_trait_ent_untrack = (trait_fn) =>
 
 const make_trait_ent_with_second_arg_empty_value = (trait_fn) =>
   function(ctx, fn, empty) {
-    return trait_fn(ctx, fn, empty, arguments.length > 3)
+    return trait_fn(ctx, fn, empty, arguments.length > 2)
   };
 
 const op_trait_if_not_signal = (trait_if_not_signal, trait_if_signal) => (
@@ -500,6 +501,9 @@ const trait_ent_filter_not_untrack = make_trait_ent_with_second_arg_empty_value(
 const trait_ent_as_value = (ctx) => (
   value_from(ctx[key_get], ctx[key_set])
 );
+const trait_ent_as_signal = (ctx) => (
+  signal_from(ctx[key_get], ctx[key_set])
+);
 const trait_ent_op = (ctx, f) => (
   (f = f(ctx)), (f === const_undef ? ctx : f)
 );
@@ -541,8 +545,10 @@ obj_def_prop_trait_ns(proto_entity_readable_map_ns, key_to, trait_ent_map_to);
 
 // readable.as:ns
 //   .as.value
+//   .as.signal
 const proto_entity_readable_as_ns = obj_create(pure_fn);
 obj_def_prop_trait_ns(proto_entity_readable_as_ns, key_value, trait_ent_as_value);
+obj_def_prop_trait_ns(proto_entity_readable_as_ns, key_signal, trait_ent_as_signal);
 
 // readable
 //   .sync
@@ -558,6 +564,7 @@ obj_def_prop_trait_ns(proto_entity_readable_as_ns, key_value, trait_ent_as_value
 //     .to
 //   .as:readable.as:ns
 //     .as.value
+//     .as.signal
 //   .promise
 const proto_entity_readable = obj_create(pure_fn);
 obj_def_prop_trait(proto_entity_readable, key_sync, trait_ent_sync);
@@ -837,13 +844,13 @@ const transaction = ((fn) => {
 }) as Transaction;
 transaction[key_unsafe] = internal_transaction;
 
-const untrack = ((fn) => {
+const untrack: Untrack = ((fn) => {
   const finish = internal_untrack();
   try { return fn() }
   finally { finish() }
-}) as Untrack;
+}) as any;
 untrack[key_unsafe] = internal_untrack;
-untrack[key_func] = untracked_function;
+untrack[key_func] = untracked_function as any;
 
 const isolate = ((fn?: any) => {
   let unsubs;
