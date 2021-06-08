@@ -5,6 +5,11 @@ import { FC } from 'react';
 //
 
 export {
+  Value,
+  ValueReadonly,
+  Signal,
+  SignalReadonly,
+
   ValueEntry,
   SignalEntry,
 

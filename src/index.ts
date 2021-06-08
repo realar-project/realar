@@ -7,6 +7,14 @@ import { Contextual, Isolate, Local, Observe, On, PoolEntry, SignalEntry, Sync, 
 //
 
 export {
+  // Types
+  Value,
+  ValueReadonly,
+  Signal,
+  SignalReadonly
+} from './types';
+
+export {
   // Declarative framework
   value,
   signal,
