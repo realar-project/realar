@@ -88,7 +88,7 @@ type Transaction = {
 type Untrack = {
   <T>(fn: () => T): T;
   unsafe: () => () => void;
-  func: <T extends () => any>(fn: T) => T;
+  func: <T extends (...args: any[]) => any>(fn: T) => T;
 }
 
 //
