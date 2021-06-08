@@ -11,7 +11,8 @@ export {
   Value,
   ValueReadonly,
   Signal,
-  SignalReadonly
+  SignalReadonly,
+  Will
 } from './types';
 
 export {

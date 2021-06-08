@@ -9,6 +9,7 @@ export {
   ValueReadonly,
   Signal,
   SignalReadonly,
+  Will,
 
   ValueEntry,
   SignalEntry,
