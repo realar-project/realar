@@ -41,14 +41,37 @@ An signal is convenient to use as a promise.
 ```javascript
 const fire = signal();
 
-(async () => {
-  for (;;) {
-    await fire.promise; // await as a usual promise
-    console.log('Fire');
-  }
-})();
+fire.promise.then(() => console.log('Fire'));
+fire();
 
-setInterval(fire, 500);
 ```
 [Edit on RunKit](https://runkit.com/betula/601e3b0056b62d001bfa391b)
 
+The `signal` instance has different methods:
+
+- The state transformation
+  - filter
+  - filter.not
+  - map
+  - map.to
+- Actions before updating
+  - pre
+  - pre.filter
+  - pre.filter.not
+- The state updating
+  - update.by
+  - updater
+  - updater.multiple
+- The state selectors
+  - [select](#select)
+  - select.multiple
+- Subscription and syncronization
+  - to
+  - to.once
+  - sync
+  - promise
+- Shortcut and type casting
+  - wrap
+  - as.value
+- Static methods
+  - from

@@ -374,16 +374,6 @@ type ValueEntry = {
   trigger: {
     (): Value;
     <T>(initial: T): Value<T>;
-
-    flag: {
-      (): Value<boolean>;
-      (initial: boolean): Value<boolean>;
-
-      invert: {
-        (): Value<boolean>;
-        (initial: boolean): Value<boolean>;
-      }
-    }
   };
 
   from: {
@@ -473,12 +463,12 @@ type SignalEntry = {
     <T>(initial: T): Signal<T>;
 
     flag: {
-      (): Signal<boolean>;
-      (initial: boolean): Signal<boolean>;
+      (): Signal<void, boolean>;
+      (initial: boolean): Signal<void, boolean>;
 
       invert: {
-        (): Signal<boolean>;
-        (initial: boolean): Signal<boolean>;
+        (): Signal<void, boolean>;
+        (initial: boolean): Signal<void, boolean>;
       }
     }
   };

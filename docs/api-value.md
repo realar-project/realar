@@ -56,9 +56,6 @@ The `value` reactive container instance has different methods for perfect operat
 - Static methods
   - combine
   - from
-  - trigger
-  - trigger.flag
-  - trigger.flag.invert
 
 
 ### select

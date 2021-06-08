@@ -775,8 +775,6 @@ const value: ValueEntry = ((initial) => (
 )) as any;
 
 const value_trigger = (initial) => make_trigger(initial);
-const value_trigger_flag = (initial) => make_trigger(!!initial, 1);
-const value_trigger_flag_invert = (initial) => make_trigger(!initial, 1);
 const value_from = (get, set?) => {
   const h = sel(get[key_get] || get).slice(0, 1);
   if (set) h[1] = set[key_set] ? set[key_set].bind() : (v) => set(v, untrack(ctx[key_get]));
@@ -785,8 +783,7 @@ const value_from = (get, set?) => {
 }
 const value_combine = (cfg, fn?) => fill_entity(make_value_combine_handler(cfg, fn), proto_entity_readable);
 
-value_trigger_flag[key_invert] = value_trigger_flag_invert;
-value_trigger[key_flag] = value_trigger_flag;
+
 value[key_trigger] = value_trigger as any;
 value[key_from] = value_from;
 value[key_combine] = value_combine;
