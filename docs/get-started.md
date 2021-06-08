@@ -1,4 +1,4 @@
-### Get started
+## Get started
 
 Realar's adventure will start from "value", is an immutable reactive container such as "store" from Redux terminology
 

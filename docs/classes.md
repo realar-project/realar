@@ -1,4 +1,4 @@
-### OOP usage
+## Classes usage
 
 Transparent functional reactive programming with classes, decorators and [babel jsx wrapper](https://github.com/betula/babel-plugin-realar)
 
@@ -67,7 +67,9 @@ For best possibilities use [babel jsx wrapper](https://github.com/betula/babel-p
 
 But otherwise necessary to wrap all React function components that use reactive values inside to `observe` wrapper. [Try wrapped version on CodeSandbox](https://codesandbox.io/s/realar-counter-k9kmw?file=/src/App.tsx).
 
-#### React component access visibility level
+
+
+### React component access visibility level
 
 The basic level of scopes for React developers is a component level scope (_for example `useState`, and other standard React hooks has that level_).
 
@@ -100,7 +102,8 @@ export const App = () => (
 
 This feature can be useful for removing logic from the body of a component to keep that free of unnecessary code, and therefore cleaner.
 
-#### React context access visibility level
+
+### React context access visibility level
 
 ```javascript
 const Counter = () => {

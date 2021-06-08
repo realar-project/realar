@@ -99,44 +99,43 @@ class Positive {
 ### Documentation
 
 - [Get started](./docs/get-started.md)
+- [Classes usage](./docs/classes.md)
 - [Core](./docs/core.md)
-- [OOP usage](./docs/oop.md)
 - API
   - Declarative framework
-    - [value](./docs/api.md#value)
-    - [signal](./docs/api.md#signal)
+    - [value](./docs/api-value.md)
+    - [signal](./docs/api-signal.md)
   - Imperative framework
     - [on](./docs/api.md#on)
     - [sync](./docs/api.md#sync)
     - [cycle](./docs/api.md#cycle)
   - Class decorators for TRFP
-    - [prop]()
+    - prop
     - [cache](./docs/api.md#cache)
   - Shared technique
-    - [shared]()
-    - [initial]()
-    - [free]()
-    - [mock]()
-    - [unmock]()
+    - shared
+    - initial
+    - free
+    - mock
+    - unmock
   - Unsubscribe scopes control
-    - [isolate]()
-    - [un]()
-  - Additional api
-    - [local.inject]()
-    - [contextual]()
-    - [pool]()
+    - isolate
+    - un
+  - Async api
+    - pool
   - Track and transactions
-    - [transaction]()
-    - [untrack]()
+    - transaction
+    - untrack
   - React bindings
-    - [observe]()
-    - [useValue]()
-    - [useValues]()
-    - [useLocal]()
-    - [useScoped]()
-    - [useShared]()
-    - [Scope]()
-    - [useJsx]()
+    - observe
+    - useValue
+    - useValues
+    - useLocal
+    - useScoped
+    - useShared
+    - Scope
+    - useJsx
+
 
 
 ### Demos
