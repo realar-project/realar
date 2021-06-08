@@ -56,6 +56,7 @@ type Will<T> = T | undefined;
 type WillExpand<T> = ((p: T) => 0) extends ((p: Will<T>) => 0) ? [T] extends [Will<infer P>] ? P | undefined : T : T;
 type WillExtract<T> = ((p: T) => 0) extends ((p: Will<T>) => 0) ? [T] extends [Will<infer P>] ? P : T : T;
 type WillEnsure<T> = ((p: T) => 0) extends ((p: Will<T>) => 0) ? [T] extends [Will<infer P>] ?  Will<P> : Will<T> : Will<T>;
+type WillIf<T, R> = ((p: T) => 0) extends ((p: Will<T>) => 0) ? [T] extends [Will<infer P>] ? WillEnsure<R> : R : R;
 
 //
 // Realar external api typings
@@ -278,7 +279,7 @@ interface E_Value<I, O> extends
     <R>(func: (value: WillExpand<O>) => R): Value<I, R>         // tracked by default
     untrack<R>(func: (value: WillExpand<O>) => R): Value<I, R>
 
-    to(): Value<I, void>
+    to(): Value<I, undefined>
     to<R>(value: R): Value<I, R>
   }
   pre: E_PreFilterUnTrackedPartial<I, Value<I, O>> & {
@@ -301,7 +302,7 @@ interface E_ValueReadonly<O> extends
     <R>(func: (value: WillExpand<O>) => R): ValueReadonly<R>         // tracked by default
     untrack<R>(func: (value: WillExpand<O>) => R): ValueReadonly<R>
 
-    to(): ValueReadonly<void>
+    to(): ValueReadonly<undefined>
     to<R>(value: R): ValueReadonly<R>
   }
   as: {
@@ -315,21 +316,21 @@ interface E_Signal<I, O> extends
   E_FilterUnTrackedPartial<O, WillExtract<O>, Signal<I, WillExtract<O>>, Signal<I, WillEnsure<O>>> {
 
   map: {
-    <R>(func: (value: WillExtract<O>) => R): Signal<I, R>        // untracked by default
-    track<R>(func: (value: WillExtract<O>) => R): Signal<I, R>
+    <R>(func: (value: WillExtract<O>) => R): Signal<I, WillIf<O, R>>        // untracked by default
+    track<R>(func: (value: WillExtract<O>) => R): Signal<I, WillIf<O, R>>
 
-    to(): Signal<I, void>
-    to<R>(value: R): Signal<I, R>
+    to(): Signal<I, WillIf<O, undefined>>
+    to<R>(value: R): Signal<I, WillIf<O, R>>
   }
   pre: E_PreFilterUnTrackedPartial<I, Signal<I, O>> & {
     <N>(func?: (value: N, state: WillExpand<O>) => I): Signal<N, O>       // untracked by default
     track<N>(func?: (value: N, state: WillExpand<O>) => I): Signal<N, O>
   }
   wrap: {
-    <N, R>(pre: (value: N, state: WillExpand<O>) => I, map: (value: WillExtract<O>) => R): Signal<N, R>
+    <N, R>(pre: (value: N, state: WillExpand<O>) => I, map: (value: WillExtract<O>) => R): Signal<N, WillIf<O, R>>
   }
   as: {
-    value(): Value<I, O>
+    value(): Value<I, WillExpand<O>>
   }
 }
 
@@ -342,11 +343,11 @@ interface E_SignalReadonly<O> extends
     <R>(func: (value: WillExtract<O>) => R): SignalReadonly<R>        // untracked by default
     track<R>(func: (value: WillExtract<O>) => R): SignalReadonly<R>
 
-    to(): SignalReadonly<void>
-    to<R>(value: R): SignalReadonly<R>
+    to(): SignalReadonly<WillIf<O, undefined>>
+    to<R>(value: R): SignalReadonly<WillIf<O, R>>
   }
   as: {
-    value(): ValueReadonly<O>
+    value(): ValueReadonly<WillExpand<O>>
   }
 }
 
@@ -386,8 +387,8 @@ type ValueEntry = {
   };
 
   from: {
-    <O>(get: Re<O>): ValueReadonly<O>
-    <O, I>(get: Re<O>, set: ((value: I, state: O) => void) | ReWrit<I>): Value<I, O>
+    <O>(get: Re<O>): ValueReadonly<WillExpand<O>>
+    <O, I>(get: Re<O>, set: ((value: I, state: WillExpand<O>) => void) | ReWrit<I>): Value<I, WillExpand<O>>
   }
 
   combine: {

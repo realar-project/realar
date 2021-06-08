@@ -805,7 +805,7 @@ const signal_trigger_flag_invert = (initial) => make_trigger(!initial, 1, 1);
 const signal_from = (get, set?) => {
   const h = [get[key_get] || get];
   h[key_is_signal] = 1
-  h[key_has_default] = 1;
+  h[key_has_default] = get[key_handler] && get[key_handler][key_is_signal] ? get[key_handler][key_has_default] : 1;
   if (set) h[1] = set[key_set] ? set[key_set].bind() : (v) => set(v, untrack(ctx[key_get]));
   const ctx = fill_entity(h, set ? proto_entity_writtable : proto_entity_readable);
   return ctx;

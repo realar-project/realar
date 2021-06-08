@@ -1389,7 +1389,7 @@ test('should not run map on unfiltered signal', () => {
   const v = signal(1);
   const f = value(0);
 
-  const k = v.filter(f).map((n) => n + n);
+  const k = v.filter(f).map((n) => n + n + 0);
   expect(k.val).toBe(void 0);
   f(1);
   v(1);
@@ -1402,8 +1402,8 @@ test('should work as.signal', () => {
   const f = signal(0);
   const v = value(0);
 
-  const k = v.as.signal().filter(f).map((v) => v + v).sync(spy_k);
-  const p = v.as.signal().filter(f, 10).map((v) => v + v).sync(spy_p);
+  const k = v.as.signal().filter(f).map((v) => v + v + 0).sync(spy_k);
+  const p = v.as.signal().filter(f, 10).map((v) => v + v + 0).sync(spy_p);
   expect(spy_k).toBeCalledWith(void 0, void 0); spy_k.mockReset();
   expect(spy_p).toBeCalledWith(20, void 0); spy_p.mockReset();
 
@@ -1419,4 +1419,37 @@ test('should work as.signal', () => {
 
   expect(k.val).toBe(2);
   expect(p.val).toBe(2);
+});
+
+test('should work signal.from from signal without default', () => {
+  const s0 = signal<number>().map(v => v + v + 0);
+  const s = signal.from(s0, s0).map(v => v + v + 0);
+
+  expect(s0.val).toBe(void 0);
+  expect(s.val).toBe(void 0);
+  s(1);
+  expect(s0.val).toBe(2);
+  expect(s.val).toBe(4);
+});
+
+test('should work signal.from from signal with default', () => {
+  const s0 = signal(1).map(v => v + v + 0);
+  const s = signal.from(s0, s0).map(v => v + v + 0);
+
+  expect(s0.val).toBe(2);
+  expect(s.val).toBe(4);
+  s(2);
+  expect(s0.val).toBe(4);
+  expect(s.val).toBe(8);
+});
+
+test('should work value.from from signal without default', () => {
+  const s0 = signal<number>().map(v => v + v);
+  const s = value.from(s0, s0).map(v => v + v + 0);
+
+  expect(s0.val).toBe(void 0);
+  expect(s.val).toBe(NaN);
+  s(1);
+  expect(s0.val).toBe(2);
+  expect(s.val).toBe(4);
 });
