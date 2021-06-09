@@ -18,7 +18,7 @@ Realar targeted to all scale applications up to complex enterprise solutions on 
 
 ### Usage
 
-You can make stores and "actions" _[play on runkit](https://runkit.com/betula/60c071ff26dea9001373459c)_
+You can make stores and "actions" <sup>_[play on runkit](https://runkit.com/betula/60c071ff26dea9001373459c)_</sup>
 
 ```javascript
 const store = value(0)
@@ -27,7 +27,7 @@ const add = store.updater((state, num) => state + num)
 const inc = store.updater(state => state + 1)
 ```
 
-And bind to React easily _[play on codesandbox](https://codesandbox.io/s/realar-readme-second-example-ld0g1?file=/src/App.tsx)_
+And bind to React easily <sup>_[play on codesandbox](https://codesandbox.io/s/realar-readme-second-example-ld0g1?file=/src/App.tsx)_</sup>
 
 ```javascript
 const App = () => {
@@ -39,7 +39,7 @@ const App = () => {
 }
 ```
 
-You can make streams _[play on runkit](https://runkit.com/betula/60c073765105e1001311b294)_
+You can make streams <sup>_[play on runkit](https://runkit.com/betula/60c073765105e1001311b294)_</sup>
 
 ```javascript
 const addendum = value('0').pre(ev => ev.target.value)
@@ -49,7 +49,7 @@ const sum = signal()
   .to(add);
 ```
 
-And bind to React _[play on codesandbox](https://codesandbox.io/s/realar-readme-fourth-example-18pcj?file=/src/App.tsx)_
+And bind to React <sup>_[play on codesandbox](https://codesandbox.io/s/realar-readme-fourth-example-18pcj?file=/src/App.tsx)_</sup>
 
 ```javascript
 const App = () => {
@@ -73,7 +73,7 @@ class Counter {
 }
 ```
 
-And bind to React _[play on codesandbox](https://codesandbox.io/s/realar-readme-example-with-classes-j4q4e?file=/src/App.tsx)_
+And bind to React <sup>_[play on codesandbox](https://codesandbox.io/s/realar-readme-example-with-classes-j4q4e?file=/src/App.tsx)_</sup>
 
 ```javascript
 const App = observe(() => {
@@ -85,7 +85,7 @@ const App = observe(() => {
 })
 ```
 
-And you can use it together _[play on codesandbox](https://codesandbox.io/s/realar-readme-example-together-cppu6?file=/src/App.tsx)_
+And you can use it together <sup>_[play on codesandbox](https://codesandbox.io/s/realar-readme-example-together-cppu6?file=/src/App.tsx)_</sup>
 
 ```javascript
 const counter = new Counter();
