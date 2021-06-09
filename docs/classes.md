@@ -1,6 +1,6 @@
 ## Classes usage
 
-Transparent functional reactive programming with classes, decorators and [babel jsx wrapper](https://github.com/betula/babel-plugin-realar)
+Transparent functional reactive programming with classes, decorators and [babel jsx wrapper](https://github.com/betula/babel-plugin-realar). _[play on codesandbox](https://codesandbox.io/s/realar-ticker-classes-c9819?file=/src/App.tsx)_
 
 ```javascript
 class Ticker {
@@ -15,7 +15,6 @@ const App = () => (
   <p>{ticker.count}</p>
 )
 ```
-[Try wrapped version on CodeSandbox](https://codesandbox.io/s/realar-ticker-classes-c9819?file=/src/App.tsx)
 
 It looks likes very clear and natively, and you can start development knows only two functions.
 
@@ -65,7 +64,7 @@ export default App;
 
 For best possibilities use [babel jsx wrapper](https://github.com/betula/babel-plugin-realar), your code will be so beautiful to look like.
 
-But otherwise necessary to wrap all React function components that use reactive values inside to `observe` wrapper. [Try wrapped version on CodeSandbox](https://codesandbox.io/s/realar-counter-k9kmw?file=/src/App.tsx).
+But otherwise necessary to wrap all React function components that use reactive values inside to `observe` wrapper. [Play on codesandbox](https://codesandbox.io/s/realar-counter-k9kmw?file=/src/App.tsx).
 
 
 
@@ -75,7 +74,7 @@ The basic level of scopes for React developers is a component level scope (_for 
 
 Every React component instance has its own local state, which is saved every render for the component as long as the component is mounted.
 
-In the Realar ecosystem `useLocal` hook used to make components local stateful logic.
+In the Realar ecosystem `useLocal` hook used to make components local stateful logic. _[play on codesandbox](https://codesandbox.io/s/realar-component-level-scope-classes-m0i10?file=/src/App.tsx)_
 
 ```javascript
 class CounterLogic {
@@ -98,7 +97,6 @@ export const App = () => (
   </>
 );
 ```
-[Play wrapped on CodeSandbox](https://codesandbox.io/s/realar-component-level-scope-classes-m0i10?file=/src/App.tsx)
 
 This feature can be useful for removing logic from the body of a component to keep that free of unnecessary code, and therefore cleaner.
 
@@ -125,4 +123,4 @@ export const App = () => (
 );
 ```
 
-[Play wrapped on CodeSandbox](https://codesandbox.io/s/realar-context-component-level-scope-classes-wivjv?file=/src/App.tsx)
+[Play on codesandbox](https://codesandbox.io/s/realar-context-component-level-scope-classes-wivjv?file=/src/App.tsx)

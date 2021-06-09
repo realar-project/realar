@@ -121,9 +121,9 @@ const App = () => {
   - Shared technique
     - shared
     - initial
-    - free
-    - mock
-    - unmock
+    - [free](./docs/api.md#free)
+    - [mock](./docs/api.md#mock)
+    - [unmock](./docs/api.md#unmock)
   - Unsubscribe scopes control
     - isolate
     - un
@@ -141,7 +141,7 @@ const App = () => {
     - useScoped
     - useShared
     - Scope
-    - useJsx
+    - [useJsx](./docs/api.md#usejsx)
 
 
 

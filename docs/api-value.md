@@ -60,35 +60,23 @@ The `value` reactive container instance has different methods for perfect operat
 
 ### select
 
-Necessary for making high-cost calculations and cache them for many times of accessing without changing source dependencies. And for downgrade (selection from) your hierarchical store.
+Necessary for making high-cost calculations and cache them for many times of accessing without changing source dependencies. And for downgrade (selection from) your hierarchical store. _[play on runkit](https://runkit.com/betula/60c092996e3b91001aadb872)_
 
 ```javascript
 const store = value({
-  address: {
-    city: 'NY'
-  }
+  city: 'NY'
 });
 
-const address = selector(() => store.val.address);
+const city = store.select(state => state.city);
 
-on(address, ({ city }) => console.log(city)); // Subscribe to address selector
+// Subscribe to city selector updates
+city.to(name => console.log(name));
 
-console.log(address.val.city); // Log current value of address selector
-
+// We will see reaction on deleveloper console output with new city selector value
 store.update(state => ({
   ...state,
-  user: {}
+  city: 'LA'
 }));
-// Store changed but non reaction from address selector
-
-store.update(state => ({
-  ...state,
-  address: {
-    city: 'LA'
-  }
-}));
-// We can see reaction on deleveloper console output with new address selector value
 ```
-[Edit on RunKit](https://runkit.com/betula/60338ff8dbe368001a10be8c)
 
 

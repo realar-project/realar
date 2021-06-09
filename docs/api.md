@@ -14,9 +14,9 @@
 - Shared technique
   - shared
   - initial
-  - free
-  - mock
-  - unmock
+  - [free](#free)
+  - [mock](#mock)
+  - [unmock](#unmock)
 - Unsubscribe scopes control
   - isolate
   - un
@@ -34,7 +34,7 @@
   - useScoped
   - useShared
   - Scope
-  - useJsx
+  - [useJsx](#usejsx)
 
 
 ### Imperative framework
@@ -44,7 +44,7 @@
 The next basic abstraction is expression.
 Expression is a function that read reactive boxes or selectors. It can return value and write reactive values inside.
 
-We can subscribe to change any reactive expression using `on` function _(which also works with signal)_. [Play on RunKit.](https://runkit.com/betula/6013ea214e0cf9001ac18e71)
+We can subscribe to change any reactive expression using `on` function (which also works with signal). _[play on runkit.](https://runkit.com/betula/6013ea214e0cf9001ac18e71)_
 
 ```javascript
 const { get, set } = value(0);
@@ -133,8 +133,43 @@ class Todos {
 #### shared
 #### initial
 #### free
+
+Clean all cached shared instances. It's usually needed for testing or server-side rendering. Has no parameters. _[play on runkit](https://runkit.com/betula/60c08df507313e001af24f02)_
+
+```javascript
+const Shared = () => {
+  console.log('initialized');
+  un(() => console.log('destroyed'));
+}
+
+shared(Shared); // in console: initialized
+free();         // in console: destroyed
+```
+
 #### mock
+
+Define resolved value for any shareds. Necessary for unit tests.
+
+```javascript
+const mocked = mock(Shared, {
+  run: jest.fn()
+});
+
+shared(Shared).run();
+expect(mocked.run).toHaveBeenCalled();
+```
+
 #### unmock
+
+Reset mocked value from shared. Possible to pass as many arguments as you need.
+
+```javascript
+mock(A, {});
+mock(B, {});
+
+unmock(A, B);
+```
+
 ### Unsubscribe scopes control
 #### isolate
 #### un
@@ -152,6 +187,31 @@ class Todos {
 #### useShared
 #### Scope
 #### useJsx
+
+You can connect your reactivity to React using a new component locally defined in yours. All reactive values read in that place will be subscribed. Each time when receiving new values, a locally defined component will be updated, and only one, without any rerendering to owner component. It can be used as a performance optimization for rerendering as smaller pieces of your component tree as it possible. _[play on codesandbox](https://codesandbox.io/s/realar-api-react-binding-usejsx-8o6oc?file=/src/App.tsx)_
+
+```javascript
+const count = value(0);
+// ...
+const App = () => {
+  const Body = useJsx(() => {
+    // Make reactive dependency by reading value's "val" property
+    const val = count.val;
+
+    if (val === 0) return <>{val} zero</>;
+    if (val > 0) return <b>{val} positive</b>;
+    return <i>{val} negative</i>;
+  });
+
+  return (
+    <p>
+      <button onClick={api.inc}>+</button>
+      <button onClick={api.dec}>-</button>
+      <Body />
+    </p>
+  );
+};
+```
 
 
 
