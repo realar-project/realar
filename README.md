@@ -46,7 +46,7 @@ const addendum = value('0').pre(ev => ev.target.value)
 const sum = signal()
   .map(() => +addendum.val)
   .filter()
-  .to(add);
+  .to(add)
 ```
 
 And bind to React <sup>_[play on codesandbox](https://codesandbox.io/s/realar-readme-fourth-example-18pcj?file=/src/App.tsx)_</sup>
@@ -66,10 +66,10 @@ You can use classes with decorators
 
 ```javascript
 class Counter {
-  @prop state = 0;
+  @prop state = 0
 
-  add = (num) => this.state += num;
-  inc = () => this.add(1);
+  add = (num) => this.state += num
+  inc = () => this.add(1)
 }
 ```
 
@@ -88,11 +88,11 @@ const App = observe(() => {
 And you can use it together <sup>_[play on codesandbox](https://codesandbox.io/s/realar-readme-example-together-cppu6?file=/src/App.tsx)_</sup>
 
 ```javascript
-const counter = new Counter();
-const store = value.from(() => counter.state);
+const counter = new Counter()
+const store = value.from(() => counter.state)
 
 const App = () => {
-  const state = useValue(store)
+  const state = useValue(() => store.val)
 
   return <p>{state}
     <button onClick={counter.inc}>+</button>
