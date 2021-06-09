@@ -18,7 +18,7 @@ Realar targeted to all scale applications up to complex enterprise solutions on 
 
 ### Usage
 
-You can make stores and "actions"
+You can make stores and "actions" _[play on runkit](https://runkit.com/betula/60c071ff26dea9001373459c)_
 
 ```javascript
 const store = value(0)
@@ -27,17 +27,19 @@ const add = store.updater((state, num) => state + num)
 const inc = store.updater(state => state + 1)
 ```
 
-And bind to React easily
+And bind to React easily _[play on codesandbox](https://codesandbox.io/s/realar-readme-second-example-ld0g1?file=/src/App.tsx)_
 
 ```javascript
 const App = () => {
   const state = useValue(store)
 
-  return <p>{state} <button onClick={inc}>+</button></p>
+  return <p>{state}
+    <button onClick={inc}>+</button>
+  </p>
 }
 ```
 
-You can make streams
+You can make streams _[play on runkit](https://runkit.com/betula/60c073765105e1001311b294)_
 
 ```javascript
 const addendum = value('0').pre(ev => ev.target.value)
@@ -47,7 +49,7 @@ const sum = signal()
   .to(add);
 ```
 
-And bind to React
+And bind to React _[play on codesandbox](https://codesandbox.io/s/realar-readme-fourth-example-18pcj?file=/src/App.tsx)_
 
 ```javascript
 const App = () => {
@@ -71,27 +73,30 @@ class Counter {
 }
 ```
 
-And bind to React
+And bind to React _[play on codesandbox](https://codesandbox.io/s/realar-readme-example-with-classes-j4q4e?file=/src/App.tsx)_
 
 ```javascript
 const App = observe(() => {
   const { state, inc } = useLocal(Counter)
 
-  return <p>{state} <button onClick={inc}>+</button></p>
+  return <p>{state}
+    <button onClick={inc}>+</button>
+  </p>
 })
 ```
 
-And you can use it together
+And you can use it together _[play on codesandbox](https://codesandbox.io/s/realar-readme-example-together-cppu6?file=/src/App.tsx)_
 
 ```javascript
-class Positive {
-  get state() {
-    return store.val > 0 ? 'positive' : 'non'
-  }
+const counter = new Counter();
+const store = value.from(() => counter.state);
 
-  constructor() {
-    sync(() => this.state, console.log)
-  }
+const App = () => {
+  const state = useValue(store)
+
+  return <p>{state}
+    <button onClick={counter.inc}>+</button>
+  </p>
 }
 ```
 
@@ -107,6 +112,7 @@ class Positive {
     - [signal](./docs/api-signal.md)
   - Imperative framework
     - [on](./docs/api.md#on)
+    - on.once
     - [sync](./docs/api.md#sync)
     - [cycle](./docs/api.md#cycle)
   - Class decorators for TRFP
@@ -126,6 +132,7 @@ class Positive {
   - Track and transactions
     - transaction
     - untrack
+    - untrack.func
   - React bindings
     - observe
     - useValue

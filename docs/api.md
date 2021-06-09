@@ -5,6 +5,7 @@
   - [signal](./api-signal.md)
 - Imperative framework
   - [on](#on)
+  - on.once
   - [sync](#sync)
   - [cycle](#cycle)
 - Class decorators for TRFP
@@ -24,6 +25,7 @@
 - Track and transactions
   - transaction
   - untrack
+  - untrack.func
 - React bindings
   - observe
   - useValue
@@ -67,6 +69,8 @@ on(next, (val, prev) => console.log(val, prev));
 
 count(5); // We will see 6 and 1 in developer console output, It are new and previous value
 ```
+
+#### on.once
 
 
 #### sync
