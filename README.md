@@ -85,7 +85,7 @@ And you can use it together
 
 ```javascript
 class Positive {
-  @cache get state() {
+  get state() {
     return store.val > 0 ? 'positive' : 'non'
   }
 
