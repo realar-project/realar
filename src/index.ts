@@ -1090,7 +1090,7 @@ const useScoped: UseScoped = (target) => {
   return instance;
 }
 
-const useLocal: UseLocal = (target, deps: any) => {
+const useLocal: UseLocal = ((target, deps: any) => {
   deps || (deps = []);
   const h = useMemo(() => {
     const i = inst(target, deps, 1);
@@ -1101,7 +1101,7 @@ const useLocal: UseLocal = (target, deps: any) => {
 
   useEffect(h[1], [h]);
   return h[0];
-}
+}) as any
 
 const useValue: UseValue = (target, deps) => {
   deps || (deps = []);
