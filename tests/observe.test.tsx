@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { useLocal, prop, observe } from '../src';
+import { useLocal, prop, observe, value } from '../src';
 
 type ForwardRefButtonProps = {
   data?: { value: string };
@@ -33,4 +33,30 @@ test('should support ref forwarding', () => {
   expect(el.find('button').text()).toBe('');
   el.find('button').simulate('click');
   expect(el.find('button').text()).toBe('a');
+});
+
+const ValueSpot = ({ value }: any) => {
+  return <b>{value.val}</b>
+}
+
+test('should support automatic jsx wrapping', () => {
+  function A() {
+    const logic = useLocal(() => {
+      const store = value(0);
+      const inc = () => store.val += 1;
+      return { store, inc };
+    });
+    return <>
+      <ValueSpot value={logic.store} />
+      <button onClick={logic.inc} />
+    </>
+  }
+
+  const el = mount(<A />);
+
+  expect(el.find('b').text()).toBe('0');
+  el.find('button').simulate('click');
+  expect(el.find('b').text()).toBe('1');
+  el.find('button').simulate('click');
+  expect(el.find('b').text()).toBe('2');
 });

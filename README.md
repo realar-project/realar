@@ -138,6 +138,7 @@ const App = () => {
     - [untrack.func](./docs/api.md#untrackfunc)
   - React bindings
     - [observe](./docs/api.md#observe)
+    - observe.nomemo
     - [useValue](./docs/api.md#usevalue)
     - [useValues](./docs/api.md#usevalues)
     - [useShared](./docs/api.md#useshared)
@@ -172,7 +173,7 @@ yarn add realar
 ```
 
 - If you prefer classes with decorators [update your babel config for support](https://babeljs.io/docs/en/babel-plugin-proposal-decorators).
-- And configure [babel jsx wrapper](https://github.com/betula/babel-plugin-realar) for automatic observation arrow function components if you want to use it.
+- And configure [babel jsx wrapper](https://github.com/betula/babel-plugin-jsx-wrapper#realar) for automatic observation arrow function components if you want to use it.
 
 
 Enjoy and happy coding!

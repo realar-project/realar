@@ -1,6 +1,6 @@
 ## Classes usage
 
-Transparent functional reactive programming with classes, decorators and [babel jsx wrapper](https://github.com/betula/babel-plugin-realar). _[play on codesandbox](https://codesandbox.io/s/realar-ticker-classes-c9819?file=/src/App.tsx)_
+Transparent functional reactive programming with classes, decorators and [babel jsx wrapper](https://github.com/betula/babel-plugin-jsx-wrapper). _[play on codesandbox](https://codesandbox.io/s/realar-ticker-classes-c9819?file=/src/App.tsx)_
 
 ```javascript
 class Ticker {
@@ -62,7 +62,7 @@ const App = () => (
 export default App;
 ```
 
-For best possibilities use [babel jsx wrapper](https://github.com/betula/babel-plugin-realar), your code will be so beautiful to look like.
+For best possibilities use [babel jsx wrapper](https://github.com/betula/babel-plugin-jsx-wrapper), your code will be so beautiful to look like.
 
 But otherwise necessary to wrap all React function components that use reactive values inside to `observe` wrapper. [Play on codesandbox](https://codesandbox.io/s/realar-counter-k9kmw?file=/src/App.tsx).
 
