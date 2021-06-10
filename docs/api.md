@@ -9,10 +9,10 @@
   - [sync](#sync)
   - [cycle](#cycle)
 - Class decorators for TRFP
-  - prop
+  - [prop](#prop)
   - [cache](#cache)
 - Shared technique
-  - shared
+  - [shared](#shared)
   - initial
   - [free](#free)
   - [mock](#mock)
@@ -23,9 +23,9 @@
 - Async api
   - [pool](#pool)
 - Track and transactions
-  - transaction
-  - untrack
-  - untrack.func
+  - [transaction](#transaction)
+  - [untrack](#untrack)
+  - [untrack.func](#untrackfunc)
 - React bindings
   - [observe](#observe)
   - [useValue](#usevalue)
@@ -58,7 +58,7 @@ set(5); // We will see 6 and 1 in developer console output, It are new and previ
 
 In that example expression is `next` function, because It get value and return that plus one.
 
-The reactive container instance is also available as first argument of `on` function. [Play on RunKit.](https://runkit.com/betula/60c04347473de4001a59307e)
+The reactive container instance is also available as first argument of `on` function. [play on runkit.](https://runkit.com/betula/60c04347473de4001a59307e)
 
 ```javascript
 const count = value(0);
@@ -86,7 +86,7 @@ source.set(10);
 
 console.log(target.val) // 10
 ```
-[Edit on RunKit](https://runkit.com/betula/601a73b26adfe70020a0e229)
+[Play on runkit](https://runkit.com/betula/601a73b26adfe70020a0e229)
 
 
 
@@ -104,7 +104,7 @@ set(2);
 
 // In output of developer console will be 1, 2 and 3.
 ```
-[Edit on RunKit](https://runkit.com/betula/601a733c5bfc4e001a38def8)
+[Play on runkit](https://runkit.com/betula/601a733c5bfc4e001a38def8)
 
 - Takes a function as reactive expression.
 - After each run: subscribe to all reactive values accessed while running
@@ -114,6 +114,18 @@ set(2);
 ### Class decorators for TRFP
 
 #### prop
+
+`prop` - reactive value marker decorator. Each reactive value has an immutable state. If the immutable state will update, all who depend on It will refresh.
+
+```javascript
+class Todos {
+  @prop items = [];
+
+  constructor() {
+    on(() => this.items, () => console.log('items changed'));
+  }
+}
+```
 
 #### cache
 
@@ -131,7 +143,33 @@ class Todos {
 
 ### Shared technique
 #### shared
+
+The function for providing an instance of single instantiated shared dependency with global availability. You can use class or function as a dependency creator.
+
+```javascript
+const loader = () => {
+  const count = value(0);
+  return {
+    active: count.select(state => state > 0),
+    start: () => count.val++,
+    stop: () => count.val--
+  }
+}
+
+const sharedLoader = () => shared(loader);
+
+// And every where in your add
+
+const App = ({ children }) => {
+  const loaderActiveState = useValue(sharedLoader().active);
+  return <>
+    {loaderActiveState ? 'loading...' : children}
+  </>
+}
+```
+
 #### initial
+
 #### free
 
 Clean all cached shared instances. It's usually needed for testing or server-side rendering. Has no parameters. _[play on runkit](https://runkit.com/betula/60c08df507313e001af24f02)_
@@ -188,10 +226,58 @@ const promise = load(1);
 console.log(load.pending.val) // in console: true
 ```
 
+The `pool` using in real world you can see in the [simple form example](./examples.md#simple-form).
+
 ### Track and transactions
+
 #### transaction
+
+If you need to run several assignments with only one dependency recalculation at the finish of. You should use the `transaction` function. _[play on runkit](https://runkit.com/betula/60c16ff3ad28480013022930)_
+
+```javascript
+const a = value(0);
+const b = value(0);
+
+on(() => a.val + b.val, sum => console.log('sum', sum));
+
+transaction(() => {
+  a.val = 1;
+  b.val = 1;
+});  // in console only one reaction with sum equals: 2
+
+```
+
 #### untrack
+
+If you need reading reactive value without reactive dependency creation, the `untrack` function is your choice.
+
+```javascript
+const a = value(0);
+const b = value(0);
+
+on(() => a.val + untrack(() => b.val), sum => console.log('sum', sum));
+a(2) // in console: sum 2
+b(1) // nothing in console because the reactive value `b` is untracked
+a(3) // in console: sum 4
+```
+
+#### untrack.func
+
+You can make any function untracked with it.
+
+```javascript
+const a = value(0);
+const b = value(0);
+
+const sum = untrack.func(() => a.val + b.val);
+
+on(sum, () => console.log('sum'));
+a(1) // nothing in console because the reactive value `a` is untracked
+b(1) // nothing in console too for the same reason
+```
+
 ### React bindings
+
 #### observe
 
 ```javascript

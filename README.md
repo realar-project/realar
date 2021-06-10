@@ -119,10 +119,10 @@ const App = () => {
     - [sync](./docs/api.md#sync)
     - [cycle](./docs/api.md#cycle)
   - Class decorators for TRFP
-    - prop
+    - [prop](./docs/api.md#prop)
     - [cache](./docs/api.md#cache)
   - Shared technique
-    - shared
+    - [shared](./docs/api.md#shared)
     - initial
     - [free](./docs/api.md#free)
     - [mock](./docs/api.md#mock)
@@ -133,9 +133,9 @@ const App = () => {
   - Async api
     - [pool](./docs/api.md#pool)
   - Track and transactions
-    - transaction
-    - untrack
-    - untrack.func
+    - [transaction](./docs/api.md#transaction)
+    - [untrack](./docs/api.md#untrack)
+    - [untrack.func](./docs/api.md#untrackfunc)
   - React bindings
     - [observe](./docs/api.md#observe)
     - [useValue](./docs/api.md#usevalue)
