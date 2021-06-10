@@ -19,7 +19,7 @@ Or you can use the usual functions for the state updating. Below will see differ
 
 ```javascript
 const inc = () => store.update(state => state + 1)
-const add = (num: number) => store.val += nul
+const add = (num: number) => store.val += num
 ```
 
 Watch state updating
