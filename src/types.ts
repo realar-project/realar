@@ -518,10 +518,9 @@ type UseScoped = {
   <M>(target: (new () => M) | (() => M)): M;
 }
 type UseLocal = {
-  <T extends unknown[], M>(
-    target: (new (...args: T) => M) | ((...args: T) => M),
-    deps?: T
-  ): M;
+  <M>(target: (new () => M) | (() => M)): M;
+  <M, T extends any[]>(target: (new (...args: T) => M) | ((...args: T) => M), deps: T): M;
+  <M>(target: (new () => M) | (() => M), deps: any[]): M;
 }
 type UseValue = {
   <T>(target: Re<T>, deps?: any[]): T;
