@@ -131,15 +131,15 @@ const App = () => {
     - isolate
     - un
   - Async api
-    - pool
+    - [pool](./docs/api.md#pool)
   - Track and transactions
     - transaction
     - untrack
     - untrack.func
   - React bindings
-    - observe
-    - useValue
-    - useValues
+    - [observe](./docs/api.md#observe)
+    - [useValue](./docs/api.md#usevalue)
+    - [useValues](./docs/api.md#usevalues)
     - useLocal
     - useScoped
     - useShared

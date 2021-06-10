@@ -21,15 +21,15 @@
   - isolate
   - un
 - Async api
-  - pool
+  - [pool](#pool)
 - Track and transactions
   - transaction
   - untrack
   - untrack.func
 - React bindings
-  - observe
-  - useValue
-  - useValues
+  - [observe](#observe)
+  - [useValue](#usevalue)
+  - [useValues](#usevalues)
   - useLocal
   - useScoped
   - useShared
@@ -193,8 +193,58 @@ console.log(load.pending.val) // in console: true
 #### untrack
 ### React bindings
 #### observe
+
+```javascript
+const name = value('Joe');
+const change = name.updater((state) => state === 'Joe' ? 'Mike' : 'Joe');
+
+const App = observe(() => {
+  return <>
+    <p>name: {name.val}</p>
+    <button onClick={change}>change</button>
+  </>
+})
+```
+
 #### useValue
+
+```javascript
+const count = value(0);
+const inc = value.updater((state) => state + 1);
+
+const App = () => {
+  const countState = useValue(count);
+  const nextState = useValue(() => count.val + 1);
+
+  return <>
+    <p>count: {countState}</p>
+    <p>next: {nextState}</p>
+    <button onClick={inc}>inc</button>
+  </>
+}
+```
+
 #### useValues
+
+```javascript
+const name = value('Joe')
+const secret = value('xx')
+
+const change = () => {
+  name.val += 'e';
+  secret.val += 'x';
+}
+
+const App = () => {
+  const values = useValues({ name, secret });
+  return <>
+    <p>name: {values.name}</p>
+    <p>secret: {value.secret}</p>
+    <button onClick={change}>change</button>
+  </>
+}
+```
+
 #### useLocal
 #### useScoped
 #### useShared
