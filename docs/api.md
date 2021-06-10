@@ -30,10 +30,9 @@
   - [observe](#observe)
   - [useValue](#usevalue)
   - [useValues](#usevalues)
+  - [useShared](#useshared)
   - useLocal
-  - [useScoped](#usescoped)
-  - useShared
-  - Scope
+  - [Scope, useScoped](#scope-usescoped)
   - [useJsx](#usejsx)
 
 
@@ -373,7 +372,8 @@ const App = () => {
 ```
 
 #### useLocal
-#### useScoped
+
+#### Scope, useScoped
 
 React component's context the shareable stateful logic availability. _[play on codesandbox](https://codesandbox.io/s/realar-api-react-binding-usescoped-vrc5l?file=/src/App.tsx)_
 
@@ -407,7 +407,39 @@ const App = () => <>
 ```
 
 #### useShared
-#### Scope
+
+Alias for [shared](#shared) function. The globally available logic. _[play on codesandbox](https://codesandbox.io/s/realar-api-react-binding-useshared-0r2rx)_
+
+```javascript
+const counterLogic = () => {
+  const count = value(0);
+  const inc = () => count.val += 1;
+  const dec = () => count.val -= 1;
+  return { count, inc, dec };
+};
+
+const State = observe(() => {
+  const { count } = useShared(counterLogic);
+  return <p>{count.val}</p>
+});
+const Buttons = () => {
+  const { inc, dec } = useShared(counterLogic);
+  return (
+    <>
+      <button onClick={inc}>+</button>
+      <button onClick={dec}>-</button>
+    </>
+  );
+}
+
+const App = () => <>
+  <State />
+  <Buttons />
+  <State />
+  <Buttons />
+</>
+```
+
 #### useJsx
 
 You can connect your reactivity to React using a new component locally defined in yours. All reactive values read in that place will be subscribed. Each time when receiving new values, a locally defined component will be updated, and only one, without any rerendering to owner component. It can be used as a performance optimization for rerendering as smaller pieces of your component tree as it possible. _[play on codesandbox](https://codesandbox.io/s/realar-api-react-binding-usejsx-8o6oc?file=/src/App.tsx)_

@@ -140,10 +140,9 @@ const App = () => {
     - [observe](./docs/api.md#observe)
     - [useValue](./docs/api.md#usevalue)
     - [useValues](./docs/api.md#usevalues)
+    - [useShared](./docs/api.md#useshared)
     - useLocal
-    - [useScoped](./docs/api.md#usescoped)
-    - useShared
-    - Scope
+    - [Scope, useScoped](./docs/api.md#scope-usescoped)
     - [useJsx](./docs/api.md#usejsx)
 
 
