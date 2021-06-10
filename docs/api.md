@@ -175,6 +175,19 @@ unmock(A, B);
 #### un
 ### Async api
 #### pool
+
+The pool function provides the creation of a special function that detects started and finished asynchronous queries and performs information to "pending" value property. _[play on runkit](https://runkit.com/betula/60c159c3e67eb3001b11f6c2)_
+
+```javascript
+const load = pool(async (id) => {
+  const response = await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`);
+  return await response.json();
+});
+
+const promise = load(1);
+console.log(load.pending.val) // in console: true
+```
+
 ### Track and transactions
 #### transaction
 #### untrack

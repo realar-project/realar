@@ -106,6 +106,9 @@ const App = () => {
 - [Get started](./docs/get-started.md)
 - [Classes usage](./docs/classes.md)
 - [Core](./docs/core.md)
+- Examples
+  - [Simple form](./docs/examples.md#simple-form)
+  - [Basic usage](./docs/examples.md#basic-usage)
 - API
   - Declarative framework
     - [value](./docs/api-value.md)
@@ -147,7 +150,6 @@ const App = () => {
 
 ### Demos
 
-+ [Basic usage on codesandbox](https://codesandbox.io/s/realar-basic-example-41vvd?file=/src/App.tsx).
 + [Hello](https://github.com/realar-project/hello) - shared state demonstration.
 + [Todos](https://github.com/realar-project/todos) - todomvc implementation.
 + [Jest](https://github.com/realar-project/jest) - unit test example.
