@@ -1453,3 +1453,39 @@ test('should work value.from from signal without default', () => {
   expect(s0.val).toBe(2);
   expect(s.val).toBe(4);
 });
+
+test('should work value.flag', () => {
+  const spy = jest.fn();
+  const a = value.flag().to(spy);
+  const b = value.flag(5);
+  expect(a.val).toBe(false);
+  expect(b.val).toBe(true);
+
+  a(10);
+  expect(a.val).toBe(true);
+  expect(spy).toBeCalledTimes(1); spy.mockReset();
+  a(11);
+  expect(a.val).toBe(true);
+  expect(spy).toBeCalledTimes(0);
+
+  b();
+  expect(b.val).toBe(false);
+});
+
+test('should work signal.flag', () => {
+  const spy = jest.fn();
+  const a = signal.flag().to(spy);
+  const b = signal.flag(5);
+  expect(a.val).toBe(false);
+  expect(b.val).toBe(true);
+
+  a(10);
+  expect(a.val).toBe(true);
+  expect(spy).toBeCalledTimes(1); spy.mockReset();
+  a(11);
+  expect(a.val).toBe(true);
+  expect(spy).toBeCalledTimes(1); spy.mockReset();
+
+  b();
+  expect(b.val).toBe(false);
+});

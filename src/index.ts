@@ -755,6 +755,14 @@ const make_trigger = (initial, has_inverted_to?, is_signal?) => {
   return fill_entity(h, proto_entity_writtable_leaf, 1, initial, 0, set);
 }
 
+const make_flag = (initial, is_signal?) => {
+  initial = !!initial;
+  const h = (box as any)(initial, 0, is_signal && pure_arrow_fn_returns_undef);
+  h[key_is_signal] = is_signal;
+  h[key_has_default] = 1;
+  return fill_entity(h, proto_entity_writtable_leaf, 1, initial, 0, (v) => h[1](!!v));
+}
+
 const get_getter_to_reactionable_or_custom = (re) => (
   (re && re[key_get]) || (typeof re === const_string_function ? re : () => re)
 )
@@ -782,11 +790,12 @@ const value_from = (get, set?) => {
   return ctx;
 }
 const value_combine = (cfg, fn?) => fill_entity(make_value_combine_handler(cfg, fn), proto_entity_readable);
-
+const value_flag = (initial) => make_flag(initial)
 
 value[key_trigger] = value_trigger as any;
 value[key_from] = value_from;
 value[key_combine] = value_combine;
+value[key_flag] = value_flag as any;
 
 
 const signal: SignalEntry = (function (initial) {
@@ -807,11 +816,13 @@ const signal_from = (get, set?) => {
   const ctx = fill_entity(h, set ? proto_entity_writtable : proto_entity_readable);
   return ctx;
 }
+const signal_flag = (initial) => make_flag(initial, 1)
 
 signal_trigger_flag[key_invert] = signal_trigger_flag_invert;
 signal_trigger[key_flag] = signal_trigger_flag;
 signal[key_trigger] = signal_trigger as any;
 signal[key_from] = signal_from;
+signal[key_flag] = signal_flag as any;
 
 
 

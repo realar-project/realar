@@ -13,13 +13,13 @@
   - [cache](#cache)
 - Shared technique
   - [shared](#shared)
-  - initial
+  - [initial](#initial)
   - [free](#free)
   - [mock](#mock)
   - [unmock](#unmock)
 - Unsubscribe scopes control
+  - [un](#un)
   - isolate
-  - un
 - Async api
   - [pool](#pool)
 - Track and transactions
@@ -31,7 +31,7 @@
   - [useValue](#usevalue)
   - [useValues](#usevalues)
   - useLocal
-  - useScoped
+  - [useScoped](#usescoped)
   - useShared
   - Scope
   - [useJsx](#usejsx)
@@ -170,6 +170,20 @@ const App = ({ children }) => {
 
 #### initial
 
+Define initial value that can be pass to the first argument of shared constructor or function.
+
+```javascript
+const rootStore = (init) => {
+  const store = value(init);
+  return {
+    user: store.select(state => state.user)
+  }
+}
+
+initial({ user: 'Joe' })
+console.log(shared(rootStore).user.val) // in console: Joe
+```
+
 #### free
 
 Clean all cached shared instances. It's usually needed for testing or server-side rendering. Has no parameters. _[play on runkit](https://runkit.com/betula/60c08df507313e001af24f02)_
@@ -209,8 +223,35 @@ unmock(A, B);
 ```
 
 ### Unsubscribe scopes control
-#### isolate
 #### un
+
+Register a custom unsubscriber for [shared](#shared), [local](#uselocal), or [scoped](#usescoped) instances. _[play on codesandbox](https://codesandbox.io/s/realar-api-unsubscribe-scopes-control-0sziu?file=/src/App.tsx)_
+
+```javascript
+const formLogic = () => {
+  console.log('initialized');
+  un(() => console.log('destroyed'));
+}
+
+const Form = () => {
+  const form = useLocal(formLogic);
+  // ...
+}
+
+const App = observe(() => {
+  const opened = useLocal(value.flag);
+  const toggle = useLocal(() => opened.updater(state => !state), [opened]);
+
+  return <>
+    {opened.val ? <Form /> : null}
+    <button onClick={toggle}>toggle</button>
+  </>
+})
+```
+
+
+
+#### isolate
 ### Async api
 #### pool
 
@@ -333,6 +374,38 @@ const App = () => {
 
 #### useLocal
 #### useScoped
+
+React component's context the shareable stateful logic availability. _[play on codesandbox](https://codesandbox.io/s/realar-api-react-binding-usescoped-vrc5l?file=/src/App.tsx)_
+
+```javascript
+const dialogLogic = () => {
+  const opened = value.flag();
+  const open = opened.updater(() => true);
+  const close = opened.updater(() => false);
+  return { opened, open, close };
+};
+
+const Open = () => {
+  const { open, close } = useScoped(dialogLogic);
+  return (
+    <>
+      <button onClick={open}>open</button>
+      <button onClick={close}>close</button>
+    </>
+  );
+};
+
+const Dialog = observe(() => {
+  const { opened } = useScoped(dialogLogic);
+  return <p>dialog: {opened.val ? "opened" : "closed"}</p>;
+});
+
+const App = () => <>
+  <Scope><Dialog /><Open /></Scope>
+  <Scope><Dialog /><Open /></Scope>
+</>
+```
+
 #### useShared
 #### Scope
 #### useJsx

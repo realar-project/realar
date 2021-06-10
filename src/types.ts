@@ -48,6 +48,7 @@ type Equals<X, Y> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y
 type Re<T> = { get: () => T } | (() => T);
 type ReWrit<T> = { set: (value: T) => void } | ((value: T) => void);
 
+type Re_Exemplar = Re<any>;
 type Re_CfgExemplar = {
   [key: string]: Re<any>
 }
@@ -236,24 +237,36 @@ interface E_UpdatePartial<I, O> {
 interface E_FilterUnTrackedPartial<O, Arg, Ret, WillRet> {
   filter: {
     (func: (value: Arg) => any, emptyValue: WillExtract<O>): Ret         // untracked by default
+    (re: Re_Exemplar, emptyValue: WillExtract<O>): Ret
     (func?: (value: Arg) => any): WillRet
+    (re?: Re_Exemplar): WillRet
     track(func: (value: Arg) => any, emptyValue: WillExtract<O>): Ret
+    track(re: Re_Exemplar, emptyValue: WillExtract<O>): Ret
     track(func?: (value: Arg) => any): WillRet
+    track(re?: Re_Exemplar): WillRet
     not: {
       (func: (value: Arg) => any, emptyValue: WillExtract<O>): Ret       // untracked by default
+      (re: Re_Exemplar, emptyValue: WillExtract<O>): Ret
       (func?: (value: Arg) => any): WillRet
+      (re?: Re_Exemplar): WillRet
       track(func: (value: Arg) => any, emptyValue: WillExtract<O>): Ret
+      track(re: Re_Exemplar, emptyValue: WillExtract<O>): Ret
       track(func?: (value: Arg) => any): WillRet
+      track(re?: Re_Exemplar): WillRet
     }
   }
 }
 interface E_PreFilterUnTrackedPartial<I, Ret> {
   filter: {
     (func?: (value: I) => any): Ret                                  // untracked by default
+    (re?: Re_Exemplar): Ret
     track(func?: (value: I) => any): Ret
+    track(re?: Re_Exemplar): Ret
     not: {
       (func?: (value: I) => any): Ret                               // untracked by default
+      (re?: Re_Exemplar): Ret
       track(func?: (value: I) => any): Ret
+      track(re?: Re_Exemplar): Ret
     }
   }
 }
@@ -351,10 +364,11 @@ interface E_SignalReadonly<O> extends
   }
 }
 
+type E_IfAnyInput<I> = Equals<I, any> extends true ? (() => void) : {};
 
 
-type Value<I = undefined, O = I> = E_SetPartial<I> & E_ValPartial<I, WillExpand<O>> & E_Value<I, O>
-type Signal<I = void, O = I> = E_SetPartial<I> & E_ValPartial<I, WillExpand<O>> & E_Signal<I, O>
+type Value<I = undefined, O = I> = E_SetPartial<I> & E_ValPartial<I, WillExpand<O>> & E_Value<I, O> & E_IfAnyInput<I>
+type Signal<I = void, O = I> = E_SetPartial<I> & E_ValPartial<I, WillExpand<O>> & E_Signal<I, O> & E_IfAnyInput<I>
 
 type ValueReadonly<O> = E_ValReadonlyPartial<WillExpand<O>> & E_ValueReadonly<O>
 type SignalReadonly<O> = E_ValReadonlyPartial<WillExpand<O>> & E_SignalReadonly<O>
@@ -375,6 +389,10 @@ type ValueEntry = {
     (): Value;
     <T>(initial: T): Value<T>;
   };
+  flag: {
+    (): Value<any, boolean>;
+    (initial: any): Value<any, boolean>;
+  }
 
   from: {
     <O>(get: Re<O>): ValueReadonly<WillExpand<O>>
@@ -472,6 +490,11 @@ type SignalEntry = {
       }
     }
   };
+
+  flag: {
+    (): Signal<any, boolean>;
+    (initial: any): Signal<any, boolean>;
+  }
 
   from: {
     <O>(get: Re<O>): SignalReadonly<O>

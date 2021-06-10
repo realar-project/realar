@@ -123,13 +123,13 @@ const App = () => {
     - [cache](./docs/api.md#cache)
   - Shared technique
     - [shared](./docs/api.md#shared)
-    - initial
+    - [initial](./docs/api.md#initial)
     - [free](./docs/api.md#free)
     - [mock](./docs/api.md#mock)
     - [unmock](./docs/api.md#unmock)
   - Unsubscribe scopes control
+    - [un](./docs/api.md#un)
     - isolate
-    - un
   - Async api
     - [pool](./docs/api.md#pool)
   - Track and transactions
@@ -141,7 +141,7 @@ const App = () => {
     - [useValue](./docs/api.md#usevalue)
     - [useValues](./docs/api.md#usevalues)
     - useLocal
-    - useScoped
+    - [useScoped](./docs/api.md#usescoped)
     - useShared
     - Scope
     - [useJsx](./docs/api.md#usejsx)
