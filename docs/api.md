@@ -380,8 +380,8 @@ React component's context the shareable stateful logic availability. _[play on c
 ```javascript
 const dialogLogic = () => {
   const opened = value.flag();
-  const open = opened.updater(() => true);
-  const close = opened.updater(() => false);
+  const open = () => opened(true);
+  const close = () => opened(false);
   return { opened, open, close };
 };
 
