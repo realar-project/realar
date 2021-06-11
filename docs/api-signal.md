@@ -59,6 +59,7 @@ The `signal` instance has different methods:
   - pre.filter
   - pre.filter.not
 - The state updating
+  - update
   - update.by
   - updater
   - updater.multiple

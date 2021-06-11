@@ -32,12 +32,13 @@ We learned how to create a value, set it, and get it.
 The `value` reactive container instance has different methods for perfect operations with state:
 
 - The state updating
-  - update.by
-  - updater
-  - updater.multiple
+  - [update](#update)
+  - [update.by](#updateby)
+  - [updater](#updater)
+  - [updater.multiple](#updatermultiple)
 - Selection from state
   - [select](#select)
-  - select.multiple
+  - [select.multiple](#selectmultiple)
 - Subscription and syncronization
   - to
   - to.once
@@ -57,7 +58,67 @@ The `value` reactive container instance has different methods for perfect operat
   - from
 
 
-### select
+### The state updating
+
+#### update
+
+Update state of a reactive container using a function with current state passed as the first argument.
+
+```javascript
+const v = value(0)
+
+v.update(state => state + 10)
+
+console.log(v.val) // in console: 10
+```
+
+#### update.by
+
+Update state of a reactive container using a signal, or another reactive expression.
+
+```javascript
+const add = signal<number>();
+
+const v = value(0)
+  .update.by(add, (state, num) => state + num);
+
+add(10);
+console.log(v.val) // in console: 10
+```
+
+#### updater
+
+Create a new signal for updating a reactive container.
+
+```javascript
+const v = value(0)
+
+const add = v.updater((state, num: number) => state + num)
+
+add(10);
+console.log(v.val) // in console: 10
+```
+
+#### updater.multiple
+
+Create multiple new signals for updating a reactive container.
+
+```javascript
+const v = value(0)
+
+const api = v.updater.multiple({
+  inc: (state) => state + 1,
+  add: (state, num: number) => state + num
+});
+
+add(10);
+inc();
+console.log(v.val) // in console: 11
+```
+
+### Selection from state
+
+#### select
 
 Necessary for making high-cost calculations and cache them for many times of accessing without changing source dependencies. And for downgrade (selection from) your hierarchical store. _[play on runkit](https://runkit.com/betula/60c092996e3b91001aadb872)_
 
@@ -77,4 +138,66 @@ store.update(state => ({
   city: 'LA'
 }));
 ```
+
+#### select.multiple
+
+Create multiple selectors from the state of the reactive container.
+
+```javascript
+const store = value({
+  city: 'NY',
+  user: 'Joe'
+});
+
+const { city, user } = store.select.multiple({
+  city: state => state.city,
+  user: state => state.user
+});
+
+// Subscribe to city selector updates
+city.to(name => console.log('city', name));
+// And to user
+user.to(name => console.log('user', name));
+
+// We will see reaction on deleveloper console output with new city and user selector values
+store.update(state => ({
+  ...state,
+  city: 'LA',
+  user: 'Mike'
+}));
+```
+
+### Subscription and syncronization
+
+#### to
+
+#### to.once
+
+#### sync
+
+#### promise
+
+### Actions before updating
+
+#### pre
+
+#### pre.filter
+
+#### pre.filter.not
+
+### The state transformation
+
+#### map
+
+### Shortcut and type casting
+
+#### wrap
+
+#### as.signal
+
+### Static methods
+
+#### combine
+
+#### from
 
