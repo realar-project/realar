@@ -302,9 +302,6 @@ interface E_Value<I, O> extends
   wrap: {
     <N, R>(pre: (value: N, state: WillExpand<O>) => I, map: (value: WillExpand<O>) => R): Value<N, R>
   }
-  as: {
-    signal(): Signal<I, O>
-  }
 }
 
 
@@ -317,9 +314,6 @@ interface E_ValueReadonly<O> extends
 
     to(): ValueReadonly<undefined>
     to<R>(value: R): ValueReadonly<R>
-  }
-  as: {
-    signal(): SignalReadonly<O>
   }
 }
 

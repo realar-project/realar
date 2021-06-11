@@ -50,9 +50,8 @@ The `value` reactive container instance has different methods for perfect operat
   - pre.filter.not
 - The state transformation
   - map
-- Shortcut and type casting
+- Shortcut
   - [wrap](#wrap)
-  - as.signal
 - Static methods
   - combine
   - from
