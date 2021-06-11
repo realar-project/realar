@@ -5,7 +5,7 @@
   - [signal](./api-signal.md)
 - Imperative framework
   - [on](#on)
-  - on.once
+  - [on.once](#ononce)
   - [sync](#sync)
   - [cycle](#cycle)
 - Class decorators for TRFP
@@ -28,6 +28,7 @@
   - [untrack.func](#untrackfunc)
 - React bindings
   - [observe](#observe)
+  - observe.nomemo
   - [useValue](#usevalue)
   - [useValues](#usevalues)
   - [useShared](#useshared)
@@ -70,6 +71,17 @@ count(5); // We will see 6 and 1 in developer console output, It are new and pre
 ```
 
 #### on.once
+
+Subscribe listener to reactive expression only for one time. After it listener will be unsubscribed.
+
+```javascript
+const count = value(0);
+on.once(count, (val) => console.log(val));
+
+count(1); // in console: 1
+count(2); // nothing in console because once reaction already been
+```
+
 
 
 #### sync

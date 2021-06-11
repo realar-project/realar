@@ -115,7 +115,7 @@ const App = () => {
     - [signal](./docs/api-signal.md)
   - Imperative framework
     - [on](./docs/api.md#on)
-    - on.once
+    - [on.once](./docs/api.md#ononce)
     - [sync](./docs/api.md#sync)
     - [cycle](./docs/api.md#cycle)
   - Class decorators for TRFP
