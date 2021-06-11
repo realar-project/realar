@@ -40,10 +40,10 @@ The `value` reactive container instance has different methods for perfect operat
   - [select](#select)
   - [select.multiple](#selectmultiple)
 - Subscription and syncronization
-  - to
-  - to.once
-  - sync
-  - promise
+  - [to](#to)
+  - [to.once](#toonce)
+  - [sync](#sync)
+  - [promise](#promise)
 - Actions before updating
   - pre
   - pre.filter
@@ -171,11 +171,61 @@ store.update(state => ({
 
 #### to
 
+Subscribe to change reactive container
+
+```javascript
+const v = value(0)
+
+v.to((state, prev) => console.log(state, prev));
+
+v(1) // in console: 1 0
+v(5) // in console: 5 1
+v(9) // in console: 9 5
+```
+
 #### to.once
+
+Subscribe to change reactive container only once
+
+```javascript
+const v = value(0)
+
+v.to.once((state, prev) => console.log(state, prev));
+
+v(1) // in console: 1 0
+v(5) // nothing in console
+```
 
 #### sync
 
+Subscribe to change reactive container with initialization call. Useful for "connect" one value to another. _[play on runkit](https://runkit.com/betula/60c314c95b2d8e001a557de6)_
+
+```javascript
+const a = value(0);
+const b = value(0);
+
+sync(b, a);
+sync(a, b);
+
+a(10);
+console.log(b.val) // in console: 10
+b(11);
+console.log(a.val) // in console: 11
+```
+
 #### promise
+
+The promise for the next value. _[play on runkit](https://runkit.com/betula/60c3169d751eca001ae034ae)_
+
+```javascript
+const v = value(0);
+
+v.promise
+  .then((state) => console.log(state));
+
+v(10); // in console: 10
+```
+
 
 ### Actions before updating
 

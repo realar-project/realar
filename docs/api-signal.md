@@ -19,7 +19,7 @@ class Animation {
 shared(Animation);
 startAnimation();
 ```
-[Edit on RunKit](https://runkit.com/betula/602f62db23b6cd001adc5dfa)
+[Play on runkit](https://runkit.com/betula/602f62db23b6cd001adc5dfa)
 
 If you making an instance of a class with a subscription in the constructor, though `shared`, `useLocal`, `useScoped` Realar functions, It will be unsubscribed automatically.
 
@@ -34,7 +34,7 @@ on(add, num => store.val += num);
 add(15);
 console.log(store.val); // console output: 16
 ```
-[Edit on RunKit](https://runkit.com/betula/6013af7649e8720019c9cf2a)
+[Play on runkit](https://runkit.com/betula/6013af7649e8720019c9cf2a)
 
 An signal is convenient to use as a promise.
 
@@ -45,7 +45,7 @@ fire.promise.then(() => console.log('Fire'));
 fire();
 
 ```
-[Edit on RunKit](https://runkit.com/betula/601e3b0056b62d001bfa391b)
+[Play on runkit](https://runkit.com/betula/601e3b0056b62d001bfa391b)
 
 The `signal` instance has different methods:
 
