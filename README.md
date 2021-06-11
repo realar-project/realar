@@ -129,7 +129,7 @@ const App = () => {
     - [unmock](./docs/api.md#unmock)
   - Unsubscribe scopes control
     - [un](./docs/api.md#un)
-    - isolate
+    - [isolate](./docs/api.md#isolate)
   - Async api
     - [pool](./docs/api.md#pool)
   - Track and transactions
@@ -138,11 +138,11 @@ const App = () => {
     - [untrack.func](./docs/api.md#untrackfunc)
   - React bindings
     - [observe](./docs/api.md#observe)
-    - observe.nomemo
+    - [observe.nomemo](./docs/api.md#observenomemo)
     - [useValue](./docs/api.md#usevalue)
     - [useValues](./docs/api.md#usevalues)
     - [useShared](./docs/api.md#useshared)
-    - useLocal
+    - [useLocal](./docs/api.md#uselocal)
     - [Scope, useScoped](./docs/api.md#scope-usescoped)
     - [useJsx](./docs/api.md#usejsx)
 
