@@ -51,7 +51,7 @@ The `value` reactive container instance has different methods for perfect operat
 - The state transformation
   - map
 - Shortcut and type casting
-  - wrap
+  - [wrap](#wrap)
   - as.signal
 - Static methods
   - combine
@@ -242,6 +242,17 @@ v(10); // in console: 10
 ### Shortcut and type casting
 
 #### wrap
+
+This is the shortcut for [pre](#pre) and [map](#map) applied to a value.
+
+```javascript
+const v = value('');
+
+const v.pre(ev => ev.target.value).map(val => +val || 0)
+
+// And the shortcutted version
+const v.wrap(ev => ev.target.value, val => +val || 0)
+```
 
 #### as.signal
 
