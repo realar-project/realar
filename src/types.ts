@@ -291,9 +291,6 @@ interface E_Value<I, O> extends
   map: {
     <R>(func: (value: WillExpand<O>) => R): Value<I, R>         // tracked by default
     untrack<R>(func: (value: WillExpand<O>) => R): Value<I, R>
-
-    to(): Value<I, undefined>
-    to<R>(value: R): Value<I, R>
   }
   pre: E_PreFilterUnTrackedPartial<I, Value<I, O>> & {
     <N>(func?: (value: N, state: WillExpand<O>) => I): Value<N, O>  // untracked by default
@@ -311,9 +308,6 @@ interface E_ValueReadonly<O> extends
   map: {
     <R>(func: (value: WillExpand<O>) => R): ValueReadonly<R>         // tracked by default
     untrack<R>(func: (value: WillExpand<O>) => R): ValueReadonly<R>
-
-    to(): ValueReadonly<undefined>
-    to<R>(value: R): ValueReadonly<R>
   }
 }
 
