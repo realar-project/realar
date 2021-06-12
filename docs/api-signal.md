@@ -27,9 +27,6 @@ Most of the signal api such as [value](./api-value.md) api, but exist different 
 - Casting signal to the value
   - as.value
 
-
-And signal don't have similar to [value.combine](./api-value.md#valuecombine) method.
-
 The list of methods similar to the value:
 
 - The state updating
