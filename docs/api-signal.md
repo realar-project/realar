@@ -47,32 +47,41 @@ fire();
 ```
 [Play on runkit](https://runkit.com/betula/601e3b0056b62d001bfa391b)
 
-The `signal` instance has different methods:
+Most of the signal api such as [value](./api-value.md) api, but exist different methods:
 
-- The state transformation
+- The stopping signal flow
   - filter
   - filter.not
-  - map
+- The state flow transformation
   - map.to
-- Actions before updating
-  - pre
-  - pre.filter
-  - pre.filter.not
+  - map
+- Casting signal to the value
+  - as.value
+
+
+And signal don't have similar to [value.combine](./api-value.md#valuecombine) method.
+
+The list of methods similar to the value:
+
 - The state updating
   - update
   - update.by
   - updater
   - updater.multiple
 - The state selectors
-  - [select](#select)
+  - select
   - select.multiple
 - Subscription and syncronization
   - to
   - to.once
   - sync
   - promise
-- Shortcut and type casting
+- Actions before updating
+  - pre
+  - pre.filter
+  - pre.filter.not
+- Shortcut
   - wrap
-  - as.value
-- Static methods
-  - from
+- Static method
+  - signal.from
+

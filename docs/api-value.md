@@ -49,12 +49,12 @@ The `value` reactive container instance has different methods for perfect operat
   - [pre.filter](#prefilter)
   - [pre.filter.not](#prefilternot)
 - The state transformation
-  - map
+  - [map](#map)
 - Shortcut
   - [wrap](#wrap)
 - Static methods
-  - combine
-  - [from](#from)
+  - [value.combine](#valuecombine)
+  - [value.from](#valuefrom)
 
 
 ### The state updating
@@ -287,11 +287,7 @@ disabled(true)
 name('Mike') // nothing changing because the "disabled" state is true
 ```
 
-### The state transformation
-
-#### map
-
-### Shortcut and type casting
+### Shortcut
 
 #### wrap
 
@@ -306,11 +302,50 @@ const v.pre(ev => ev.target.value).map(val => +val || 0)
 const v.wrap(ev => ev.target.value, val => +val || 0)
 ```
 
+### The state transformation
+
+#### map
+
+The map method making new value with transformed output state value.
+
+```javascript
+const current = value(0)
+const next = current.map(state => state + 1)
+
+next(2)
+console.log(next.val) // in console: 3
+```
+
+The map callback can contain connection to other reactive expressions by reading inside
+
+```javascript
+const current = value(1)
+const add = value(2)
+
+current
+  .map(state => state + add.val)
+  .to(state => console.log(state))
+
+current(2)  // in console: 4
+add(3)      // in console: 5
+```
+
 ### Static methods
 
-#### combine
+#### value.combine
 
-#### from
+Combine several reactive containers of reactive expressions to one
+
+```javascript
+const user = value('Joe')
+const city = value('LA')
+
+const contact = value.combine({ user, city })
+
+concact.sync(state => console.log(state)) // in console: { user: 'Joe', city: 'LA' }
+```
+
+#### value.from
 
 Create new readonly or usual reactive container from one or two reactive expressions
 
