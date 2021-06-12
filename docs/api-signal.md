@@ -25,7 +25,7 @@ Most of the signal api such as [value](./api-value.md) api, but exist different 
   - [map](#map)
   - [map.to](#mapto)
 - Casting signal to the value
-  - as.value
+  - [as.value](#asvalue)
 
 The list of methods similar to the value:
 
@@ -59,7 +59,6 @@ The list of methods similar to the value:
 #### filter.not
 
 ### The state flow transformation
-
 
 #### map
 
@@ -117,6 +116,17 @@ inc(); // in concole: 2
 ### Casting signal to the value
 
 #### as.value
+
+Convert signal to [value](./api-value.md). The setter will be passed without any transformation, but the signal's getter will be transformed to caching value and reactioning only by the changed state.
+
+```javascript
+const v = signal(0);
+
+v.as.value().to(state => console.log(state));
+
+v(0) // nothing in console because the state has no changing
+v(1) // in console: 1
+```
 
 ### The state updating
 
