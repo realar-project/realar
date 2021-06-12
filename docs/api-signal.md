@@ -19,8 +19,8 @@ console.log(store.val); // console output: 31
 Most of the signal api such as [value](./api-value.md) api, but exist different methods:
 
 - The stopping signal flow
-  - filter
-  - filter.not
+  - [filter](#filter)
+  - [filter.not](#filternot)
 - The state flow transformation
   - [map](#map)
   - [map.to](#mapto)
@@ -56,7 +56,43 @@ The list of methods similar to the value:
 
 #### filter
 
+The filter function provides the breaking of the signal flow by any reactive expression or reactive container. The filter doesn't collect dependency by reading.
+
+```javascript
+const positive = signal<number>()
+  .filter(state => state > 0)
+  .to(state => console.log(state));
+
+positive(0) // nothing in console because the filter callback returns false
+positive(1) // in console: 1
+positive(1) // in console: 1
+```
+
+```javascript
+const enabled = value(false);
+const fire = signal()
+  .filter(enabled)
+  .to(() => console.log('fire'));
+
+fire()        // nothing in console because the filter reactive container has false in the state
+enabled(true) // nothing in console because the signal filter doesn't collect dependency by reading
+fire()        // in console: fire
+```
+
 #### filter.not
+
+Such as [filter](#filter) but with an inverted filter value.
+
+```javascript
+const disabled = value(true);
+const fire = signal()
+  .filter.not(disabled)
+  .to(() => console.log('fire'));
+
+fire()          // nothing in console because the filter reactive container has true in the state
+disabled(false) // nothing in console because the signal filter doesn't collect dependency by reading
+fire()          // in console: fire
+```
 
 ### The state flow transformation
 
