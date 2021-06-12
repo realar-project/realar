@@ -100,6 +100,8 @@ export const App = () => (
 
 This feature can be useful for removing logic from the body of a component to keep that free of unnecessary code, and therefore cleaner.
 
+If you making an instance of a class with a subscription in the constructor, though `shared`, `useLocal`, `useScoped` Realar functions, It will be unsubscribed automatically.
+
 
 ### React context access visibility level
 

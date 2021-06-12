@@ -1,51 +1,20 @@
 ## signal
 
-The `signal` allows you to trigger an event or action and delivers the functionality to subscribe to it anywhere in your application code.
-
-Usually, signal subscription (_by `on` function_) very comfortable coding in class constructors.
-
-```javascript
-const startAnimation = signal();
-
-class Animation {
-  constructor() {
-    on(startAnimation, this.start);
-  }
-  start = async () => {
-    console.log('animation starting...');
-  }
-}
-
-shared(Animation);
-startAnimation();
-```
-[Play on runkit](https://runkit.com/betula/602f62db23b6cd001adc5dfa)
-
-If you making an instance of a class with a subscription in the constructor, though `shared`, `useLocal`, `useScoped` Realar functions, It will be unsubscribed automatically.
-
-Below other examples
+The `signal` allows you to trigger an event or action and delivers the functionality to subscribe to it anywhere in your application code. Signal has the big part equals with the [value](./api-value.md), but have an important difference - you can call signal with the same state, but value can be updated only to a new state is not equals previous one. _[play on runkit](https://runkit.com/betula/60c467c1cd62c9001b408847)_
 
 ```javascript
 const add = signal<number>();
 
-const store = value(1);
-on(add, num => store.val += num);
+const store = value(1)
+  .update.by(add, (state, num: number) => state + num)
 
 add(15);
 console.log(store.val); // console output: 16
+
+add(15);
+console.log(store.val); // console output: 31
 ```
-[Play on runkit](https://runkit.com/betula/6013af7649e8720019c9cf2a)
 
-An signal is convenient to use as a promise.
-
-```javascript
-const fire = signal();
-
-fire.promise.then(() => console.log('Fire'));
-fire();
-
-```
-[Play on runkit](https://runkit.com/betula/601e3b0056b62d001bfa391b)
 
 Most of the signal api such as [value](./api-value.md) api, but exist different methods:
 
