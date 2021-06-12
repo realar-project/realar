@@ -251,7 +251,7 @@ const Form = () => {
 }
 
 const App = observe(() => {
-  const opened = useLocal(value.flag);
+  const opened = useLocal(() => value(false));
   const toggle = useLocal(() => opened.updater(state => !state), [opened]);
 
   return <>
@@ -482,7 +482,7 @@ React component's context the shareable stateful logic availability. _[play on c
 
 ```javascript
 const dialogLogic = () => {
-  const opened = value.flag();
+  const opened = value(false);
   const open = () => opened(true);
   const close = () => opened(false);
   return { opened, open, close };

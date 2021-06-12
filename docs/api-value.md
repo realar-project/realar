@@ -54,8 +54,7 @@ The `value` reactive container instance has different methods for perfect operat
   - [wrap](#wrap)
 - Static methods
   - combine
-  - from
-  - flag
+  - [from](#from)
 
 
 ### The state updating
@@ -313,5 +312,18 @@ const v.wrap(ev => ev.target.value, val => +val || 0)
 
 #### from
 
-#### flag
+Create new readonly or usual reactive container from one or two reactive expressions
 
+```javascript
+const v = value(1);
+
+value.from(() => v.val + 1).to(state => console.log(state))
+value.from(v)     // readonly "v"
+value.from(v, v)  // give the same value as "v"
+
+const p = value.from(() => v.val, state => (v.val += state));
+console.log(p.val)  // in console: 1
+
+p(10)               // in console: 12
+console.log(p.val)  // in console: 11
+```

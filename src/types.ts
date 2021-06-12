@@ -383,10 +383,6 @@ type ValueEntry = {
     (): Value;
     <T>(initial: T): Value<T>;
   };
-  flag: {
-    (): Value<any, boolean>;
-    (initial: any): Value<any, boolean>;
-  }
 
   from: {
     <O>(get: Re<O>): ValueReadonly<WillExpand<O>>
@@ -484,11 +480,6 @@ type SignalEntry = {
       }
     }
   };
-
-  flag: {
-    (): Signal<any, boolean>;
-    (initial: any): Signal<any, boolean>;
-  }
 
   from: {
     <O>(get: Re<O>): SignalReadonly<O>
