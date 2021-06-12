@@ -76,3 +76,4 @@ The `signal` instance has different methods:
   - as.value
 - Static methods
   - from
+  - flag

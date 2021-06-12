@@ -45,9 +45,9 @@ The `value` reactive container instance has different methods for perfect operat
   - [sync](#sync)
   - [promise](#promise)
 - Actions before updating
-  - pre
-  - pre.filter
-  - pre.filter.not
+  - [pre](#pre)
+  - [pre.filter](#prefilter)
+  - [pre.filter.not](#prefilternot)
 - The state transformation
   - map
 - Shortcut
@@ -55,6 +55,7 @@ The `value` reactive container instance has different methods for perfect operat
 - Static methods
   - combine
   - from
+  - flag
 
 
 ### The state updating
@@ -225,14 +226,67 @@ v.promise
 v(10); // in console: 10
 ```
 
-
 ### Actions before updating
 
 #### pre
 
+You can prepend modification of your reactive container with additional function which will be called before the state modification.
+
+```javascript
+const v = value(0);
+
+const fromstr = v.pre((str: string) => +str);
+
+fromstr('10');
+console.log(fromstr.val === 10) // in console: true
+```
+
+The most often case for its functionality is the prepending for input events. You can write event object to the reactive container, but store and read the value from element passed through `event.target.value`.
+
+```javascript
+const input = value('Joe')
+  .pre((ev: React.ChangeEvent<HTMLInputElement>) => ev.target.value);
+
+const Input = observe(() => (
+  <input value={input.val} onChange={input} />
+))
+```
+
 #### pre.filter
 
+You can check the value before the reactive container modification. If checker returns false state not be updated, if true - passing and update.
+
+```javascript
+const enabled = value(false)
+
+const name = value('Joe').pre.filter(enabled)
+// possible to pass not only the reactive container, but any expression too
+// .pre.filter(() => barrier.val)
+
+name('Do') // nothing changing because the "enabled" state is false
+console.log(name.val) // in concole: Joe
+
+enabled(true)
+name('Mike')
+console.log(name.val) // in console: Mike
+```
+
 #### pre.filter.not
+
+Such as [pre.filter](#prefilter) but with an inverted filter value.
+
+```javascript
+const disabled = value(false)
+
+const name = value('Joe')
+  .pre.filter.not(disabled)
+  .to(state => console.log(state));
+
+name('Do') // in console: Do
+
+disabled(true)
+name('Mike') // nothing changing because the "disabled" state is true
+```
 
 ### The state transformation
 
@@ -253,11 +307,11 @@ const v.pre(ev => ev.target.value).map(val => +val || 0)
 const v.wrap(ev => ev.target.value, val => +val || 0)
 ```
 
-#### as.signal
-
 ### Static methods
 
 #### combine
 
 #### from
+
+#### flag
 
