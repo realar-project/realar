@@ -135,6 +135,10 @@ class Todos {
   constructor() {
     on(() => this.items, () => console.log('items changed'));
   }
+
+  add(todo: string) {
+    this.items = this.items.concat(todo); // an immutable modification
+  }
 }
 ```
 
