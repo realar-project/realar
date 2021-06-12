@@ -20,7 +20,7 @@ store.update(state => state + 1)
 
 console.log(store.val) // 4
 ```
-[Edit on RunKit](https://runkit.com/betula/60bf30ec1d58dc0019e826b1)
+[Play on runkit](https://runkit.com/betula/60bf30ec1d58dc0019e826b1)
 
 In that example
 - for a first, we created `value` container for number, with an initial zero
