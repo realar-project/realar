@@ -22,8 +22,8 @@ Most of the signal api such as [value](./api-value.md) api, but exist different 
   - filter
   - filter.not
 - The state flow transformation
-  - map.to
-  - map
+  - [map](#map)
+  - [map.to](#mapto)
 - Casting signal to the value
   - as.value
 
@@ -51,6 +51,72 @@ The list of methods similar to the value:
 - Static method
   - [signal.from](#signalfrom)
 
+
+### The stopping signal flow
+
+#### filter
+
+#### filter.not
+
+### The state flow transformation
+
+
+#### map
+
+The map method making new value with transformed output state signal.
+
+```javascript
+const current = signal(0)
+const next = current.map(state => state + 1)
+
+next(2)
+console.log(next.val) // in console: 3
+```
+
+For signals, without an initial state, the map's function will be called only after that state will available
+
+```javascript
+const current = signal<number>()
+const next = current.map(state => state + 1)
+
+console.log(next.val) // in console: undefined
+current(0);
+console.log(next.val) // in console: 1
+```
+
+The map callback opposite of [value](./api-value.md#map) can't contain a connection to other reactive expressions by reading inside
+
+```javascript
+const current = signal(1)
+const add = signal(2)
+
+current
+  .map(state => state + add.val)
+  .to(state => console.log(state))
+
+current(2)  // in console: 4
+add(3)      // nothing in console because signal's map no connect to "add" signal value by reading
+current(2)  // in console: 5
+```
+
+#### map.to
+
+Make the map's transformation to a constant value, have a reason to use only for signals without default state.
+
+```javascript
+const inc = signal<number>().map.to(1);
+
+value(0)
+  .update.by(inc, (state, num) => state + num)
+  .to(state => console.log(state));
+
+inc(); // in console: 1
+inc(); // in concole: 2
+```
+
+### Casting signal to the value
+
+#### as.value
 
 ### The state updating
 
