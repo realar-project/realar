@@ -54,10 +54,10 @@ type Re_CfgExemplar = {
 }
 
 type Will<T> = T | undefined;
-type WillExpand<T> = ((p: T) => 0) extends ((p: Will<T>) => 0) ? [T] extends [Will<infer P>] ? P | undefined : T : T;
-type WillExtract<T> = ((p: T) => 0) extends ((p: Will<T>) => 0) ? [T] extends [Will<infer P>] ? P : T : T;
-type WillEnsure<T> = ((p: T) => 0) extends ((p: Will<T>) => 0) ? [T] extends [Will<infer P>] ?  Will<P> : Will<T> : Will<T>;
-type WillIf<T, R> = ((p: T) => 0) extends ((p: Will<T>) => 0) ? [T] extends [Will<infer P>] ? WillEnsure<R> : R : R;
+type WillExpand<T> = [T] extends [Will<unknown>] ? ((p: T) => 0) extends (p: Will<infer P>) => 0 ? P | undefined : T : T;
+type WillExtract<T> = [T] extends [Will<unknown>] ? ((p: T) => 0) extends (p: Will<infer P>) => 0 ? P : T : T;
+type WillEnsure<T> = [T] extends [Will<unknown>] ? ((p: T) => 0) extends (p: Will<infer P>) => 0 ?  Will<P> : Will<T> : Will<T>;
+type WillIf<T, R> = [T] extends [Will<unknown>] ? ((p: T) => 0) extends (p: Will<infer P>) => 0 ? WillEnsure<R> : R : R;
 
 //
 // Realar external api typings
