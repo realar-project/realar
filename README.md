@@ -85,19 +85,19 @@ const App = observe(() => {
 })
 ```
 
-And you can use it together <sup>_[play on codesandbox](https://codesandbox.io/s/realar-readme-example-together-cppu6?file=/src/App.tsx)_</sup>
+And you can use it together <sup>_[play on codesandbox](https://codesandbox.io/s/realar-readme-example-together-315r8?file=/src/App.tsx)_</sup>
 
 ```javascript
 const counter = new Counter()
+
 const store = value.from(() => counter.state)
 
-const App = () => {
-  const state = useValue(() => store.val)
-
-  return <p>{state}
+export const App = observe(() => (
+  <p>
+    {store.val}
     <button onClick={counter.inc}>+</button>
   </p>
-}
+))
 ```
 
 
@@ -160,9 +160,7 @@ const App = () => {
 
 ### Articles
 
-+ [Multiparadigm state manager for React by ~2 kB.](https://dev.to/betula/multiparadigm-state-manager-for-react-by-2-kb-4kh1)
-+ [The light decision for React state 👋](https://dev.to/betula/new-minimalistic-react-state-manager-3o39)
-
++ [State manager of dream](https://dev.to/betula/state-manager-of-dream-5766-temp-slug-158417?preview=4b030f68851211fd02704f12d7742ce193a8f9c893afd1e4249b88023e14d57b1e5a8a02c4aaa924f22beb44c69bba20617a0523e952120eb97ef344)
 
 ### Installation
 
