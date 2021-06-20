@@ -488,9 +488,9 @@ type SignalEntry = {
 //
 
 type Observe = {
-  <T extends FC>(FunctionComponent: T): React.MemoExoticComponent<T>;
+  <Props = {}>(FunctionComponent: FC<Props>): React.MemoExoticComponent<FC<Props>>;
   nomemo: {
-    <T extends FC>(FunctionComponent: T): T;
+    <Props = {}>(FunctionComponent: FC<Props>): FC<Props>;
   }
 }
 type UseScoped = {
