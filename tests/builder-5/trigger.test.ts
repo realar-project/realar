@@ -1,4 +1,4 @@
-import { on, signal } from '../../src';
+import { on, signal, sync, value } from '../../src';
 import { delay } from '../lib';
 
 test('should work signal.trigger with one value', async () => {
@@ -97,48 +97,63 @@ test('should work _signal.trigger wrapped', async () => {
   expect(spy).toHaveBeenNthCalledWith(3, 20, 0);
 });
 
+test('should work signal.trigger from value', async () => {
+  const spy = jest.fn();
 
-// test('should work ready from value', async () => {
-//   const spy = jest.fn();
+  const s = value(1);
+  const r = signal.trigger.from(s);
 
-//   const s = value(1);
-//   const r = ready.from(s);
+  sync(r, spy);
 
-//   sync(r, spy);
+  s(1);
+  s(2);
+  s(3);
 
-//   s(1);
-//   s(2);
-//   s(3);
+  expect(spy).toBeCalledTimes(2);
+  expect(spy).toHaveBeenNthCalledWith(1, 1, void 0);
+  expect(spy).toHaveBeenNthCalledWith(2, 2, 1);
+});
 
-//   expect(spy).toBeCalledTimes(2);
-//   expect(spy).toHaveBeenNthCalledWith(1, 1);
-//   expect(spy).toHaveBeenNthCalledWith(2, 2, 1);
-// });
+test('should work signal.trigger from signal', async () => {
+  const spy = jest.fn();
 
-// test('should work ready from signal', async () => {
-//   const spy = jest.fn();
+  const s = signal(1);
+  const r = signal.trigger.from(s);
 
-//   const s = _signal(1);
-//   const r = ready.from(s);
+  sync(r, spy);
 
-//   sync(r, spy);
+  s(1);
+  s(3);
 
-//   s(1);
-//   s(3);
+  expect(spy).toBeCalledTimes(2);
+  expect(spy).toHaveBeenNthCalledWith(1, 1, void 0);
+  expect(spy).toHaveBeenNthCalledWith(2, 1, 1);
+});
 
-//   expect(spy).toBeCalledTimes(2);
-//   expect(spy).toHaveBeenNthCalledWith(1, 1);
-//   expect(spy).toHaveBeenNthCalledWith(2, 1, 1);
-// });
+test('should work signal.trigger.flag from expression', async () => {
+  const spy = jest.fn();
 
-// test('should work ready resolved', async () => {
-//   const r = ready.resolved(1);
-//   expect(r.val).toBe(1);
-//   expect(await r.promise).toBe(1);
-// });
+  const v = value(0);
+  const r = signal.trigger.flag.from(() => !!v.val);
 
-// test('should work ready with undefined resolved', async () => {
-//   const r = ready.resolved();
-//   expect(r.val).toBe(void 0);
-//   expect(await r.promise).toBe(void 0);
-// });
+  sync(r, spy);
+
+  v(1);
+  v(0);
+
+  expect(spy).toBeCalledTimes(2);
+  expect(spy).toHaveBeenNthCalledWith(1, false, void 0);
+  expect(spy).toHaveBeenNthCalledWith(2, true, false);
+});
+
+test('should work signal.trigger resolved', async () => {
+  const r = signal.trigger.resolved(1);
+  expect(r.val).toBe(1);
+  expect(await r.promise).toBe(1);
+});
+
+test('should work signal.trigger with undefined resolved', async () => {
+  const r = signal.trigger.resolved();
+  expect(r.val).toBe(void 0);
+  expect(await r.promise).toBe(void 0);
+});

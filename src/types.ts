@@ -476,11 +476,17 @@ type SignalEntry = {
       resolved: {
         (value: boolean): Signal<void, boolean>;
       }
+      from: {
+        (get: Re<boolean>): SignalReadonly<boolean>
+      }
     }
 
     resolved: {
       <T>(value: T): Signal<void, T>;
       (): Signal;
+    }
+    from: {
+      <O>(get: Re<O>): SignalReadonly<O>
     }
   };
 
