@@ -477,6 +477,11 @@ type SignalEntry = {
         (value: boolean): Signal<void, boolean>;
       }
     }
+
+    resolved: {
+      <T>(value: T): Signal<void, T>;
+      (): Signal;
+    }
   };
 
   from: {

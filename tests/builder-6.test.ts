@@ -563,14 +563,36 @@ test('should work signal.trigger.flag.resolved', async () => {
   expect(f.val).toBe(true);
   expect(i.val).toBe(false);
 
-  await f.val;
-  await i.val;
+  await f.promise;
+  await i.promise;
 
   f.reset();
   i.reset();
 
   expect(f.val).toBe(false);
   expect(i.val).toBe(true);
+});
+
+test('should work signal.trigger.resolved', async () => {
+  const f = signal.trigger.resolved(true);
+  const i = signal.trigger.resolved();
+
+  expect(f.val).toBe(true);
+  expect(i.val).toBe(void 0);
+
+  let p,m;
+  await (p = f.promise);
+  await (m = i.promise);
+
+  expect(f.promise).toBe(p);
+  expect(i.promise).toBe(m);
+  f.reset();
+  i.reset();
+  expect(f.promise).not.toBe(p);
+  expect(i.promise).not.toBe(m);
+
+  expect(f.val).toBe(true);
+  expect(i.val).toBe(void 0);
 });
 
 test('should work value.from basic support', () => {

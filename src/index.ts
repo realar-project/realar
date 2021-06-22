@@ -194,6 +194,7 @@ const key_wrap = 'wrap';
 const key_has_default = new_symbol();
 const key_func = 'func';
 const key_resolved = 'resolved';
+const key_is_trigger = new_symbol();
 
 
 
@@ -257,14 +258,17 @@ const obj_def_prop_promise = (obj) => {
   return obj_def_prop(obj, key_promise, {
     get() {
       const ctx = this;
+      const h = ctx[key_handler];
       if (!ctx[key_promise_internal]) {
-        ctx[key_promise_internal] = new Promise((resolve) =>
-          // TODO: should be the highest priority.
-          expr(ctx[key_get], () => {
-            if (!ctx[key_handler][key_reset_promise_by_reset]) ctx[key_promise_internal] = 0;
-            resolve(ctx[key_get]());
-          })[0]()
-        );
+        ctx[key_promise_internal] = (h[key_is_trigger] && h[key_touched_internal])
+          ? Promise.resolve(untrack(ctx[key_get]))
+          : new Promise((resolve) =>
+            // TODO: should be the highest priority.
+            expr(ctx[key_get], () => {
+              if (!ctx[key_handler][key_reset_promise_by_reset]) ctx[key_promise_internal] = 0;
+              resolve(ctx[key_get]());
+            })[0]()
+          );
       }
       return ctx[key_promise_internal];
     }
@@ -744,6 +748,7 @@ const make_trigger = (initial, has_inverted_to?, is_signal?) => {
     : (v) => { h[key_touched_internal] || h[1](v) };
   h[key_reset_promise_by_reset] = 1;
   h[key_is_signal] = is_signal;
+  h[key_is_trigger] = 1;
   h[key_has_default] = 1;
   return fill_entity(h, proto_entity_writtable_leaf, 1, initial, 0, set);
 }
@@ -789,9 +794,12 @@ const signal: SignalEntry = (function (initial) {
 }) as any;
 
 const signal_trigger = (initial) => make_trigger(initial, 0, 1);
+const signal_trigger_resolved = (val) => {
+  const ent = signal_trigger(val); ent(val); return ent;
+}
 const signal_trigger_flag = (initial) => make_trigger(!!initial, 1, 1);
-const signal_trigger_flag_resolved = (initial) => {
-  const flag = signal_trigger(!initial); flag(!!initial); return flag;
+const signal_trigger_flag_resolved = (val) => {
+  const flag = signal_trigger(!val); flag(!!val); return flag;
 }
 const signal_from = (get, set?) => {
   const h = [get[key_get] || get];
@@ -804,6 +812,7 @@ const signal_from = (get, set?) => {
 
 signal_trigger_flag[key_resolved] = signal_trigger_flag_resolved;
 signal_trigger[key_flag] = signal_trigger_flag;
+signal_trigger[key_resolved] = signal_trigger_resolved;
 signal[key_trigger] = signal_trigger as any;
 signal[key_from] = signal_from;
 
