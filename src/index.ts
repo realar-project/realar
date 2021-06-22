@@ -802,18 +802,6 @@ const signal_trigger_flag = (initial) => make_trigger(!!initial, 1, 1);
 const signal_trigger_flag_resolved = (val) => {
   const flag = signal_trigger_flag(!val); flag(); return flag;
 }
-const signal_trigger_flag_from = (get) => {
-  const flag = signal_trigger_flag(untrack(get[key_get] || get));
-  reactionable_subscribe(get, flag);
-  obj_def_prop_value(flag, key_reset, () => trait_ent_reinit(flag, !!untrack(get[key_get] || get)));
-  return flag;
-}
-const signal_trigger_from = (get) => {
-  const ent = signal_trigger(untrack(get[key_get] || get));
-  reactionable_subscribe(get, ent);
-  obj_def_prop_value(ent, key_reset, () => trait_ent_reinit(ent, untrack(get[key_get] || get)))
-  return ent;
-}
 const signal_from = (get, set?) => {
   const h = [get[key_get] || get];
   h[key_is_signal] = 1
@@ -824,10 +812,8 @@ const signal_from = (get, set?) => {
 }
 
 signal_trigger_flag[key_resolved] = signal_trigger_flag_resolved;
-signal_trigger_flag[key_from] = signal_trigger_flag_from;
 signal_trigger[key_flag] = signal_trigger_flag;
 signal_trigger[key_resolved] = signal_trigger_resolved;
-signal_trigger[key_from] = signal_trigger_from;
 signal[key_trigger] = signal_trigger as any;
 signal[key_from] = signal_from;
 
