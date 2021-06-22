@@ -115,7 +115,6 @@ export const App = observe(() => (
     - [signal](./docs/api-signal.md)
   - Imperative framework
     - [on](./docs/api.md#on)
-    - [on.once](./docs/api.md#ononce)
     - [sync](./docs/api.md#sync)
     - [cycle](./docs/api.md#cycle)
   - Class decorators for TRFP
@@ -135,10 +134,8 @@ export const App = observe(() => (
   - Track and transactions
     - [transaction](./docs/api.md#transaction)
     - [untrack](./docs/api.md#untrack)
-    - [untrack.func](./docs/api.md#untrackfunc)
   - React bindings
     - [observe](./docs/api.md#observe)
-    - [observe.nomemo](./docs/api.md#observenomemo)
     - [useValue](./docs/api.md#usevalue)
     - [useValues](./docs/api.md#usevalues)
     - [useShared](./docs/api.md#useshared)

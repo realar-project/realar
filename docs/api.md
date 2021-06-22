@@ -24,6 +24,7 @@
   - [pool](#pool)
 - Track and transactions
   - [transaction](#transaction)
+  - [transaction.func](#transactionfunc)
   - [untrack](#untrack)
   - [untrack.func](#untrackfunc)
 - React bindings
