@@ -294,8 +294,8 @@ interface E_Value<I, O> extends
     untrack<R>(func: (value: WillExpand<O>) => R): Value<I, R>
   }
   pre: E_PreFilterUnTrackedPartial<I, Value<I, O>> & {
-    <N>(func?: (value: N, state: WillExpand<O>) => I): Value<N, O>  // untracked by default
-    track<N>(func?: (value: N, state: WillExpand<O>) => I): Value<N, O>
+    <N>(func?: (value: N, state: WillExpand<O>) => I): Equals<N, unknown> extends true ? Value<void, O> : Value<N, O>  // untracked by default
+    track<N>(func?: (value: N, state: WillExpand<O>) => I): Equals<N, unknown> extends true ? Value<void, O> : Value<N, O>
   }
   wrap: {
     <N, R>(pre: (value: N, state: WillExpand<O>) => I, map: (value: WillExpand<O>) => R): Value<N, R>
@@ -325,8 +325,8 @@ interface E_Signal<I, O> extends
     to<R>(value: R): Signal<I, WillIf<O, R>>
   }
   pre: E_PreFilterUnTrackedPartial<I, Signal<I, O>> & {
-    <N>(func?: (value: N, state: WillExpand<O>) => I): Signal<N, O>       // untracked by default
-    track<N>(func?: (value: N, state: WillExpand<O>) => I): Signal<N, O>
+    <N>(func?: (value: N, state: WillExpand<O>) => I): Equals<N, unknown> extends true ? Signal<void, O> : Signal<N, O>       // untracked by default
+    track<N>(func?: (value: N, state: WillExpand<O>) => I): Equals<N, unknown> extends true ? Signal<void, O> : Signal<N, O>
   }
   wrap: {
     <N, R>(pre: (value: N, state: WillExpand<O>) => I, map: (value: WillExtract<O>) => R): Signal<N, WillIf<O, R>>
