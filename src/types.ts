@@ -26,6 +26,7 @@ export {
 
   On,
   Sync,
+  Cycle,
 
   Transaction,
   Untrack,
@@ -64,12 +65,20 @@ type WillIf<T, R> = [T] extends [Will<unknown>] ? ((p: T) => 0) extends (p: Will
 //
 
 type On = {
-  <T>(target: Re<Will<T>>, fn: (value: T, prev: WillExpand<Will<T>>) => void): void
-  <T>(target: Re<T>, fn: (value: T, prev: T) => void): void
+  <T>(target: Re<Will<T>>, fn: (value: T, prev: WillExpand<Will<T>>) => void): () => void;
+  <T>(target: Re<T>, fn: (value: T, prev: T) => void): () => void;
+
+  once: {
+    <T>(target: Re<Will<T>>, fn: (value: T, prev: WillExpand<Will<T>>) => void): () => void;
+    <T>(target: Re<T>, fn: (value: T, prev: T) => void): () => void;
+  }
 }
 type Sync = {
-  <T>(target: Re<Will<T>>, fn: (value: T, prev: WillExpand<Will<T>>) => void): void
-  <T>(target: Re<T>, fn: (value: T, prev: T) => void): void
+  <T>(target: Re<Will<T>>, fn: (value: T, prev: WillExpand<Will<T>>) => void): () => void;
+  <T>(target: Re<T>, fn: (value: T, prev: T) => void): () => void;
+}
+type Cycle = {
+  (body: () => void): () => void;
 }
 
 type Local = {
@@ -477,7 +486,7 @@ type SignalEntry = {
         (value: boolean): Signal<void, boolean>;
       }
       from: {
-        (get: Re<boolean>): SignalReadonly<boolean>
+        (get: Re<boolean>): SignalReadonly<boolean> & E_ResetPartial
       }
     }
 
@@ -486,7 +495,7 @@ type SignalEntry = {
       (): Signal;
     }
     from: {
-      <O>(get: Re<O>): SignalReadonly<O>
+      <O>(get: Re<O>): SignalReadonly<O> & E_ResetPartial
     }
   };
 

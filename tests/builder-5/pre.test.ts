@@ -38,7 +38,7 @@ test('should work basic operations with pre and pre.filter', async () => {
 });
 
 test('should work two arguments pre', async () => {
-  const v = value(0).pre((k, state) => k + state);
+  const v = value(0).pre((k: number, state) => k + state);
   expect(v.val).toBe(0);
   v(1);
   expect(v.val).toBe(1);

@@ -42,3 +42,17 @@ test('should work sync with reactionable', () => {
   a(1);
   expect(spy).toHaveBeenCalledWith(1, 1); spy.mockReset();
 });
+
+test('should work sync manual stop', () => {
+  const spy = jest.fn();
+  const a = signal(0);
+  const stop = sync(a, spy);
+  expect(spy).toHaveBeenCalledWith(0, void 0); spy.mockReset();
+  a(1);
+  expect(spy).toHaveBeenCalledWith(1, 0); spy.mockReset();
+  a(1);
+  expect(spy).toHaveBeenCalledWith(1, 1); spy.mockReset();
+  stop();
+  a(1);
+  expect(spy).toBeCalledTimes(0);
+});

@@ -1,6 +1,6 @@
 import React, { Context, FC } from 'react';
 import rb from 'reactive-box';
-import { Contextual, Isolate, Local, Observe, On, PoolEntry, SignalEntry, Sync, Transaction, Untrack, UseJsx, UseLocal, UseScoped, UseValue, UseValues, ValueEntry } from './types';
+import { Contextual, Cycle, Isolate, Local, Observe, On, PoolEntry, SignalEntry, Sync, Transaction, Untrack, UseJsx, UseLocal, UseScoped, UseValue, UseValues, ValueEntry } from './types';
 
 //
 // Exports
@@ -308,6 +308,7 @@ const reactionable_subscribe = (target, fn, is_once?, is_sync?) => {
   });
   value = e[0]();
   if (is_sync) untrack(fn.bind(const_undef, value, const_undef));
+  return e[1];
 }
 
 
@@ -799,16 +800,18 @@ const signal_trigger_resolved = (val) => {
 }
 const signal_trigger_flag = (initial) => make_trigger(!!initial, 1, 1);
 const signal_trigger_flag_resolved = (val) => {
-  const flag = signal_trigger(!val); flag(!!val); return flag;
+  const flag = signal_trigger_flag(!val); flag(); return flag;
 }
 const signal_trigger_flag_from = (get) => {
   const flag = signal_trigger_flag(untrack(get[key_get] || get));
   reactionable_subscribe(get, flag);
+  obj_def_prop_value(flag, key_reset, () => trait_ent_reinit(flag, !!untrack(get[key_get] || get)));
   return flag;
 }
 const signal_trigger_from = (get) => {
   const ent = signal_trigger(untrack(get[key_get] || get));
   reactionable_subscribe(get, ent);
+  obj_def_prop_value(ent, key_reset, () => trait_ent_reinit(ent, untrack(get[key_get] || get)))
   return ent;
 }
 const signal_from = (get, set?) => {
@@ -910,7 +913,7 @@ on[key_once] = on_once;
 
 const sync: Sync = (target, fn) => reactionable_subscribe(target, fn, 0, 1);
 
-const cycle = (body: () => void) => {
+const cycle: Cycle = (body) => {
   const iter = () => {
     const stack = context_contextual_stop;
     context_contextual_stop = e[1];
@@ -922,6 +925,7 @@ const cycle = (body: () => void) => {
   };
   const e = un_expr(body, iter);
   iter();
+  return e[1];
 }
 
 const contextual = {} as Contextual;

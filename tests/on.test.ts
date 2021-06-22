@@ -58,3 +58,29 @@ test('should work on with reactionable', () => {
   a(1);
   expect(spy).toHaveBeenCalledWith(1, 1); spy.mockReset();
 });
+
+test('should work on once', () => {
+  const spy = jest.fn();
+  const a = signal(0);
+  on.once(a, spy);
+  expect(spy).toBeCalledTimes(0);
+  a(1);
+  expect(spy).toHaveBeenCalledWith(1, 0); spy.mockReset();
+  a(2);
+  expect(spy).toBeCalledTimes(0);
+});
+
+test('should work on manual stop', () => {
+  const spy = jest.fn();
+  const a = signal(0);
+  const stop = on(a, spy);
+  expect(spy).toBeCalledTimes(0);
+  a(1);
+  expect(spy).toHaveBeenCalledWith(1, 0); spy.mockReset();
+  a(1);
+  expect(spy).toHaveBeenCalledWith(1, 1); spy.mockReset();
+  stop();
+  a(1);
+  expect(spy).toBeCalledTimes(0);
+});
+
