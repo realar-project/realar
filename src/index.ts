@@ -177,7 +177,6 @@ const key_reset_promise_by_reset = new_symbol();
 const key_touched_internal = new_symbol();
 const key_trigger = 'trigger';
 const key_flag = 'flag';
-const key_invert = 'invert';
 const key_from = 'from';
 const key_is_signal = new_symbol();
 const key_track = 'track';
@@ -790,7 +789,6 @@ const signal: SignalEntry = (function (initial) {
 
 const signal_trigger = (initial) => make_trigger(initial, 0, 1);
 const signal_trigger_flag = (initial) => make_trigger(!!initial, 1, 1);
-const signal_trigger_flag_invert = (initial) => make_trigger(!initial, 1, 1);
 const signal_from = (get, set?) => {
   const h = [get[key_get] || get];
   h[key_is_signal] = 1
@@ -800,7 +798,6 @@ const signal_from = (get, set?) => {
   return ctx;
 }
 
-signal_trigger_flag[key_invert] = signal_trigger_flag_invert;
 signal_trigger[key_flag] = signal_trigger_flag;
 signal[key_trigger] = signal_trigger as any;
 signal[key_from] = signal_from;

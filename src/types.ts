@@ -468,11 +468,6 @@ type SignalEntry = {
     flag: {
       (): Signal<void, boolean>;
       (initial: boolean): Signal<void, boolean>;
-
-      invert: {
-        (): Signal<void, boolean>;
-        (initial: boolean): Signal<void, boolean>;
-      }
     }
   };
 

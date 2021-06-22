@@ -536,9 +536,9 @@ test('should work value.trigger with select, update.by, flow, pre, map', () => {
   expect(f.val).toBe('elox');
 });
 
-test('should work signal.trigger.flag and .trigger.flag.invert', () => {
+test('should work signal.trigger.flag', () => {
   const f = signal.trigger.flag();
-  const i = signal.trigger.flag.invert();
+  const i = signal.trigger.flag(true);
 
   expect(f.val).toBe(false);
   expect(i.val).toBe(true);
@@ -1186,7 +1186,7 @@ test('should work signal.trigger', () => {
 
   const t = signal.trigger();
   const f = signal.trigger.flag();
-  const u = signal.trigger.flag.invert();
+  const u = signal.trigger.flag(true);
 
   t.flow().flow().sync(spy_t)();
   f.flow().flow().sync(spy_f)();
