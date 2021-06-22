@@ -271,6 +271,9 @@ interface E_PreFilterUnTrackedPartial<I, Ret> {
     }
   }
 }
+interface E_ResetPartial {
+  reset();
+}
 
 interface E_Readable<O, Ret> extends
   E_GetPartial<O>,
@@ -282,7 +285,8 @@ interface E_Readable<O, Ret> extends
 interface E_Writtable<I, O, Ret> extends
   E_Readable<O, Ret>,
   E_UpdatePartial<I, WillExpand<O>>,
-  E_UpdaterPartial<I, WillExpand<O>> {}
+  E_UpdaterPartial<I, WillExpand<O>>,
+  E_ResetPartial {}
 
 
 
@@ -468,6 +472,10 @@ type SignalEntry = {
     flag: {
       (): Signal<void, boolean>;
       (initial: boolean): Signal<void, boolean>;
+
+      resolved: {
+        (value: boolean): Signal<void, boolean>;
+      }
     }
   };
 

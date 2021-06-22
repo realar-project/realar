@@ -193,6 +193,7 @@ const key_updater = key_update+'r';
 const key_wrap = 'wrap';
 const key_has_default = new_symbol();
 const key_func = 'func';
+const key_resolved = 'resolved';
 
 
 
@@ -789,6 +790,9 @@ const signal: SignalEntry = (function (initial) {
 
 const signal_trigger = (initial) => make_trigger(initial, 0, 1);
 const signal_trigger_flag = (initial) => make_trigger(!!initial, 1, 1);
+const signal_trigger_flag_resolved = (initial) => {
+  const flag = signal_trigger(!initial); flag(!!initial); return flag;
+}
 const signal_from = (get, set?) => {
   const h = [get[key_get] || get];
   h[key_is_signal] = 1
@@ -798,6 +802,7 @@ const signal_from = (get, set?) => {
   return ctx;
 }
 
+signal_trigger_flag[key_resolved] = signal_trigger_flag_resolved;
 signal_trigger[key_flag] = signal_trigger_flag;
 signal[key_trigger] = signal_trigger as any;
 signal[key_from] = signal_from;

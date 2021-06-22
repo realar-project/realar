@@ -556,6 +556,23 @@ test('should work signal.trigger.flag', () => {
   expect(i.val).toBe(false);
 });
 
+test('should work signal.trigger.flag.resolved', async () => {
+  const f = signal.trigger.flag.resolved(true);
+  const i = signal.trigger.flag.resolved(false);
+
+  expect(f.val).toBe(true);
+  expect(i.val).toBe(false);
+
+  await f.val;
+  await i.val;
+
+  f.reset();
+  i.reset();
+
+  expect(f.val).toBe(false);
+  expect(i.val).toBe(true);
+});
+
 test('should work value.from basic support', () => {
   let t;
   const spy = jest.fn();
