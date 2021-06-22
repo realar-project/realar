@@ -126,7 +126,7 @@ interface E_SyncToPartial<O, Ret> {
   }
 }
 interface E_OpPartial<Ret> {
-  op<R>(func: () => R): R extends void ? Ret : R
+  op<R>(func: (context: Ret) => R): R extends void ? Ret : R
 }
 
 type E_SelectMultiple_CfgExemplar<O> = {
@@ -227,7 +227,7 @@ interface E_UpdaterPartial<I, O> {
     <U>(func?: (state: O, upValue: U, upPrev: U) => I): Equals<U, unknown> extends true ? Signal : Signal<U, Will<U>>
   }
 }
-interface E_UpdatePartial<I, O> {
+interface E_UpdatePartial<I, O, Ret> {
   update: {
     (func?: (value: O) => I): void                  // untracked by default
     (re: Re<I>): void
@@ -235,11 +235,11 @@ interface E_UpdatePartial<I, O> {
     track(func?: (value: O) => I): void
     track(re: Re<I>): void
     by: {
-      <T>(re: Re<Will<T>>, updater?: (state: O, reValue: T, rePrev: WillExpand<Will<T>>) => I)
-      <T>(re: Re<T>, updater?: (state: O, reValue: T, rePrev: T) => I)
+      <T>(re: Re<Will<T>>, updater?: (state: O, reValue: T, rePrev: WillExpand<Will<T>>) => I): Ret
+      <T>(re: Re<T>, updater?: (state: O, reValue: T, rePrev: T) => I): Ret
       once: {
-        <T>(re: Re<Will<T>>, updater?: (state: O, reValue: T, rePrev: WillExpand<Will<T>>) => I)
-        <T>(re: Re<T>, updater?: (state: O, reValue: T, rePrev: T) => I)
+        <T>(re: Re<Will<T>>, updater?: (state: O, reValue: T, rePrev: WillExpand<Will<T>>) => I): Ret
+        <T>(re: Re<T>, updater?: (state: O, reValue: T, rePrev: T) => I): Ret
       }
     }
   }
@@ -293,7 +293,7 @@ interface E_Readable<O, Ret> extends
 
 interface E_Writtable<I, O, Ret> extends
   E_Readable<O, Ret>,
-  E_UpdatePartial<I, WillExpand<O>>,
+  E_UpdatePartial<I, WillExpand<O>, Ret>,
   E_UpdaterPartial<I, WillExpand<O>>,
   E_ResetPartial {}
 
