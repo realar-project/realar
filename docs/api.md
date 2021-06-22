@@ -322,6 +322,24 @@ transaction(() => {
 
 ```
 
+#### transaction.func
+
+You can make a transaction function with it.
+
+```javascript
+const a = value(0);
+const b = value(0);
+
+on(() => a.val + b.val, sum => console.log('sum', sum));
+
+const run = transaction.func(() => {
+  a.val = 1;
+  b.val = 1;
+});
+
+run(); // in console only one reaction with sum equals: 2
+```
+
 #### untrack
 
 If you need reading reactive value without reactive dependency creation, the `untrack` function is your choice.

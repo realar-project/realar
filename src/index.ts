@@ -831,6 +831,12 @@ const untracked_function = (fn) => function (this: any) {
   finally { finish() }
 }
 
+const transaction_function = (fn) => function (this: any) {
+  const finish = internal_transaction();
+  try { return fn.apply(this, arguments); }
+  finally { finish() }
+}
+
 //
 // Realar exportable api
 //
@@ -841,6 +847,7 @@ const transaction = ((fn) => {
   finally { finish() }
 }) as Transaction;
 transaction[key_unsafe] = internal_transaction;
+transaction[key_func] = transaction_function as any;
 
 const untrack: Untrack = ((fn) => {
   const finish = internal_untrack();

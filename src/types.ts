@@ -85,6 +85,7 @@ type Isolate = {
 type Transaction = {
   <T>(fn: () => T): T;
   unsafe: () => () => void;
+  func: <T extends (...args: any[]) => any>(fn: T) => T;
 }
 type Untrack = {
   <T>(fn: () => T): T;
