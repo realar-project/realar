@@ -340,9 +340,8 @@ add(3)      // in console: 5
 Represent value as the [signal](./api-signal.md). The setter will be passed without any transformation, but the signal's getter stay reactioning only by the changed state. This method is useful for the next filtering of state. _[play on runkit](https://runkit.com/betula/60d41118b416ee001ab79b4f)_
 
 ```javascript
-const v = value(0);
-
-v.as.signal()
+const v = value(0)
+  .as.signal()
   .filter(n => n > 5)
   .to(state => console.log(state));
 
