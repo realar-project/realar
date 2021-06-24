@@ -313,6 +313,9 @@ interface E_Value<I, O> extends
   wrap: {
     <N, R>(pre: (value: N, state: WillExpand<O>) => I, map: (value: WillExpand<O>) => R): Value<N, R>
   }
+  as: {
+    signal(): Signal<I, O>
+  }
 }
 
 
@@ -322,6 +325,9 @@ interface E_ValueReadonly<O> extends
   map: {
     <R>(func: (value: WillExpand<O>) => R): ValueReadonly<R>         // tracked by default
     untrack<R>(func: (value: WillExpand<O>) => R): ValueReadonly<R>
+  }
+  as: {
+    signal(): SignalReadonly<O>
   }
 }
 

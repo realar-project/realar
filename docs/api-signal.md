@@ -26,6 +26,8 @@ Most of the signal api such as [value](./api-value.md) api, but exist different 
   - [map.to](#mapto)
 - Casting signal to the value
   - [as.value](#asvalue)
+- Static method
+  - [signal.from](#signalfrom)
 
 The list of methods similar to the value:
 
@@ -48,8 +50,6 @@ The list of methods similar to the value:
   - [pre.filter.not](#prefilternot)
 - Shortcut
   - [wrap](#wrap)
-- Static method
-  - [signal.from](#signalfrom)
 
 
 ### The stopping signal flow
@@ -153,7 +153,7 @@ inc(); // in concole: 2
 
 #### as.value
 
-Convert signal to [value](./api-value.md). The setter will be passed without any transformation, but the signal's getter will be transformed to caching value and reactioning only by the changed state.
+Represent signal as [value](./api-value.md). The setter will be passed without any transformation, but the signal's getter will be transformed to caching value and reactioning only by the changed state.
 
 ```javascript
 const v = signal(0);

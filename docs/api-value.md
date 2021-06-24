@@ -29,6 +29,12 @@ In that example
 
 We learned how to create a value, set it, and get it.
 
+- Casting value to the signal
+  - [as.signal](#assignal)
+- Static methods
+  - [value.combine](#valuecombine)
+  - [value.from](#valuefrom)
+
 The `value` reactive container instance has different methods for perfect operations with state:
 
 - The state updating
@@ -52,9 +58,6 @@ The `value` reactive container instance has different methods for perfect operat
   - [map](#map)
 - Shortcut
   - [wrap](#wrap)
-- Static methods
-  - [value.combine](#valuecombine)
-  - [value.from](#valuefrom)
 
 
 ### The state updating
@@ -328,6 +331,24 @@ current
 
 current(2)  // in console: 4
 add(3)      // in console: 5
+```
+
+### Casting value to the signal
+
+#### as.signal
+
+Represent value as the [signal](./api-signal.md). The setter will be passed without any transformation, but the signal's getter stay reactioning only by the changed state. This method is useful for the next filtering of state. _[play on runkit](https://runkit.com/betula/60d41118b416ee001ab79b4f)_
+
+```javascript
+const v = value(0);
+
+v.as.signal()
+  .filter(n => n > 5)
+  .to(state => console.log(state));
+
+v(0) // nothing in console because the state has no changing
+v(5) // nothing in console because the state not greater than 5
+v(6) // in console: 6
 ```
 
 ### Static methods
