@@ -1,6 +1,6 @@
 {
   "name": "realar",
-  "version": "0.6.7",
+  "version": "0.6.8",
   "description": "Advanced state manager for React",
   "repository": {
     "url": "https://github.com/betula/realar"
