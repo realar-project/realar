@@ -119,7 +119,7 @@ interface E_GetPartial<O> {
   get: () => O;
 }
 interface E_SyncToPartial<O, Ret> {
-  sync(func: (value: WillExtract<O>, prev: WillExpand<O>) => void): Ret
+  sync(func: (value: WillExpand<O>, prev: WillExpand<O>) => void): Ret
   to: {
     (func: (value: WillExtract<O>, prev: WillExpand<O>) => void): Ret
     once(func: (value: WillExtract<O>, prev: WillExpand<O>) => void): Ret
