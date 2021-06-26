@@ -11,7 +11,7 @@ Realar targeted to all scale applications up to complex enterprise solutions on 
 - _Value and Signal_ is the big elephants remind Store and Action from Redux. Allows you to perform familiar coding techniques, and also add many modern features.
 - _Declarative and Imperative_ both supported.
 - _Stream_ event and value programming.
-- _Modular Architecture_. Possibilities for the implementation of three levels of logic availability. Shared stateful is available for any part of your app. Scoped logic decomposition for React component context visibility. And React component local logic.
+- _Modular Architecture_. Possibilities for the implementation of two levels of logic availability. Shared stateful is available for any part of your app. And React component local logic.
 - _Decorators for classes lovers_. Support OOP as one of the primary syntaxes. The implementation of transparent functional reactive programming (TFRP) with React (looks similar to Mobx). And the babel plugin for automatic wrap all arrow JSX functions for the best clean code.
 </p>
 
@@ -140,7 +140,6 @@ export const App = observe(() => (
     - [useValues](./docs/api.md#usevalues)
     - [useShared](./docs/api.md#useshared)
     - [useLocal](./docs/api.md#uselocal)
-    - [Scope, useScoped](./docs/api.md#scope-usescoped)
     - [useJsx](./docs/api.md#usejsx)
 
 

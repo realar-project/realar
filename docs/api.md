@@ -34,7 +34,6 @@
   - [useValues](#usevalues)
   - [useShared](#useshared)
   - [useLocal](#uselocal)
-  - [Scope, useScoped](#scope-usescoped)
   - [useJsx](#usejsx)
 
 
