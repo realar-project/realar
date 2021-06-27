@@ -72,7 +72,7 @@ count(5); // We will see 6 and 1 in developer console output, It are new and pre
 
 #### on.once
 
-Subscribe listener to reactive expression only for one time. After it listener will be unsubscribed.
+Subscribe listener to reactive expression only for one time. After it listener will be unsubscribed. _[play on runkit](https://runkit.com/betula/60d7dda7d3ef13001adc5c46)_
 
 ```javascript
 const count = value(0);
