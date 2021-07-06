@@ -100,6 +100,7 @@ export const App = observe(() => (
 - _Stream_ event and value programming.
 - _Modular Architecture_. Possibilities for the implementation of two levels of logic availability. Shared stateful is available for any part of your app. And React component local logic.
 - _Decorators for classes lovers_. Support OOP as one of the primary syntaxes. The implementation of transparent functional reactive programming (TFRP) with React (looks similar to Mobx). And the babel plugin for automatic wrap all arrow JSX functions for the best clean code.
+- _Already in production_ on the [Card of the Day](http://card-of-the-day.com/get-app) React Native app :+1:
 
 ### Sponsor
 
