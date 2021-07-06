@@ -498,39 +498,6 @@ const App = () => <>
 </>
 ```
 
-#### Scope, useScoped
-
-React component's context the shareable stateful logic availability. _[play on codesandbox](https://codesandbox.io/s/realar-api-react-binding-usescoped-vrc5l?file=/src/App.tsx)_
-
-```javascript
-const dialogLogic = () => {
-  const opened = value(false);
-  const open = () => opened(true);
-  const close = () => opened(false);
-  return { opened, open, close };
-};
-
-const Open = () => {
-  const { open, close } = useScoped(dialogLogic);
-  return (
-    <>
-      <button onClick={open}>open</button>
-      <button onClick={close}>close</button>
-    </>
-  );
-};
-
-const Dialog = observe(() => {
-  const { opened } = useScoped(dialogLogic);
-  return <p>dialog: {opened.val ? "opened" : "closed"}</p>;
-});
-
-const App = () => <>
-  <Scope><Dialog /><Open /></Scope>
-  <Scope><Dialog /><Open /></Scope>
-</>
-```
-
 #### useJsx
 
 You can connect your reactivity to React using a new component locally defined in yours. All reactive values read in that place will be subscribed. Each time when receiving new values, a locally defined component will be updated, and only one, without any rerendering to owner component. It can be used as a performance optimization for rerendering as smaller pieces of your component tree as it possible. _[play on codesandbox](https://codesandbox.io/s/realar-api-react-binding-usejsx-8o6oc?file=/src/App.tsx)_

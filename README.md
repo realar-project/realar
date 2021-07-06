@@ -1,19 +1,10 @@
 # Realar
 
-[![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar?style=flat-square)](https://bundlephobia.com/result?p=realar) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar) [![typescript supported](https://img.shields.io/npm/types/typescript?style=flat-square)](./src/index.ts)
+[![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar?style=flat-square)](https://bundlephobia.com/result?p=realar) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar) [![typescript supported](https://img.shields.io/npm/types/typescript?style=flat-square)](./src/types.ts)
 
 The state manager to reduce developers' coding time and increase the lifetime of your codebase.
 
 Realar targeted to all scale applications up to complex enterprise solutions on modular architecture.
-
-- _Logic free React components_. Perfect instruments for moving all component logic outside. Your React component will be clean from any unnecessary code, only view, only JSX, no more.
-- _Lightweight and Fast_. Less then 5kB. Aims at the smallest size of the resulting bundle. And only parts are updated in which is really necessary to make changes.
-- _Value and Signal_ is the big elephants remind Store and Action from Redux. Allows you to perform familiar coding techniques, and also add many modern features.
-- _Declarative and Imperative_ both supported.
-- _Stream_ event and value programming.
-- _Modular Architecture_. Possibilities for the implementation of two levels of logic availability. Shared stateful is available for any part of your app. And React component local logic.
-- _Decorators for classes lovers_. Support OOP as one of the primary syntaxes. The implementation of transparent functional reactive programming (TFRP) with React (looks similar to Mobx). And the babel plugin for automatic wrap all arrow JSX functions for the best clean code.
-</p>
 
 
 ### Usage
@@ -90,15 +81,27 @@ And you can use it together <sup>_[play on codesandbox](https://codesandbox.io/s
 ```javascript
 const counter = new Counter()
 
-const store = value.from(() => counter.state)
+const double = value.from(() => counter.state)
+  .map(num => num * 2)
 
 export const App = observe(() => (
   <p>
-    {store.val}
+    {double.val}
     <button onClick={counter.inc}>+</button>
   </p>
 ))
 ```
+
+
+### About
+
+- _Logic free React components_. Perfect instruments for moving all component logic outside. Your React component will be clean from any unnecessary code, only view, only JSX, no more.
+- _Lightweight and Fast_. Less then 5kB. Aims at the smallest size of the resulting bundle. And only parts are updated in which is really necessary to make changes.
+- _Value and Signal_ is the big elephants remind Store and Action from Redux. Allows you to perform familiar coding techniques, and also add many modern features.
+- _Declarative and Imperative_ both supported.
+- _Stream_ event and value programming.
+- _Modular Architecture_. Possibilities for the implementation of two levels of logic availability. Shared stateful is available for any part of your app. And React component local logic.
+- _Decorators for classes lovers_. Support OOP as one of the primary syntaxes. The implementation of transparent functional reactive programming (TFRP) with React (looks similar to Mobx). And the babel plugin for automatic wrap all arrow JSX functions for the best clean code.
 
 
 ### Documentation
@@ -156,7 +159,7 @@ export const App = observe(() => (
 
 ### Articles
 
-+ [State manager of dream](https://dev.to/betula/state-manager-of-dream-5766-temp-slug-158417?preview=4b030f68851211fd02704f12d7742ce193a8f9c893afd1e4249b88023e14d57b1e5a8a02c4aaa924f22beb44c69bba20617a0523e952120eb97ef344)
++ [State manager of dream](https://dev.to/betula/state-manager-of-dream-5766-temp-slug-158417?preview=4b030f68851211fd02704f12d7742ce193a8f9c893afd1e4249b88023e14d57b1e5a8a02c4aaa924f22beb44c69bba20617a0523e952120eb97ef344) - the reason for the creation of Realar.
 
 ### Installation
 

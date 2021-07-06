@@ -67,7 +67,6 @@ For best possibilities use [babel jsx wrapper](https://github.com/betula/babel-p
 But otherwise necessary to wrap all React function components that use reactive values inside to `observe` wrapper. [Play on codesandbox](https://codesandbox.io/s/realar-counter-k9kmw?file=/src/App.tsx).
 
 
-
 ### React component access visibility level
 
 The basic level of scopes for React developers is a component level scope (_for example `useState`, and other standard React hooks has that level_).
@@ -100,29 +99,4 @@ export const App = () => (
 
 This feature can be useful for removing logic from the body of a component to keep that free of unnecessary code, and therefore cleaner.
 
-If you making an instance of a class with a subscription in the constructor, though `shared`, `useLocal`, `useScoped` Realar functions, It will be unsubscribed automatically.
-
-
-### React context access visibility level
-
-```javascript
-const Counter = () => {
-  const { value, inc } = useScoped(CounterLogic);
-
-  return (
-    <p>{value} <button onClick={inc}>+</button></p>
-  );
-}
-
-export const App = () => (
-  <Scope>
-    <Scope>
-      <Counter />
-      <Counter />
-    </Scope>
-    <Counter />
-  </Scope>
-);
-```
-
-[Play on codesandbox](https://codesandbox.io/s/realar-context-component-level-scope-classes-wivjv?file=/src/App.tsx)
+If you making an instance of a class with a subscription in the constructor, though `shared` or `useLocal` Realar functions, It will be unsubscribed automatically.
