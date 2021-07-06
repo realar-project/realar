@@ -156,7 +156,7 @@ I’m looking for a sponsor because my hands have already been burning from cont
 
 ### In Production
 
-+ [Card of the Day](https://apps.apple.com/app/card-of-the-day/id1547423880) - React Native mobile app.
++ [Card of the Day](http://card-of-the-day.com/get-app) - React Native mobile app.
 
 ### Articles
 
