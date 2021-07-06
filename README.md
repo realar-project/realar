@@ -2,8 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar?style=flat-square)](https://bundlephobia.com/result?p=realar) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar) [![typescript supported](https://img.shields.io/npm/types/typescript?style=flat-square)](./src/types.ts)
 
-
-Realar targeted to all scale applications up to complex enterprise solutions on modular architecture. The state manager to reduce developers' coding time :relaxed:
+Realar state manager targeted to all scale applications **up to complex enterprise** solutions on a modular architecture. And has an incredible small size **5 kB** for all you need.
 
 
 ### Usage
@@ -102,6 +101,9 @@ export const App = observe(() => (
 - _Modular Architecture_. Possibilities for the implementation of two levels of logic availability. Shared stateful is available for any part of your app. And React component local logic.
 - _Decorators for classes lovers_. Support OOP as one of the primary syntaxes. The implementation of transparent functional reactive programming (TFRP) with React (looks similar to Mobx). And the babel plugin for automatic wrap all arrow JSX functions for the best clean code.
 
+### Sponsor
+
+I’m looking for a sponsor because my hands have already been burning from continuing development non-stop! I want to make a beautiful form framework and a streams framework for nodes, with core on Realar. I would like to start recording teaching videos about all actual questions on the modern frontend field. And I dream of writing an open book. If you know any methods for searching sponsors, or if some of your friends know something, I urge you to tell me [mail@betula.co](mailto:mail@betula.co). It will be your great contribution to make a better world!
 
 ### Documentation
 
