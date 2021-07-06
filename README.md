@@ -2,8 +2,6 @@
 
 [![npm version](https://img.shields.io/npm/v/realar?style=flat-square)](https://www.npmjs.com/package/realar) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/realar?style=flat-square)](https://bundlephobia.com/result?p=realar) [![code coverage](https://img.shields.io/coveralls/github/betula/realar?style=flat-square)](https://coveralls.io/github/betula/realar) [![typescript supported](https://img.shields.io/npm/types/typescript?style=flat-square)](./src/types.ts)
 
-The state manager to reduce developers' coding time and increase the lifetime of your codebase.
-
 Realar targeted to all scale applications up to complex enterprise solutions on modular architecture.
 
 
