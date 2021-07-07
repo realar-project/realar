@@ -164,7 +164,7 @@ yarn add realar
 
 ### Articles
 
-+ [State manager of dream](https://dev.to/betula/state-manager-of-dream-5766-temp-slug-158417?preview=4b030f68851211fd02704f12d7742ce193a8f9c893afd1e4249b88023e14d57b1e5a8a02c4aaa924f22beb44c69bba20617a0523e952120eb97ef344) - the reason for the creation of Realar.
++ [State manager of dream](https://dev.to/betula/state-manager-of-dream-98i) - the reason for the creation of Realar.
 
 ### Sponsor
 
