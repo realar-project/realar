@@ -4,7 +4,6 @@
 
 Realar state manager targeted to all scale applications **up to complex enterprise** solutions on a modular architecture. And has an incredible small size **5 kB** for all you need.
 
-
 ### Usage
 
 You can make stores and "actions" <sup>_[play on runkit](https://runkit.com/betula/60c071ff26dea9001373459c)_</sup>
@@ -90,7 +89,6 @@ export const App = observe(() => (
 ))
 ```
 
-
 ### About
 
 - _Logic free React components_. Perfect instruments for moving all component logic outside. Your React component will be clean from any unnecessary code, only view, only JSX, no more.
@@ -101,10 +99,6 @@ export const App = observe(() => (
 - _Modular Architecture_. Possibilities for the implementation of two levels of logic availability. Shared stateful is available for any part of your app. And React component local logic.
 - _Decorators for classes lovers_. Support OOP as one of the primary syntaxes. The implementation of transparent functional reactive programming (TFRP) with React (looks similar to Mobx). And the babel plugin for automatic wrap all arrow JSX functions for the best clean code.
 - _Already in production_ on the [Card of the Day](http://card-of-the-day.com/get-app) React Native app :+1:
-
-### Sponsor
-
-I’m looking for a sponsor because my hands have already been burning from continuing development non-stop! I want to make a beautiful form framework and a streams framework for nodes, with core on Realar. I would like to start recording teaching videos about all actual questions on the modern frontend field. And I dream of writing an open book. If you know any methods for searching sponsors, or if some of your friends know something, I urge you to tell me [mail@betula.co](mailto:mail@betula.co). It will be your great contribution to make a better world!
 
 ### Documentation
 
@@ -147,7 +141,16 @@ I’m looking for a sponsor because my hands have already been burning from cont
     - [useLocal](./docs/api.md#uselocal)
     - [useJsx](./docs/api.md#usejsx)
 
+### Installation
 
+```bash
+npm install realar
+# or
+yarn add realar
+```
+
+- If you prefer classes with decorators [update your babel config for support](https://babeljs.io/docs/en/babel-plugin-proposal-decorators).
+- And configure [babel jsx wrapper](https://github.com/betula/babel-plugin-jsx-wrapper#realar) for automatic observation arrow function components if you want to use it.
 
 ### Demos
 
@@ -163,17 +166,9 @@ I’m looking for a sponsor because my hands have already been burning from cont
 
 + [State manager of dream](https://dev.to/betula/state-manager-of-dream-5766-temp-slug-158417?preview=4b030f68851211fd02704f12d7742ce193a8f9c893afd1e4249b88023e14d57b1e5a8a02c4aaa924f22beb44c69bba20617a0523e952120eb97ef344) - the reason for the creation of Realar.
 
-### Installation
+### Sponsor
 
-```bash
-npm install realar
-# or
-yarn add realar
-```
-
-- If you prefer classes with decorators [update your babel config for support](https://babeljs.io/docs/en/babel-plugin-proposal-decorators).
-- And configure [babel jsx wrapper](https://github.com/betula/babel-plugin-jsx-wrapper#realar) for automatic observation arrow function components if you want to use it.
-
+I’m looking for a sponsor because my hands have already been burning from continuing development non-stop! I want to make a beautiful form framework and a streams framework for nodes, with core on Realar. I would like to start recording teaching videos about all actual questions on the modern frontend field. And I dream of writing an open book. If you know any methods for searching sponsors, or if some of your friends know something, I urge you to tell me [mail@betula.co](mailto:mail@betula.co). It will be your great contribution to make a better world!
 
 Enjoy and happy coding!
 
