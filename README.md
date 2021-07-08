@@ -91,7 +91,7 @@ export const App = observe(() => (
 ))
 ```
 
-### About
+### Features
 
 - _Logic free React components_. Perfect instruments for moving all component logic outside. Your React component will be clean from any unnecessary code, only view, only JSX, no more.
 - _Lightweight and Fast_. Less then 5kB. Aims at the smallest size of the resulting bundle. And only parts are updated in which is really necessary to make changes.
