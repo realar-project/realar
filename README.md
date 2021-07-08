@@ -11,7 +11,7 @@ You can make stores and "actions" <sup>_[play on runkit](https://runkit.com/betu
 ```javascript
 const store = value(0)
 
-const add = store.updater((state, num) => state + num)
+const add = store.updater((state, num: number) => state + num)
 const inc = store.updater(state => state + 1)
 ```
 
@@ -30,7 +30,9 @@ const App = () => {
 You can make streams <sup>_[play on runkit](https://runkit.com/betula/60c073765105e1001311b294)_</sup>
 
 ```javascript
-const addendum = value('0').pre(ev => ev.target.value)
+const addendum = value('0')
+  .pre(ev: ChangeEvent<HTMLInputElement> => ev.target.value)
+
 const sum = signal()
   .map(() => +addendum.val)
   .filter()
