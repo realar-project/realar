@@ -31,7 +31,7 @@ You can make streams <sup>_[play on runkit](https://runkit.com/betula/60c0737651
 
 ```javascript
 const addendum = value('0')
-  .pre(ev: ChangeEvent<HTMLInputElement> => ev.target.value)
+  .pre((ev: ChangeEvent<HTMLInputElement>) => ev.target.value)
 
 const sum = signal()
   .map(() => +addendum.val)
