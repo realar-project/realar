@@ -6,6 +6,29 @@ Realar state manager targeted to all scale applications **up to complex enterpri
 
 ### Usage
 
+You can use classes with decorators
+
+```javascript
+class Counter {
+  @prop state = 0
+
+  add = (num) => this.state += num
+  inc = () => this.add(1)
+}
+```
+
+And bind to React <sup>_[play on codesandbox](https://codesandbox.io/s/realar-readme-example-with-classes-j4q4e?file=/src/App.tsx)_</sup>
+
+```javascript
+const App = observe(() => {
+  const { state, inc } = useLocal(Counter)
+
+  return <p>{state}
+    <button onClick={inc}>+</button>
+  </p>
+})
+```
+
 You can make stores and "actions" <sup>_[play on runkit](https://runkit.com/betula/60c071ff26dea9001373459c)_</sup>
 
 ```javascript
@@ -50,29 +73,6 @@ const App = () => {
     <button onClick={sum}>sum</button>
   </p>
 }
-```
-
-You can use classes with decorators
-
-```javascript
-class Counter {
-  @prop state = 0
-
-  add = (num) => this.state += num
-  inc = () => this.add(1)
-}
-```
-
-And bind to React <sup>_[play on codesandbox](https://codesandbox.io/s/realar-readme-example-with-classes-j4q4e?file=/src/App.tsx)_</sup>
-
-```javascript
-const App = observe(() => {
-  const { state, inc } = useLocal(Counter)
-
-  return <p>{state}
-    <button onClick={inc}>+</button>
-  </p>
-})
 ```
 
 And you can use it together <sup>_[play on codesandbox](https://codesandbox.io/s/realar-readme-example-together-315r8?file=/src/App.tsx)_</sup>
