@@ -1,7 +1,4 @@
 {
-  "setupFiles": [
-    "<rootDir>/jest-setup.ts"
-  ],
   "setupFilesAfterEnv": [
     "<rootDir>/jest"
   ],
@@ -12,7 +9,7 @@
     "<rootDir>/tests/**/*.test.ts*"
   ],
   "moduleNameMapper": {
-    "realar": "<rootDir>/src"
+    "remini": "<rootDir>/src"
   },
   "coveragePathIgnorePatterns": [
     "node_modules",

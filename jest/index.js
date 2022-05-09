@@ -1,1 +1,1 @@
-afterEach(require('realar').free);
+afterEach(() => require('remini').clear());

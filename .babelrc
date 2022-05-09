@@ -3,10 +3,5 @@
     ["@babel/env", {"targets": {"node": "current"}}],
     "@babel/preset-typescript",
     "@babel/react"
-  ],
-  "plugins": [
-    ["@babel/plugin-proposal-decorators", { "legacy": true }],
-    ["@babel/plugin-proposal-class-properties", { "loose": true }],
-    "jsx-wrapper"
   ]
 }

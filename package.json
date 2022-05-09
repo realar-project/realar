@@ -1,55 +1,43 @@
 {
-  "name": "realar",
-  "version": "0.6.8",
-  "description": "Advanced state manager for React",
+  "name": "remini",
+  "version": "0.7.0",
+  "description": "Global state management with React",
   "repository": {
-    "url": "https://github.com/betula/realar"
+    "url": "https://github.com/betula/remini"
   },
   "bugs": {
-    "url": "https://github.com/betula/realar/issues"
+    "url": "https://github.com/betula/remini/issues"
   },
-  "homepage": "https://github.com/betula/realar#readme",
+  "homepage": "https://github.com/betula/remini#readme",
   "license": "MIT",
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
   "files": [
-    "build",
     "jest",
     "src"
   ],
   "scripts": {
-    "build": "tsc --build tsconfig.build.json",
-    "build:watch": "tsc -w",
     "test": "jest",
     "jest:clear-cache": "jest --clearCache",
-    "publish": "npm run clear && npm run build && lerna publish",
-    "format": "prettier --write src tests jest",
-    "clear": "rimraf build"
+    "publish": "lerna publish",
+    "format": "prettier --write src tests jest"
   },
   "dependencies": {
     "reactive-box": "0.7.2"
   },
   "devDependencies": {
     "@babel/core": "7.12.10",
-    "@babel/plugin-proposal-class-properties": "7.12.1",
-    "@babel/plugin-proposal-decorators": "7.12.12",
     "@babel/preset-env": "7.12.11",
     "@babel/preset-react": "7.12.10",
     "@babel/preset-typescript": "7.12.7",
-    "@types/enzyme": "3.10.8",
     "@types/jest": "26.0.20",
     "@types/react": "17.0.0",
-    "@wojtekmaj/enzyme-adapter-react-17": "0.4.1",
     "babel-jest": "26.6.3",
-    "babel-plugin-jsx-wrapper": "0.3.2",
-    "cross-env": "7.0.3",
-    "enzyme": "3.11.0",
     "jest": "26.6.3",
     "lerna": "3.22.1",
     "prettier": "2.2.1",
     "react": "17.0.1",
     "react-dom": "17.0.1",
-    "rimraf": "3.0.2",
     "typescript": "4.1.3"
   },
   "author": "Slava Birch <mail@betula.co> (http://betula.co)",
@@ -68,10 +56,7 @@
     "typescript",
     "javascript",
     "jsx",
-    "decorator",
-    "stream",
-    "event stream",
-    "stream programming"
+    "event stream"
   ],
   "browserslist": [
     "last 2 Chrome versions"

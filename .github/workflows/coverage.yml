@@ -22,7 +22,6 @@ jobs:
       - run: node --version
       - run: npm --version
       - run: npm i
-      - run: npm run build
       - run: npm run test -- --coverage
       - uses: coverallsapp/github-action@master
         with:
