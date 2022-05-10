@@ -12,6 +12,6 @@
     "experimentalDecorators": true,
     "strict": true
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"],
+  "include": ["tests/**/*.ts", "tests/**/*.tsx"],
   "exclude": ["node_modules"]
 }
