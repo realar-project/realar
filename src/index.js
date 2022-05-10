@@ -159,7 +159,7 @@ const free = () => {
   try {
     _call_fns_array(shared_unsubs);
   } finally {
-    clear();
+    shareds.clear();
   }
 }
 
@@ -172,9 +172,7 @@ const unmock = (...targets) => (
   targets.concat(target).forEach(target => shareds.delete(target))
 )
 
-const clear = () => {
-  shareds.clear();
-};
+const clear = () => {};
 
 
 const event = () => {};
