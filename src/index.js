@@ -20,11 +20,11 @@ export {
 };
 
 
-// React optional require.
 let react;
 
 /* istanbul ignore next */
 try {
+  // React optional require.
   react = require('react');
 } catch {}
 
@@ -32,9 +32,17 @@ let x;
 
 const key = '.remini';
 
-const re = (v) => (x = {}, x[key] = box(v), x);
+const _ent = (h) => (x = {}, x[key] = h, x);
 
-const wrap = () => {};
+const re = (v) => _ent(box(v));
+const wrap = (r, w) => _ent([
+  (r[key] ? r[key][0] : r),
+  (w && ((v) => (
+    x = untrack(),
+    w[key] ? w[key][1](v) : w(v),
+    x()
+  )))
+]);
 
 const read = (r) => r[key][0]();
 const write = (r, v) => r[key][1](v);
@@ -64,3 +72,26 @@ const map = () => {};
 //
 // Enjoy and Happy Coding!
 //
+
+/*
+
+Add the query syntax:
+
+const $a = re(0)
+re($a, select((a) => a.username), select((u) => u.nickname))
+
+That expression should return readonly selected store, and
+
+const $e = event();
+event($e, filter((v) => v), map(v => v * 2));
+
+This is a potentially non-obvious syntax, may be:
+
+query($a) -> sinonym readonly api function
+query($a, select((a) => a.username), select((u) => u.nickname))
+query($e)
+query($e, filter((v) => v), map(v => v * 2))
+
+Hmmm, query is not a good idea, the first way more better
+
+*/
