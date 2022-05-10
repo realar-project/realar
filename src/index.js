@@ -3,16 +3,13 @@ import {
   expr,
   box,
   untrack as rb_untrack,
-  transaction as rb_batch
+  transaction as rb_batch,
+  untrack
 } from 'reactive-box';
 
-//
-// Exports.
-//
 
 export {
-  re, get, set,
-  // wrap, select, update,
+  re, wrap, read, write, update, select, readonly,
   // on, sync, cycle,
   shared, free, mock, clear,
   // unsubs, un,
@@ -22,44 +19,33 @@ export {
 };
 
 
-//
 // React optional require.
-//
-
 let react;
-
-let useRef, useReducer, useEffect, useMemo, createElement, memo;
 
 /* istanbul ignore next */
 try {
   react = require('react');
-
-  useRef = react.useRef;
-  useReducer = react.useReducer;
-  useEffect = react.useEffect;
-  useMemo = react.useMemo;
-  useContext = react.useContext;
-  createContext = react.createContext;
-  createElement = react.createElement;
-  memo = react.memo;
-} catch (e) {
-  useRef = useReducer = useEffect = useMemo = createElement = memo = (() => {
-    throw new Error('Missed "react" dependency');
-  });
-}
-
-//
-// Remini code here.
-//
-
-const key = '.remini';
+} catch {}
 
 let x;
 
-const re = (v) => (x = {}, x[key] = box(v), x)
-const get = (r) => r[key][0]()
-const set = (r, v) => r[key][1](v)
+const key = '.remini';
 
+const re = (v) => (x = {}, x[key] = box(v), x);
+
+const wrap = () => {};
+
+const read = (r) => r[key][0]();
+const write = (r, v) => r[key][1](v);
+const update = (r, fn) => {
+  const f = untrack();
+  const v = read(r);
+  f();
+  write(r, fn(v));
+};
+
+const select = () => {};
+const readonly = () => {};
 
 
 const shared = () => {};
@@ -70,6 +56,5 @@ const clear = () => {};
 
 
 //
-// End of File
 // Enjoy and Happy Coding!
 //
