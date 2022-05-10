@@ -10,8 +10,9 @@ import {
 
 export {
   re, wrap, read, write, update, select, readonly,
-  // on, sync, cycle,
+  on, sync, cycle,
   shared, free, mock, clear,
+  event, filter, map,
   // unsubs, un,
   // batch, untrack,
   // observe, useRe, useLogic, useJsx,
@@ -47,13 +48,18 @@ const update = (r, fn) => {
 const select = () => {};
 const readonly = () => {};
 
+const on = () => {};
+const sync = () => {};
+const cycle = () => {};
 
 const shared = () => {};
 const free = () => {};
 const mock = () => {};
 const clear = () => {};
 
-
+const event = () => {};
+const filter = () => {};
+const map = () => {};
 
 //
 // Enjoy and Happy Coding!
