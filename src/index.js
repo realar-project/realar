@@ -37,67 +37,6 @@ let shared_unsubs = [];
 let context_unsubs;
 
 
-const _ent = (h) => {
-  const ent = {};
-  ent[key] = h;
-  return ent;
-};
-
-const re = (v) => _ent(box(v));
-const wrap = (r, w) => _ent([
-  (r[key] ? r[key][0] : sel(r)[0]),
-  (w && ((v) => {
-    const f = _flat_untrack();
-    w[key] ? w[key][1](v) : w(v);
-    f();
-  }))
-]);
-
-const read = (r) => r[key][0]();
-const write = (r, v) => r[key][1](v);
-const update = (r, fn) => {
-  const f = _flat_untrack();
-  const v = read(r);
-  f();
-  write(r, fn(v));
-};
-
-const select = (r, v) => _ent([sel(() => v(read(r)))[0]]);
-const readonly = (r) => _ent([r[key][0]]);
-
-
-const _sub = (r, fn, m /* 1 once, 2 sync */) => {
-  r = r[key] ? r[key][0] : sel(r)[0];
-  let v;
-  const e = expr(r, () => {
-    const prev = v;
-    fn(m === 1 ? r() : (v = e[0]()), prev);
-  });
-  un(e[1]);
-  v = e[0]();
-  if (m === 2) {
-    const f = _flat_untrack();
-    fn(v);
-    f();
-  }
-  return e[1];
-}
-
-
-
-const on = (r, fn) => _sub(r, fn);
-const once = (r, fn) => _sub(r, fn, 1);
-const sync = (r, fn) => _sub(r, fn, 2);
-
-const cycle = (fn) => {
-  const e = expr(() => fn(stop));
-  const stop = e[1];
-  un(stop);
-  e[0]();
-  return stop;
-}
-
-
 const _call_fns_array = (arr) => arr.forEach(fn => fn());
 
 const _flat_unsubs = () => {
@@ -108,7 +47,7 @@ const _flat_unsubs = () => {
     context_unsubs = stack;
     return () => unsubs && _call_fns_array(unsubs);
   };
-}
+};
 
 const _safe_scope_fn = (m) => (
   (fn) => function () {
@@ -129,7 +68,7 @@ const batch = _safe_scope(_flat_batch);
 batch[key_fn] = _safe_scope_fn(_flat_batch);
 
 const untrack = _safe_scope(_flat_untrack);
-untrack[key_fn] = _safe_scope_fn(_flat_untrack);
+const untrack_fn = untrack[key_fn] = _safe_scope_fn(_flat_untrack);
 
 const unsubs = _safe_scope(_flat_unsubs);
 unsubs[key_fn] = _safe_scope_fn(_flat_unsubs);
@@ -138,6 +77,54 @@ unsubs[key_fn] = _safe_scope_fn(_flat_unsubs);
 const un = (unsub) => (
   unsub && context_unsubs && context_unsubs.push(unsub)
 );
+
+
+const _ent = (h) => {
+  const ent = {};
+  ent[key] = h;
+  return ent;
+};
+
+const re = (v) => _ent(box(v));
+const wrap = (r, w) => _ent([
+  (r[key] ? r[key][0] : sel(r)[0]),
+  (w && untrack_fn((v) => w[key] ? w[key][1](v) : w(v)))
+]);
+
+const read = (r) => r[key][0]();
+const write = (r, v) => r[key][1](v);
+const update = untrack_fn((r, fn) => write(r, fn(read(r))));
+
+const select = (r, v) => _ent([sel(() => v(read(r)))[0]]);
+const readonly = (r) => _ent([r[key][0]]);
+
+
+const _sub_fn = (m /* 1 once, 2 sync */) => untrack_fn((r, fn) => {
+  r = r[key] ? r[key][0] : sel(r)[0];
+  let v;
+  const e = expr(r, () => {
+    const prev = v;
+    fn(m === 1 ? r() : (v = e[0]()), prev);
+  });
+  un(e[1]);
+  v = e[0]();
+  if (m === 2) fn(v);
+  return e[1];
+});
+
+
+
+const on = _sub_fn();
+const once = _sub_fn(1);
+const sync = _sub_fn(2);
+
+const cycle = (fn) => {
+  const e = expr(() => fn(stop));
+  const stop = e[1];
+  un(stop);
+  e[0]();
+  return stop;
+};
 
 
 
