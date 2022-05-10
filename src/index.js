@@ -2,19 +2,18 @@ import {
   sel,
   expr,
   box,
-  untrack as rb_untrack,
-  transaction as rb_batch,
-  untrack
+  untrack as _flat_untrack,
+  transaction as _flat_batch
 } from 'reactive-box';
 
 
 export {
   re, wrap, read, write, update, select, readonly,
   on, once, sync, cycle,
-  shared, free, mock, clear,
+  shared, free, mock, unmock, clear,
   event, filter, map,
-  // unsubs, un,
-  // batch, untrack,
+  unsubs, un,
+  batch, untrack,
   // observe, useRe, useLogic, useJsx,
   key
 };
@@ -28,7 +27,15 @@ try {
   react = require('react');
 } catch {}
 
+
 const key = '.remini';
+const key_fn = 'fn';
+
+const shareds = new Map();
+
+let shared_unsubs = [];
+let context_unsubs;
+
 
 const _ent = (h) => {
   const ent = {};
@@ -40,7 +47,7 @@ const re = (v) => _ent(box(v));
 const wrap = (r, w) => _ent([
   (r[key] ? r[key][0] : sel(r)[0]),
   (w && ((v) => {
-    const f = untrack();
+    const f = _flat_untrack();
     w[key] ? w[key][1](v) : w(v);
     f();
   }))
@@ -49,7 +56,7 @@ const wrap = (r, w) => _ent([
 const read = (r) => r[key][0]();
 const write = (r, v) => r[key][1](v);
 const update = (r, fn) => {
-  const f = untrack();
+  const f = _flat_untrack();
   const v = read(r);
   f();
   write(r, fn(v));
@@ -69,7 +76,7 @@ const _sub = (r, fn, m /* 1 once, 2 sync */) => {
   un(e[1]);
   v = e[0]();
   if (m === 2) {
-    const f = untrack();
+    const f = _flat_untrack();
     fn(v);
     f();
   }
@@ -77,7 +84,6 @@ const _sub = (r, fn, m /* 1 once, 2 sync */) => {
 }
 
 
-const un = () => {};
 
 const on = (r, fn) => _sub(r, fn);
 const once = (r, fn) => _sub(r, fn, 1);
@@ -91,10 +97,98 @@ const cycle = (fn) => {
   return stop;
 }
 
-const shared = () => {};
-const free = () => {};
-const mock = () => {};
-const clear = () => {};
+
+const _call_fns_array = (arr) => arr.forEach(fn => fn());
+
+const _flat_unsubs = () => {
+  const stack = context_unsubs;
+  context_unsubs = [];
+  return () => {
+    const unsubs = context_unsubs;
+    context_unsubs = stack;
+    return () => unsubs && _call_fns_array(unsubs);
+  };
+}
+
+const _safe_scope_fn = (m) => (
+  (fn) => function () {
+    const f = m();
+    try { return fn.apply(this, arguments); }
+    finally { f() }
+  }
+);
+const _safe_scope = (m) => (
+  (fn) => {
+    const f = m();
+    try { return fn() }
+    finally { f() }
+  }
+);
+
+const batch = _safe_scope(_flat_batch);
+batch[key_fn] = _safe_scope_fn(_flat_batch);
+
+const untrack = _safe_scope(_flat_untrack);
+untrack[key_fn] = _safe_scope_fn(_flat_untrack);
+
+const unsubs = _safe_scope(_flat_unsubs);
+unsubs[key_fn] = _safe_scope_fn(_flat_unsubs);
+
+
+const un = (unsub) => (
+  unsub && context_unsubs && context_unsubs.push(unsub)
+);
+
+
+
+const _inst = (target, args) => {
+  let instance, unsub;
+  const collect = _flat_unsubs();
+  const track = _flat_untrack();
+  try {
+    instance =
+      target.prototype === const_undef
+        ? target(...args)
+        : new target(...args);
+  } finally {
+    unsub = collect();
+    track();
+  }
+  return [instance, unsub];
+}
+
+const shared = (fn) => {
+  let inst = shareds.get(fn);
+  if (!inst) {
+    const h = _inst(target, []);
+    inst = h[0];
+    shared_unsubs.push(h[1]);
+    shareds.set(target, inst);
+  }
+  return inst;
+}
+
+const free = () => {
+  try {
+    _call_fns_array(shared_unsubs);
+  } finally {
+    clear();
+  }
+}
+
+const mock = (target, mocked) => (
+  shareds.set(target, mocked),
+  mocked
+)
+
+const unmock = (...targets) => (
+  targets.concat(target).forEach(target => shareds.delete(target))
+)
+
+const clear = () => {
+  shareds.clear();
+};
+
 
 const event = () => {};
 const filter = () => {};
