@@ -1,7 +1,7 @@
 
 export {
   re, wrap, read, write, update, select, readonly,
-  on, sync, cycle,
+  on, once, sync, cycle,
   shared, free, mock, clear,
   event, filter, map,
   key
@@ -18,6 +18,7 @@ declare function select(...args: any[]): any;
 declare function readonly(...args: any[]): any;
 
 declare function on(...args: any[]): any;
+declare function once(...args: any[]): any;
 declare function sync(...args: any[]): any;
 declare function cycle(...args: any[]): any;
 

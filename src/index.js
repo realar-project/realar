@@ -10,7 +10,7 @@ import {
 
 export {
   re, wrap, read, write, update, select, readonly,
-  on, sync, cycle,
+  on, once, sync, cycle,
   shared, free, mock, clear,
   event, filter, map,
   // unsubs, un,
@@ -28,20 +28,22 @@ try {
   react = require('react');
 } catch {}
 
-let x;
-
 const key = '.remini';
 
-const _ent = (h) => (x = {}, x[key] = h, x);
+const _ent = (h) => {
+  const ent = {};
+  ent[key] = h;
+  return ent;
+};
 
 const re = (v) => _ent(box(v));
 const wrap = (r, w) => _ent([
-  (r[key] ? r[key][0] : r),
-  (w && ((v) => (
-    x = untrack(),
-    w[key] ? w[key][1](v) : w(v),
-    x()
-  )))
+  (r[key] ? r[key][0] : sel(r)[0]),
+  (w && ((v) => {
+    const f = untrack();
+    w[key] ? w[key][1](v) : w(v);
+    f();
+  }))
 ]);
 
 const read = (r) => r[key][0]();
@@ -53,12 +55,41 @@ const update = (r, fn) => {
   write(r, fn(v));
 };
 
-const select = () => {};
-const readonly = () => {};
+const select = (r, v) => _ent([sel(() => v(read(r)))[0]]);
+const readonly = (r) => _ent([r[key][0]]);
 
-const on = () => {};
-const sync = () => {};
-const cycle = () => {};
+
+const _sub = (r, fn, m /* 1 once, 2 sync */) => {
+  r = r[key] ? r[key][0] : sel(r)[0];
+  let v;
+  const e = expr(r, () => {
+    const prev = v;
+    fn(m === 1 ? r() : (v = e[0]()), prev);
+  });
+  un(e[1]);
+  v = e[0]();
+  if (m === 2) {
+    const f = untrack();
+    fn(v);
+    f();
+  }
+  return e[1];
+}
+
+
+const un = () => {};
+
+const on = (r, fn) => _sub(r, fn);
+const once = (r, fn) => _sub(r, fn, 1);
+const sync = (r, fn) => _sub(r, fn, 2);
+
+const cycle = (fn) => {
+  const e = expr(() => fn(stop));
+  const stop = e[1];
+  un(stop);
+  e[0]();
+  return stop;
+}
 
 const shared = () => {};
 const free = () => {};
@@ -84,14 +115,5 @@ That expression should return readonly selected store, and
 
 const $e = event();
 event($e, filter((v) => v), map(v => v * 2));
-
-This is a potentially non-obvious syntax, may be:
-
-query($a) -> sinonym readonly api function
-query($a, select((a) => a.username), select((u) => u.nickname))
-query($e)
-query($e, filter((v) => v), map(v => v * 2))
-
-Hmmm, query is not a good idea, the first way more better
 
 */
