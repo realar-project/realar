@@ -23,7 +23,7 @@
     "format": "prettier --write src tests jest"
   },
   "dependencies": {
-    "reactive-box": "0.7.2"
+    "reactive-box": "0.6.6"
   },
   "devDependencies": {
     "@babel/core": "7.12.10",
