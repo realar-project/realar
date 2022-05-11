@@ -14,7 +14,7 @@ export {
   event, filter, map,
   unsubs, un,
   batch, untrack,
-  // observe, useRe, useLogic, useJsx,
+  observe, useRe, useLogic, useJsx,
   key
 };
 
@@ -33,8 +33,11 @@ const key_fn = 'fn';
 const key_all = 'all';
 const key_unsafe = 'unsafe';
 const key_untrack = 'untrack';
+const key_function = 'function';
 
-const shareds = new Map();
+//
+// Core
+//
 
 let context_unsubs;
 
@@ -131,6 +134,16 @@ const cycle = (fn) => {
 };
 
 
+const event = () => {};
+const filter = () => {};
+const map = () => {};
+
+
+//
+// Shareds
+//
+
+const shareds = new Map();
 
 const _inst = (target, args) => {
   args = args || [];
@@ -188,9 +201,48 @@ unmock[key_all] = () => (
 const clear = () => shareds.clear();
 
 
-const event = () => {};
-const filter = () => {};
-const map = () => {};
+
+//
+// React bindings
+//
+
+let context_is_observe;
+
+const useForceUpdate = () => (
+  react.useReducer(() => [], [])[1]
+);
+
+const useRe = (target, deps) => {
+  deps || (deps = []);
+  const force_update = context_is_observe || useForceUpdate();
+  const h = react.useMemo(() => {
+    if (!target) return [target, () => {}];
+    if (target[key][0]) target = target[key][0];
+
+    if (typeof target === key_function) {
+      if (context_is_observe) {
+        return [target, 0, 1];
+      } else {
+        const [run, stop] = expr(target, () => {
+          force_update();
+          run();
+        });
+        run();
+        return [target, () => stop, 1];
+      }
+    } else {
+      return [target, () => {}];
+    }
+  }, deps);
+
+  context_is_observe || react.useEffect(h[1], [h]);
+  return h[2] ? h[0]() : h[0];
+};
+
+const observe = () => {};
+const useLogic = () => {};
+const useJsx = () => {};
+
 
 //
 // Enjoy and Happy Coding!

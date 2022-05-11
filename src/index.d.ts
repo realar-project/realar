@@ -4,6 +4,9 @@ export {
   on, once, sync, cycle,
   shared, free, mock, clear,
   event, filter, map,
+  unsubs, un,
+  batch, untrack,
+  observe, useRe, useLogic, useJsx,
   key
 };
 
@@ -30,3 +33,14 @@ declare function clear(...args: any[]): any;
 declare function event(...args: any[]): any;
 declare function filter(...args: any[]): any;
 declare function map(...args: any[]): any;
+
+declare function unsubs(...args: any[]): any;
+declare function un(...args: any[]): any;
+
+declare function batch(...args: any[]): any;
+declare function untrack(...args: any[]): any;
+
+declare function observe(...args: any[]): any;
+declare function useRe(...args: any[]): any;
+declare function useLogic(...args: any[]): any;
+declare function useJsx(...args: any[]): any;
