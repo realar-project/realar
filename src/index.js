@@ -32,13 +32,11 @@ const key = '.remini';
 const key_fn = 'fn';
 const key_all = 'all';
 const key_unsafe = 'unsafe';
+const key_untrack = 'untrack';
 
 const shareds = new Map();
 
 let context_unsubs;
-
-
-const _call_fns_array = (arr) => arr.forEach(fn => fn());
 
 const _flat_unsubs = () => {
   const stack = context_unsubs;
@@ -46,7 +44,7 @@ const _flat_unsubs = () => {
   return () => {
     const unsubs = context_unsubs;
     context_unsubs = stack;
-    return () => unsubs && _call_fns_array(unsubs);
+    return () => unsubs && unsubs.forEach(fn => fn())
   };
 };
 
@@ -96,6 +94,8 @@ const wrap = (r, w) => _ent([
 ]);
 
 const read = (r) => r[key][0]();
+read[key_untrack] = untrack_fn(read);
+
 const write = (r, v) => r[key][1](v);
 const update = untrack_fn((r, fn) => write(r, fn(read(r))));
 
@@ -147,7 +147,7 @@ const _inst = (target, args) => {
     track();
   }
   return [instance, unsub];
-}
+};
 
 const shared = (fn) => {
   let rec = shareds.get(fn);
@@ -156,7 +156,7 @@ const shared = (fn) => {
     shareds.set(target, rec);
   }
   return rec[0];
-}
+};
 
 const free = (...targets) => {
   try {
@@ -167,20 +167,23 @@ const free = (...targets) => {
   } finally {
     targets.forEach((target) => shareds.delete(target));
   }
-}
+};
 free[key_all] = () => {
   shareds.forEach((h) => h[1]());
   shareds.clear();
-}
+};
 
 const mock = (target, mocked) => (
-  shareds.set(target, [mocked, () => {}]),
+  shareds.set(target, [mocked, () => {}, 1]),
   mocked
-)
+);
 
 const unmock = (...targets) => (
   targets.forEach(target => shareds.delete(target))
-)
+);
+unmock[key_all] = () => (
+  shareds.forEach((h, k) => h[2] && shareds.delete(k))
+);
 
 const clear = () => shareds.clear();
 
