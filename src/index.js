@@ -30,10 +30,11 @@ try {
 
 const key = '.remini';
 const key_fn = 'fn';
+const key_all = 'all';
+const key_unsafe = 'unsafe';
 
 const shareds = new Map();
 
-let shared_unsubs = [];
 let context_unsubs;
 
 
@@ -66,12 +67,15 @@ const _safe_scope = (m) => (
 
 const batch = _safe_scope(_flat_batch);
 batch[key_fn] = _safe_scope_fn(_flat_batch);
+batch[key_unsafe] = _flat_batch;
 
 const untrack = _safe_scope(_flat_untrack);
 const untrack_fn = untrack[key_fn] = _safe_scope_fn(_flat_untrack);
+untrack[key_unsafe] = _flat_untrack;
 
 const unsubs = _safe_scope(_flat_unsubs);
 unsubs[key_fn] = _safe_scope_fn(_flat_unsubs);
+unsubs[key_unsafe] = _flat_unsubs;
 
 
 const un = (unsub) => (
@@ -129,6 +133,7 @@ const cycle = (fn) => {
 
 
 const _inst = (target, args) => {
+  args = args || [];
   let instance, unsub;
   const collect = _flat_unsubs();
   const track = _flat_untrack();
@@ -145,22 +150,27 @@ const _inst = (target, args) => {
 }
 
 const shared = (fn) => {
-  let inst = shareds.get(fn);
-  if (!inst) {
-    const h = _inst(target, []);
-    inst = h[0];
-    shared_unsubs.push(h[1]);
-    shareds.set(target, inst);
+  let rec = shareds.get(fn);
+  if (!rec) {
+    rec = _inst(target);
+    shareds.set(target, rec);
   }
-  return inst;
+  return rec[0];
 }
 
-const free = () => {
+const free = (...targets) => {
   try {
-    _call_fns_array(shared_unsubs);
+    targets.forEach((target) => {
+      const rec = shareds.get(target);
+      rec && rec[1]();
+    });
   } finally {
-    shareds.clear();
+    targets.forEach((target) => shareds.delete(target));
   }
+}
+free[key_all] = () => {
+  shareds.forEach((h) => h[1]());
+  shareds.clear();
 }
 
 const mock = (target, mocked) => (
@@ -172,7 +182,7 @@ const unmock = (...targets) => (
   targets.concat(target).forEach(target => shareds.delete(target))
 )
 
-const clear = () => {};
+const clear = () => shareds.clear();
 
 
 const event = () => {};
