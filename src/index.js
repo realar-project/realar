@@ -174,7 +174,7 @@ free[key_all] = () => {
 }
 
 const mock = (target, mocked) => (
-  shareds.set(target, mocked),
+  shareds.set(target, [mocked, () => {}]),
   mocked
 )
 
