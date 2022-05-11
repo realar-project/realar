@@ -179,7 +179,7 @@ const mock = (target, mocked) => (
 )
 
 const unmock = (...targets) => (
-  targets.concat(target).forEach(target => shareds.delete(target))
+  targets.forEach(target => shareds.delete(target))
 )
 
 const clear = () => shareds.clear();
