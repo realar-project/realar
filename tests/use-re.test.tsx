@@ -4,7 +4,7 @@ import { re, useRe, write } from '../src';
 
 describe('should work', () => {
 
-  test('useRe', async () => {
+  test('useRe', () => {
     const spy = jest.fn();
     const h = re(0);
 
@@ -16,12 +16,11 @@ describe('should work', () => {
 
     render(<A />);
 
-    expect(spy).toHaveBeenNthCalledWith(1, 0);
+    expect(spy).toBeCalledWith(0); spy.mockReset();
 
     fireEvent.click(screen.getByRole('button'));
-    expect(spy).toHaveBeenNthCalledWith(2, 20);
+    expect(spy).toBeCalledWith(20); spy.mockReset();
 
-    spy.mockReset();
     fireEvent.click(screen.getByRole('button'));
     expect(spy).toBeCalledTimes(0);
   });

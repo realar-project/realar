@@ -89,8 +89,7 @@ describe('should works', () => {
     expect(y).not.toBeCalled();
 
     write(b, 3);
-    expect(x).toBeCalledWith(4);
-    x.mockReset();
+    expect(x).toBeCalledWith(4); x.mockReset();
 
     write(a, 5);
     expect(x).toBeCalledWith(8);
@@ -107,14 +106,11 @@ describe('should works', () => {
     sync(() => read(a) + read(b), (v) => x(v));
     sync(a, (v) => y(v));
 
-    expect(x).toBeCalledWith(3);
-    x.mockReset();
-    expect(y).toBeCalledWith(1);
-    y.mockReset();
+    expect(x).toBeCalledWith(3); x.mockReset();
+    expect(y).toBeCalledWith(1); y.mockReset();
 
     write(b, 3);
-    expect(x).toBeCalledWith(4);
-    x.mockReset();
+    expect(x).toBeCalledWith(4); x.mockReset();
 
     write(a, 5);
     expect(x).toBeCalledWith(8);
@@ -151,12 +147,10 @@ describe('should works', () => {
 
     cycle(() => x(read(a) + read(b)));
 
-    expect(x).toBeCalledWith(1);
-    x.mockReset();
+    expect(x).toBeCalledWith(1); x.mockReset();
 
     update(a, (v) => v + 1);
-    expect(x).toBeCalledWith(2);
-    x.mockReset();
+    expect(x).toBeCalledWith(2); x.mockReset();
 
     write(b, 1);
     expect(x).toBeCalledWith(3);
