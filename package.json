@@ -1,6 +1,6 @@
 {
   "name": "remini",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "description": "Global state management with React",
   "repository": {
     "url": "https://github.com/betula/remini"
@@ -19,7 +19,6 @@
   "scripts": {
     "test": "jest",
     "jest:clear-cache": "jest --clearCache",
-    "publish": "lerna publish",
     "format": "prettier --write src tests jest"
   },
   "dependencies": {
@@ -36,7 +35,6 @@
     "babel-jest": "28.1.0",
     "jest": "28.1.0",
     "jest-environment-jsdom": "28.1.0",
-    "lerna": "4.0.0",
     "prettier": "2.6.2",
     "react": "18.1.0",
     "react-dom": "18.1.0"

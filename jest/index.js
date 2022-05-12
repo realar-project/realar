@@ -1,1 +1,1 @@
-afterEach(() => require('remini').clear());
+afterEach(require('remini').clear);
