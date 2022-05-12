@@ -134,7 +134,12 @@ const cycle = (fn) => {
 };
 
 
-const event = () => {};
+const event = () => {
+  const h = box([]);
+  const fn = (v) => h[1]([v]);
+  fn[key] = h;
+  return fn;
+};
 const filter = () => {};
 const map = () => {};
 
