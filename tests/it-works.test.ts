@@ -156,5 +156,19 @@ describe('should works', () => {
     expect(x).toBeCalledWith(3);
   });
 
+  test('event', () => {
+    const x = jest.fn();
+
+    const e = event();
+    on(e, (v) => x(v));
+
+    expect(x).toBeCalledTimes(0);
+    e(1);
+    expect(x).toBeCalledWith(1); x.mockReset();
+    e(1);
+    expect(x).toBeCalledWith(1); x.mockReset();
+    e(2);
+    expect(x).toBeCalledWith(2); x.mockReset();
+  });
 });
 

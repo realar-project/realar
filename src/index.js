@@ -107,11 +107,13 @@ const readonly = (r) => _ent([r[key][0]]);
 
 
 const _sub_fn = (m /* 1 once, 2 sync */) => untrack_fn((r, fn) => {
-  r = r[key] ? r[key][0] : sel(r)[0];
   let v;
+  const is_event = r[key] && r[key][2];
+  r = r[key] ? r[key][0] : sel(r)[0];
   const e = expr(r, () => {
     const prev = v;
-    fn(m === 1 ? r() : (v = e[0]()), prev);
+    const res = m === 1 ? r() : (v = e[0](), (is_event ? v[0] : v));
+    is_event ? fn(res) : fn(res, prev);
   });
   un(e[1]);
   v = e[0]();
@@ -137,6 +139,7 @@ const cycle = (fn) => {
 const event = () => {
   const h = box([]);
   const fn = (v) => h[1]([v]);
+  h[2] = 1;
   fn[key] = h;
   return fn;
 };
