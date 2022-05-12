@@ -108,15 +108,18 @@ const readonly = (r) => _ent([r[key][0]]);
 
 const _sub_fn = (m /* 1 once, 2 sync */) => untrack_fn((r, fn) => {
   let v;
-  const is_event = r[key] && r[key][2];
+  const ev_fn = r[key] && r[key][2];
   r = r[key] ? r[key][0] : sel(r)[0];
   const e = expr(r, () => {
     const prev = v;
-    const res = m === 1 ? r() : (v = e[0](), (is_event ? v[0] : v));
-    is_event ? fn(res) : fn(res, prev);
+    v = m === 1
+      ? (ev_fn ? ev_fn() : r())
+      : (v = e[0](), (ev_fn ? ev_fn() : v));
+    ev_fn ? fn(v) : fn(v, prev);
   });
   un(e[1]);
   v = e[0]();
+  if (ev_fn) v = void 0;
   if (m === 2) fn(v);
   return e[1];
 });
@@ -139,13 +142,21 @@ const cycle = (fn) => {
 const event = () => {
   const h = box([]);
   const fn = (v) => h[1]([v]);
-  h[2] = 1;
+  h[2] = sel(() => h[0]()[0])[0];
   fn[key] = h;
   return fn;
 };
-const filter = () => {};
-const map = () => {};
 
+const map = (r, fn) => (
+  (fn = untrack_fn(fn)),
+  _ent([
+    r[key][0],
+    0,
+    sel(() => fn(r[key][2]()))[0]
+  ])
+);
+
+const filter = () => {};
 
 //
 // Shareds

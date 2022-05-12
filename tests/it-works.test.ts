@@ -170,5 +170,33 @@ describe('should works', () => {
     e(2);
     expect(x).toBeCalledWith(2); x.mockReset();
   });
+
+  test('map', () => {
+    const x = jest.fn();
+    const y = jest.fn();
+    const z = jest.fn();
+
+    const e = event();
+    const k = map(e, (n) => (y(n), Math.ceil(n / 2)));
+
+    on(k, (v) => x(v));
+    on(k, z);
+    expect(x).toBeCalledTimes(0);
+    expect(y).toBeCalledTimes(0);
+    e(2);
+    expect(x).toBeCalledWith(1); x.mockReset();
+    expect(y).toBeCalledWith(2); y.mockReset();
+    e(2);
+    expect(x).toBeCalledWith(1); x.mockReset();
+    expect(y).toBeCalledTimes(0);
+    e(3);
+    e(3); // TODO: bug, not runned in that order
+    expect(x).toBeCalledWith(2); x.mockReset();
+    expect(y).toBeCalledWith(3);
+
+    expect(z).toHaveBeenNthCalledWith(1, 1);
+    expect(z).toHaveBeenNthCalledWith(2, 1);
+    // expect(z).toHaveBeenNthCalledWith(3, 2); // TODO: bug in reactive box
+  });
 });
 
