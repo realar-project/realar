@@ -262,9 +262,7 @@ const observe = () => {};
 const useLogic = () => {};
 const useJsx = () => {};
 
-const useWrite = (r, val) => {
-  // react.useEffect(() => write(r, val), [val]);
-}
+const useWrite = write;
 
 //
 // Enjoy and Happy Coding!

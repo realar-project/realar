@@ -15,7 +15,6 @@ describe('should work', () => {
     }
 
     render(<A />);
-
     expect(spy).toBeCalledWith(0); spy.mockReset();
 
     fireEvent.click(screen.getByRole('button'));
