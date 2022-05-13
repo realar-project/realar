@@ -7,10 +7,10 @@ export {
   unsubs, un,
   batch, untrack,
   observe, useRe, useLogic, useJsx, useWrite,
-  key
+  key_remini
 };
 
-declare const key: ".remini";
+declare const key_remini: ".remini";
 
 declare function re(...args: any[]): any;
 declare function wrap(...args: any[]): any;
@@ -40,7 +40,8 @@ declare function un(...args: any[]): any;
 declare function batch(...args: any[]): any;
 declare function untrack(...args: any[]): any;
 
-declare function observe(...args: any[]): any;
+declare const observe: any;
+
 declare function useRe(...args: any[]): any;
 declare function useLogic(...args: any[]): any;
 declare function useJsx(...args: any[]): any;
