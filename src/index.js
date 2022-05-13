@@ -298,11 +298,7 @@ const useRe = (target, deps) => {
       if (context_is_observe) {
         return [target, 0, 1];
       } else {
-        const [run, stop] = expr(target, () => {
-          force_update();
-          run();
-        });
-        run();
+        const stop = on(target, force_update);
         return [target, () => stop, 1];
       }
     } else {
@@ -314,7 +310,22 @@ const useRe = (target, deps) => {
   return h[2] ? h[0]() : h[0];
 };
 
-const useLogic = () => {};
+const useLogic = (target, deps) => {
+  deps || (deps = []);
+  const h = React.useMemo(() => {
+    const p = re(deps);
+    const i = _inst(target, [p]);
+    return [i[0], () => i[1], p];
+  }, []);
+
+  React.useMemo(() => write(h[2], deps), deps);
+
+  React.useEffect(h[1], [h]);
+
+  // TODO: if "i" is reactive container it should be subscribed
+  return h[0];
+};
+
 const useJsx = () => {};
 
 const useWrite = write;
