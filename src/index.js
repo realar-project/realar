@@ -15,25 +15,26 @@ export {
   unsubs, un,
   batch, untrack,
   observe, useRe, useLogic, useJsx, useWrite,
-  key
+  key_remini
 };
 
 
-let react;
+let React;
 
 /* istanbul ignore next */
 try {
   // React optional require.
-  react = require('react');
+  React = require('react');
 } catch {}
 
 
-const key = '.remini';
+const key_remini = '.remini';
 const key_fn = 'fn';
 const key_all = 'all';
 const key_unsafe = 'unsafe';
 const key_untrack = 'untrack';
 const key_function = 'function';
+const key_nomemo = 'nomemo';
 
 //
 // Core
@@ -86,30 +87,30 @@ const un = (unsub) => (
 
 const _ent = (h) => {
   const ent = {};
-  ent[key] = h;
+  ent[key_remini] = h;
   return ent;
 };
 
 const re = (v) => _ent(box(v));
 const wrap = (r, w) => _ent([
-  (r[key] ? r[key][0] : sel(r)[0]),
-  (w && untrack_fn((v) => w[key] ? w[key][1](v) : w(v)))
+  (r[key_remini] ? r[key_remini][0] : sel(r)[0]),
+  (w && untrack_fn((v) => w[key_remini] ? w[key_remini][1](v) : w(v)))
 ]);
 
-const read = (r) => r[key][0]();
+const read = (r) => r[key_remini][0]();
 read[key_untrack] = untrack_fn(read);
 
-const write = (r, v) => r[key][1](v);
+const write = (r, v) => r[key_remini][1](v);
 const update = untrack_fn((r, fn) => write(r, fn(read(r))));
 
 const select = (r, v) => _ent([sel(() => v(read(r)))[0]]);
-const readonly = (r) => _ent([r[key][0]]);
+const readonly = (r) => _ent([r[key_remini][0]]);
 
 
 const _sub_fn = (m /* 1 once, 2 sync */) => untrack_fn((r, fn) => {
   let v;
-  const ev_fn = r[key] && r[key][2];
-  r = r[key] ? r[key][0] : sel(r)[0];
+  const ev_fn = r[key_remini] && r[key_remini][2];
+  r = r[key_remini] ? r[key_remini][0] : sel(r)[0];
   const e = expr(r, () => {
     const prev = v;
     v = m === 1
@@ -143,16 +144,16 @@ const event = () => {
   const h = box([]);
   const fn = (v) => h[1]([v]);
   h[2] = sel(() => h[0]()[0])[0];
-  fn[key] = h;
+  fn[key_remini] = h;
   return fn;
 };
 
 const map = (r, fn) => (
   (fn = untrack_fn(fn)),
   _ent([
-    r[key][0],
+    r[key_remini][0],
     0,
-    sel(() => fn(r[key][2]()))[0]
+    sel(() => fn(r[key_remini][2]()))[0]
   ])
 );
 
@@ -226,17 +227,44 @@ const clear = () => shareds.clear();
 //
 
 let context_is_observe;
+let observe_no_memo_flag;
 
 const useForceUpdate = () => (
-  react.useReducer(() => [], [])[1]
+  React.useReducer(() => [], [])[1]
 );
+
+const observe = ((target) => {
+  function fn() {
+    const force_update = useForceUpdate();
+    const ref = React.useRef();
+    if (!ref.current) ref.current = expr(target, force_update);
+    React.useEffect(() => ref.current[1], []);
+
+    const stack = context_is_observe;
+    context_is_observe = 1;
+    try {
+      return ref.current[0].apply(this, arguments);
+    } finally {
+      context_is_observe = stack;
+    }
+  }
+  return observe_no_memo_flag
+    ? ((observe_no_memo_flag = 0), fn)
+    : React.memo(fn)
+});
+
+observe[key_nomemo] = (target) => (
+  (observe_no_memo_flag = 1),
+  observe(target)
+);
+
 
 const useRe = (target, deps) => {
   deps || (deps = []);
   const force_update = context_is_observe || useForceUpdate();
-  const h = react.useMemo(() => {
+  const h = React.useMemo(() => {
     if (!target) return [target, () => {}];
-    if (target[key][0]) target = target[key][0];
+    if (target[key_remini][0]) target = target[key_remini][0];
 
     if (typeof target === key_function) {
       if (context_is_observe) {
@@ -254,11 +282,10 @@ const useRe = (target, deps) => {
     }
   }, deps);
 
-  context_is_observe || react.useEffect(h[1], [h]);
+  context_is_observe || React.useEffect(h[1], [h]);
   return h[2] ? h[0]() : h[0];
 };
 
-const observe = () => {};
 const useLogic = () => {};
 const useJsx = () => {};
 
