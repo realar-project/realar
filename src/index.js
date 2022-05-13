@@ -14,7 +14,7 @@ export {
   event, filter, map,
   unsubs, un,
   batch, untrack,
-  observe, useRe, useLogic, useJsx,
+  observe, useRe, useLogic, useJsx, useWrite,
   key
 };
 
@@ -262,6 +262,9 @@ const observe = () => {};
 const useLogic = () => {};
 const useJsx = () => {};
 
+const useWrite = (r, val) => {
+  // react.useEffect(() => write(r, val), [val]);
+}
 
 //
 // Enjoy and Happy Coding!

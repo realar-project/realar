@@ -6,7 +6,7 @@ export {
   event, filter, map,
   unsubs, un,
   batch, untrack,
-  observe, useRe, useLogic, useJsx,
+  observe, useRe, useLogic, useJsx, useWrite,
   key
 };
 
@@ -44,3 +44,4 @@ declare function observe(...args: any[]): any;
 declare function useRe(...args: any[]): any;
 declare function useLogic(...args: any[]): any;
 declare function useJsx(...args: any[]): any;
+declare function useWrite(...args: any[]): any;
