@@ -3,7 +3,7 @@ export {
   re, wrap, read, write, update, select, readonly,
   on, once, sync, cycle,
   shared, free, mock, clear,
-  event, filter, map,
+  event, fire, filter, map,
   unsubs, un,
   batch, untrack,
   observe, useRe, useLogic, useJsx, useWrite,
@@ -31,6 +31,7 @@ declare function mock(...args: any[]): any;
 declare function clear(...args: any[]): any;
 
 declare function event(...args: any[]): any;
+declare function fire(...args: any[]): any;
 declare function filter(...args: any[]): any;
 declare function map(...args: any[]): any;
 

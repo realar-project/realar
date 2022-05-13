@@ -11,7 +11,7 @@ export {
   re, wrap, read, write, update, select, readonly,
   on, once, sync, cycle,
   shared, free, mock, unmock, clear,
-  event, filter, map,
+  event, fire, filter, map,
   unsubs, un,
   batch, untrack,
   observe, useRe, useLogic, useJsx, useWrite,
@@ -36,8 +36,9 @@ const key_untrack = 'untrack';
 const key_function = 'function';
 const key_nomemo = 'nomemo';
 
+
 //
-// Core
+// Utilities
 //
 
 let context_unsubs;
@@ -85,6 +86,10 @@ const un = (unsub) => (
 );
 
 
+//
+// Entity
+//
+
 const _ent = (h) => {
   const ent = {};
   ent[key_remini] = h;
@@ -107,6 +112,10 @@ const select = (r, v) => _ent([sel(() => v(read(r)))[0]]);
 const readonly = (r) => _ent([r[key_remini][0]]);
 
 
+//
+// Subscription
+//
+
 const _sub_fn = (m /* 1 once, 2 sync */) => untrack_fn((r, fn) => {
   let v;
   const ev_fn = r[key_remini] && r[key_remini][2];
@@ -125,8 +134,6 @@ const _sub_fn = (m /* 1 once, 2 sync */) => untrack_fn((r, fn) => {
   return e[1];
 });
 
-
-
 const on = _sub_fn();
 const once = _sub_fn(1);
 const sync = _sub_fn(2);
@@ -140,16 +147,22 @@ const cycle = (fn) => {
 };
 
 
+//
+// Events
+//
+
 const event = () => {
   const h = box([]);
-  const fn = (v) => h[1]([v]);
-  h[2] = sel(() => h[0]()[0])[0];
-  fn[key_remini] = h;
-  return fn;
+  return _ent([
+    h[0],
+    (v) => h[1]([v]),
+    sel(() => h[0]()[0])[0]
+  ]);
 };
 
+const fire = (r, v) => r[key_remini][1](v);
+
 const map = (r, fn) => (
-  (fn = untrack_fn(fn)),
   _ent([
     r[key_remini][0],
     0,
@@ -157,7 +170,17 @@ const map = (r, fn) => (
   ])
 );
 
-const filter = () => {};
+const filter = (r, fn) => (
+  _ent([
+    sel((cache) => {
+      const source = r[key_remini][0]();
+      return untrack(() => fn(r[key_remini][2]()) ? source : cache);
+    })[0],
+    0,
+    r[key_remini][2],
+  ])
+);
+
 
 //
 // Shareds
@@ -219,7 +242,6 @@ unmock[key_all] = () => (
 );
 
 const clear = () => shareds.clear();
-
 
 
 //
@@ -290,6 +312,7 @@ const useLogic = () => {};
 const useJsx = () => {};
 
 const useWrite = write;
+
 
 //
 // Enjoy and Happy Coding!

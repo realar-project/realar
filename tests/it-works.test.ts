@@ -2,7 +2,7 @@ import {
   re, wrap, read, write, update, select, readonly,
   on, once, sync, cycle,
   shared, free, mock, clear,
-  event, filter, map,
+  event, fire, filter, map,
 } from '../src';
 
 describe('should works', () => {
@@ -163,11 +163,11 @@ describe('should works', () => {
     on(e, (v) => x(v));
 
     expect(x).toBeCalledTimes(0);
-    e(1);
+    fire(e, 1);
     expect(x).toBeCalledWith(1); x.mockReset();
-    e(1);
+    fire(e, 1);
     expect(x).toBeCalledWith(1); x.mockReset();
-    e(2);
+    fire(e, 2);
     expect(x).toBeCalledWith(2); x.mockReset();
   });
 
@@ -183,20 +183,41 @@ describe('should works', () => {
     on(k, z);
     expect(x).toBeCalledTimes(0);
     expect(y).toBeCalledTimes(0);
-    e(2);
+    fire(e, 2);
     expect(x).toBeCalledWith(1); x.mockReset();
     expect(y).toBeCalledWith(2); y.mockReset();
-    e(2);
+    fire(e, 2);
     expect(x).toBeCalledWith(1); x.mockReset();
     expect(y).toBeCalledTimes(0);
-    e(3);
-    e(3); // TODO: bug, not runned in that order
+    fire(e, 3);
+    fire(e, 3); // TODO: bug, not runned in that order
     expect(x).toBeCalledWith(2); x.mockReset();
     expect(y).toBeCalledWith(3);
 
     expect(z).toHaveBeenNthCalledWith(1, 1);
     expect(z).toHaveBeenNthCalledWith(2, 1);
     // expect(z).toHaveBeenNthCalledWith(3, 2); // TODO: bug in reactive box
+  });
+
+  test('filter', () => {
+    const x = jest.fn();
+
+    const r = re(false);
+    const e = event();
+
+    const p = filter(e, (v) => read(r) || v % 2 === 0);
+    on(p, (n) => x(n));
+
+    fire(e, 1);
+    expect(x).toBeCalledTimes(0);
+    fire(e, 2);
+    expect(x).toBeCalledWith(2); x.mockReset();
+    fire(e, 3);
+    expect(x).toBeCalledTimes(0);
+    write(r, true);
+    expect(x).toBeCalledTimes(0);
+    fire(e, 3);
+    expect(x).toBeCalledWith(3);
   });
 });
 
