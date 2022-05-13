@@ -44,18 +44,12 @@
     "state",
     "model",
     "reactive",
-    "observable",
-    "frontend",
-    "react",
+    "shared state",
     "state management",
-    "state manager",
-    "data flow",
     "react hooks",
-    "reactive programming",
+    "react",
     "typescript",
-    "javascript",
-    "jsx",
-    "event stream"
+    "javascript"
   ],
   "browserslist": [
     "last 2 Chrome versions"
