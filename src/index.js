@@ -166,16 +166,22 @@ const map = (r, fn) => (
   _ent([
     r[key_remini][0],
     0,
-    sel(() => fn(r[key_remini][2]()))[0]
+    sel(() => (
+      r[key_remini][0](),
+      untrack(() => fn(r[key_remini][2]()))
+    ))[0]
   ])
 );
 
 const filter = (r, fn) => (
   _ent([
-    sel((cache) => {
-      const source = r[key_remini][0]();
-      return untrack(() => fn(r[key_remini][2]()) ? source : cache);
-    })[0],
+    sel((cache) => (
+      r[key_remini][0](),
+      untrack(() => {
+        const v = r[key_remini][2]();
+        return fn(v) ? v : cache;
+      })
+    ))[0],
     0,
     r[key_remini][2],
   ])
@@ -323,7 +329,7 @@ const useWrite = write;
 Add the query syntax:
 
 const $a = re(0)
-re($a, select((a) => a.username), select((u) => u.nickname))
+re($a, select((a) => a.user), select((u) => u.nickname))
 
 That expression should return readonly selected store, and
 
