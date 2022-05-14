@@ -49,7 +49,7 @@ const _flat_unsubs = () => {
   return () => {
     const unsubs = context_unsubs;
     context_unsubs = stack;
-    return () => unsubs && unsubs.forEach(fn => fn())
+    return () => unsubs && unsubs.forEach(fn => fn());
   };
 };
 

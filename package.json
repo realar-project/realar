@@ -17,9 +17,7 @@
     "src"
   ],
   "scripts": {
-    "test": "jest",
-    "jest:clear-cache": "jest --clearCache",
-    "format": "prettier --write src tests jest"
+    "test": "jest"
   },
   "dependencies": {
     "reactive-box": "0.7.3"
@@ -35,7 +33,6 @@
     "babel-jest": "28.1.0",
     "jest": "28.1.0",
     "jest-environment-jsdom": "28.1.0",
-    "prettier": "2.6.2",
     "react": "18.1.0",
     "react-dom": "18.1.0"
   },
@@ -57,13 +54,5 @@
   "sideEffects": false,
   "publishConfig": {
     "access": "public"
-  },
-  "prettier": {
-    "arrowParens": "avoid",
-    "printWidth": 100,
-    "singleQuote": true,
-    "trailingComma": "es5",
-    "tabWidth": 2,
-    "useTabs": false
   }
 }

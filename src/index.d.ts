@@ -10,7 +10,7 @@ export {
   key_remini
 };
 
-declare const key_remini: ".remini";
+declare const key_remini: '.remini';
 
 declare function re(...args: any[]): any;
 declare function wrap(...args: any[]): any;
