@@ -27,8 +27,5 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
-# build
-build
-
 # jest
 /coverage
