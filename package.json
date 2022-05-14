@@ -1,6 +1,6 @@
 {
   "name": "remini",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "description": "Global state management with React",
   "repository": {
     "url": "https://github.com/betula/remini"
