@@ -326,7 +326,7 @@ const useLogic = (target, deps) => {
   return h[0];
 };
 
-const useJsx = () => {};
+const useJsx = (fn, deps) => React.useMemo(() => observe[key_nomemo](fn), deps || []);
 
 const useWrite = write;
 
