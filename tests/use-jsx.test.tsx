@@ -25,19 +25,19 @@ describe('should work', () => {
 
     act(() => write(a, 1));
     expect(x).toBeCalledTimes(1); x.mockReset();
-    expect(y).toBeCalledTimes(1); y.mockReset();
+    expect(y).toBeCalledTimes(0);
 
     act(() => write(b, 1));
-    expect(x).toBeCalledTimes(0); x.mockReset();
+    expect(x).toBeCalledTimes(0);
     expect(y).toBeCalledTimes(1); y.mockReset();
 
     act(() => write(b, 2));
-    expect(x).toBeCalledTimes(0); x.mockReset();
+    expect(x).toBeCalledTimes(0);
     expect(y).toBeCalledTimes(1); y.mockReset();
 
     act(() => write(a, 2));
     expect(x).toBeCalledTimes(1); x.mockReset();
-    expect(y).toBeCalledTimes(1); y.mockReset();
+    expect(y).toBeCalledTimes(0);
   });
 
 });

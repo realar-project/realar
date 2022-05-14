@@ -201,7 +201,7 @@ const _inst = (target, args) => {
   const track = _flat_untrack();
   try {
     instance =
-      target.prototype === const_undef
+      !target.prototype
         ? target(...args)
         : new target(...args);
   } finally {
@@ -318,9 +318,9 @@ const useLogic = (target, deps) => {
     const i = _inst(target, [p]);
 
     let ret_re_uns;
-    const is_ret_re = i && i[key_remini];
+    const is_ret_re = i[0] && i[0][key_remini];
     if (is_ret_re && !context_is_observe) {
-      ret_re_uns = on(i, force_update);
+      ret_re_uns = unsubs(() => on(i[0], force_update));
     }
 
     const ret = () => is_ret_re ? read(i[0]) : i[0];
@@ -335,7 +335,7 @@ const useLogic = (target, deps) => {
   return h[0]();
 };
 
-const useJsx = (fn, deps) => React.useMemo(() => observe[key_nomemo](fn), deps || []);
+const useJsx = (fn, deps) => React.useMemo(() => observe(fn), deps || []);
 
 const useWrite = write;
 

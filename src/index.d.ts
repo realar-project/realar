@@ -2,7 +2,7 @@
 export {
   re, wrap, read, write, update, select, readonly,
   on, once, sync, cycle,
-  shared, free, mock, clear,
+  shared, free, mock, unmock, clear,
   event, fire, filter, map,
   unsubs, un,
   batch, untrack,
@@ -28,6 +28,7 @@ declare function cycle(...args: any[]): any;
 declare function shared(...args: any[]): any;
 declare function free(...args: any[]): any;
 declare function mock(...args: any[]): any;
+declare function unmock(...args: any[]): any;
 declare function clear(...args: any[]): any;
 
 declare function event(...args: any[]): any;
