@@ -53,31 +53,24 @@ const _flat_unsubs = () => {
   };
 };
 
-const _safe_scope_fn = (m, k /* 0 - return fn(), 1 - return f() */) => (
+const _safe_call = (fn, m, k /* 0 - return fn(), 1 - return f() */, ctx, args) => {
+  const f = m();
+  try {
+    const v = fn.apply(ctx, args);
+    if (!k) return v;
+  }
+  finally {
+    const v = f();
+    if (k) return v;
+  }
+}
+const _safe_scope_fn = (m, k) => (
   (fn) => function () {
-    const f = m();
-    try {
-      const v = fn.apply(this, arguments);
-      if (!k) return v;
-    }
-    finally {
-      const v = f();
-      if (k) return v;
-    }
+    return _safe_call(fn, m, k, this, arguments);
   }
 );
-const _safe_scope = (m, k /* 0 - return fn(), 1 - return f() */) => (
-  (fn) => {
-    const f = m();
-    try {
-      const v = fn();
-      if (!k) return v;
-    }
-    finally {
-      const v = f();
-      if (k) return v;
-    }
-  }
+const _safe_scope = (m, k) => (
+  (fn) => _safe_call(fn, m, k)
 );
 
 const batch = _safe_scope(_flat_batch);
