@@ -38,7 +38,7 @@ const key_nomemo = 'nomemo';
 
 
 //
-// Utilities
+// Common
 //
 
 let context_unsubs;
@@ -53,18 +53,30 @@ const _flat_unsubs = () => {
   };
 };
 
-const _safe_scope_fn = (m) => (
+const _safe_scope_fn = (m, k /* 0 - return fn(), 1 - return f() */) => (
   (fn) => function () {
     const f = m();
-    try { return fn.apply(this, arguments); }
-    finally { f() }
+    try {
+      const v = fn.apply(this, arguments);
+      if (!k) return v;
+    }
+    finally {
+      const v = f();
+      if (k) return v;
+    }
   }
 );
-const _safe_scope = (m) => (
+const _safe_scope = (m, k /* 0 - return fn(), 1 - return f() */) => (
   (fn) => {
     const f = m();
-    try { return fn() }
-    finally { f() }
+    try {
+      const v = fn();
+      if (!k) return v;
+    }
+    finally {
+      const v = f();
+      if (k) return v;
+    }
   }
 );
 
@@ -76,8 +88,8 @@ const untrack = _safe_scope(_flat_untrack);
 const untrack_fn = untrack[key_fn] = _safe_scope_fn(_flat_untrack);
 untrack[key_unsafe] = _flat_untrack;
 
-const unsubs = _safe_scope(_flat_unsubs);
-unsubs[key_fn] = _safe_scope_fn(_flat_unsubs);
+const unsubs = _safe_scope(_flat_unsubs, 1);
+unsubs[key_fn] = _safe_scope_fn(_flat_unsubs, 1);
 unsubs[key_unsafe] = _flat_unsubs;
 
 
