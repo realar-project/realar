@@ -312,18 +312,27 @@ const useRe = (target, deps) => {
 
 const useLogic = (target, deps) => {
   deps || (deps = []);
+  const force_update = context_is_observe || useForceUpdate();
   const h = React.useMemo(() => {
     const p = re(deps);
     const i = _inst(target, [p]);
-    return [i[0], () => i[1], p];
+
+    let ret_re_uns;
+    const is_ret_re = i && i[key_remini];
+    if (is_ret_re && !context_is_observe) {
+      ret_re_uns = on(i, force_update);
+    }
+
+    const ret = () => is_ret_re ? read(i[0]) : i[0];
+    const uns = () => (i[1](), ret_re_uns && ret_re_uns());
+
+    return [ret, () => uns, p];
   }, []);
 
   React.useMemo(() => write(h[2], deps), deps);
-
   React.useEffect(h[1], [h]);
 
-  // TODO: if "i" is reactive container it should be subscribed
-  return h[0];
+  return h[0]();
 };
 
 const useJsx = (fn, deps) => React.useMemo(() => observe[key_nomemo](fn), deps || []);
