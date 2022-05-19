@@ -351,14 +351,49 @@ const useWrite = write;
 
 /*
 
-Add the query syntax:
+[] Add the query syntax:
 
 const $a = re(0)
 re($a, select((a) => a.user), select((u) => u.nickname))
 
 That expression should return readonly selected store, and
 
-const $e = event();
-event($e, filter((v) => v), map(v => v * 2));
+const e = event();
+event(e, filter((v) => v), map(v => v * 2));
+
+The readonly event of reactive variable changing
+
+event($a);
+
+
+[] Add "configure" function
+
+It should be called immediately when a shared was instantiated
+
+configure(User, (instance) => {
+  on(
+    () => read(shared(GlobalState).address),
+    (address) => update(instance.user, (usr) => ({ ...usr, address }))
+  );
+  write(instance.storage, "localStorage");
+});
+
+Call of "shared(User)" should be available inside configure body
+
+configure.once(User, () => {});
+
+Call of "configure.once" should be throw when in called twice.
+
+
+[] Add remaining functionality
+
+re.shallow()
+wrap.shallow()
+select.shallow()
+on.shallow()
+onсe.shallow()
+sync.shallow()
+useRe.shallow()
+useWrite.shallow()
 
 */
