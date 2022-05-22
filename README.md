@@ -80,30 +80,23 @@ Excellent! Now you can easily derive dark mode state to any React component usin
 
 And finally, we should make some code updates, because we almost forget to save user choice to browser local storage, to keep persistent between browser sessions.
 
-For accessing storage we will use the "localStorage" browser API. We will call "getItem" to retrieve saved the state, and call "setItem" to save it.
+For accessing storage we will use the "localStorage" browser API. We will call "getItem" to retrieve the saved state, and call "setItem" to save it.
 
 ```javascript
-  // dark-mode.shared.js
-  import { re, update, on } from "remini"
+  // try to get choice from previous browser session when reactive variable create
+  export const $darkMode = re(
+    localStorage.getItem("darkMode") === "on"
+  )
+```
 
-  // try to get choice from previous browser session
-  const stored = localStorage.getItem("darkMode")
-
-  // create a new reactive variable with a default value based on previous user choice
-  export const $darkMode = re(stored === "on")
-
-  // create a function who provide switch dark mode
-  export const toggleDarkMode = () => {
-    update($darkMode, (enabled) => !enabled)
-  }
-
+```javascript
   // update user choice in browser local storage each time then it changed
   on($darkMode, (enabled) => {
     localStorage.setItem("darkMode", enabled ? "on" : "off")
   })
 ```
 
-The last operation in this example call of "on" function. It means that we subscribe to changes of dark mode reactive variable, and react on them each time changes for saving state to browser persistence storage.
+The last operation in this example call of "on" function. It means that we subscribe to changes in dark mode reactive variable, and react on them each time changes for saving state to browser persistence storage.
 
 Brilliant! Now you can use it everywhere you want, it's worked well and should provide benefits for your users!
 
