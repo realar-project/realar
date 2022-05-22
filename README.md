@@ -1,4 +1,4 @@
-# Global state management with React
+## Global state management with React
 
 <!-- Perfect code splitting, pretty and minimalistic syntax, well structured and maintainable codebase. -->
 
