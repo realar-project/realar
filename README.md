@@ -14,8 +14,8 @@ But as you write the business logic of your application, the code gets larger an
 
 You should clear understand where is a place to your logic, how you can write as many code as you want without reduce your application maintance.
 
-- How to make a simple React application who can easily upscale to large application by business demand.
-- How to organize your code clean with minimal React components and convinient separated logic.
+- How to make a simple React application who can easily upscale to large application by business demand
+- How to organize your code clean with minimal React components and convinient separated logic
 - How to speed up your application and reduce boilerplate
 
 # Remini
