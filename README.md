@@ -104,6 +104,11 @@ It's looking good and provides you with convenient opportunities for controlling
 
 <!--
 
+## Modularity
+- No need to wrap Application to Context Provider for each module
+- import and using, easy code for embbedding
+- created just when it used, by demand, that increase in performance
+
 ## Work together with Redux
 
 ## The authorized user state
