@@ -8,12 +8,12 @@ import { re, read, write, update, wrap, on } from "remini"
 const $value = re(0)
 const $next = wrap(() => read($value) + 1)
 
-on($value, value => console.log('The current value:', value))
+on($value, n => console.log('The current value:', n))
 
-update($value, value => value + 1)  // The current value: 1
-write($value, 2)                    // The current value: 2
+update($value, n => n + 1)  // The current value: 1
+write($value, 2)            // The current value: 2
 
-console.log(read($next))            // 3
+console.log(read($next))    // 3
 ```
 
 **Modularity**
@@ -37,7 +37,7 @@ export const sharedCounter = () => shared(Counter)
 ```
 
 ```javascript
-import { observe } from "remini"
+import { observe, read } from "remini"
 import { sharedCounter } from "./counter.shared"
 
 const Counter = observe(() => {
