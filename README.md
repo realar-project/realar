@@ -1,5 +1,8 @@
 # Remini
 
+Perfect frontend with modular architecture.
+
+<!--
 **Pure reactivity**
 
 ```javascript
@@ -15,12 +18,12 @@ write($value, 2)            // The current value: 2
 
 console.log(read($next))    // 3
 ```
+-->
 
-**Modularity**
+<!-- **Modularity** -->
 
 ```javascript
 // counter.shared.js
-
 import { re, wrap, read, write, shared } from "remini"
 
 const Counter = () => {
@@ -85,7 +88,7 @@ You should clear understand where is a place to your logic, how you can write as
 - How to organize your code clean with minimal React components and convinient separated logic
 - How to speed up your application and reduce boilerplate
 
-# Remini
+## Remini
 
 Tiny frontend with service-oriented architecture.
 
