@@ -58,7 +58,7 @@ const Reset = () => {
   return <button onClick={reset}>↻</button>
 }
 
-export const App => () => {
+export const App = () => {
   return <>
     <Counter />
     <Counter />
