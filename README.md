@@ -1,6 +1,73 @@
+# Remini
+
+**Pure reactivity**
+
+```javascript
+import { re, read, write, update, wrap, on } from "remini"
+
+const $value = re(0)
+const $next = wrap(() => read($value) + 1)
+
+on($value, value => console.log('The current value:', value))
+
+update($value, value => value + 1)  // The current value: 1
+write($value, 2)                    // The current value: 2
+
+console.log(read($next))            // 3
+```
+
+**Modularity**
+
+```javascript
+// counter.shared.js
+
+import { re, wrap, read, write, shared } from "remini"
+
+const Counter = () => {
+  const $value = re(0)
+  const $next = wrap(() => read($value) + 1)
+
+  const inc = () => update($value, n => n + 1)
+  const reset = () => write($value, 0)
+
+  return { $value, $next, inc, reset }
+}
+
+export const sharedCounter = () => shared(Counter)
+```
+
+```javascript
+import { observe } from "remini"
+import { sharedCounter } from "./counter.shared"
+
+const Counter = observe(() => {
+  const { $value, $next, inc } = sharedCounter()
+
+  return <p>
+    {read($value)}
+    -> <button onClick={inc}>+</button> ->
+    {read($next)}
+  </p>
+})
+
+const Reset = () => {
+  const { reset } = sharedCounter()
+  return <button onClick={reset}>↻</button>
+}
+
+export const App => () => {
+  return <>
+    <Counter />
+    <Counter />
+    <Reset />
+  </>
+}
+```
+
+
 ## Global state management with React
 
-<!-- Perfect code splitting, pretty and minimalistic syntax, well structured and maintainable codebase. -->
+<!-- Perfect code-splitting, pretty and minimalistic syntax, well structured and maintainable codebase. -->
 
 Your coding time saver!
 
